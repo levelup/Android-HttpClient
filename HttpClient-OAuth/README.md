@@ -28,9 +28,9 @@ RequestSigner signer = new RequestSigner(appSignature, userSignature);
 HttpParamsGet httpParams = new HttpParamsGet(1);
 httpParams.add("msg", "signed message");
 
-HttpRequestSignedGet get = new HttpRequestSignedGet(signer, "http://my.com/hello", httpParams);
+HttpRequest get = new HttpRequestSignedGet(signer, "http://my.com/hello", httpParams);
 
-String response = HttpClient.getQueryResponse(get);
+HttpClient.getQueryResponse(get);
 ```
 
 License
