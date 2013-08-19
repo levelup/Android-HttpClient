@@ -3,8 +3,9 @@ Android-HttpClient
 
 An Android library to make HTTP calls with parameters easier.
 
-There is a module to support OAuth signatures using oauth-signpost.
-There is a module that supports OkHttp for SPDY and other enhancements.
+There is a module to support OAuth signatures using [oauth-signpost][1].
+
+There is a module that supports [OkHttp][2] for SPDY and other enhancements.
 
 Features
 --------
@@ -48,3 +49,5 @@ License
     See the License for the specific language governing permissions and
     limitations under the License.
 
+[1]: https://code.google.com/p/oauth-signpost/
+[2]: https://github.com/square/okhttp
