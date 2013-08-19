@@ -11,15 +11,16 @@ Features
 --------
 
 * Multipart POST of File and InputStream
-* URL-encoded form data
 * URL-encoded JSON data
+* URL-encoded String data
 * easy addition of parameters to GET queries
-* get the result of a query directly in a String
-* single Exception type returned from the `HttpClient`
-* set the user language for all HTTP queries
+* lightweight on memory
+* get the result of a query directly as a String
+* single Exception type thrown from the `HttpClient`
 * support for timeouts per queries
 * custom logging per HTTP query
 * support for high-level cookie handling
+* set the user language for all HTTP queries
 
 Sample Code
 -----------
