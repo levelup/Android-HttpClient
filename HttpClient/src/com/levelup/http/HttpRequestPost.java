@@ -43,7 +43,6 @@ public class HttpRequestPost extends HttpRequest {
 		}
 	}
 
-	@Override
 	public void outputBody(OutputStream output) throws IOException {
 		if (null != httpParams)
 			httpParams.writeBodyTo(output);

@@ -17,6 +17,7 @@ import android.text.TextUtils;
 
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
+import com.levelup.http.HttpRequestPost;
 
 /**
  * Helper class to OAuth sign a {@link HttpRequest} using <a href="https://code.google.com/p/oauth-signpost/">oauth-signpost</a>
@@ -75,7 +76,7 @@ public class RequestSigner {
 			if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
 				String contentLength = connection.getRequestProperty(HTTP.CONTENT_LEN);
 				ByteArrayOutputStream output = new ByteArrayOutputStream(TextUtils.isEmpty(contentLength) ? 32 : Integer.parseInt(contentLength));
-				req.outputBody(output);
+				((HttpRequestPost) req).outputBody(output);
 				return new ByteArrayInputStream(output.toByteArray());
 			}
 			return super.getMessagePayload();

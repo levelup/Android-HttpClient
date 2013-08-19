@@ -1,7 +1,6 @@
 package com.levelup.http;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -99,8 +98,6 @@ public abstract class HttpRequest {
 	 * @throws IOException
 	 */
 	public void outputBody(HttpURLConnection connection) throws IOException {}
-
-	public void outputBody(OutputStream output) throws IOException {}
 
 	/**
 	 * Use data from the response for this request, even if the response is an error
