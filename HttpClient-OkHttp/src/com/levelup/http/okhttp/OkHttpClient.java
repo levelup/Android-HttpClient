@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.HashSet;
 
 import javax.net.ssl.SSLContext;
 
@@ -22,7 +23,9 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 
 	private static final com.squareup.okhttp.OkHttpClient okClient;
 	public static final OkHttpClient instance;
-	
+
+	private final HashSet<String> domainBlackList = new HashSet<String>(); 
+
 	static {
 		instance = new OkHttpClient();
 		if (__WITH_OKHTTP) {
@@ -47,11 +50,41 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 	}
 
 	private OkHttpClient() {}
-	
+
+
+	/**
+	 * Add a domain that should not use OkHttp
+	 * <p>subdomains and wildcards not supported</p> 
+	 */
+	public static void addUrlBlacklist(String domain) {
+		synchronized (instance.domainBlackList) {
+			instance.domainBlackList.add(domain);
+		}
+	}
+
+	/**
+	 * Allow a domain to use OkHttp again
+	 * <p>subdomains and wildcards not supported</p> 
+	 */
+	public static void removeUrlBlacklist(String domain) {
+		synchronized (instance.domainBlackList) {
+			instance.domainBlackList.remove(domain);
+		}
+	}
+
 	@Override
 	public HttpURLConnection createConnection(URL url) throws IOException {
 		if (null == okClient)
 			return (HttpURLConnection) url.openConnection();
-		return okClient.open(url);
+
+		synchronized (domainBlackList) {
+			String urlString = url.toExternalForm();
+			for (String domain : domainBlackList) {
+				if (urlString.contains(domain)) {
+					return (HttpURLConnection) url.openConnection();
+				}
+			}
+			return okClient.open(url);
+		}
 	}
 }
