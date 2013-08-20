@@ -158,7 +158,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 
 	@Override
 	public void add(String name, boolean b) {
-		add(name, Boolean.valueOf(b));
+		add(name, String.valueOf(b));
 	}
 
 	@Override
