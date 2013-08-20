@@ -89,9 +89,12 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						for (int length = 0; (length = input.read(buffer)) > 0;) {
 							output.write(buffer, 0, length);
 						}
-						output.flush(); // Important! Output cannot be closed. Close of writer will close output as well.
 					} finally {
-						if (input != null) try { input.close(); } catch (IOException logOrIgnore) {}
+						if (input != null)
+							try {
+								input.close(); 
+							} catch (IOException ignored) {
+							}
 					}
 					writer.append(CRLF).flush(); // CRLF is important! It indicates end of binary boundary.
 				} else if (param.value instanceof InputStream) {
@@ -108,9 +111,12 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						for (int length = 0; (length = input.read(buffer)) > 0;) {
 							output.write(buffer, 0, length);
 						}
-						output.flush(); // Important! Output cannot be closed. Close of writer will close output as well.
 					} finally {
-						if (input != null) try { input.close(); } catch (IOException logOrIgnore) {}
+						if (input != null)
+							try {
+								input.close();
+							} catch (IOException ignored) {
+							}
 					}
 					writer.append(CRLF).flush(); // CRLF is important! It indicates end of binary boundary.
 				}

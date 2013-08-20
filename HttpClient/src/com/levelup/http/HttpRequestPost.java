@@ -38,8 +38,9 @@ public class HttpRequestPost extends HttpRequest {
 			output = connection.getOutputStream();
 			outputBody(output);
 		} finally {
-			if (null != output)
-				output.flush();
+			if (null != output) {
+				output.close();
+			}
 		}
 	}
 
