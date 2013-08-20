@@ -3,7 +3,7 @@ package com.levelup.http;
 import android.net.Uri;
 
 
-public class HttpRequestGet extends HttpRequest {
+public class HttpRequestGet extends AbstractHttpRequest {
 
 	public HttpRequestGet(String baseUrl, HttpGetParameters httpParams) {
 		super(addUriParams(baseUrl, httpParams));

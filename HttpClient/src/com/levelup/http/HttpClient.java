@@ -101,7 +101,7 @@ public class HttpClient {
 			request.setRequestProperties(connection);
 
 			if (null != request.getLogger()) {
-				request.getLogger().d(connection.getRequestMethod() + " " + request.getUri().toString());
+				request.getLogger().d(connection.getRequestMethod() + ' ' + request.getUri());
 				for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
 					request.getLogger().d(header.getKey()+": "+header.getValue());
 				}

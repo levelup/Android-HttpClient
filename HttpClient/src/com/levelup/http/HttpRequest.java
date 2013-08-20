@@ -4,140 +4,73 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONObject;
 
 import android.net.Uri;
-import android.text.TextUtils;
+
 
 /**
- * Basic HTTP request to be passed to {@link HttpClient}
- * @see {@link HttpRequestGet} 
- * @see {@link HttpRequestPost} 
+ * Interface for HTTP requests to be passed to {@link HttpClient}
+ * @see {@link AbstractHttpRequest} 
  */
-public abstract class HttpRequest {
-	private final Uri url;
-	private final Map<String,String> mRequestHeaders = new HashMap<String, String>();
-	private LoggerTagged mLogger;
-	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
+public interface HttpRequest {
 
 	/**
-	 * Constructor with a string HTTP URL
+	 * Create a new {@link HttpException.Builder exception Builder} for this request
 	 */
-	protected HttpRequest(String url) {
-		this.url = Uri.parse(url);
-	}
+	HttpException.Builder newException();
 
 	/**
-	 * Constructor with a {@link Uri} constructor
+	 * Get the target URL in {@link android.net.Uri Uri} format
 	 */
-	protected HttpRequest(Uri uri) {
-		this.url = uri;
-	}
-
+	Uri getUri();
+	
 	/**
-	 * Set the {@link LoggerTagged} that will be used to send logs for this request. {@code null} is OK
+	 * Get the target URL in {@link java.net.URL URL} format
+	 * @throws MalformedURLException
 	 */
-	public void setLogger(LoggerTagged logger) {
-		mLogger = logger;
-	}
+	URL getURL() throws MalformedURLException;
 
 	/**
-	 * The {@link LoggerTagged} that is used to send logs for this request. May be {@code null}
+	 * Add an extra HTTP header to this request
+	 * @param name Name of the header
+	 * @param value Value of the header
 	 */
-	public LoggerTagged getLogger() {
-		return mLogger;
-	}
+	void addHeader(String name, String value);
 
 	/**
-	 * Set a {@link HttpConfig}, by default {@link BasicHttpConfig} is used
+	 * The implementation should set extra request headers, also useful to sign the query
+	 * @param connection
+	 * @throws ProtocolException
 	 */
-	public void setHttpConfig(HttpConfig config) {
-		mHttpConfig = config;
-	}
+	void setRequestProperties(HttpURLConnection connection) throws ProtocolException;
 
 	/**
-	 * Get the {@link HttpConfig} used for this request
-	 */
-	public HttpConfig getHttpConfig() {
-		return mHttpConfig;
-	}
-
-	public void setRequestProperties(HttpURLConnection connection) throws ProtocolException {
-		for (Entry<String, String> entry : mRequestHeaders.entrySet())
-			connection.addRequestProperty(entry.getKey(), entry.getValue());
-
-		if (!TextUtils.isEmpty(HttpClient.userLanguage))
-			connection.setRequestProperty("Accept-Language", HttpClient.userLanguage);
-	}
-
-	public void addHeader(String key, String value) {
-		mRequestHeaders.put(key, value);
-	}
-
-	public URL getURL() throws MalformedURLException {
-		return new URL(url.toString());
-	}
-
-	public URI getURI() {
-		return URI.create(url.toString());
-	}
-
-	public Uri getUri() {
-		return url;
-	}
-
-	/**
-	 * Write the HTTP request body
+	 * Output the HTTP body on the connection
+	 * <p>Opening and closing the OutputStream should be done there</p>
 	 * @param connection
 	 * @throws IOException
 	 */
-	public void outputBody(HttpURLConnection connection) throws IOException {}
+	void outputBody(HttpURLConnection connection) throws IOException;
 
 	/**
-	 * Use data from the response for this request, even if the response is an error
-	 * @param resp
+	 * Called when the request has been performed on the server, even if the response is an error
+	 * @param resp Contains the received headers/data from the server
 	 */
-	public void useResponse(HttpURLConnection resp) {
-		CookieManager cookieMaster = HttpClient.getCookieManager();
-		if (cookieMaster!=null) {
-			cookieMaster.setCookieResponse(this, resp);
-		}
-	}
+	void useResponse(HttpURLConnection resp);
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(64);
-		String simpleName = getClass().getSimpleName();
-		if (simpleName == null || simpleName.length() <= 0) {
-			simpleName = getClass().getName();
-			int end = simpleName.lastIndexOf('.');
-			if (end > 0) {
-				simpleName = simpleName.substring(end+1);
-			}
-		}
-		sb.append(simpleName);
-		sb.append('{');
-		sb.append(Integer.toHexString(System.identityHashCode(this)));
-		sb.append(' ');
-		sb.append(url.toString());
-		sb.append('}');
-		return sb.toString();
-	}
+	/**
+	 * Returns the {@link LoggerTagged} for this request or {@code null} 
+	 */
+	LoggerTagged getLogger();
 
-	public HttpException.Builder newException() {
-		HttpException.Builder builder = new HttpException.Builder();
-		builder.setHTTPRequest(this);
-		return builder;
-	}
+	/**
+	 * Returns the {@link HttpConfig} for this request or {@code null} 
+	 */
+	HttpConfig getHttpConfig();
 
-	public HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
-		// do nothing, we don't handle JSON errors
-		return builder;
-	}
+	/**
+	 * Set the {@link HttpConfig} for this request or {@code null} 
+	 */
+	void setHttpConfig(HttpConfig config);
 }

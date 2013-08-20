@@ -7,7 +7,7 @@ import java.net.ProtocolException;
 
 import android.net.Uri;
 
-public class HttpRequestPost extends HttpRequest {
+public class HttpRequestPost extends AbstractHttpRequest {
 	private final HttpPostParameters httpParams;
 
 	public HttpRequestPost(String url, HttpPostParameters httpParams) {
@@ -32,7 +32,10 @@ public class HttpRequestPost extends HttpRequest {
 		super.setRequestProperties(connection);
 	}
 
-	public void outputBody(HttpURLConnection connection) throws IOException {
+	/**
+	 * This is {@code final} as {@link #outputBody(OutputStream)} should be the one extended
+	 */
+	public final void outputBody(HttpURLConnection connection) throws IOException {
 		OutputStream output = null;
 		try {
 			output = connection.getOutputStream();
