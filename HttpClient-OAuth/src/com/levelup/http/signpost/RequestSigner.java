@@ -29,6 +29,8 @@ public class RequestSigner {
 	private OAuthConsumer mOAuthConsumer;
 
 	public RequestSigner(OAuthClientApp clientApp, OAuthUser user) {
+		if (null == clientApp) throw new NullPointerException("We need an OAuthClientApp to authenticate");
+		if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");
 		this.clientApp = clientApp;
 		this.user = user;
 	}
