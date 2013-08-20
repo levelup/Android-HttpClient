@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 
 import javax.net.ssl.SSLContext;
 
@@ -29,7 +30,7 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 			SSLContext sslContext;
 			try {
 				sslContext = SSLContext.getInstance("TLS");
-				sslContext.init(null, null, null);
+				sslContext.init(null, null, new SecureRandom());
 			} catch (GeneralSecurityException e) {
 				throw new AssertionError(); // The system has no TLS. Just give up.
 			}
@@ -40,11 +41,11 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 			okClient = null;
 		}
 	}
-	
+
 	public static boolean usesOkHttp() {
 		return null != okClient;
 	}
-	
+
 	private OkHttpClient() {}
 	
 	@Override
