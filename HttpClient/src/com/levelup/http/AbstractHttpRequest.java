@@ -121,9 +121,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
 	@Override
 	public HttpException.Builder newException() {
-		HttpException.Builder builder = new HttpException.Builder();
-		builder.setHTTPRequest(this);
-		return builder;
+		return new HttpException.Builder(this);
 	}
 
 	/**

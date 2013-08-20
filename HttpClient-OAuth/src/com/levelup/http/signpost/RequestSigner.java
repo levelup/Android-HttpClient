@@ -32,6 +32,10 @@ public class RequestSigner {
 		this.clientApp = clientApp;
 		this.user = user;
 	}
+	
+	public OAuthUser getOAuthUser() {
+		return user;
+	}
 
 	public synchronized void sign(HttpRequest req, HttpURLConnection conn, HttpParameters oauthParams) {
 		if (mOAuthConsumer==null) {

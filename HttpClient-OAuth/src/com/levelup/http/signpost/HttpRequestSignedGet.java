@@ -5,10 +5,11 @@ import java.net.ProtocolException;
 
 import android.net.Uri;
 
+import com.levelup.http.HttpException;
 import com.levelup.http.HttpGetParameters;
 import com.levelup.http.HttpRequestGet;
 
-public class HttpRequestSignedGet extends HttpRequestGet {
+public class HttpRequestSignedGet extends HttpRequestGet implements HttpRequestSigned {
 
 	private final RequestSigner signer;
 
@@ -32,5 +33,17 @@ public class HttpRequestSignedGet extends HttpRequestGet {
 		super.setRequestProperties(connection);
 
 		signer.sign(this, connection, null);
+	}
+
+	@Override
+	public HttpException.Builder newException() {
+		return new HttpExceptionSigned.Builder(this);
+	}
+
+	@Override
+	public OAuthUser getOAuthUser() {
+		if (null == signer)
+			return null;
+		return signer.getOAuthUser();
 	}
 }

@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.net.Uri;
 import android.text.TextUtils;
 
 /**
@@ -19,7 +20,7 @@ import android.text.TextUtils;
  */
 public class HttpException extends RuntimeException {
 
-	// misc other errors
+	// misc other errors returned by getErrorCode()
 	static public final int ERROR_HTTP             = 4000;
 	static public final int ERROR_TIMEOUT          = 4001;
 	static public final int ERROR_NETWORK          = 4002;
@@ -43,37 +44,38 @@ public class HttpException extends RuntimeException {
 
 	private final int mErrorCode;
 	private final int mHttpStatusCode;
-	//private final HttpURLConnection httpResponse;
-	private final String query;
+	private final HttpRequest httpRequest;
 
-	protected HttpException(int errorCode, HttpURLConnection httpResponse, String message, final StringBuilder query, Throwable tr) {
-		super(message, tr);
-		this.mErrorCode = errorCode;
-		//this.httpResponse = httpResponse;
-		int httpStatusCode = 200;
-		if (null!=httpResponse)
-			try {
-				httpStatusCode = httpResponse.getResponseCode();
-			} catch (IOException e) {
-			}
-		this.mHttpStatusCode = httpStatusCode;
-		if (query!=null)
-			this.query = query.toString();
-		else
-			this.query = null;
-		if ((message==null || "null".equals(message)) && BuildConfig.DEBUG) throw new NullPointerException("We need an error message for "+mErrorCode+"/"+mHttpStatusCode+" query:"+query);
+	protected HttpException(Builder builder) {
+		super(builder.errorMessage, builder.exception);
+		this.mErrorCode = builder.errorCode;
+		this.mHttpStatusCode = builder.statusCode;
+		this.httpRequest = builder.httpRequest;
+		if ((getMessage()==null || "null".equals(getMessage())) && BuildConfig.DEBUG) throw new NullPointerException("We need an error message for "+mErrorCode+"/"+mHttpStatusCode+" query:"+httpRequest);
 	}
 
+	/**
+	 * Get the internal type of error
+	 */
 	public int getErrorCode() {
 		return mErrorCode;
 	}
 
+	/**
+	 * Get the HTTP status code for this Request exception
+	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
+	 */
 	public int getHttpStatusCode() {
 		return mHttpStatusCode;
 	}
-
-	public String getQuery() {
-		return query;
+	
+	/**
+	 * Get the {@link android.net.Uri Uri} corresponding to the query, may be {@code null}
+	 */
+	public Uri getUri() {
+		if (null==httpRequest)
+			return null;
+		return httpRequest.getUri();
 	}
 
 	@Override
@@ -90,9 +92,9 @@ public class HttpException extends RuntimeException {
 		}
 		sb.append(':');*/
 		sb.append(getLocalizedMessage());
-		if (!TextUtils.isEmpty(query)) {
+		if (null!=httpRequest) {
 			sb.append(" on ");
-			sb.append(query);
+			sb.append(httpRequest.getUri());
 		}
 		return sb.toString();
 	}
@@ -127,23 +129,25 @@ public class HttpException extends RuntimeException {
 		return msg.toString();
 	}
 
-	public boolean isUploadFailure() {
-		return getErrorCode()==ERROR_NETWORK &&
-				(getMessage().contains("ECONN") || getMessage().contains("server failed to respond"));
-	}
-
 	public static class Builder {
 		protected int errorCode = ERROR_HTTP;
 		protected String errorMessage;
 		protected Throwable exception;
+		protected int statusCode;
 		protected HttpRequest httpRequest;
-		protected HttpURLConnection httpResponse;
+		
+		public Builder(HttpRequest httpRequest) {
+			this.httpRequest = httpRequest;
+		}
 
-		/**
-		 * see https://dev.twitter.com/docs/error-codes-responses
-		 * @param code
-		 * @return
-		 */
+		public Builder(HttpException e) {
+			this.errorCode = e.getErrorCode();
+			this.errorMessage = e.getMessage();
+			this.exception = e.getCause();
+			this.statusCode = e.mHttpStatusCode;
+			this.httpRequest = e.httpRequest;
+		}
+
 		public Builder setErrorCode(int code) {
 			this.errorCode = code;
 			return this;
@@ -159,38 +163,18 @@ public class HttpException extends RuntimeException {
 			return this;
 		}
 
-		public Builder setHTTPRequest(HttpRequest request) {
-			this.httpRequest = request;
-			return this;
-		}
-
 		public Builder setHTTPResponse(HttpURLConnection resp) {
-			this.httpResponse = resp;
+			if (null!=resp)
+				try {
+					this.statusCode = resp.getResponseCode();
+				} catch (IOException ignored) {
+					this.statusCode = 200;
+				}
 			return this;
 		}
 
 		public HttpException build() {
-			final StringBuilder fullMessage;
-			if (httpRequest==null)
-				fullMessage = new StringBuilder(0);
-			else {
-				fullMessage = new StringBuilder(httpRequest.toString());
-				/* TODO if (httpRequest instanceof HttpPost) {
-					HttpPost post = (HttpPost) httpRequest;
-					HttpEntity entity = post.getEntity();
-					if (entity instanceof UrlEncodedFormEntity) {
-						UrlEncodedFormEntity ue = (UrlEncodedFormEntity) entity;
-						if (ue.getContentLength() < 2000) {
-							try {
-								BufferedReader reader = new BufferedReader(new InputStreamReader(ue.getContent()));
-								fullMessage.append(" params:").append(reader.readLine());
-							} catch (IOException e) {
-							}
-						}
-					}
-				}*/
-			}
-			HttpException result = new HttpException(errorCode, httpResponse, errorMessage, fullMessage, exception);
+			HttpException result = new HttpException(this);
 			return result;
 		}
 	}
@@ -216,9 +200,9 @@ public class HttpException extends RuntimeException {
 				}
 			}
 
-			if (resp.getContentType()!=null && resp.getContentType().startsWith("application/json")) {
+			if (request instanceof AbstractHttpRequest && resp.getContentType()!=null && resp.getContentType().startsWith("application/json")) {
 				JSONObject jsonData = new JSONObject(new JSONTokener(sb.toString()));
-				builder = request.handleJSONError(builder, jsonData);
+				builder = ((AbstractHttpRequest) request).handleJSONError(builder, jsonData);
 			}
 
 			builder.setErrorMessage(sb.toString());
