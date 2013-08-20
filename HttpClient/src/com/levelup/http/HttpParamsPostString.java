@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 
 import org.apache.http.protocol.HTTP;
@@ -15,7 +14,7 @@ public class HttpParamsPostString implements HttpPostParameters {
 
 	private final String value;
 	private final String contentType;
-	
+
 	public HttpParamsPostString(String value, String contentType) {
 		this.value = value;
 		this.contentType = contentType;
@@ -69,14 +68,6 @@ public class HttpParamsPostString implements HttpPostParameters {
 
 	@Override
 	public void writeBodyTo(OutputStream output) throws IOException {
-		PrintWriter writer = null;
-		try {
-			output.write(value.getBytes());
-		} finally {
-			if (null != writer) {
-				writer.close();
-				writer = null;
-			}
-		}
+		output.write(value.getBytes());
 	}
 }
