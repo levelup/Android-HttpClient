@@ -39,6 +39,13 @@ public interface HttpRequest {
 	void addHeader(String name, String value);
 
 	/**
+	 * Set an extra HTTP header to this request, removing all previous values
+	 * @param name Name of the header
+	 * @param value Value of the header
+	 */
+	void setHeader(String name, String value);
+
+	/**
 	 * The implementation should set extra request headers, also useful to sign the query
 	 * @param connection
 	 * @throws ProtocolException

@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -21,7 +22,8 @@ import android.text.TextUtils;
  */
 public abstract class AbstractHttpRequest implements HttpRequest {
 	private final Uri uri;
-	private final Map<String,String> mRequestHeaders = new HashMap<String, String>();
+	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
+	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
 
@@ -66,8 +68,12 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
 	@Override
 	public void setRequestProperties(HttpURLConnection connection) throws ProtocolException {
-		for (Entry<String, String> entry : mRequestHeaders.entrySet())
-			connection.addRequestProperty(entry.getKey(), entry.getValue());
+		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
+			connection.setRequestProperty(entry.getKey(), entry.getValue());
+		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
+			for (String value : entry.getValue())
+				connection.addRequestProperty(entry.getKey(), value);
+		}
 
 		if (!TextUtils.isEmpty(HttpClient.userLanguage))
 			connection.setRequestProperty("Accept-Language", HttpClient.userLanguage);
@@ -75,7 +81,18 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
 	@Override
 	public void addHeader(String key, String value) {
-		mRequestHeaders.put(key, value);
+		HashSet<String> values = mRequestAddHeaders.get(key);
+		if (null==values) {
+			values = new HashSet<String>();
+			mRequestAddHeaders.put(key, values);
+		}
+		values.add(value);
+	}
+
+	@Override
+	public void setHeader(String key, String value) {
+		mRequestAddHeaders.remove(key);
+		mRequestSetHeaders.put(key, value);
 	}
 
 	@Override
