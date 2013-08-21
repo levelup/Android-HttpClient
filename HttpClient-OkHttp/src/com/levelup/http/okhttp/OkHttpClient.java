@@ -24,7 +24,7 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 	private static final com.squareup.okhttp.OkHttpClient okClient;
 	public static final OkHttpClient instance;
 
-	private final HashSet<String> domainBlackList = new HashSet<String>(); 
+	private final HashSet<String> urlSpdyBlackList = new HashSet<String>(); 
 
 	static {
 		instance = new OkHttpClient();
@@ -53,22 +53,21 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 
 
 	/**
-	 * Add a domain that should not use OkHttp
-	 * <p>subdomains and wildcards not supported</p> 
+	 * Add a URL part that should not use SPDY
+	 * <p>You may also use {@code setHeader("X-Android-Transports", "http/1.1")} on your {@link com.levelup.http.HttpRequest#setHeader(String, String) HttpRequest}</p>
 	 */
-	public static void addUrlBlacklist(String domain) {
-		synchronized (instance.domainBlackList) {
-			instance.domainBlackList.add(domain);
+	public static void addUrlBlacklist(String urlPart) {
+		synchronized (instance.urlSpdyBlackList) {
+			instance.urlSpdyBlackList.add(urlPart);
 		}
 	}
 
 	/**
-	 * Allow a domain to use OkHttp again
-	 * <p>subdomains and wildcards not supported</p> 
+	 * Remove a URL part from the SPDY blacklist
 	 */
-	public static void removeUrlBlacklist(String domain) {
-		synchronized (instance.domainBlackList) {
-			instance.domainBlackList.remove(domain);
+	public static void removeUrlBlacklist(String urlPart) {
+		synchronized (instance.urlSpdyBlackList) {
+			instance.urlSpdyBlackList.remove(urlPart);
 		}
 	}
 
@@ -77,14 +76,18 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 		if (null == okClient)
 			return (HttpURLConnection) url.openConnection();
 
-		synchronized (domainBlackList) {
-			String urlString = url.toExternalForm();
-			for (String domain : domainBlackList) {
-				if (urlString.contains(domain)) {
-					return (HttpURLConnection) url.openConnection();
+		HttpURLConnection result = okClient.open(url);
+		synchronized (urlSpdyBlackList) {
+			if (!urlSpdyBlackList.isEmpty()) {
+				String urlString = url.toExternalForm();
+				for (String blacklistURL : urlSpdyBlackList) {
+					if (urlString.contains(blacklistURL)) {
+						result.setRequestProperty("X-Android-Transports", "http/1.1");
+						break;
+					}
 				}
 			}
-			return okClient.open(url);
 		}
+		return result;
 	}
 }
