@@ -33,15 +33,19 @@ public abstract class AbstractTwitterTest extends TestCase {
 		}
 	};
 	
-	/**
-	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/search/tweets">twitter search query</a>
-	 */
-	public void testTwitterSearch() throws Exception {
+	protected HttpRequestSignedGet getSearchRequest() {
 		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
 		HttpParamsGet searchParams = new HttpParamsGet(2);
 		searchParams.add("q", "toto");
 		searchParams.add("count", 5);
-		HttpRequestSignedGet search = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/search/tweets.json", searchParams);
+		return new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/search/tweets.json", searchParams);
+	}
+	
+	/**
+	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/search/tweets">twitter search query</a>
+	 */
+	public void testTwitterSearch() throws Exception {
+		HttpRequestSignedGet search = getSearchRequest();
 		String response = HttpClient.getStringResponse(search);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
