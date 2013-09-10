@@ -5,6 +5,7 @@ import com.levelup.http.okhttp.OkHttpClient;
 
 public class OkHttpTwitterTest extends AbstractTwitterTest {
 	protected void setUp() throws Exception {
+		super.setUp();
 		HttpClient.setConnectionFactory(OkHttpClient.instance);
 	};
 

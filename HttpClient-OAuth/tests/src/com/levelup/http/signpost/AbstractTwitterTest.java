@@ -53,15 +53,29 @@ public abstract class AbstractTwitterTest extends TestCase {
 	}
 
 	/**
-	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/friends/list">twitter search query</a>
+	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/friends/list">twitter friends list query</a>
 	 */
-	public void testFollowersSearch() throws Exception {
+	public void testFriendsList() throws Exception {
 		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
-		HttpParamsGet searchParams = new HttpParamsGet(2);
-		searchParams.add("cursor", -1);
-		searchParams.add("screen_name", "twitterapi");
-		HttpRequestSignedGet search = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/friends/list.json", searchParams);
-		String response = HttpClient.getStringResponse(search);
+		HttpParamsGet httpParams = new HttpParamsGet(2);
+		httpParams.add("cursor", -1);
+		httpParams.add("screen_name", "twitterapi");
+		HttpRequestSignedGet request = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/friends/list.json", httpParams);
+		String response = HttpClient.getStringResponse(request);
+		assertNotNull(response);
+		assertTrue(response.length() > 0);
+		assertEquals('{', response.charAt(0));
+	}
+
+	/**
+	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/users/show">twitter user lookup</a>
+	 */
+	public void testUser() throws Exception {
+		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
+		HttpParamsGet httpParams = new HttpParamsGet(1);
+		httpParams.add("screen_name", "touiteurtest");
+		HttpRequestSignedGet request = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/users/show.json", httpParams);
+		String response = HttpClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
 		assertEquals('{', response.charAt(0));
