@@ -76,18 +76,17 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 		if (null == okClient)
 			return (HttpURLConnection) url.openConnection();
 
-		HttpURLConnection result = okClient.open(url);
 		synchronized (urlSpdyBlackList) {
 			if (!urlSpdyBlackList.isEmpty()) {
 				String urlString = url.toExternalForm();
 				for (String blacklistURL : urlSpdyBlackList) {
 					if (urlString.contains(blacklistURL)) {
-						result.setRequestProperty("X-Android-Transports", "http/1.1");
-						break;
+						//result.setRequestProperty("X-Android-Transports", "http/1.1");
+						return (HttpURLConnection) url.openConnection();
 					}
 				}
 			}
 		}
-		return result;
+		return okClient.open(url);
 	}
 }
