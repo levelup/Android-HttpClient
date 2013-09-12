@@ -13,12 +13,7 @@ import android.net.Uri;
  * Interface for HTTP requests to be passed to {@link HttpClient}
  * @see {@link AbstractHttpRequest} 
  */
-public interface HttpRequest {
-
-	/**
-	 * Create a new {@link HttpException.Builder exception Builder} for this request
-	 */
-	HttpException.Builder newException();
+public interface HttpRequest extends HttpExceptionCreator {
 
 	/**
 	 * Get the target URL in {@link android.net.Uri Uri} format

@@ -179,12 +179,12 @@ public class HttpException extends RuntimeException {
 		}
 	}
 
-	public static Builder fromFileNotFound(HttpRequest request, HttpURLConnection resp, FileNotFoundException e) {
+	public static Builder fromFileNotFound(HttpExceptionCreator creator, HttpURLConnection resp, FileNotFoundException e) {
 		InputStream errorStream = null;
 		Builder builder = null;
 		StringBuilder sb = null;
 		try {
-			builder = request.newException();
+			builder = creator.newException();
 			//builder.setCause(e);
 			builder.setErrorCode(ERROR_HTTP);
 			builder.setHTTPResponse(resp);
@@ -200,9 +200,9 @@ public class HttpException extends RuntimeException {
 				}
 			}
 
-			if (request instanceof AbstractHttpRequest && resp.getContentType()!=null && resp.getContentType().startsWith("application/json")) {
-				JSONObject jsonData = new JSONObject(new JSONTokener(sb.toString()));
-				builder = ((AbstractHttpRequest) request).handleJSONError(builder, jsonData);
+			if (creator instanceof AbstractHttpRequest && resp.getContentType()!=null && resp.getContentType().startsWith("application/json")) {
+				JSONObject jsonData = new JSONObject(sb.toString());
+				builder = ((AbstractHttpRequest) creator).handleJSONError(builder, jsonData);
 			}
 
 			builder.setErrorMessage(sb.toString());
