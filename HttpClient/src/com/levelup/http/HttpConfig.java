@@ -8,8 +8,8 @@ import java.net.HttpURLConnection;
 public interface HttpConfig {
 
 	/**
-	 * Configure the {@link connection} with the proper timeout values
+	 * Get the read timeout for the connection (may be null)
+	 * @return read timeout in milliseconds, -1 for no read timeout
 	 */
-	void configureTimeout(HttpURLConnection connection);
-	
+	int getReadTimeout(HttpURLConnection connection);
 }
