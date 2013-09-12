@@ -87,9 +87,10 @@ public class VolleyHttpRequest extends Request<String> {
 			if (null!=result)
 				return result;
 			HashSet<String> values = mRequestAddHeaders.get(field);
-			for (String value : values) {
-				return value;
-			}
+			if (null!=values)
+				for (String value : values) {
+					return value;
+				}
 			return null;
 		}
 
