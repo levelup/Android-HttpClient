@@ -27,7 +27,7 @@ public class HttpClient {
 	private static HttpUrlConnectionFactory connectionFactory;
 	private static String userAgent;
 	private static CookieManager cookieManager;
-	static String userLanguage;
+	private static Header[] defaultHeaders;
 
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
@@ -55,8 +55,12 @@ public class HttpClient {
 		return cookieManager;
 	}
 
-	public static void setUserLanguage(String userLanguage) {
-		HttpClient.userLanguage = userLanguage;
+	public static void setDefaultHeaders(Header[] headers) {
+		defaultHeaders = headers;
+	}
+
+	public static Header[] getDefaultHeaders() {
+		return defaultHeaders;
 	}
 
 	public static HttpURLConnection openURL(URL url) throws IOException {
@@ -65,7 +69,7 @@ public class HttpClient {
 		else
 			return (HttpURLConnection) url.openConnection();
 	}
-	
+
 	/**
 	 * Process the HTTP request on the network and return the HttpURLConnection
 	 * @param request
@@ -92,7 +96,9 @@ public class HttpClient {
 			 */
 			if (!TextUtils.isEmpty(userAgent))
 				connection.setRequestProperty(HTTP.USER_AGENT, userAgent);
-			connection.setRequestProperty("DNT", "1");
+			for (Header header : defaultHeaders) {
+				request.setHeader(header.getName(), header.getValue());
+			}
 
 			if (null!=cookieManager) {
 				cookieManager.setCookieHeader(request);

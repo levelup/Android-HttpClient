@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +16,6 @@ import java.util.Map.Entry;
 import org.json.JSONObject;
 
 import android.net.Uri;
-import android.text.TextUtils;
 
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
@@ -76,9 +76,6 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			for (String value : entry.getValue())
 				connection.addRequestProperty(entry.getKey(), value);
 		}
-
-		if (!TextUtils.isEmpty(HttpClient.userLanguage))
-			connection.setRequestProperty("Accept-Language", HttpClient.userLanguage);
 	}
 
 	@Override
@@ -100,7 +97,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	private static final Header[] EMPTY_HEADERS = new Header[0];
 	
 	public Header[] getAllHeaders() {
-		List<Header> headers = new ArrayList<Header>();
+		List<Header> headers = new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
 		for (Entry<String, String> setHeader : mRequestSetHeaders.entrySet()) {
 			headers.add(new Header(setHeader.getKey(), setHeader.getValue()));
 		}
