@@ -31,18 +31,21 @@ public class HttpClient {
 
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
+	 * <p>The user agent is deduced from the app name of the Context</p>
 	 */
 	public static void setup(Context context) {
-		PackageManager pM = context.getPackageManager(); 
-		try {
-			PackageInfo pI = pM.getPackageInfo(context.getPackageName(), 0);
-			if (pI != null)
-				userAgent = "Plume/"+pI.versionCode;
-		} catch (NameNotFoundException e) {
-			userAgent = "Plume/00000";
+		userAgent = "LevelUp-HttpClient/00000";
+		if (null!=context) {
+			PackageManager pM = context.getPackageManager();
+			try {
+				PackageInfo pI = pM.getPackageInfo(context.getPackageName(), 0);
+				if (pI != null)
+					userAgent = pI.applicationInfo.nonLocalizedLabel + "/" + pI.versionCode;
+			} catch (NameNotFoundException ignored) {
+			}
 		}
 	}
-	
+
 	public static void setConnectionFactory(HttpUrlConnectionFactory factory) {
 		connectionFactory = factory;
 	}
