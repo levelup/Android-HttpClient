@@ -37,7 +37,7 @@ public interface LoggerTagged {
     int i(String msg);
 	
     /**
-     * Send a {@link android.util.Log#INFO INFO} log message and log the exception.
+     * Send an {@link android.util.Log#INFO INFO} log message and log the exception.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */
@@ -63,7 +63,7 @@ public interface LoggerTagged {
     int e(String msg);
 	
     /**
-     * Send a {@link android.util.Log#ERROR ERROR} log message and log the exception.
+     * Send an {@link android.util.Log#ERROR ERROR} log message and log the exception.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */
@@ -76,7 +76,7 @@ public interface LoggerTagged {
     int wtf(String msg);
 	
     /**
-     * Send a {@link android.util.Log#ASSERT ASSERT} log message and log the exception.
+     * Send an {@link android.util.Log#ASSERT ASSERT} log message and log the exception.
      * @param msg The message you would like logged.
      * @param tr An exception to log
      */

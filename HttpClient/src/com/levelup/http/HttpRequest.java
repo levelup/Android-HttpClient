@@ -75,4 +75,9 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Set the {@link HttpConfig} for this request or {@code null} 
 	 */
 	void setHttpConfig(HttpConfig config);
+	
+	/**
+	 * Get the list of extra headers set for this request
+	 */
+	Header[] getAllHeaders();
 }

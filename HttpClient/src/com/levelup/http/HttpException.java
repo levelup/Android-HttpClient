@@ -7,10 +7,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -41,16 +45,20 @@ public class HttpException extends RuntimeException {
 
 
 	private static final long serialVersionUID = 4993791558983072165L;
+	
+	private static final Header[] EMPTY_HEADERS = new Header[0]; 
 
 	private final int mErrorCode;
 	private final int mHttpStatusCode;
 	private final HttpRequest httpRequest;
+	protected final Header[] headers;
 
 	protected HttpException(Builder builder) {
 		super(builder.errorMessage, builder.exception);
 		this.mErrorCode = builder.errorCode;
 		this.mHttpStatusCode = builder.statusCode;
 		this.httpRequest = builder.httpRequest;
+		this.headers = builder.headers.toArray(EMPTY_HEADERS);
 		if ((getMessage()==null || "null".equals(getMessage())) && BuildConfig.DEBUG) throw new NullPointerException("We need an error message for "+mErrorCode+"/"+mHttpStatusCode+" query:"+httpRequest);
 	}
 
@@ -68,7 +76,7 @@ public class HttpException extends RuntimeException {
 	public int getHttpStatusCode() {
 		return mHttpStatusCode;
 	}
-	
+
 	/**
 	 * Get the {@link android.net.Uri Uri} corresponding to the query, may be {@code null}
 	 */
@@ -76,6 +84,18 @@ public class HttpException extends RuntimeException {
 		if (null==httpRequest)
 			return null;
 		return httpRequest.getUri();
+	}
+
+	/**
+	 * Get the full {@link HttpRequest} that triggered the exception
+	 * @return
+	 */
+	public HttpRequest getHttpRequest() {
+		return httpRequest;
+	}
+	
+	public Header[] getAllHeaders() {
+		return headers;
 	}
 
 	@Override
@@ -135,9 +155,17 @@ public class HttpException extends RuntimeException {
 		protected Throwable exception;
 		protected int statusCode;
 		protected HttpRequest httpRequest;
-		
+		protected final List<Header> headers;
+
 		public Builder(HttpRequest httpRequest) {
 			this.httpRequest = httpRequest;
+			Header[] srcHeaders = httpRequest.getAllHeaders();
+			if (null==srcHeaders)
+				this.headers = new ArrayList<Header>(0);
+			else {
+				this.headers = new ArrayList<Header>(srcHeaders.length);
+				headers.addAll(Arrays.asList(srcHeaders));
+			}
 		}
 
 		public Builder(HttpException e) {
@@ -146,6 +174,7 @@ public class HttpException extends RuntimeException {
 			this.exception = e.getCause();
 			this.statusCode = e.mHttpStatusCode;
 			this.httpRequest = e.httpRequest;
+			this.headers = Arrays.asList(e.headers);
 		}
 
 		public Builder setErrorCode(int code) {
@@ -164,12 +193,20 @@ public class HttpException extends RuntimeException {
 		}
 
 		public Builder setHTTPResponse(HttpURLConnection resp) {
-			if (null!=resp)
+			if (null!=resp) {
+				Map<String, List<String>> reqProperties = resp.getRequestProperties();
+				headers.clear();
+				for (Entry<String, List<String>> props : reqProperties.entrySet()) {
+					for (String prop : props.getValue()) {
+						headers.add(new Header(props.getKey(), prop));
+					}
+				}
 				try {
 					this.statusCode = resp.getResponseCode();
 				} catch (IOException ignored) {
 					this.statusCode = 200;
 				}
+			}
 			return this;
 		}
 

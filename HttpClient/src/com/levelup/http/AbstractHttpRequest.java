@@ -5,8 +5,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -93,6 +95,21 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	public void setHeader(String key, String value) {
 		mRequestAddHeaders.remove(key);
 		mRequestSetHeaders.put(key, value);
+	}
+	
+	private static final Header[] EMPTY_HEADERS = new Header[0];
+	
+	public Header[] getAllHeaders() {
+		List<Header> headers = new ArrayList<Header>();
+		for (Entry<String, String> setHeader : mRequestSetHeaders.entrySet()) {
+			headers.add(new Header(setHeader.getKey(), setHeader.getValue()));
+		}
+		for (Entry<String, HashSet<String>> entries : mRequestAddHeaders.entrySet()) {
+			for (String entry : entries.getValue()) {
+				headers.add(new Header(entries.getKey(), entry));
+			}
+		}
+		return headers.toArray(EMPTY_HEADERS);
 	}
 
 	@Override
