@@ -91,7 +91,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	@Override
 	public void setHeader(String key, String value) {
 		mRequestAddHeaders.remove(key);
-		mRequestSetHeaders.put(key, value);
+		if (null==value)
+			mRequestSetHeaders.remove(key);
+		else
+			mRequestSetHeaders.put(key, value);
 	}
 
 	@Override
