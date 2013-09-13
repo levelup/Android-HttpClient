@@ -124,12 +124,17 @@ public class HttpException extends RuntimeException {
 		final StringBuilder msg = new StringBuilder();
 		if (0 != mErrorCode) {
 			msg.append("#");
-			msg.append(String.valueOf(mErrorCode));
+			msg.append(mErrorCode);
 			msg.append(' ');
 		}
 		if (200 != mHttpStatusCode) {
 			msg.append("http:");
-			msg.append(String.valueOf(mHttpStatusCode));
+			msg.append(mHttpStatusCode);
+			msg.append(' ');
+		}
+		if (null!=httpRequest) {
+			msg.append("req:");
+			msg.append(httpRequest);
 			msg.append(' ');
 		}
 		boolean hasMsg = false;
