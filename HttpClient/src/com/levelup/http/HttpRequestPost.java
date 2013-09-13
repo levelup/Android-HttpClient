@@ -21,15 +21,20 @@ public class HttpRequestPost extends AbstractHttpRequest {
 	}
 
 	@Override
-	public void setRequestProperties(HttpURLConnection connection) throws ProtocolException {
+	public void setConnectionProperties(HttpURLConnection connection) throws ProtocolException {
 		connection.setRequestMethod("POST");
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
 
+		super.setConnectionProperties(connection);
+	}
+	
+	@Override
+	public void settleHttpHeaders() {
 		if (null != httpParams)
-			httpParams.setRequestProperties(connection);
+			httpParams.settleHttpHeaders(this);
 
-		super.setRequestProperties(connection);
+		super.settleHttpHeaders();
 	}
 
 	/**

@@ -69,7 +69,12 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	}
 
 	@Override
-	public void setRequestProperties(HttpURLConnection connection) throws ProtocolException {
+	public void settleHttpHeaders() {
+		// do nothing
+	}
+	
+	@Override
+	public void setConnectionProperties(HttpURLConnection connection) throws ProtocolException {
 		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {

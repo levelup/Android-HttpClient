@@ -181,7 +181,8 @@ public class VolleyHttpRequest extends Request<String> {
 		if (null==dummyConn) {
 			try {
 				dummyConn = new DummyHttpURLConnection(request.getURL());
-				request.setRequestProperties(dummyConn);
+				request.settleHttpHeaders();
+				request.setConnectionProperties(dummyConn);
 				request.outputBody(dummyConn);
 			} catch (MalformedURLException ignored) {
 			} catch (ProtocolException ignored) {

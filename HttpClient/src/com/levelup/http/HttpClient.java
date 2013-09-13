@@ -107,7 +107,8 @@ public class HttpClient {
 				cookieManager.setCookieHeader(request);
 			}
 
-			request.setRequestProperties(connection);
+			request.settleHttpHeaders();
+			request.setConnectionProperties(connection);
 
 			if (null != request.getLogger()) {
 				request.getLogger().d(connection.getRequestMethod() + ' ' + request.getUri());

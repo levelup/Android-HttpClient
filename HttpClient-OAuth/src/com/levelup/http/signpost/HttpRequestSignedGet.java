@@ -1,8 +1,5 @@
 package com.levelup.http.signpost;
 
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-
 import android.net.Uri;
 
 import com.levelup.http.HttpException;
@@ -27,12 +24,11 @@ public class HttpRequestSignedGet extends HttpRequestGet implements HttpRequestS
 		super(url);
 		this.signer = signer;
 	}
-
+	
 	@Override
-	public void setRequestProperties(HttpURLConnection connection) throws ProtocolException {
-		super.setRequestProperties(connection);
-
-		signer.sign(this, connection, null);
+	public void settleHttpHeaders() {
+		super.settleHttpHeaders();
+		signer.sign(this, null);
 	}
 
 	@Override

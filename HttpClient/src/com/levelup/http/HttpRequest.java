@@ -48,11 +48,16 @@ public interface HttpRequest extends HttpExceptionCreator {
 	String getHeader(String name);
 
 	/**
-	 * The implementation should set extra request headers, also useful to sign the query
-	 * @param connection
+	 * Settle the HTTP headers for the lifetime of this request, useful to sign the query
+	 */
+	void settleHttpHeaders();
+
+	/**
+	 * Set the HTTP headers on the {@link HttpURLConnection}
+	 * @param connection Set the HTTP headers and other settings on this {@link HttpURLConnection} before being processed
 	 * @throws ProtocolException
 	 */
-	void setRequestProperties(HttpURLConnection connection) throws ProtocolException;
+	void setConnectionProperties(HttpURLConnection connection) throws ProtocolException;
 
 	/**
 	 * Output the HTTP body on the connection
