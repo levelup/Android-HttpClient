@@ -39,6 +39,13 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * @param value Value of the header
 	 */
 	void setHeader(String name, String value);
+	
+	/**
+	 * Get the single value of a HTTP header for this request
+	 * @param name Name of the header
+	 * @return The value of the header or {@code null} if it is not set
+	 */
+	String getHeader(String name);
 
 	/**
 	 * The implementation should set extra request headers, also useful to sign the query

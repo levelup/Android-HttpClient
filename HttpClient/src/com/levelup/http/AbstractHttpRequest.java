@@ -93,9 +93,19 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 		mRequestAddHeaders.remove(key);
 		mRequestSetHeaders.put(key, value);
 	}
-	
+
+	@Override
+	public String getHeader(String name) {
+		if (mRequestSetHeaders.containsKey(name))
+			return mRequestSetHeaders.get(name);
+		if (mRequestAddHeaders.containsKey(name) && !mRequestAddHeaders.get(name).isEmpty())
+			return mRequestAddHeaders.get(name).toArray(EMPTY_STRINGS)[0];
+		return null;
+	}
+
 	private static final Header[] EMPTY_HEADERS = new Header[0];
-	
+	private static final String[] EMPTY_STRINGS = {};
+
 	public Header[] getAllHeaders() {
 		List<Header> headers = new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
 		for (Entry<String, String> setHeader : mRequestSetHeaders.entrySet()) {
