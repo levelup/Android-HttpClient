@@ -4,10 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 import oauth.signpost.AbstractOAuthConsumer;
-import oauth.signpost.basic.HttpURLConnectionRequestAdapter;
 import oauth.signpost.exception.OAuthException;
 import oauth.signpost.http.HttpParameters;
 
@@ -15,6 +15,7 @@ import org.apache.http.protocol.HTTP;
 
 import android.text.TextUtils;
 
+import com.levelup.http.Header;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestPost;
@@ -39,7 +40,7 @@ public class RequestSigner {
 		return user;
 	}
 
-	public synchronized void sign(HttpRequest req, HttpURLConnection conn, HttpParameters oauthParams) {
+	public synchronized void sign(HttpRequest req, HttpParameters oauthParams) {
 		if (mOAuthConsumer==null) {
 			mOAuthConsumer = new OAuthConsumer(clientApp);
 		}
@@ -47,7 +48,7 @@ public class RequestSigner {
 		mOAuthConsumer.setAdditionalParameters(oauthParams);
 		
 		try {
-			mOAuthConsumer.sign(new RequestConnection(req, conn));
+			mOAuthConsumer.sign(req);
 		} catch (OAuthException e) {
 			HttpException.Builder builder = req.newException();
 			builder.setErrorCode(HttpException.ERROR_AUTH);
@@ -55,39 +56,71 @@ public class RequestSigner {
 			builder.setCause(e);
 			throw builder.build();
 		}
-
 	}
 
-	private static class RequestConnection {
+	private static class OAuthRequestAdapter implements oauth.signpost.http.HttpRequest {
 		private final HttpRequest req;
-		private final HttpURLConnection conn;
 
-		RequestConnection(HttpRequest req, HttpURLConnection conn) {
-			this.req = req;
-			this.conn = conn;
+		OAuthRequestAdapter(HttpRequest request) {
+			this.req = request;
 		}
-	}
-
-	private static class OAuthRequestAdapter extends HttpURLConnectionRequestAdapter {
-		private final HttpRequest req;
-
-		OAuthRequestAdapter(RequestConnection reqConn) {
-			super(reqConn.conn);
-			this.req = reqConn.req;
+		
+		@Override
+		public void setHeader(String name, String value) {
+			req.setHeader(name, value);
+		}
+		
+		@Override
+		public String getHeader(String name) {
+			return req.getHeader(name);
+		}
+		
+		@Override
+		public Map<String, String> getAllHeaders() {
+			Header[] allHeaders = req.getAllHeaders();
+			Map<String, String> result = new HashMap<String, String>(allHeaders.length);
+			for (Header header : allHeaders) {
+				result.put(header.getName(), header.getValue());
+			}
+			return result;
 		}
 
 		@Override
 		public InputStream getMessagePayload() throws IOException {
 			final String contentType = getContentType();  
 			if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
-				String contentLength = connection.getRequestProperty(HTTP.CONTENT_LEN);
+				String contentLength = req.getHeader(HTTP.CONTENT_LEN);
 				ByteArrayOutputStream output = new ByteArrayOutputStream(TextUtils.isEmpty(contentLength) ? 32 : Integer.parseInt(contentLength));
 				((HttpRequestPost) req).outputBody(output);
 				return new ByteArrayInputStream(output.toByteArray());
 			}
-			return super.getMessagePayload();
+			return null;
 		}
 
+		@Override
+		public String getContentType() {
+			return req.getHeader(HTTP.CONTENT_TYPE);
+		}
+
+		@Override
+		public String getMethod() {
+			return (req instanceof HttpRequestPost) ? "POST" : "GET";
+		}
+
+		@Override
+		public String getRequestUrl() {
+			return req.getUri().toString();
+		}
+
+		@Override
+		public void setRequestUrl(String url) {
+	        // can't do
+		}
+
+		@Override
+		public Object unwrap() {
+			return req;
+		}
 	}
 
 	private static class OAuthConsumer extends AbstractOAuthConsumer {
@@ -100,7 +133,7 @@ public class RequestSigner {
 
 		@Override
 		protected oauth.signpost.http.HttpRequest wrap(Object request) {
-			return new OAuthRequestAdapter((RequestConnection) request);
+			return new OAuthRequestAdapter((HttpRequest) request);
 		}
 	}
 }

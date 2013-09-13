@@ -1,9 +1,5 @@
 package com.levelup.http.signpost;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 
@@ -28,27 +24,22 @@ public class RequestSignerEcho extends RequestSigner {
 	}
 
 	@Override
-	public synchronized void sign(HttpRequest req, HttpURLConnection conn, HttpParameters oauthParams) {
-		try {
-			HttpURLConnection dummyConnection = (HttpURLConnection) new URL(verifyUrl).openConnection();
-			HttpParameters realm = new HttpParameters();
-			if (null!=oauthParams) {
-				for (Entry<String, SortedSet<String>> entries : oauthParams.entrySet()) {
-					realm.put(entries.getKey(), entries.getValue());
-				}
+	public synchronized void sign(HttpRequest req, HttpParameters oauthParams) {
+		HttpParameters realm = new HttpParameters();
+		if (null!=oauthParams) {
+			for (Entry<String, SortedSet<String>> entries : oauthParams.entrySet()) {
+				realm.put(entries.getKey(), entries.getValue());
 			}
-			if (!TextUtils.isEmpty(verifyRealm))
-				realm.put("realm", verifyRealm);
-			super.sign(req, dummyConnection, realm);
+		}
+		if (!TextUtils.isEmpty(verifyRealm))
+			realm.put("realm", verifyRealm);
+		super.sign(req, realm);
 
-			String header = dummyConnection.getRequestProperty(OAuth.HTTP_AUTHORIZATION_HEADER);
-			if (header!=null) {
-				conn.setRequestProperty(OAuth.HTTP_AUTHORIZATION_HEADER, null);
-				conn.setRequestProperty("X-Auth-Service-Provider", verifyUrl);
-				conn.setRequestProperty("X-Verify-Credentials-Authorization", header);
-			}
-		} catch (MalformedURLException e) {
-		} catch (IOException e) {
+		String header = req.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);
+		if (header!=null) {
+			req.setHeader(OAuth.HTTP_AUTHORIZATION_HEADER, null);
+			req.setHeader("X-Verify-Credentials-Authorization", header);
+			req.setHeader("X-Auth-Service-Provider", verifyUrl);
 		}
 	}
 }
