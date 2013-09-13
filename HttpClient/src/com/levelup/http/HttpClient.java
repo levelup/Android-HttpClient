@@ -117,7 +117,7 @@ public class HttpClient {
 			}
 
 			if (null != request.getHttpConfig()) {
-				int readTimeout = request.getHttpConfig().getReadTimeout(connection);
+				int readTimeout = request.getHttpConfig().getReadTimeout(request);
 				if (readTimeout>=0)
 					connection.setReadTimeout(readTimeout);
 			}

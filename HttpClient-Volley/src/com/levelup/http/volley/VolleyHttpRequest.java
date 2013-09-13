@@ -132,7 +132,7 @@ public class VolleyHttpRequest extends Request<String> {
 		public int getCurrentTimeout() {
 			if (null!=request.getHttpConfig()) {
 				assertHeaderBody();
-				int readTimeout = request.getHttpConfig().getReadTimeout(dummyConn);
+				int readTimeout = request.getHttpConfig().getReadTimeout(request);
 				if (readTimeout >= 0)
 					return readTimeout;
 			}

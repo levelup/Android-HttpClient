@@ -16,9 +16,9 @@ public class BasicHttpConfig implements HttpConfig {
 	protected BasicHttpConfig() {}
 
 	@Override
-	public int getReadTimeout(HttpURLConnection connection) {
-		if (null!=connection) {
-			final String postType = connection.getRequestProperty("Content-Type");
+	public int getReadTimeout(HttpRequest request) {
+		if (null!=request) {
+			final String postType = request.getHeader("Content-Type");
 			if (null!=postType && postType.startsWith("multipart/form-data"))
 				return READ_TIMEOUT_LONG_POST_IN_MS;
 		}
