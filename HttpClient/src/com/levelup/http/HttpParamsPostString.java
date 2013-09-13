@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 
 import org.apache.http.protocol.HTTP;
 
@@ -61,9 +60,9 @@ public class HttpParamsPostString implements HttpPostParameters {
 	}
 
 	@Override
-	public void setRequestProperties(HttpURLConnection connection) {
-		connection.setRequestProperty(HTTP.CONTENT_TYPE, contentType);
-		connection.setRequestProperty(HTTP.CONTENT_LEN, Integer.toString(value.getBytes().length));
+	public void settleHttpHeaders(HttpRequestPost request) {
+		request.setHeader(HTTP.CONTENT_TYPE, contentType);
+		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(value.getBytes().length));
 	}
 
 	@Override

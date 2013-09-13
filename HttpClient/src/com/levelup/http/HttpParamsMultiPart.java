@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import org.apache.http.protocol.HTTP;
@@ -62,8 +61,8 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 	}
 
 	@Override
-	public void setRequestProperties(HttpURLConnection connection) {
-		connection.setRequestProperty(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+	public void settleHttpHeaders(HttpRequestPost request) {
+		request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
 	}
 
 	@Override

@@ -3,7 +3,6 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 
 /**
  * HTTP parameters suitable to pass to {@link HttpRequestPost} 
@@ -11,10 +10,10 @@ import java.net.HttpURLConnection;
 public interface HttpPostParameters extends HttpParameters {
 	
 	/**
-	 * Set request properties on the connection before it's established, like the content-type or content-length
-	 * @param connection Connection to configure
+	 * Set request properties on the request before it's established, like the content-type or content-length
+	 * @param request The POST request to set the parameters on
 	 */
-	void setRequestProperties(HttpURLConnection connection);
+	void settleHttpHeaders(HttpRequestPost request);
 	
 	/**
 	 * Output stream to write the body of the POST query

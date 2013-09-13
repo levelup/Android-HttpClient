@@ -3,7 +3,6 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
@@ -34,11 +33,11 @@ public class HttpParamsUrlEncoded implements HttpPostParameters {
     }
 
 	@Override
-    public void setRequestProperties(HttpURLConnection connection) {
-		connection.setRequestProperty(HTTP.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
+    public void settleHttpHeaders(HttpRequestPost request) {
+		request.setHeader(HTTP.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
 
 		String encoded = URLEncodedUtils.format(mParams, "UTF-8");
-		connection.setRequestProperty(HTTP.CONTENT_LEN, Integer.toString(encoded.getBytes().length));
+		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(encoded.getBytes().length));
 	}
 
 	@Override
