@@ -16,13 +16,15 @@ import org.apache.http.protocol.HTTP;
 public class HttpParamsUrlEncoded implements HttpPostParameters {
 
 	private final ArrayList<NameValuePair> mParams;
+	private String encodedParams;
+	private static final String CONTENT_TYPE = URLEncodedUtils.CONTENT_TYPE + "; charset=utf-8";
 
 	/**
 	 * Basic constructor
 	 */
 	public HttpParamsUrlEncoded() {
 		mParams = new ArrayList<NameValuePair>();
-    }
+	}
 
 	/**
 	 * Constructor with an initial amount of parameters to hold
@@ -30,20 +32,26 @@ public class HttpParamsUrlEncoded implements HttpPostParameters {
 	 */
 	public HttpParamsUrlEncoded(int capacity) {
 		mParams = new ArrayList<NameValuePair>(capacity);
-    }
+	}
 
+	private String getEncodedParams() {
+		if (null==encodedParams) {
+			encodedParams = URLEncodedUtils.format(mParams, "UTF-8").replace("*", "%2A");
+			mParams.clear();
+		}
+		return encodedParams;
+	}
+	
 	@Override
-    public void settleHttpHeaders(HttpRequestPost request) {
-		request.setHeader(HTTP.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
+	public void settleHttpHeaders(HttpRequestPost request) {
+		request.setHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE);
 
-		String encoded = URLEncodedUtils.format(mParams, "UTF-8");
-		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(encoded.getBytes().length));
+		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(getEncodedParams().getBytes().length));
 	}
 
 	@Override
 	public void writeBodyTo(OutputStream output) throws UnsupportedEncodingException, IOException {
-		String encoded = URLEncodedUtils.format(mParams, "UTF-8");
-		output.write(encoded.getBytes());
+		output.write(getEncodedParams().getBytes());
 	}
 
 	@Override
