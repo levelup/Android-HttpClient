@@ -99,8 +99,11 @@ public class HttpClient {
 			 */
 			if (!TextUtils.isEmpty(userAgent))
 				connection.setRequestProperty(HTTP.USER_AGENT, userAgent);
-			for (Header header : defaultHeaders) {
-				request.setHeader(header.getName(), header.getValue());
+			
+			if (null!=defaultHeaders) {
+				for (Header header : defaultHeaders) {
+					request.setHeader(header.getName(), header.getValue());
+				}
 			}
 
 			if (null!=cookieManager) {
