@@ -28,6 +28,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
+	private HttpURLConnection httpResponse;
 
 	/**
 	 * Constructor with a string HTTP URL
@@ -142,6 +143,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
 	@Override
 	public void useResponse(HttpURLConnection resp) {
+		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster!=null) {
 			cookieMaster.setCookieResponse(this, resp);
@@ -170,7 +172,9 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
 	@Override
 	public HttpException.Builder newException() {
-		return new HttpException.Builder(this);
+		HttpException.Builder builder = new HttpException.Builder(this);
+		builder.setHTTPResponse(httpResponse);
+		return builder;
 	}
 
 	/**

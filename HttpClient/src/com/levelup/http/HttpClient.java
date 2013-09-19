@@ -160,6 +160,7 @@ public class HttpClient {
 	 */
 	public static String getStringResponse(HttpRequest request) throws HttpException {
 		HttpURLConnection resp = getQueryResponse(request);
+		request.useResponse(resp);
 		final StringBuilder sb = new StringBuilder();
 
 		if (resp!=null) {
@@ -181,7 +182,6 @@ public class HttpClient {
 					HttpException.Builder builder = request.newException();
 					builder.setErrorMessage(sb.length()==0 ? "empty response" : sb.toString());
 					builder.setErrorCode(HttpException.ERROR_HTTP);
-					builder.setHTTPResponse(resp);
 					throw builder.build();
 				}
 
@@ -192,7 +192,6 @@ public class HttpClient {
 					if (contentType==null || !contentType.startsWith(expectedMimeType)) {
 						HttpException.Builder builder = request.newException();
 						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+contentType+"' - "+sb.toString());
-						builder.setHTTPResponse(resp);
 						builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
 						throw builder.build();
 					}
@@ -202,7 +201,6 @@ public class HttpClient {
 					HttpException.Builder builder = request.newException();
 					builder.setErrorMessage(sb.length()==0 ? "unknown entity" : sb.toString());
 					builder.setErrorCode(HttpException.ERROR_HTTP);
-					builder.setHTTPResponse(resp);
 					throw builder.build();
 				}
 
@@ -211,7 +209,6 @@ public class HttpClient {
 				builder.setErrorMessage(sb.length()==0 ? "timeout" : sb.toString());
 				builder.setCause(e);
 				builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-				builder.setHTTPResponse(resp);
 				throw builder.build();
 
 			} catch (FileNotFoundException e) {
@@ -225,12 +222,9 @@ public class HttpClient {
 				builder.setErrorMessage("IO error "+e.getMessage());
 				builder.setCause(e);
 				builder.setErrorCode(HttpException.ERROR_NETWORK);
-				builder.setHTTPResponse(resp);
 				throw builder.build();
 
 			} finally {
-				request.useResponse(resp);
-
 				try {
 					if (is!=null)
 						is.close();

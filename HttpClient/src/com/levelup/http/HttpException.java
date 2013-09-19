@@ -229,7 +229,6 @@ public class HttpException extends RuntimeException {
 			builder = creator.newException();
 			//builder.setCause(e);
 			builder.setErrorCode(ERROR_HTTP);
-			builder.setHTTPResponse(resp);
 
 			errorStream = resp.getErrorStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"), 1250);
@@ -248,12 +247,11 @@ public class HttpException extends RuntimeException {
 			}
 
 			builder.setErrorMessage(sb.toString());
-		} catch (UnsupportedEncodingException e1) {
+		} catch (UnsupportedEncodingException ignored) {
 		} catch (JSONException e1) {
 			builder.setErrorMessage(sb.length()==0 ? "json error" : sb.toString());
 			builder.setCause(e);
 			builder.setErrorCode(ERROR_JSON);
-			builder.setHTTPResponse(resp);
 			throw builder.build();
 		} catch (IOException e1) {
 		} finally {
