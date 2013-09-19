@@ -123,6 +123,7 @@ public class HttpClient {
 					connection.setReadTimeout(readTimeout);
 			}
 
+			request.setResponse(connection);
 			connection.connect();
 
 			request.outputBody(connection);
@@ -160,7 +161,6 @@ public class HttpClient {
 	 */
 	public static String getStringResponse(HttpRequest request) throws HttpException {
 		HttpURLConnection resp = getQueryResponse(request);
-		request.useResponse(resp);
 		final StringBuilder sb = new StringBuilder();
 
 		if (resp!=null) {

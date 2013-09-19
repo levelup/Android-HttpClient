@@ -142,12 +142,17 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	public void outputBody(HttpURLConnection connection) throws IOException {}
 
 	@Override
-	public void useResponse(HttpURLConnection resp) {
+	public void setResponse(HttpURLConnection resp) {
 		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster!=null) {
 			cookieMaster.setCookieResponse(this, resp);
 		}
+	}
+	
+	@Override
+	public HttpURLConnection getResponse() {
+		return httpResponse;
 	}
 
 	@Override
@@ -172,9 +177,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 
 	@Override
 	public HttpException.Builder newException() {
-		HttpException.Builder builder = new HttpException.Builder(this);
-		builder.setHTTPResponse(httpResponse);
-		return builder;
+		return new HttpException.Builder(this);
 	}
 
 	/**

@@ -45,7 +45,7 @@ public class HttpException extends RuntimeException {
 
 
 	private static final long serialVersionUID = 4993791558983072165L;
-	
+
 	private static final Header[] EMPTY_HEADERS = new Header[0]; 
 
 	private final int mErrorCode;
@@ -93,7 +93,7 @@ public class HttpException extends RuntimeException {
 	public HttpRequest getHttpRequest() {
 		return httpRequest;
 	}
-	
+
 	public Header[] getAllHeaders() {
 		return headers;
 	}
@@ -127,7 +127,7 @@ public class HttpException extends RuntimeException {
 			msg.append(mErrorCode);
 			msg.append(' ');
 		}
-		if (200 != mHttpStatusCode) {
+		if (0 != mHttpStatusCode) {
 			msg.append("http:");
 			msg.append(mHttpStatusCode);
 			msg.append(' ');
@@ -171,6 +171,7 @@ public class HttpException extends RuntimeException {
 				this.headers = new ArrayList<Header>(srcHeaders.length);
 				headers.addAll(Arrays.asList(srcHeaders));
 			}
+			setHTTPResponse(httpRequest.getResponse());
 		}
 
 		public Builder(HttpException e) {
@@ -199,13 +200,18 @@ public class HttpException extends RuntimeException {
 
 		public Builder setHTTPResponse(HttpURLConnection resp) {
 			if (null!=resp) {
-				Map<String, List<String>> reqProperties = resp.getRequestProperties();
-				headers.clear();
-				for (Entry<String, List<String>> props : reqProperties.entrySet()) {
-					for (String prop : props.getValue()) {
-						headers.add(new Header(props.getKey(), prop));
+				try {
+					Map<String, List<String>> reqProperties = resp.getRequestProperties();
+					headers.clear();
+					for (Entry<String, List<String>> props : reqProperties.entrySet()) {
+						for (String prop : props.getValue()) {
+							headers.add(new Header(props.getKey(), prop));
+						}
 					}
+				} catch (IllegalStateException ignored) {
+					// we can't read the headers once connected
 				}
+				
 				try {
 					this.statusCode = resp.getResponseCode();
 				} catch (IOException ignored) {

@@ -71,7 +71,12 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Called when the request has been performed on the server, even if the response is an error
 	 * @param resp Contains the received headers/data from the server
 	 */
-	void useResponse(HttpURLConnection resp);
+	void setResponse(HttpURLConnection resp);
+
+	/**
+	 * @return the HTTP response if there was any
+	 */
+	HttpURLConnection getResponse();
 
 	/**
 	 * Returns the {@link LoggerTagged} for this request or {@code null} 
