@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,6 +53,7 @@ public class HttpException extends RuntimeException {
 	private final int mHttpStatusCode;
 	private final HttpRequest httpRequest;
 	protected final Header[] headers;
+	protected final Header[] receivedHeaders;
 
 	protected HttpException(Builder builder) {
 		super(builder.errorMessage, builder.exception);
@@ -59,6 +61,7 @@ public class HttpException extends RuntimeException {
 		this.mHttpStatusCode = builder.statusCode;
 		this.httpRequest = builder.httpRequest;
 		this.headers = builder.headers.toArray(EMPTY_HEADERS);
+		this.receivedHeaders = builder.receivedHeaders.toArray(EMPTY_HEADERS);
 		if ((getMessage()==null || "null".equals(getMessage())) && BuildConfig.DEBUG) throw new NullPointerException("We need an error message for "+mErrorCode+"/"+mHttpStatusCode+" query:"+httpRequest);
 	}
 
@@ -95,6 +98,10 @@ public class HttpException extends RuntimeException {
 	}
 
 	public Header[] getAllHeaders() {
+		return headers;
+	}
+
+	public Header[] getReceivedHeaders() {
 		return headers;
 	}
 
@@ -161,17 +168,30 @@ public class HttpException extends RuntimeException {
 		protected int statusCode;
 		protected HttpRequest httpRequest;
 		protected final List<Header> headers;
+		protected final List<Header> receivedHeaders;
 
 		public Builder(HttpRequest httpRequest) {
 			this.httpRequest = httpRequest;
 			Header[] srcHeaders = httpRequest.getAllHeaders();
 			if (null==srcHeaders)
-				this.headers = new ArrayList<Header>(0);
+				this.headers = Collections.emptyList();
 			else {
 				this.headers = new ArrayList<Header>(srcHeaders.length);
 				headers.addAll(Arrays.asList(srcHeaders));
 			}
-			setHTTPResponse(httpRequest.getResponse());
+			HttpURLConnection response = httpRequest.getResponse();
+			if (null==response) {
+				this.receivedHeaders = Collections.emptyList();
+			} else {
+				setHTTPResponse(response);
+				Map<String, List<String>> responseHeaders = response.getHeaderFields();
+				this.receivedHeaders = new ArrayList<Header>(responseHeaders.size());
+				for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
+					for (String value : entry.getValue()) {
+						receivedHeaders.add(new Header(entry.getKey(), value));
+					}
+				}
+			}
 		}
 
 		public Builder(HttpException e) {
@@ -181,6 +201,7 @@ public class HttpException extends RuntimeException {
 			this.statusCode = e.mHttpStatusCode;
 			this.httpRequest = e.httpRequest;
 			this.headers = Arrays.asList(e.headers);
+			this.receivedHeaders = Arrays.asList(e.receivedHeaders);
 		}
 
 		public Builder setErrorCode(int code) {
@@ -211,7 +232,7 @@ public class HttpException extends RuntimeException {
 				} catch (IllegalStateException ignored) {
 					// we can't read the headers once connected
 				}
-				
+
 				try {
 					this.statusCode = resp.getResponseCode();
 				} catch (IOException ignored) {
