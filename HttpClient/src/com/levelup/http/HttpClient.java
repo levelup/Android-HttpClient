@@ -126,7 +126,6 @@ public class HttpClient {
 					connection.setReadTimeout(readTimeout);
 			}
 
-			request.setResponse(connection);
 			connection.connect();
 
 			request.outputBody(connection);
@@ -151,6 +150,8 @@ public class HttpClient {
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
 			throw builder.build();
 
+		} finally {
+			request.setResponse(connection);
 		}
 		return connection;
 	}
