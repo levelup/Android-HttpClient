@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 
 import oauth.signpost.OAuth;
+import oauth.signpost.OAuthConsumer;
 import oauth.signpost.http.HttpParameters;
 import android.text.TextUtils;
 
@@ -19,6 +20,12 @@ public class RequestSignerEcho extends RequestSigner {
 	private final String verifyRealm;
 
 	public RequestSignerEcho(OAuthClientApp clientApp, OAuthUser user, String verifyUrl, String verifyRealm) {
+		super(clientApp, user);
+		this.verifyUrl = verifyUrl;
+		this.verifyRealm = verifyRealm;
+	}
+
+	public RequestSignerEcho(OAuthConsumer clientApp, OAuthUser user, String verifyUrl, String verifyRealm) {
 		super(clientApp, user);
 		this.verifyUrl = verifyUrl;
 		this.verifyRealm = verifyRealm;
