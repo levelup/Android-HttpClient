@@ -1,11 +1,6 @@
 package com.levelup.http;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -246,50 +238,5 @@ public class HttpException extends RuntimeException {
 			HttpException result = new HttpException(this);
 			return result;
 		}
-	}
-
-	public static Builder fromFileNotFound(HttpExceptionCreator creator, HttpURLConnection resp, FileNotFoundException e) {
-		InputStream errorStream = null;
-		Builder builder = null;
-		StringBuilder sb = null;
-		try {
-			builder = creator.newException();
-			//builder.setCause(e);
-			builder.setErrorCode(ERROR_HTTP);
-
-			errorStream = resp.getErrorStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"), 1250);
-			sb = new StringBuilder(resp.getContentLength() > 0 ? resp.getContentLength() : 64);
-			String line;
-			while ((line = reader.readLine())!=null) {
-				if (!TextUtils.isEmpty(line)) {
-					sb.append(line);
-					sb.append('\n');
-				}
-			}
-
-			if (creator instanceof AbstractHttpRequest && resp.getContentType()!=null && resp.getContentType().startsWith("application/json")) {
-				JSONObject jsonData = new JSONObject(sb.toString());
-				builder = ((AbstractHttpRequest) creator).handleJSONError(builder, jsonData);
-			}
-
-			builder.setErrorMessage(sb.toString());
-		} catch (UnsupportedEncodingException ignored) {
-		} catch (JSONException e1) {
-			builder.setErrorMessage(sb.length()==0 ? "json error" : sb.toString());
-			builder.setCause(e);
-			builder.setErrorCode(ERROR_JSON);
-			throw builder.build();
-		} catch (IOException e1) {
-		} finally {
-			if (null!=errorStream) {
-				try {
-					errorStream.close();
-				} catch (IOException e1) {
-				}
-				errorStream = null;
-			}
-		}
-		return builder;
 	}
 }
