@@ -1,6 +1,5 @@
 package com.levelup.http;
 
-import java.net.HttpURLConnection;
 
 
 /**

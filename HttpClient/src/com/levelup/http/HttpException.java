@@ -214,8 +214,8 @@ public class HttpException extends RuntimeException {
 			return this;
 		}
 
-		public Builder setCause(Throwable exception) {
-			this.exception = exception;
+		public Builder setCause(Throwable tr) {
+			this.exception = tr;
 			return this;
 		}
 
