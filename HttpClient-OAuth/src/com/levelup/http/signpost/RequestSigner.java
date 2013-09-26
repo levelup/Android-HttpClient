@@ -21,30 +21,32 @@ public class RequestSigner {
 		this.mOAuthConsumer = new HttpClientOAuthConsumer(clientApp);
 		this.user = user;
 	}
-	
+
 	public RequestSigner(OAuthConsumer consumer, OAuthUser user) {
 		if (null == consumer) throw new NullPointerException("We need an OAuthConsumer to authenticate");
 		if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");
 		this.mOAuthConsumer = consumer;
 		this.user = user;
 	}
-	
+
 	public OAuthUser getOAuthUser() {
 		return user;
 	}
 
-	public synchronized void sign(HttpRequest req, HttpParameters oauthParams) {
-		mOAuthConsumer.setTokenWithSecret(user.getToken(), user.getTokenSecret());
-		mOAuthConsumer.setAdditionalParameters(oauthParams);
-		
-		try {
-			mOAuthConsumer.sign(req);
-		} catch (OAuthException e) {
-			HttpException.Builder builder = req.newException();
-			builder.setErrorCode(HttpException.ERROR_AUTH);
-			builder.setErrorMessage("Bad OAuth for "+user+" on "+req);
-			builder.setCause(e);
-			throw builder.build();
+	public void sign(HttpRequest req, HttpParameters oauthParams) {
+		synchronized (mOAuthConsumer) {
+			mOAuthConsumer.setTokenWithSecret(user.getToken(), user.getTokenSecret());
+			mOAuthConsumer.setAdditionalParameters(oauthParams);
+
+			try {
+				mOAuthConsumer.sign(req);
+			} catch (OAuthException e) {
+				HttpException.Builder builder = req.newException();
+				builder.setErrorCode(HttpException.ERROR_AUTH);
+				builder.setErrorMessage("Bad OAuth for "+user+" on "+req);
+				builder.setCause(e);
+				throw builder.build();
+			}
 		}
 	}
 }
