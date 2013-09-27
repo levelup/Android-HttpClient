@@ -176,11 +176,15 @@ public class HttpException extends RuntimeException {
 				this.receivedHeaders = Collections.emptyList();
 			} else {
 				setHTTPResponse(response);
-				Map<String, List<String>> responseHeaders = response.getHeaderFields();
-				this.receivedHeaders = new ArrayList<Header>(responseHeaders.size());
-				for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-					for (String value : entry.getValue()) {
-						receivedHeaders.add(new Header(entry.getKey(), value));
+				final Map<String, List<String>> responseHeaders = response.getHeaderFields();
+				if (null==responseHeaders)
+					this.receivedHeaders = Collections.emptyList();
+				else {
+					this.receivedHeaders = new ArrayList<Header>(responseHeaders.size());
+					for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
+						for (String value : entry.getValue()) {
+							receivedHeaders.add(new Header(entry.getKey(), value));
+						}
 					}
 				}
 			}
