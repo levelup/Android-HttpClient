@@ -3,6 +3,7 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 
 /**
  * HTTP parameters suitable to pass to {@link HttpRequestPost} 
@@ -22,4 +23,10 @@ public interface HttpPostParameters extends HttpParameters {
 	 * @throws IOException
 	 */
 	void writeBodyTo(OutputStream output) throws UnsupportedEncodingException, IOException;
+
+	/**
+	 * Set some extra properties on the {@link HttpURLConnection} before the connection is established
+	 * @param connection to setup
+	 */
+	void setConnectionProperties(HttpURLConnection connection);
 }
