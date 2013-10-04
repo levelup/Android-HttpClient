@@ -25,12 +25,13 @@ public class HttpRequestPost extends AbstractHttpRequest {
 		connection.setRequestMethod("POST");
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
-		
-		httpParams.setConnectionProperties(connection);
+
+		if (null != httpParams)
+			httpParams.setConnectionProperties(connection);
 
 		super.setConnectionProperties(connection);
 	}
-	
+
 	@Override
 	public void settleHttpHeaders() {
 		if (null != httpParams)
