@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import org.apache.http.protocol.HTTP;
@@ -63,6 +64,11 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 	@Override
 	public void settleHttpHeaders(HttpRequestPost request) {
 		request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+	}
+	
+	@Override
+	public void setConnectionProperties(HttpURLConnection connection) {
+		connection.setChunkedStreamingMode(0); // use the default chunked size
 	}
 
 	@Override

@@ -86,9 +86,19 @@ public class HttpClient {
 			request.setHeader("Connection", "close");
 		 */
 
+		final URL url;
+		try {
+			url = request.getURL();
+		} catch (MalformedURLException e) {
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("Malformed URL on:"+request);
+			builder.setCause(e);
+			throw builder.build();
+		}
+
 		HttpURLConnection connection = null;
 		try {
-			connection = openURL(request.getURL());
+			connection = openURL(url);
 			// TODO handle transparent gzip when okclient is not used request.addHeader("Accept-Encoding", "gzip");
 
 			/*
@@ -136,12 +146,6 @@ public class HttpClient {
 					request.getLogger().d(header.getKey()+": "+header.getValue());
 				}
 			}
-		} catch (MalformedURLException e) {
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Malformed URL on:"+request);
-			builder.setCause(e);
-			throw builder.build();
-
 		} catch (IOException e) {
 			LogManager.getLogger().i("fail for "+request);
 			HttpException.Builder builder = request.newException();
@@ -202,8 +206,7 @@ public class HttpClient {
 				}
 
 				if (resp.getResponseCode() < 200 || resp.getResponseCode() >= 300) {
-					HttpException.Builder builder = request.newException();
-					builder.setErrorMessage(sb.length()==0 ? "unknown entity" : sb.toString());
+					HttpException.Builder builder = request.newExceptionFromResponse(resp);
 					builder.setErrorCode(HttpException.ERROR_HTTP);
 					throw builder.build();
 				}
@@ -217,7 +220,8 @@ public class HttpClient {
 
 			} catch (FileNotFoundException e) {
 				LogManager.getLogger().i("fail for "+request);
-				HttpException.Builder builder = HttpException.fromFileNotFound(request, resp, e); 
+				HttpException.Builder builder = request.newExceptionFromResponse(resp);
+				builder.setCause(e);
 				throw builder.build();
 
 			} catch (IOException e) {

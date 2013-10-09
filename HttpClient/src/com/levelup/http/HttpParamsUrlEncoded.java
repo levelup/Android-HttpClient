@@ -3,6 +3,7 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
@@ -45,8 +46,11 @@ public class HttpParamsUrlEncoded implements HttpPostParameters {
 	@Override
 	public void settleHttpHeaders(HttpRequestPost request) {
 		request.setHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE);
-
-		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(getEncodedParams().getBytes().length));
+	}
+	
+	@Override
+	public void setConnectionProperties(HttpURLConnection connection) {
+		connection.setFixedLengthStreamingMode(getEncodedParams().getBytes().length);
 	}
 
 	@Override

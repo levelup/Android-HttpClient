@@ -1,6 +1,10 @@
 package com.levelup.http;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -13,9 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.net.Uri;
+import android.text.TextUtils;
+
+import com.levelup.http.HttpException.Builder;
 
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
@@ -178,6 +186,53 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	@Override
 	public HttpException.Builder newException() {
 		return new HttpException.Builder(this);
+	}
+	
+	@Override
+	public HttpException.Builder newExceptionFromResponse(HttpURLConnection response) {
+		InputStream errorStream = null;
+		Builder builder = null;
+		StringBuilder sb = null;
+		try {
+			builder = newException();
+			builder.setErrorCode(HttpException.ERROR_HTTP);
+			builder.setHTTPResponse(response);
+
+			errorStream = response.getErrorStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"), 1250);
+			sb = new StringBuilder(response.getContentLength() > 0 ? response.getContentLength() : 64);
+			String line;
+			while ((line = reader.readLine())!=null) {
+				if (!TextUtils.isEmpty(line)) {
+					sb.append(line);
+					sb.append('\n');
+				}
+			}
+
+			if (response.getContentType()!=null && response.getContentType().startsWith("application/json")) {
+				JSONObject jsonData = new JSONObject(sb.toString());
+				builder = handleJSONError(builder, jsonData);
+			}
+
+			builder.setErrorMessage(sb.toString());
+		} catch (UnsupportedEncodingException ignored) {
+		} catch (JSONException e) {
+			HttpException.Builder b = newException();
+			b.setErrorCode(HttpException.ERROR_JSON);
+			b.setErrorMessage(sb.length()==0 ? "json error" : sb.toString());
+			b.setCause(builder.build());
+			throw b.build();
+		} catch (IOException ignored) {
+		} finally {
+			if (null!=errorStream) {
+				try {
+					errorStream.close();
+				} catch (IOException ignored) {
+				}
+				errorStream = null;
+			}
+		}
+		return builder;
 	}
 
 	/**
