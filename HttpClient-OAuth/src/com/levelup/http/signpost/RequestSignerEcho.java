@@ -32,7 +32,7 @@ public class RequestSignerEcho extends RequestSigner {
 	}
 
 	@Override
-	public synchronized void sign(HttpRequest req, HttpParameters oauthParams) {
+	public void sign(HttpRequest req, HttpParameters oauthParams) {
 		HttpRequest echoReq = new HttpRequestGet(verifyUrl);
 		HttpParameters realm = new HttpParameters();
 		if (null!=oauthParams) {
