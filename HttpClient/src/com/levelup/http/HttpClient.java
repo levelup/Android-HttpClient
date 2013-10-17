@@ -205,7 +205,7 @@ public class HttpClient {
 				if (!TextUtils.isEmpty(expectedMimeType)) {
 					// test if it's the right MIME type or throw an exception that can be caught to use the bad data
 					String contentType = (resp.getInputStream()==null || resp.getContentType()==null) ? null : resp.getContentType();
-					if (contentType==null || !contentType.startsWith(expectedMimeType)) {
+					if (contentType!=null && !contentType.startsWith(expectedMimeType)) {
 						HttpException.Builder builder = request.newException();
 						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+contentType+"' - "+sb.toString());
 						builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
