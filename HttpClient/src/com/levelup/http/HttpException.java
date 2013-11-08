@@ -15,7 +15,7 @@ import android.text.TextUtils;
 /**
  * Exception that will occur by using {@link HttpClient}
  */
-public class HttpException extends RuntimeException {
+public class HttpException extends Exception {
 
 	// misc other errors returned by getErrorCode()
 	static public final int ERROR_HTTP             = 4000;

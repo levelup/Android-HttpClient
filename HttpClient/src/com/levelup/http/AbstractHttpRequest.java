@@ -221,7 +221,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			b.setErrorCode(HttpException.ERROR_JSON);
 			b.setErrorMessage(sb.length()==0 ? "json error" : sb.toString());
 			b.setCause(builder.build());
-			throw b.build();
+			builder = b;
 		} catch (IOException ignored) {
 		} finally {
 			if (null!=errorStream) {
