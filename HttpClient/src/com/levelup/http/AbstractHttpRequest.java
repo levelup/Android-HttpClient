@@ -124,7 +124,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	private static final String[] EMPTY_STRINGS = {};
 
 	public Header[] getAllHeaders() {
-		List<Header> headers = new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
+		List<Header> headers = null==HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
 		for (Entry<String, String> setHeader : mRequestSetHeaders.entrySet()) {
 			headers.add(new Header(setHeader.getKey(), setHeader.getValue()));
 		}
