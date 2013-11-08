@@ -27,7 +27,7 @@ Sample Code
 
 ```java
 HttpParamsMultiPart multipart = new HttpParamsMultiPart();
-multipart.addFile("file.txt", myImageFile, "image/png");
+multipart.addFile("file", myImageFile, "image/png");
 multipart.add("text", "my picture");
 
 HttpRequestPost post = new HttpRequestPost("http://my.com/picture.upload", multipart);
