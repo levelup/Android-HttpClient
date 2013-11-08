@@ -9,6 +9,7 @@ import android.net.Uri;
 
 public class HttpRequestPost extends AbstractHttpRequest {
 	private final HttpPostParameters httpParams;
+	private UploadProgressListener mProgressListener;
 
 	public HttpRequestPost(String url, HttpPostParameters httpParams) {
 		super(url);
@@ -18,6 +19,14 @@ public class HttpRequestPost extends AbstractHttpRequest {
 	public HttpRequestPost(Uri uri, HttpPostParameters httpParams) {
 		super(uri);
 		this.httpParams = httpParams;
+	}
+
+	public void setProgressListener(UploadProgressListener listener) {
+		this.mProgressListener = listener;
+	}
+
+	public UploadProgressListener getProgressListener() {
+		return mProgressListener;
 	}
 
 	@Override
@@ -56,8 +65,13 @@ public class HttpRequestPost extends AbstractHttpRequest {
 	}
 
 	public void outputBody(OutputStream output) throws IOException {
+		final UploadProgressListener listener = mProgressListener;
+		if (null != listener)
+			listener.onParamUploadProgress(this, null, 0);
 		if (null != httpParams)
-			httpParams.writeBodyTo(output);
+			httpParams.writeBodyTo(output, this, listener);
+		if (null != listener)
+			listener.onParamUploadProgress(this, null, 100);
 	}
 
 }

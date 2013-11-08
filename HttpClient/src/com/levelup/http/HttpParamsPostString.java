@@ -71,7 +71,7 @@ public class HttpParamsPostString implements HttpPostParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output) throws IOException {
+	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws IOException {
 		output.write(value.getBytes());
 	}
 }

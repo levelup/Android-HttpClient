@@ -54,7 +54,7 @@ public class HttpParamsUrlEncoded implements HttpPostParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output) throws UnsupportedEncodingException, IOException {
+	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws UnsupportedEncodingException, IOException {
 		output.write(getEncodedParams().getBytes());
 	}
 

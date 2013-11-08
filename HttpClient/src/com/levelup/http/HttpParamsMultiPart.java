@@ -72,7 +72,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output) throws IOException {
+	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws IOException {
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new OutputStreamWriter(output, charset), true); // true = autoFlush, important!
@@ -80,6 +80,9 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 			// everything but strings first in the multipart
 			for (HttpParam param : mParams)
 				if (param.value instanceof File) {
+					if (null!=progressListener)
+						progressListener.onParamUploadProgress(request, param.name, 0);
+
 					// Send binary file.
 					writer.append(boundarySplit).append(boundary).append(CRLF);
 					writer.append("Content-Disposition: form-data; name=\""+param.name+"\"; filename=\"" + ((File) param.value).getName() + '\"').append(CRLF);
@@ -88,12 +91,21 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 					writer.append("Content-Transfer-Encoding: binary").append(CRLF);
 					writer.append(CRLF).flush();
 					InputStream input = null;
+					final File file = (File) param.value;
+					final long fileLength = file.length();
+					long progress = 0;
 					try {
-						input = new FileInputStream(((File) param.value));
+						input = new FileInputStream(file);
 						byte[] buffer = new byte[1024];
 						for (int length = 0; (length = input.read(buffer)) > 0;) {
 							output.write(buffer, 0, length);
+							progress += length;
+							if (null!=progressListener)
+								progressListener.onParamUploadProgress(request, param.name, (int)((100 * progress) / fileLength));
 						}
+						
+						if (null!=progressListener)
+							progressListener.onParamUploadProgress(request, param.name, 100);
 					} finally {
 						if (input != null)
 							try {
@@ -103,6 +115,9 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 					}
 					writer.append(CRLF).flush(); // CRLF is important! It indicates end of binary boundary.
 				} else if (param.value instanceof InputStream) {
+					if (null!=progressListener)
+						progressListener.onParamUploadProgress(request, param.name, 0);
+					
 					// Send binary file.
 					writer.append(boundarySplit).append(boundary).append(CRLF);
 					writer.append("Content-Disposition: form-data; name=\""+param.name+"\"; filename=\"rawstream\"").append(CRLF);
@@ -115,7 +130,12 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						byte[] buffer = new byte[1024];
 						for (int length = 0; (length = input.read(buffer)) > 0;) {
 							output.write(buffer, 0, length);
+							if (null!=progressListener)
+								progressListener.onParamUploadProgress(request, param.name, -1);
 						}
+						
+						if (null!=progressListener)
+							progressListener.onParamUploadProgress(request, param.name, 100);
 					} finally {
 						if (input != null)
 							try {
@@ -129,6 +149,9 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 			// strings last in the multipart in case it fails before
 			for (HttpParam param : mParams)
 				if (param.value instanceof String) {
+					if (null!=progressListener)
+						progressListener.onParamUploadProgress(request, param.name, 0);
+					
 					// Send text string
 					writer.append(boundarySplit).append(boundary).append(CRLF);
 					if (!TextUtils.isEmpty(param.name))
@@ -140,6 +163,9 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						writer.append(param.contentType);
 					writer.append(CRLF).append(CRLF);
 					writer.append((String) param.value).append(CRLF).flush();
+					
+					if (null!=progressListener)
+						progressListener.onParamUploadProgress(request, param.name, 100);
 				}
 
 			// End of multipart/form-data.
