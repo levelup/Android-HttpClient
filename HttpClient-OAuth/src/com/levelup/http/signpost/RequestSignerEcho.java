@@ -8,6 +8,7 @@ import oauth.signpost.OAuthConsumer;
 import oauth.signpost.http.HttpParameters;
 import android.text.TextUtils;
 
+import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestGet;
 
@@ -32,7 +33,7 @@ public class RequestSignerEcho extends RequestSigner {
 	}
 
 	@Override
-	public void sign(HttpRequest req, HttpParameters oauthParams) {
+	public void sign(HttpRequest req, HttpParameters oauthParams) throws HttpException {
 		HttpRequest echoReq = new HttpRequestGet(verifyUrl);
 		HttpParameters realm = new HttpParameters();
 		if (null!=oauthParams) {

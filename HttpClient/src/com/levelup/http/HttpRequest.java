@@ -50,7 +50,7 @@ public interface HttpRequest extends HttpExceptionCreator {
 	/**
 	 * Settle the HTTP headers for the lifetime of this request, useful to sign the query
 	 */
-	void settleHttpHeaders();
+	void settleHttpHeaders() throws HttpException ;
 
 	/**
 	 * Set the HTTP headers on the {@link HttpURLConnection}

@@ -21,7 +21,7 @@ public class HttpRequestSignedPost extends HttpRequestPost implements HttpReques
 	}
 
 	@Override
-	public void settleHttpHeaders() {
+	public void settleHttpHeaders() throws HttpException  {
 		super.settleHttpHeaders();
 		signer.sign(this, null);
 	}

@@ -33,7 +33,7 @@ public class RequestSigner {
 		return user;
 	}
 
-	public void sign(HttpRequest req, HttpParameters oauthParams) {
+	public void sign(HttpRequest req, HttpParameters oauthParams) throws HttpException {
 		synchronized (mOAuthConsumer) {
 			mOAuthConsumer.setTokenWithSecret(user.getToken(), user.getTokenSecret());
 			mOAuthConsumer.setAdditionalParameters(oauthParams);

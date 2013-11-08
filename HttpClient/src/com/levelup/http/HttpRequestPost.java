@@ -42,7 +42,7 @@ public class HttpRequestPost extends AbstractHttpRequest {
 	}
 
 	@Override
-	public void settleHttpHeaders() {
+	public void settleHttpHeaders() throws HttpException {
 		if (null != httpParams)
 			httpParams.settleHttpHeaders(this);
 

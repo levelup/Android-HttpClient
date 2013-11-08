@@ -78,7 +78,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	}
 
 	@Override
-	public void settleHttpHeaders() {
+	public void settleHttpHeaders() throws HttpException {
 		// do nothing
 	}
 	

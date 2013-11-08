@@ -27,6 +27,7 @@ import com.android.volley.Response.Listener;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestPost;
 
@@ -187,6 +188,7 @@ public class VolleyHttpRequest extends Request<String> {
 			} catch (MalformedURLException ignored) {
 			} catch (ProtocolException ignored) {
 			} catch (IOException ignored) {
+			} catch (HttpException ignored) {
 			}
 		}
 	}
