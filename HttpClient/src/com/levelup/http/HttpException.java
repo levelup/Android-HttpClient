@@ -160,7 +160,7 @@ public class HttpException extends Exception {
 		protected int statusCode;
 		protected HttpRequest httpRequest;
 		protected final List<Header> headers;
-		protected final List<Header> receivedHeaders;
+		protected List<Header> receivedHeaders;
 
 		public Builder(HttpRequest httpRequest) {
 			this.httpRequest = httpRequest;
@@ -176,16 +176,21 @@ public class HttpException extends Exception {
 				this.receivedHeaders = Collections.emptyList();
 			} else {
 				setHTTPResponse(response);
-				final Map<String, List<String>> responseHeaders = response.getHeaderFields();
-				if (null==responseHeaders)
-					this.receivedHeaders = Collections.emptyList();
-				else {
-					this.receivedHeaders = new ArrayList<Header>(responseHeaders.size());
-					for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-						for (String value : entry.getValue()) {
-							receivedHeaders.add(new Header(entry.getKey(), value));
+				try {
+					final Map<String, List<String>> responseHeaders = response.getHeaderFields();
+					if (null==responseHeaders)
+						this.receivedHeaders = Collections.emptyList();
+					else {
+						this.receivedHeaders = new ArrayList<Header>(responseHeaders.size());
+						for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
+							for (String value : entry.getValue()) {
+								receivedHeaders.add(new Header(entry.getKey(), value));
+							}
 						}
 					}
+				} catch (NullPointerException e) {
+					// issue https://github.com/square/okhttp/issues/348
+					this.receivedHeaders = Collections.emptyList();
 				}
 			}
 		}
