@@ -233,6 +233,7 @@ public class VolleyHttpRequest extends Request<String> {
 
 	@Override
 	protected void deliverResponse(String response, boolean hasChanged) {
-		requestListener.onResponse(response, hasChanged);
+		if (null!=requestListener)
+			requestListener.onResponse(response, hasChanged);
 	}
 }
