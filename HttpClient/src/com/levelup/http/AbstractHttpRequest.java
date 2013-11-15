@@ -204,8 +204,9 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			String line;
 			while ((line = reader.readLine())!=null) {
 				if (!TextUtils.isEmpty(line)) {
+					if (sb.length()!=0)
+						sb.append('\n');
 					sb.append(line);
-					sb.append('\n');
 				}
 			}
 
