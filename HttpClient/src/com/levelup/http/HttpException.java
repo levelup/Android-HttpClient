@@ -136,19 +136,18 @@ public class HttpException extends Exception {
 			msg.append(httpRequest);
 			msg.append(' ');
 		}
-		boolean hasMsg = false;
+		/*boolean hasMsg = false;
 		if (null!=getCause()) {
 			final String causeMsg = getCause().getMessage();
 			if (!TextUtils.isEmpty(causeMsg)) {
 				hasMsg = true;
 				msg.append(causeMsg);
 			}
-		}
-		if (!hasMsg) {
-			final String superMsg = super.getMessage();
-			if (!TextUtils.isEmpty(superMsg)) {
-				msg.append(superMsg);
-			}
+		}*/
+		final String superMsg = super.getMessage();
+		if (!TextUtils.isEmpty(superMsg)) {
+			//if (hasMsg) msg.append(' ');
+			msg.append(superMsg);
 		}
 		return msg.toString();
 	}
