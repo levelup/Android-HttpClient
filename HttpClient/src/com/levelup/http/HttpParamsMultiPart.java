@@ -86,7 +86,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 					// Send binary file.
 					writer.append(boundarySplit).append(boundary).append(CRLF);
 					writer.append("Content-Disposition: form-data; name=\""+param.name+"\"; filename=\"" + ((File) param.value).getName() + '\"').append(CRLF);
-					if (TextUtils.isEmpty(param.contentType))
+					if (!TextUtils.isEmpty(param.contentType))
 						writer.append("Content-Type: ").append(param.contentType).append(CRLF);
 					writer.append("Content-Transfer-Encoding: binary").append(CRLF);
 					writer.append(CRLF).flush();
@@ -103,7 +103,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 							if (null!=progressListener)
 								progressListener.onParamUploadProgress(request, param.name, (int)((100 * progress) / fileLength));
 						}
-						
+
 						if (null!=progressListener)
 							progressListener.onParamUploadProgress(request, param.name, 100);
 					} finally {
@@ -117,11 +117,11 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 				} else if (param.value instanceof InputStream) {
 					if (null!=progressListener)
 						progressListener.onParamUploadProgress(request, param.name, 0);
-					
+
 					// Send binary file.
 					writer.append(boundarySplit).append(boundary).append(CRLF);
 					writer.append("Content-Disposition: form-data; name=\""+param.name+"\"; filename=\"rawstream\"").append(CRLF);
-					if (TextUtils.isEmpty(param.contentType))
+					if (!TextUtils.isEmpty(param.contentType))
 						writer.append("Content-Type: ").append(param.contentType).append(CRLF);
 					writer.append("Content-Transfer-Encoding: binary").append(CRLF);
 					writer.append(CRLF).flush();
@@ -133,7 +133,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 							if (null!=progressListener)
 								progressListener.onParamUploadProgress(request, param.name, -1);
 						}
-						
+
 						if (null!=progressListener)
 							progressListener.onParamUploadProgress(request, param.name, 100);
 					} finally {
@@ -151,7 +151,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 				if (param.value instanceof String) {
 					if (null!=progressListener)
 						progressListener.onParamUploadProgress(request, param.name, 0);
-					
+
 					// Send text string
 					writer.append(boundarySplit).append(boundary).append(CRLF);
 					if (!TextUtils.isEmpty(param.name))
@@ -163,7 +163,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						writer.append(param.contentType);
 					writer.append(CRLF).append(CRLF);
 					writer.append((String) param.value).append(CRLF).flush();
-					
+
 					if (null!=progressListener)
 						progressListener.onParamUploadProgress(request, param.name, 100);
 				}
