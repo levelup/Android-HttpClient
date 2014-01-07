@@ -81,11 +81,6 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static HttpURLConnection getQueryResponse(HttpRequest request) throws HttpException {
-		/*
-		if (!connSettings.useSSL() || TextUtils.isEmpty(proxyHost))
-			request.setHeader("Connection", "close");
-		 */
-
 		final URL url;
 		try {
 			url = request.getURL();
