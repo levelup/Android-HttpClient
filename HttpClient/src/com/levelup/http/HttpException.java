@@ -30,7 +30,10 @@ public class HttpException extends Exception {
 	static public final int ERROR_HTTP_UNAUTHORIZED = 401;
 	static public final int ERROR_HTTP_FORBIDDEN    = 403;
 	static public final int ERROR_HTTP_NOT_FOUND    = 404;
+	static public final int ERROR_HTTP_NOT_ACCEPTABLE = 406;
 	static public final int ERROR_HTTP_GONE         = 410;
+	static public final int ERROR_HTTP_TOO_LONG     = 413;
+	static public final int ERROR_HTTP_BAD_RANGE    = 416;
 	static public final int ERROR_HTTP_BACKOFF      = 420; // Twitter thing
 	static public final int ERROR_HTTP_RATELIMIT    = 429; // Twitter thing
 	static public final int ERROR_HTTP_OVERLOADED   = 503;
