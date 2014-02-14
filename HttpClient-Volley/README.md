@@ -13,7 +13,7 @@ import com.levelup.http.volley.HttpRequestVolley;
 RequestQueue req;
 
 HttpRequestGet get = new HttpRequestGet("http://levelupstudio.com/");
-HttpRequestVolley volleyRequest = new HttpRequestVolley(get, null, null);
+VolleyHttpRequest volleyRequest = new VolleyHttpRequest(get, null, null);
 
 req.add(volleyRequest);
 ```
