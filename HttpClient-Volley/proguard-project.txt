@@ -18,3 +18,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keepnames class com.levelup.http.volley.** { *; }
+-keepnames interface com.levelup.http.volley.** { *; }
+
+-keepnames class com.android.volley.** { *; }
+-keepnames interface com.android.volley.** { *; }

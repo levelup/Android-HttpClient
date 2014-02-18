@@ -18,3 +18,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keepnames class com.levelup.http.okhttp.** { *; }
+-keepnames interface com.levelup.http.okhttp.** { *; }
+
+-keepnames class com.squareup.okhttp.** { *; }
+-keepnames interface com.squareup.okhttp.** { *; }
