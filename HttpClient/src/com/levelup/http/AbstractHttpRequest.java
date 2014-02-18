@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -199,6 +201,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			builder.setHTTPResponse(response);
 
 			errorStream = response.getErrorStream();
+			if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
+				errorStream = new InflaterInputStream(errorStream);
+			if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
+				errorStream = new GZIPInputStream(errorStream);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"), 1250);
 			sb = new StringBuilder(response.getContentLength() > 0 ? response.getContentLength() : 64);
 			String line;

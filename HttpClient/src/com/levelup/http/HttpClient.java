@@ -11,6 +11,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import org.apache.http.protocol.HTTP;
 
@@ -183,6 +185,10 @@ public class HttpClient {
 					sb.ensureCapacity(contentLength);
 				if (contentLength != 0) {
 					is = resp.getInputStream();
+					if ("deflate".equals(resp.getContentEncoding()) && !(is instanceof InflaterInputStream))
+						is = new InflaterInputStream(is);
+					if ("gzip".equals(resp.getContentEncoding()) && !(is instanceof GZIPInputStream))
+						is = new GZIPInputStream(is);
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
 					for (String line = reader.readLine(); line!=null; line = reader.readLine())
 						sb.append(line);
