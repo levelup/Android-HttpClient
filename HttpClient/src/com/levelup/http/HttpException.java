@@ -154,6 +154,15 @@ public class HttpException extends Exception {
 		}
 		return msg.toString();
 	}
+	
+	/**
+	 * Get the error message without the extra formating of {@link #getMessage()} containing HTTP error codes
+	 * <p>Can be useful when the error data are JSON or XML data</p>
+	 * @return Raw error message sent by the server (when applying) 
+	 */
+	public String getErrorMessage() {
+		return super.getMessage();
+	}
 
 	public static class Builder {
 		protected int errorCode = ERROR_HTTP;
