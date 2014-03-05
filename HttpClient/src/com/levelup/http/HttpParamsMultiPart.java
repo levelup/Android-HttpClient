@@ -64,77 +64,11 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 	@Override
 	public void settleHttpHeaders(HttpRequestPost request) {
 		request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
-		Integer contentLength = getContentLength();
-		if (null!=contentLength)
-			request.setHeader(HTTP.CONTENT_LEN, Integer.toString(contentLength));
 	}
 
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) {
 		connection.setChunkedStreamingMode(0); // use the default chunked size
-	}
-	
-	private Integer getContentLength() {
-		int contentLength = 0;
-		// everything but strings first in the multipart
-		for (HttpParam param : mParams)
-			if (param.value instanceof File) {
-				// Send binary file.
-				contentLength += boundarySplit.length();
-				contentLength += boundary.length();
-				contentLength += CRLF.length();
-
-				contentLength += ("Content-Disposition: form-data; name=\""+param.name+"\"; filename=\"" + ((File) param.value).getName() + '\"').length();
-				contentLength += CRLF.length();
-				
-				if (!TextUtils.isEmpty(param.contentType)) {
-					contentLength += "Content-Type: ".length();
-					contentLength += param.contentType.length();
-					contentLength += CRLF.length();
-				}
-				contentLength += "Content-Transfer-Encoding: binary".length();
-				contentLength += CRLF.length();
-				contentLength += CRLF.length();
-
-				final File file = (File) param.value;
-				contentLength += file.length();
-				
-				contentLength += CRLF.length(); // CRLF is important! It indicates end of binary boundary.
-			} else if (param.value instanceof InputStream) {
-				return null; // we don't know
-			}
-
-		// strings last in the multipart in case it fails before
-		for (HttpParam param : mParams)
-			if (param.value instanceof String) {
-				// Send text string
-				contentLength += boundarySplit.length();
-				contentLength += boundary.length();
-				contentLength += CRLF.length();
-
-				if (!TextUtils.isEmpty(param.name)) {
-					contentLength += ("Content-Disposition: form-data; name=\""+param.name+"\"").length();
-					contentLength += CRLF.length();
-				}
-				contentLength += "Content-Type: ".length();
-				if (TextUtils.isEmpty(param.contentType)) {
-					contentLength += "text/plain; charset=".length();
-					contentLength += charset.length();
-				} else
-					contentLength += param.contentType.length();
-				contentLength += CRLF.length();
-				contentLength += CRLF.length();
-				contentLength += ((String) param.value).length();
-				contentLength += CRLF.length();
-			}
-
-		// End of multipart/form-data.
-		contentLength += boundarySplit.length();
-		contentLength += boundary.length();
-		contentLength += boundarySplit.length();
-		contentLength += CRLF.length();
-
-		return contentLength;
 	}
 
 	@Override
