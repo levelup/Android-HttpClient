@@ -2,10 +2,6 @@ apply plugin: 'android-library'
 
 archivesBaseName = 'HttpClient'
 
-dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-}
-
 android {
     compileSdkVersion 19
     buildToolsVersion '19.0.2'
