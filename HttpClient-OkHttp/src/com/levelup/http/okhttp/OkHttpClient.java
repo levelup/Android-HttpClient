@@ -3,11 +3,7 @@ package com.levelup.http.okhttp;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
 import java.util.HashSet;
-
-import javax.net.ssl.SSLContext;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpUrlConnectionFactory;
@@ -30,15 +26,6 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 		instance = new OkHttpClient();
 		if (__WITH_OKHTTP) {
 			okClient = new com.squareup.okhttp.OkHttpClient();
-			SSLContext sslContext;
-			try {
-				sslContext = SSLContext.getInstance("TLS");
-				sslContext.init(null, null, new SecureRandom());
-			} catch (GeneralSecurityException e) {
-				throw new AssertionError(); // The system has no TLS. Just give up.
-			}
-			okClient.setSslSocketFactory(sslContext.getSocketFactory());
-
 			System.setProperty("http.keepAliveDuration", String.valueOf(HTTP_KEEP_ALIVE));
 		} else {
 			okClient = null;
