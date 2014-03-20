@@ -33,7 +33,8 @@ public class HttpClient {
 
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
-	 * <p>The user agent is deduced from the app name of the Context</p>
+	 * <p>The user agent is deduced from the app name of the {@code context} if it's not {@code null}</p>
+	 * @param context Used to get a proper User Agent for your app, may be {@code null}
 	 */
 	public static void setup(Context context) {
 		userAgent = "LevelUp-HttpClient/00000";
