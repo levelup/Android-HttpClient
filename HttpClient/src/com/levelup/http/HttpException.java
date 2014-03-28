@@ -247,7 +247,7 @@ public class HttpException extends Exception {
 
 				try {
 					this.statusCode = resp.getResponseCode();
-				} catch (IOException ignored) {
+				} catch (IOException e) {
 					this.statusCode = 200;
 				}
 			}

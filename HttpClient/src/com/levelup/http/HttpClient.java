@@ -246,7 +246,7 @@ public class HttpClient {
 				try {
 					if (is!=null)
 						is.close();
-				} catch (IOException e) {
+				} catch (IOException ignored) {
 				}
 			}
 		}
