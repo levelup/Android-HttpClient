@@ -1,0 +1,34 @@
+apply plugin: 'android-library'
+
+archivesBaseName = 'HttpClient-Async'
+
+dependencies {
+    compile project(':Android-HttpClient:HttpClient')
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '19.0.2'
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 19
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+
+    release {
+        runProguard false
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    }
+}
