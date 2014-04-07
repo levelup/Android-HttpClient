@@ -15,16 +15,26 @@ public class RequestSigner {
 	private final OAuthUser user;
 	private OAuthConsumer mOAuthConsumer;
 
+	/**
+	 * A {@link RequestSigner} for the specified clientApp and user authenticating
+	 * @param clientApp The {@link OAuthClientApp} used to sign the HTTP queries 
+	 * @param user The use used to authenticate, may be {@code null}
+	 */
 	public RequestSigner(OAuthClientApp clientApp, OAuthUser user) {
 		if (null == clientApp) throw new NullPointerException("We need an OAuthClientApp to authenticate");
-		if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");
+		//if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");
 		this.mOAuthConsumer = new HttpClientOAuthConsumer(clientApp);
 		this.user = user;
 	}
 
+	/**
+	 * A {@link RequestSigner} for the specified consumer ({@link OAuthConsumer signpost class}) and user authenticating
+	 * @param consumer The {@link OAuthConsumer} used to sign if you don't want to use a {@link OAuthClientApp}
+	 * @param user The use used to authenticate, may be {@code null}
+	 */
 	public RequestSigner(OAuthConsumer consumer, OAuthUser user) {
 		if (null == consumer) throw new NullPointerException("We need an OAuthConsumer to authenticate");
-		if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");
+		//if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");
 		this.mOAuthConsumer = consumer;
 		this.user = user;
 	}
@@ -35,7 +45,11 @@ public class RequestSigner {
 
 	public void sign(HttpRequest req, HttpParameters oauthParams) throws HttpException {
 		synchronized (mOAuthConsumer) {
-			mOAuthConsumer.setTokenWithSecret(user.getToken(), user.getTokenSecret());
+			if (null!=user) {
+				mOAuthConsumer.setTokenWithSecret(user.getToken(), user.getTokenSecret());
+			} else {
+				mOAuthConsumer.setTokenWithSecret("", "");
+			}
 			mOAuthConsumer.setAdditionalParameters(oauthParams);
 
 			try {

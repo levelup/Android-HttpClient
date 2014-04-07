@@ -19,6 +19,16 @@ public class OAuthUserTest extends TestCase {
 			return "consumer-key";
 		}
 	};
+	
+	public void testNullUser() throws Exception {
+		RequestSigner signer = new RequestSigner(testApp, null);
+		HttpParamsGet httpParams = new HttpParamsGet(1);
+		httpParams.add("msg", "signed message");
+
+		HttpRequest get = new HttpRequestSignedGet(signer, "http://www.levelupstudio.com/", httpParams);
+
+		HttpClient.getQueryResponse(get);
+	}
 
 	public void testEmptyUser() throws Exception {
 		OAuthUser emptyUser = new OAuthUser() {
