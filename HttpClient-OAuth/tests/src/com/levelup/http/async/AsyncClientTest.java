@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
+import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestGet;
@@ -17,6 +18,12 @@ public class AsyncClientTest extends TestCase {
 	private static final String BASIC_URL = "http://www.levelupstudio.com/";
 	private static final String BASIC_URL_TAG = "test1";
 	private static final String LARGE_URL = "http://video.webmfiles.org/big-buck-bunny_trailer.webm";
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		HttpClient.setConnectionFactory(null); // make sure we don't use Okhttp
+	}
 
 	public void testAsyncSimpleQuery() {
 		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, null);
