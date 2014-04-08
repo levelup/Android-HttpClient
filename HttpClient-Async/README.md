@@ -3,8 +3,8 @@ Android-HttpClient OkHttp Module
 
 A module for HttpClient asynchronous client to easily do network queries outside of the UI thread.
 
-Your AsyncHttpCallback is run in the UI thread after the query has finished processing the InputStream.
-There are helper API to simply query a String. You can also use the HttpClient's InputStreamParser 
+Your `AsyncHttpCallback` is run in the UI thread after the query has finished processing the `InputStream`.
+There are helper API to simply query a String. You can also use the HttpClient's `InputStreamParser` 
 interface to proces the data the way you want in the network thread, for example to process the data with GSon.
 
 By default the network tasks run in a pool of 3 * NumberOfProcessor but you can change the default Executor or use a different one per query.

@@ -17,6 +17,7 @@ Features
 * lightweight on memory
 * get the result of a query directly as a String
 * single Exception type thrown from the `HttpClient`
+* possibility to process the InputStream to parse it without coding a whole client
 * support for timeouts per queries
 * custom logging per HTTP query
 * support for high-level cookie handling
@@ -33,6 +34,23 @@ multipart.add("text", "my picture");
 HttpRequestPost post = new HttpRequestPost("http://my.com/picture.upload", multipart);
 
 String response = HttpClient.getStringResponse(post);
+```
+
+```java
+HttpRequestGet apiGet = new HttpRequestGet("http://my.com/api.json");
+
+ApiObject parsed = HttpClient.parseRequest(apiGet, new InputStreamParser<ApiObject>() {
+	@Override
+	public ApiObject parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
+		// Process your InputStream
+		JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
+		try {
+			return readMessagesArray(reader);
+		} finally {
+			reader.close();
+		}
+	}
+});
 ```
 
 License
