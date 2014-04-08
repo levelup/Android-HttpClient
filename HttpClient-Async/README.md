@@ -1,4 +1,4 @@
-Android-HttpClient OkHttp Module
+Android-HttpClient Asynchronous Module
 ================================
 
 A module for HttpClient asynchronous client to easily do network queries outside of the UI thread.
