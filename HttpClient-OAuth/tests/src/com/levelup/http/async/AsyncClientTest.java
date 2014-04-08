@@ -1,7 +1,9 @@
 package com.levelup.http.async;
 
 import java.io.IOException;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +20,7 @@ public class AsyncClientTest extends TestCase {
 	private static final String BASIC_URL = "http://www.levelupstudio.com/";
 	private static final String BASIC_URL_TAG = "test1";
 	private static final String LARGE_URL = "http://video.webmfiles.org/big-buck-bunny_trailer.webm";
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -50,8 +52,9 @@ public class AsyncClientTest extends TestCase {
 			}
 		});
 		try {
-			latch.await(10, TimeUnit.SECONDS);
+			latch.await(20, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
+			fail("unreanably slow");
 		}
 	}
 
@@ -75,7 +78,18 @@ public class AsyncClientTest extends TestCase {
 				}
 			}
 		});
+
 		downloadTask.cancel(true);
+
+		try {
+			downloadTask.get();
+		} catch(CancellationException e) {
+			// fine
+		} catch (InterruptedException e) {
+			// fine
+		} catch (ExecutionException e) {
+			fail("the task did not exit correctly "+e);
+		}
 	}
 
 	public void testCancelLong() {
@@ -101,6 +115,17 @@ public class AsyncClientTest extends TestCase {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 		}
+
 		downloadTask.cancel(true);
+
+		try {
+			downloadTask.get();
+		} catch(CancellationException e) {
+			// fine
+		} catch (InterruptedException e) {
+			// fine
+		} catch (ExecutionException e) {
+			fail("the task did not exit correctly "+e);
+		}
 	}
 }
