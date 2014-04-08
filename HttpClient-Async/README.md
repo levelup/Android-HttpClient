@@ -48,7 +48,7 @@ downloadTask.cancel(true);
 <h2>Sample with an InputStreamParser</h2>
 ```java
 // Generic parser to turn some JSON data into your own MyObject class
-InputStreamParser<MyObject> jsonToObject = new InputStreamParser<MyObject>) {
+final static InputStreamParser<MyObject> JsonToObject = new InputStreamParser<MyObject>) {
 	@Override
 	public MyObject parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
 		// Process your InputStream
@@ -63,7 +63,7 @@ InputStreamParser<MyObject> jsonToObject = new InputStreamParser<MyObject>) {
 
 // Do the JSON API query in the background and get the result in the UI thread
 HttpRequest request = new HttpRequestGet("http://service.com/api.json");
-AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, jsonToObject, new AsyncHttpCallback<MyObject>() {
+AsyncHttpClient.doRequest(request, JsonToObject, new AsyncHttpCallback<MyObject>() {
 	@Override
 	public void onHttpSuccess(MyObject response) {
 		// the object parsed from JSON data, called in the UI thread
