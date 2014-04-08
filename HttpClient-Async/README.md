@@ -26,6 +26,56 @@ AsyncHttpClient.getString("http://www.levelupstudio.com/", null, new AsyncHttpCa
 });
 ```
 
+<h2>Sample to cancel a download</h2>
+```java
+HttpRequest request = new HttpRequestGet("http://www.levelupstudio.com/");
+Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new AsyncHttpCallback<String>() {
+	@Override
+	public void onHttpSuccess(String response) {
+		// the HTML code of the web page
+	}
+
+	@Override
+	public void onHttpError(Throwable t) {
+		// shit happens
+	}
+});
+
+// cancel the download we just started/queued
+downloadTask.cancel(true);
+```
+
+<h2>Sample with an InputStreamParser</h2>
+```java
+// Generic parser to turn some JSON data into your own MyObject class
+InputStreamParser<MyObject> jsonToObject = new InputStreamParser<MyObject>) {
+	@Override
+	public MyObject parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
+		// Process your InputStream
+		JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
+		try {
+			return jsonReaderToMyObject(reader);
+		} finally {
+			reader.close();
+		}
+	}
+}
+
+// Do the JSON API query in the background and get the result in the UI thread
+HttpRequest request = new HttpRequestGet("http://service.com/api.json");
+AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, jsonToObject, new AsyncHttpCallback<MyObject>() {
+	@Override
+	public void onHttpSuccess(MyObject response) {
+		// the object parsed from JSON data, called in the UI thread
+	}
+
+	@Override
+	public void onHttpError(Throwable t) {
+		// shit happens
+	}
+});
+```
+
 License
 -------
 

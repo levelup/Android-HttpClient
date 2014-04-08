@@ -36,6 +36,7 @@ HttpRequestPost post = new HttpRequestPost("http://my.com/picture.upload", multi
 String response = HttpClient.getStringResponse(post);
 ```
 
+<h2>Sample with an InputStreamParser</h2>
 ```java
 HttpRequestGet apiGet = new HttpRequestGet("http://my.com/api.json");
 
