@@ -30,11 +30,9 @@ public class AsyncHttpClient {
 	private static final int THREAD_POOL_SIZE = 3*Runtime.getRuntime().availableProcessors();
 	private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>();
 
-	public static AsyncHttpClient instance = new AsyncHttpClient();
+	private static final HashMap<String, Future<?>> taggedJobs = new HashMap<String, Future<?>>();
 
-	private final HashMap<String, Future<?>> taggedJobs = new HashMap<String, Future<?>>();
-
-	private ExecutorService executor = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
+	private static ExecutorService executor = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
 
 	private AsyncHttpClient() {
 	}
@@ -42,10 +40,10 @@ public class AsyncHttpClient {
 	/**
 	 * Replaces the default {@link ExecutorService} with your own
 	 * <p>This should be called before doing any queries
-	 * @param executor The {@link ExecutorService} that will run the network queries
+	 * @param newExecutor The {@link ExecutorService} that will run the network queries
 	 */
-	public void setExecutorService(ExecutorService executor) {
-		this.executor = executor;
+	public static void setExecutorService(ExecutorService newExecutor) {
+		executor = newExecutor;
 	}
 
 	/**
@@ -53,7 +51,7 @@ public class AsyncHttpClient {
 	 * <p>Can be useful if you want to use it as your network Thread pool 
 	 * @return The {@link ExecutorService} used by the Async client.
 	 */
-	public ExecutorService getExecutorService() {
+	public static ExecutorService getExecutorService() {
 		return executor;
 	}
 
@@ -63,7 +61,7 @@ public class AsyncHttpClient {
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 */
-	public void getString(String url, String tag, AsyncHttpCallback<String> callback) {
+	public static void getString(String url, String tag, AsyncHttpCallback<String> callback) {
 		HttpRequestGet req = new HttpRequestGet(url);
 		getString(req, tag, callback);
 	}
@@ -75,7 +73,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
-	public <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
+	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
 		return doRequest(request, parser, callback, DownloadTaskFactory.BaseDownloadTaskFactory.instance);
 	}
 
@@ -88,7 +86,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #doRequest(HttpRequest, InputStreamParser, AsyncHttpCallback)
 	 */
-	public <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
 		return doRequest(executor, request, parser, callback, factory);
 	}
 
@@ -102,7 +100,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #doRequest(HttpRequest, String, InputStreamParser, AsyncHttpCallback)
 	 */
-	public <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
 		if (null==parser) throw new InvalidParameterException();
 
 		Callable<T> netReq = new Callable<T>() {
@@ -124,7 +122,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @see #getString(String, String, AsyncHttpCallback)
 	 */
-	public void getString(final HttpRequest request, final String tag, final AsyncHttpCallback<String> callback) {
+	public static void getString(final HttpRequest request, final String tag, final AsyncHttpCallback<String> callback) {
 		doRequest(request, tag, InputStreamStringParser.instance, callback);
 	}
 
@@ -137,7 +135,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @see #getString(HttpRequest, String, AsyncHttpCallback)
 	 */
-	public <T> void doRequest(final HttpRequest request, String tag, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
+	public static <T> void doRequest(final HttpRequest request, String tag, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
 		if (null==parser) throw new InvalidParameterException();
 
 		if (TextUtils.isEmpty(tag)) {
@@ -179,8 +177,8 @@ public class AsyncHttpClient {
 						super.onDownloadDone();
 					} finally {
 						if (null!=tag) {
-							synchronized (instance.taggedJobs) {
-								instance.taggedJobs.remove(tag);
+							synchronized (taggedJobs) {
+								taggedJobs.remove(tag);
 							}
 						}
 					}
