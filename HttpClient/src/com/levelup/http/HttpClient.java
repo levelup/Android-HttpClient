@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
@@ -107,7 +108,7 @@ public class HttpClient {
 			 */
 			if (!TextUtils.isEmpty(userAgent))
 				connection.setRequestProperty(HTTP.USER_AGENT, userAgent);
-			
+
 			if (null!=defaultHeaders) {
 				for (Header header : defaultHeaders) {
 					request.setHeader(header.getName(), header.getValue());
@@ -167,36 +168,34 @@ public class HttpClient {
 	}
 
 	/**
-	 * Perform the query on the network and get the resulting body as a String
-	 * <p>Perform various checks on the result and throw {@link HttpException} in case of problem</p>
-	 * @param request
-	 * @return
+	 * Perform the query on the network and get the resulting body as an InputStream
+	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
+	 * @param request The HTTP request to process
+	 * @return The InputStream corresponding to the data stream, may be null
 	 * @throws HttpException
 	 */
-	public static String getStringResponse(HttpRequest request) throws HttpException {
+	public static InputStream getInputStream(HttpRequest request) throws HttpException {
 		HttpURLConnection resp = getQueryResponse(request);
-		final StringBuilder sb = new StringBuilder();
 
+		InputStream is = null;
 		if (resp!=null) {
-			InputStream is = null;
 			try {
-
 				final int contentLength = resp.getContentLength();
-				if (contentLength >= 0)
-					sb.ensureCapacity(contentLength);
 				if (contentLength != 0) {
 					is = resp.getInputStream();
 					if ("deflate".equals(resp.getContentEncoding()) && !(is instanceof InflaterInputStream))
 						is = new InflaterInputStream(is);
 					if ("gzip".equals(resp.getContentEncoding()) && !(is instanceof GZIPInputStream))
 						is = new GZIPInputStream(is);
+				}
+
+				if (resp.getResponseMessage()==null) {
+					StringBuilder sb = contentLength!=0 ? new StringBuilder(contentLength) : new StringBuilder();
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
 					for (String line = reader.readLine(); line!=null; line = reader.readLine())
 						sb.append(line);
 					reader.close();
-				}
 
-				if (resp.getResponseMessage()==null) {
 					HttpException.Builder builder = request.newException();
 					builder.setErrorMessage(sb.length()==0 ? "empty response" : sb.toString());
 					builder.setErrorCode(HttpException.ERROR_HTTP);
@@ -208,6 +207,12 @@ public class HttpClient {
 					// test if it's the right MIME type or throw an exception that can be caught to use the bad data
 					String contentType = (resp.getInputStream()==null || resp.getContentType()==null) ? null : resp.getContentType();
 					if (contentType!=null && !contentType.startsWith(expectedMimeType)) {
+						StringBuilder sb = contentLength!=0 ? new StringBuilder(contentLength) : new StringBuilder();
+						BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
+						for (String line = reader.readLine(); line!=null; line = reader.readLine())
+							sb.append(line);
+						reader.close();
+
 						HttpException.Builder builder = request.newException();
 						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+contentType+"' - "+sb.toString());
 						builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
@@ -221,17 +226,17 @@ public class HttpClient {
 					throw builder.build();
 				}
 
-			} catch (SocketTimeoutException e) {
-				HttpException.Builder builder = request.newException();
-				builder.setErrorMessage(sb.length()==0 ? "timeout" : sb.toString());
-				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-				throw builder.build();
-
 			} catch (FileNotFoundException e) {
 				LogManager.getLogger().i("fail for "+request);
 				HttpException.Builder builder = request.newExceptionFromResponse(resp);
 				builder.setCause(e);
+				throw builder.build();
+
+			} catch (SocketTimeoutException e) {
+				HttpException.Builder builder = request.newException();
+				builder.setErrorMessage("timeout");
+				builder.setCause(e);
+				builder.setErrorCode(HttpException.ERROR_TIMEOUT);
 				throw builder.build();
 
 			} catch (IOException e) {
@@ -241,20 +246,60 @@ public class HttpClient {
 				builder.setCause(e);
 				builder.setErrorCode(HttpException.ERROR_NETWORK);
 				throw builder.build();
-
-			} finally {
-				try {
-					if (is!=null)
-						is.close();
-				} catch (IOException ignored) {
-				}
 			}
 		}
 
-		if (null != request.getLogger() && sb != null) {
-			request.getLogger().v(sb.toString());
-		}
+		return is;
+	}
+	
+	/**
+	 * Perform the query on the network and get the resulting body as an InputStream
+	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
+	 * @param request The HTTP request to process
+	 * @param parser The {@link InputStreamParser parser} used to transform the input stream into the desired type
+	 * @return The parsed object or null
+	 * @throws HttpException
+	 */
+	public static <T> T parseRequest(HttpRequest request, InputStreamParser<T> parser) throws HttpException {
+		if (null==parser) throw new InvalidParameterException();
+		InputStream is = getInputStream(request);
+		if (null==is)
+			return null;
 
-		return sb.toString();
+		try {
+			return parser.parseInputStream(is, request);
+			
+		} catch (SocketTimeoutException e) {
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("timeout");
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
+			throw builder.build();
+
+		} catch (IOException e) {
+			LogManager.getLogger().i("fail for "+request);
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("IO error "+e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_NETWORK);
+			throw builder.build();
+
+		} finally {
+			try {
+				is.close();
+			} catch (IOException ignored) {
+			}
+		}
+	}
+
+	/**
+	 * Perform the query on the network and get the resulting body as a String
+	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
+	 * @param request The HTTP request to process
+	 * @return The resulting body as a String
+	 * @throws HttpException
+	 */
+	public static String getStringResponse(HttpRequest request) throws HttpException {
+		return parseRequest(request, InputStreamStringParser.instance);
 	}
 }
