@@ -29,8 +29,8 @@ public class DownloadTask<T> extends FutureTask<T> {
 	 */
 	protected void onDownloadDone() {
 		try {
+			T result = get();
 			if (null!=callback && !isCancelled()) {
-				T result = get();
 				callback.onHttpSuccess(result);
 			}
 		} catch (CancellationException e) {
