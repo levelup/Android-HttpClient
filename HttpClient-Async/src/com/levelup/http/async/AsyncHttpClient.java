@@ -4,6 +4,7 @@ import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -88,6 +89,20 @@ public class AsyncHttpClient {
 	 * @see #doRequest(HttpRequest, InputStreamParser, AsyncHttpCallback)
 	 */
 	public <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
+		return doRequest(executor, request, parser, callback, factory);
+	}
+
+	/**
+	 * Run an {@link HttpRequest HTTP request} in the thread executor and post the resulting parsed object to {@code callback} in the UI thread.
+	 * @param executor The executor to use for the downloading thread
+	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
+	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
+	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
+	 * @param factory Factory used to create the {@link DownloadTask} that will download the data and send the result in the UI thread
+	 * @return A Future<T> representing the download task, if you need to cancel it
+	 * @see #doRequest(HttpRequest, String, InputStreamParser, AsyncHttpCallback)
+	 */
+	public <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
 		if (null==parser) throw new InvalidParameterException();
 
 		Callable<T> netReq = new Callable<T>() {
@@ -101,7 +116,7 @@ public class AsyncHttpClient {
 		executor.execute(task);
 		return task;
 	}
-
+	
 	/**
 	 * Do an {@link HttpRequest} query to load a String though this asynchronous client
 	 * @param request {@link HttpRequest HTTP request} to execute
