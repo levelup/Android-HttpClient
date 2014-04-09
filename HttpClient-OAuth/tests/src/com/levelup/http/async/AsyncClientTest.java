@@ -23,6 +23,10 @@ public class AsyncClientTest extends TestCase {
 	private static final String BASIC_URL_HTTPS = "https://www.google.com/";
 	private static final String LARGE_URL_HTTPS = "https://r9---sn-h5q7dn7z.googlevideo.com/videoplayback?source=youtube&upn=Dnfh7W6F4SE&mv=m&sparams=id%2Cip%2Cipbits%2Citag%2Cratebypass%2Crequiressl%2Csource%2Cupn%2Cexpire&signature=D3957D5C696B6C837DAC7CDCB4AA8B9063535409.C9922A68DB258307C6A8473870829E5012089A0F&key=yt5&ip=90.55.187.57&requiressl=yes&ms=au&fexp=902904%2C919122%2C939939%2C945031%2C916807%2C936207%2C936108%2C940204%2C937417%2C913434%2C936916%2C934022%2C936921%2C936923&mt=1397033661&ratebypass=yes&expire=1397056090&itag=18&ipbits=0&id=o-AMplDYPpfxK9OzIL_ooaTp101GKK7z4syFDckhfeY_pN&sver=3&cpn=Iv1jJdzergLmN6Wz&ptk=youtube_none&pltype=contentugc";
 
+	// TODO test with streaming connection (chunked over HTTPS with sometimes no data sent for 1 minute)
+	// TODO test with streaming connection with SPDY
+	// TODO test with long POST
+	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -32,25 +36,27 @@ public class AsyncClientTest extends TestCase {
 	public void testAsyncSimpleQuery() {
 		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, null);
 	}
+	
+	private static class TestAsyncCallback extends BaseAsyncHttpCallback<String> {
+		@Override
+		public void onHttpFailed(Throwable t) {
+			if (t instanceof IOException) {
+				// shit happens
+			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
+				// shit happens
+			} else {
+				fail(t.getMessage());
+			}
+		}
+	}
 
 	public void testAsyncSimpleQueryResult() {
 		final CountDownLatch latch = new CountDownLatch(1);
 
-		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, new AsyncHttpCallback<String>() {
+		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, new TestAsyncCallback() {
 			@Override
 			public void onHttpSuccess(String response) {
 				latch.countDown();
-			}
-
-			@Override
-			public void onHttpError(Throwable t) {
-				if (t instanceof IOException) {
-					// shit happens
-				} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
-					// shit happens
-				} else {
-					fail(t.getMessage());
-				}
 			}
 		});
 		try {
@@ -63,21 +69,10 @@ public class AsyncClientTest extends TestCase {
 
 	public void testCancelShort() {
 		HttpRequest request = new HttpRequestGet(BASIC_URL);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new AsyncHttpCallback<String>() {
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
 			@Override
 			public void onHttpSuccess(String response) {
 				fail("We're not supposed to have received this");
-			}
-
-			@Override
-			public void onHttpError(Throwable t) {
-				if (t instanceof IOException) {
-					// shit happens
-				} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
-					// shit happens
-				} else {
-					fail(t.getMessage());
-				}
 			}
 		});
 
@@ -96,21 +91,10 @@ public class AsyncClientTest extends TestCase {
 
 	public void testCancelShortHttps() {
 		HttpRequest request = new HttpRequestGet(BASIC_URL_HTTPS);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new AsyncHttpCallback<String>() {
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
 			@Override
 			public void onHttpSuccess(String response) {
 				fail("We're not supposed to have received this");
-			}
-
-			@Override
-			public void onHttpError(Throwable t) {
-				if (t instanceof IOException) {
-					// shit happens
-				} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
-					// shit happens
-				} else {
-					fail(t.getMessage());
-				}
 			}
 		});
 
@@ -129,21 +113,10 @@ public class AsyncClientTest extends TestCase {
 
 	public void testCancelLong() {
 		HttpRequest request = new HttpRequestGet(LARGE_URL);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new AsyncHttpCallback<String>() {
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
 			@Override
 			public void onHttpSuccess(String response) {
 				fail("We're not supposed to have received this");
-			}
-
-			@Override
-			public void onHttpError(Throwable t) {
-				if (t instanceof IOException) {
-					// shit happens
-				} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
-					// shit happens
-				} else {
-					fail(t.getMessage());
-				}
 			}
 		});
 		try {
@@ -166,21 +139,10 @@ public class AsyncClientTest extends TestCase {
 	
 	public void testCancelLongHttps() {
 		HttpRequest request = new HttpRequestGet(LARGE_URL_HTTPS);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new AsyncHttpCallback<String>() {
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
 			@Override
 			public void onHttpSuccess(String response) {
 				fail("We're not supposed to have received this");
-			}
-
-			@Override
-			public void onHttpError(Throwable t) {
-				if (t instanceof IOException) {
-					// shit happens
-				} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
-					// shit happens
-				} else {
-					fail(t.getMessage());
-				}
 			}
 		});
 		try {
@@ -200,8 +162,4 @@ public class AsyncClientTest extends TestCase {
 			fail("the task did not exit correctly "+e);
 		}
 	}
-	
-	// TODO test with streaming connection (chunked over HTTPS with sometimes no data sent for 1 minute)
-	// TODO test with streaming connection with SPDY
-	// TODO test with long POST
 }

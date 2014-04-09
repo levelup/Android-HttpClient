@@ -33,11 +33,15 @@ public class DownloadTask<T> extends FutureTask<T> {
 			}
 		}, request, callback);
 	}
-	
+
 	public DownloadTask(Callable<T> callable, HttpRequest request, AsyncHttpCallback<T> callback) {
 		super(callable);
 		this.callback = callback;
 		this.request = request;
+	}
+
+	public HttpRequest getHttpRequest() {
+		return request;
 	}
 
 	@Override
@@ -54,19 +58,34 @@ public class DownloadTask<T> extends FutureTask<T> {
 	 * Method called in the UI thread after the job has finished running
 	 */
 	protected void onDownloadDone() {
-		try {
-			T result = get();
-			if (null!=callback && !isCancelled()) {
-				callback.onHttpSuccess(result);
+		if (null!=callback)
+			try {
+				T result = get();
+				if (!isCancelled()) {
+					callback.onHttpSuccess(result);
+				}
+			} catch (CancellationException e) {
+				// do nothing, the job was canceled
+			} catch (InterruptedException e) {
+				// do nothing, the job was canceled
+			} catch (ExecutionException e) {
+				callback.onHttpFailed(e.getCause());
+			} finally {
+				callback.onHttpFinished();
 			}
-		} catch (CancellationException e) {
-			// do nothing, the job was canceled
-		} catch (InterruptedException e) {
-			// do nothing, the job was canceled
-		} catch (ExecutionException e) {
-			if (null!=callback)
-				callback.onHttpError(e.getCause());
-		}
+	}
+
+	@Override
+	public void run() {
+		if (null!=callback)
+			uiHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					callback.onHttpStarted();
+				}
+			});
+
+		super.run();
 	}
 
 	protected final void done() {

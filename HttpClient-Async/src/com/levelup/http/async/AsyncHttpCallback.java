@@ -19,5 +19,17 @@ public interface AsyncHttpCallback<T> {
 	 * <p>Will not be called if the download has been interrupted
 	 * @param t
 	 */
-	void onHttpError(Throwable t);
+	void onHttpFailed(Throwable t);
+	
+	/**
+	 * Called when the HTTP request is about to start being processed
+	 * <p>Always balanced with {@link #onHttpFinished()}
+	 */
+	void onHttpStarted();
+	
+	/**
+	 * Called when the HTTP request has finished processing
+	 * <p>Always balanced with {@link #onHttpStarted()}
+	 */
+	void onHttpFinished();
 }
