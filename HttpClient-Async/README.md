@@ -13,15 +13,10 @@ Sample Code
 -----------
 
 ```java
-AsyncHttpClient.getString("http://www.levelupstudio.com/", null, new AsyncHttpCallback<String>() {
+AsyncHttpClient.getString("http://www.levelupstudio.com/", null, new BaseAsyncHttpCallback<String>() {
 	@Override
 	public void onHttpSuccess(String response) {
 		// your String result here
-	}
-
-	@Override
-	public void onHttpError(Throwable t) {
-		// something went wrong
 	}
 });
 ```
@@ -29,15 +24,10 @@ AsyncHttpClient.getString("http://www.levelupstudio.com/", null, new AsyncHttpCa
 <h2>Sample to cancel a download</h2>
 ```java
 HttpRequest request = new HttpRequestGet("http://www.levelupstudio.com/");
-Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new AsyncHttpCallback<String>() {
+Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new BaseAsyncHttpCallback<String>() {
 	@Override
 	public void onHttpSuccess(String response) {
 		// the HTML code of the web page
-	}
-
-	@Override
-	public void onHttpError(Throwable t) {
-		// shit happens
 	}
 });
 
@@ -63,15 +53,10 @@ final static InputStreamParser<MyObject> JsonToObject = new InputStreamParser<My
 
 // Do the JSON API query in the background and get the result in the UI thread
 HttpRequest request = new HttpRequestGet("http://service.com/api.json");
-AsyncHttpClient.doRequest(request, JsonToObject, new AsyncHttpCallback<MyObject>() {
+AsyncHttpClient.doRequest(request, JsonToObject, new BaseAsyncHttpCallback<MyObject>() {
 	@Override
 	public void onHttpSuccess(MyObject response) {
 		// the object parsed from JSON data, called in the UI thread
-	}
-
-	@Override
-	public void onHttpError(Throwable t) {
-		// shit happens
 	}
 });
 ```
