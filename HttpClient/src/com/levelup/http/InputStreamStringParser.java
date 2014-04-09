@@ -24,7 +24,11 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
 			for (String line = reader.readLine(); line!=null; line = reader.readLine())
 				sb.append(line);
-			reader.close();
+			try {
+				reader.close();
+			} catch (ArrayIndexOutOfBoundsException ignored) {
+				// okhttp 1.5.3 issue
+			}
 		}
 
 		if (null != request.getLogger() && sb != null) {
