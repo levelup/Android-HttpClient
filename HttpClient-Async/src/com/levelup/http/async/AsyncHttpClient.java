@@ -3,7 +3,6 @@ package com.levelup.http.async;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -14,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import android.text.TextUtils;
 
-import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.InputStreamParser;
@@ -103,14 +101,7 @@ public class AsyncHttpClient {
 	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
 		if (null==parser) throw new InvalidParameterException();
 
-		Callable<T> netReq = new Callable<T>() {
-			@Override
-			public T call() throws Exception {
-				return HttpClient.parseRequest(request, parser);
-			}
-		};
-
-		FutureTask<T> task = factory.createDownloadTask(netReq, callback);
+		FutureTask<T> task = factory.createDownloadTask(request, parser, callback);
 		executor.execute(task);
 		return task;
 	}
@@ -170,8 +161,9 @@ public class AsyncHttpClient {
 		}
 
 		@Override
-		public DownloadTask<T> createDownloadTask(Callable<T> netReq, AsyncHttpCallback<T> callback) {
-			return new DownloadTask<T>(netReq, callback) {
+		public DownloadTask<T> createDownloadTask(HttpRequest request, InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
+			return new DownloadTask<T>(request, parser, callback) {
+				@Override
 				protected void onDownloadDone() {
 					try {
 						super.onDownloadDone();
