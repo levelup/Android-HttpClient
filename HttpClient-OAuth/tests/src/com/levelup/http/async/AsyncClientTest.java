@@ -49,6 +49,13 @@ public class AsyncClientTest extends TestCase {
 			}
 		}
 	}
+	
+	private static class TestLongAsyncCallback extends TestAsyncCallback {
+		@Override
+		public void onHttpSuccess(String response) {
+			fail("We're not supposed to have received this");
+		}
+	}
 
 	public void testAsyncSimpleQueryResult() {
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -69,12 +76,7 @@ public class AsyncClientTest extends TestCase {
 
 	public void testCancelShort() {
 		HttpRequest request = new HttpRequestGet(BASIC_URL);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
-			@Override
-			public void onHttpSuccess(String response) {
-				fail("We're not supposed to have received this");
-			}
-		});
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -91,12 +93,7 @@ public class AsyncClientTest extends TestCase {
 
 	public void testCancelShortHttps() {
 		HttpRequest request = new HttpRequestGet(BASIC_URL_HTTPS);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
-			@Override
-			public void onHttpSuccess(String response) {
-				fail("We're not supposed to have received this");
-			}
-		});
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -113,12 +110,7 @@ public class AsyncClientTest extends TestCase {
 
 	public void testCancelLong() {
 		HttpRequest request = new HttpRequestGet(LARGE_URL);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
-			@Override
-			public void onHttpSuccess(String response) {
-				fail("We're not supposed to have received this");
-			}
-		});
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -139,12 +131,7 @@ public class AsyncClientTest extends TestCase {
 	
 	public void testCancelLongHttps() {
 		HttpRequest request = new HttpRequestGet(LARGE_URL_HTTPS);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestAsyncCallback() {
-			@Override
-			public void onHttpSuccess(String response) {
-				fail("We're not supposed to have received this");
-			}
-		});
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {

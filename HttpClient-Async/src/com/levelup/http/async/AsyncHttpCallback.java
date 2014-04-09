@@ -10,14 +10,14 @@ package com.levelup.http.async;
 public interface AsyncHttpCallback<T> {
 	/**
 	 * The resulting data, called in the UI thread
-	 * @param response
+	 * @param result The parsed response after execution
 	 */
-	void onHttpSuccess(T response);
+	void onHttpSuccess(T result);
 	
 	/**
 	 * Called when an error has occurred during the download
 	 * <p>Will not be called if the download has been interrupted
-	 * @param t
+	 * @param t The {@link Throwable} that caused the execution to fail
 	 */
 	void onHttpFailed(Throwable t);
 	

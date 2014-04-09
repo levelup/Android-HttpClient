@@ -3,7 +3,7 @@ package com.levelup.http.async;
 public class BaseAsyncHttpCallback<T> implements AsyncHttpCallback<T> {
 
 	@Override
-	public void onHttpSuccess(T response) {
+	public void onHttpSuccess(T result) {
 	}
 
 	@Override

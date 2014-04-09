@@ -76,17 +76,15 @@ public class NetworkTask<T> extends FutureTask<T> {
 				}
 			});
 
-		super.run();
-	}
-
-	protected final void done() {
-		super.done();
-
-		uiHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				onDownloadDone();
-			}
-		});
+		try {
+			super.run();
+		} finally {
+			uiHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					onDownloadDone();
+				}
+			});
+		}
 	}
 }
