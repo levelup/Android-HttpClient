@@ -162,7 +162,17 @@ public class HttpClient {
 			throw builder.build();
 
 		} finally {
-			request.setResponse(connection);
+			try {
+				request.setResponse(connection);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
+				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
+				HttpException.Builder builder = request.newException();
+				builder.setErrorMessage("Connection closed "+e.getMessage());
+				builder.setCause(e);
+				builder.setErrorCode(HttpException.ERROR_NETWORK);
+				throw builder.build();
+			}
 		}
 		return connection;
 	}
@@ -251,7 +261,7 @@ public class HttpClient {
 
 		return is;
 	}
-	
+
 	/**
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
@@ -268,7 +278,7 @@ public class HttpClient {
 
 		try {
 			return parser.parseInputStream(is, request);
-			
+
 		} catch (SocketTimeoutException e) {
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("timeout");
