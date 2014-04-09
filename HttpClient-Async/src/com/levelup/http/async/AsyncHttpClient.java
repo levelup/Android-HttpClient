@@ -3,6 +3,7 @@ package com.levelup.http.async;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -71,8 +72,9 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
-		return doRequest(request, parser, callback, DownloadTaskFactory.BaseDownloadTaskFactory.instance);
+		return doRequest(request, parser, callback, BaseDownloadTaskFactory.instance);
 	}
 
 	/**
@@ -101,7 +103,13 @@ public class AsyncHttpClient {
 	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
 		if (null==parser) throw new InvalidParameterException();
 
-		FutureTask<T> task = factory.createDownloadTask(request, parser, callback);
+		FutureTask<T> task = factory.createDownloadTask(new HttpCallable<T>(request, parser), callback);
+		executor.execute(task);
+		return task;
+	}
+
+	public static <T> Future<T> doRequest(Executor executor, Callable<T> callable, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
+		FutureTask<T> task = factory.createDownloadTask(callable, callback);
 		executor.execute(task);
 		return task;
 	}
@@ -161,8 +169,8 @@ public class AsyncHttpClient {
 		}
 
 		@Override
-		public DownloadTask<T> createDownloadTask(HttpRequest request, InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
-			return new DownloadTask<T>(request, parser, callback) {
+		public DownloadTask<T> createDownloadTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
+			return new DownloadTask<T>(callable, callback) {
 				@Override
 				protected void onDownloadDone() {
 					try {

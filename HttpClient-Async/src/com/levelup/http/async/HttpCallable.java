@@ -9,7 +9,13 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 
-class HttpCallable<T> implements Callable<T>, Closeable {
+/**
+ * Base class to execute an {@link HttpRequest} and parse the received data to return the result of type {@code <T>}
+ * @author Steve Lhomme
+ *
+ * @param <T>
+ */
+public class HttpCallable<T> implements Callable<T>, Closeable {
 	private final HttpRequest request;
 	private final InputStreamParser<T> parser;
 
