@@ -19,16 +19,16 @@ import android.os.Looper;
  *
  * @param <T>
  */
-public class DownloadTask<T> extends FutureTask<T> {
+public class NetworkTask<T> extends FutureTask<T> {
 	private final AsyncHttpCallback<T> callback;
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public DownloadTask(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
+	public NetworkTask(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
 		this(new HttpCallable<T>(request, parser), callback);
 	}
 
-	public DownloadTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
+	public NetworkTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
 		super(callable);
 		this.callback = callback;
 	}

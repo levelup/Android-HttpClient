@@ -74,7 +74,7 @@ public class AsyncHttpClient {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
-		return doRequest(request, parser, callback, BaseDownloadTaskFactory.instance);
+		return doRequest(request, parser, callback, BaseNetworkTaskFactory.instance);
 	}
 
 	/**
@@ -82,11 +82,11 @@ public class AsyncHttpClient {
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @param factory Factory used to create the {@link DownloadTask} that will download the data and send the result in the UI thread
+	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #doRequest(HttpRequest, InputStreamParser, AsyncHttpCallback)
 	 */
-	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, NetworkTaskFactory<T> factory) {
 		return doRequest(executor, request, parser, callback, factory);
 	}
 
@@ -96,20 +96,18 @@ public class AsyncHttpClient {
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @param factory Factory used to create the {@link DownloadTask} that will download the data and send the result in the UI thread
+	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #doRequest(HttpRequest, String, InputStreamParser, AsyncHttpCallback)
 	 */
-	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, NetworkTaskFactory<T> factory) {
 		if (null==parser) throw new InvalidParameterException();
 
-		FutureTask<T> task = factory.createDownloadTask(new HttpCallable<T>(request, parser), callback);
-		executor.execute(task);
-		return task;
+		return doRequest(executor, factory, new HttpCallable<T>(request, parser), callback);
 	}
 
-	public static <T> Future<T> doRequest(Executor executor, Callable<T> callable, AsyncHttpCallback<T> callback, DownloadTaskFactory<T> factory) {
-		FutureTask<T> task = factory.createDownloadTask(callable, callback);
+	public static <T> Future<T> doRequest(Executor executor, NetworkTaskFactory<T> factory, Callable<T> callable, AsyncHttpCallback<T> callback) {
+		FutureTask<T> task = factory.createNetworkTask(callable, callback);
 		executor.execute(task);
 		return task;
 	}
@@ -158,10 +156,10 @@ public class AsyncHttpClient {
 	}
 
 	/**
-	 * A {@link DownloadTaskFactory} that will remove the tag from the running tasks when done
+	 * A {@link NetworkTaskFactory} that will remove the tag from the running tasks when done
 	 * @param <T>
 	 */
-	private static class TaggedStringDownloadFactory<T> implements DownloadTaskFactory<T> {
+	private static class TaggedStringDownloadFactory<T> implements NetworkTaskFactory<T> {
 		private final String tag;
 
 		TaggedStringDownloadFactory(String tag) {
@@ -169,8 +167,8 @@ public class AsyncHttpClient {
 		}
 
 		@Override
-		public DownloadTask<T> createDownloadTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
-			return new DownloadTask<T>(callable, callback) {
+		public NetworkTask<T> createNetworkTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
+			return new NetworkTask<T>(callable, callback) {
 				@Override
 				protected void onDownloadDone() {
 					try {
