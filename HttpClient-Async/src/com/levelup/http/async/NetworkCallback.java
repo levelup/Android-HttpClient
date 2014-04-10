@@ -7,29 +7,31 @@ package com.levelup.http.async;
  *
  * @param <T>
  */
-public interface AsyncHttpCallback<T> {
+public interface NetworkCallback<T> {
 	/**
 	 * The resulting data, called in the UI thread
 	 * @param result The parsed response after execution
 	 */
-	void onHttpSuccess(T result);
+	void onNetworkSuccess(T result);
 	
 	/**
 	 * Called when an error has occurred during the download
 	 * <p>Will not be called if the download has been interrupted
 	 * @param t The {@link Throwable} that caused the execution to fail
 	 */
-	void onHttpFailed(Throwable t);
+	void onNetworkFailed(Throwable t);
 	
 	/**
 	 * Called when the HTTP request is about to start being processed
-	 * <p>Always balanced with {@link #onHttpFinished()}
+	 * <p>Always balanced with {@link #onNetworkFinished(NetworkTask)}
+	 * @param task The {@link NetworkTask} that has started
 	 */
-	void onHttpStarted();
+	void onNetworkStarted(NetworkTask<T> task);
 	
 	/**
 	 * Called when the HTTP request has finished processing
-	 * <p>Always balanced with {@link #onHttpStarted()}
+	 * <p>Always balanced with {@link #onNetworkStarted(NetworkTask)}
+	 * @param task The {@link NetworkTask} that has stopped
 	 */
-	void onHttpFinished();
+	void onNetworkFinished(NetworkTask<T> task);
 }

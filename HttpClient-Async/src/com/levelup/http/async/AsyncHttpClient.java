@@ -60,7 +60,7 @@ public class AsyncHttpClient {
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 */
-	public static void getString(String url, String tag, AsyncHttpCallback<String> callback) {
+	public static void getString(String url, String tag, NetworkCallback<String> callback) {
 		HttpRequestGet req = new HttpRequestGet(url);
 		getString(req, tag, callback);
 	}
@@ -73,7 +73,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
+	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback) {
 		return doRequest(request, parser, callback, BaseNetworkTaskFactory.instance);
 	}
 
@@ -84,9 +84,9 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, InputStreamParser, AsyncHttpCallback)
+	 * @see #doRequest(HttpRequest, InputStreamParser, NetworkCallback)
 	 */
-	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, NetworkTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		return doRequest(executor, request, parser, callback, factory);
 	}
 
@@ -98,15 +98,15 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, String, InputStreamParser, AsyncHttpCallback)
+	 * @see #doRequest(HttpRequest, String, InputStreamParser, NetworkCallback)
 	 */
-	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback, NetworkTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		if (null==parser) throw new InvalidParameterException();
 
 		return doRequest(executor, factory, new HttpCallable<T>(request, parser), callback);
 	}
 
-	public static <T> Future<T> doRequest(Executor executor, NetworkTaskFactory<T> factory, Callable<T> callable, AsyncHttpCallback<T> callback) {
+	public static <T> Future<T> doRequest(Executor executor, NetworkTaskFactory<T> factory, Callable<T> callable, NetworkCallback<T> callback) {
 		FutureTask<T> task = factory.createNetworkTask(callable, callback);
 		executor.execute(task);
 		return task;
@@ -117,9 +117,9 @@ public class AsyncHttpClient {
 	 * @param request {@link HttpRequest HTTP request} to execute
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #getString(String, String, AsyncHttpCallback)
+	 * @see #getString(String, String, NetworkCallback)
 	 */
-	public static void getString(final HttpRequest request, final String tag, final AsyncHttpCallback<String> callback) {
+	public static void getString(final HttpRequest request, final String tag, final NetworkCallback<String> callback) {
 		doRequest(request, tag, InputStreamStringParser.instance, callback);
 	}
 
@@ -130,9 +130,9 @@ public class AsyncHttpClient {
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #getString(HttpRequest, String, AsyncHttpCallback)
+	 * @see #getString(HttpRequest, String, NetworkCallback)
 	 */
-	public static <T> void doRequest(final HttpRequest request, String tag, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
+	public static <T> void doRequest(final HttpRequest request, String tag, final InputStreamParser<T> parser, NetworkCallback<T> callback) {
 		if (null==parser) throw new InvalidParameterException();
 
 		if (TextUtils.isEmpty(tag)) {
@@ -167,7 +167,7 @@ public class AsyncHttpClient {
 		}
 
 		@Override
-		public NetworkTask<T> createNetworkTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
+		public NetworkTask<T> createNetworkTask(Callable<T> callable, NetworkCallback<T> callback) {
 			return new NetworkTask<T>(callable, callback) {
 				@Override
 				protected void onDownloadDone() {

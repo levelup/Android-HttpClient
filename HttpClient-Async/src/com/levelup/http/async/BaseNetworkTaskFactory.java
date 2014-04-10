@@ -12,7 +12,7 @@ public class BaseNetworkTaskFactory<T> implements NetworkTaskFactory<T> {
 	public static final BaseNetworkTaskFactory instance = new BaseNetworkTaskFactory();
 	
 	@Override
-	public NetworkTask<T> createNetworkTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
+	public NetworkTask<T> createNetworkTask(Callable<T> callable, NetworkCallback<T> callback) {
 		return new NetworkTask<T>(callable, callback);
 	}
 }

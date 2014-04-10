@@ -20,15 +20,15 @@ import android.os.Looper;
  * @param <T>
  */
 public class NetworkTask<T> extends FutureTask<T> {
-	private final AsyncHttpCallback<T> callback;
+	private final NetworkCallback<T> callback;
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public NetworkTask(final HttpRequest request, final InputStreamParser<T> parser, AsyncHttpCallback<T> callback) {
+	public NetworkTask(final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback) {
 		this(new HttpCallable<T>(request, parser), callback);
 	}
 
-	public NetworkTask(Callable<T> callable, AsyncHttpCallback<T> callback) {
+	public NetworkTask(Callable<T> callable, NetworkCallback<T> callback) {
 		super(callable);
 		this.callback = callback;
 	}
@@ -53,16 +53,16 @@ public class NetworkTask<T> extends FutureTask<T> {
 			try {
 				T result = get();
 				if (!isCancelled()) {
-					callback.onHttpSuccess(result);
+					callback.onNetworkSuccess(result);
 				}
 			} catch (CancellationException e) {
 				// do nothing, the job was canceled
 			} catch (InterruptedException e) {
 				// do nothing, the job was canceled
 			} catch (ExecutionException e) {
-				callback.onHttpFailed(e.getCause());
+				callback.onNetworkFailed(e.getCause());
 			} finally {
-				callback.onHttpFinished();
+				callback.onNetworkFinished(NetworkTask.this);
 			}
 	}
 
@@ -72,7 +72,7 @@ public class NetworkTask<T> extends FutureTask<T> {
 			uiHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					callback.onHttpStarted();
+					callback.onNetworkStarted(NetworkTask.this);
 				}
 			});
 

@@ -11,10 +11,10 @@ import java.util.concurrent.Callable;
  */
 public interface NetworkTaskFactory<T> {
 	/**
-	 * Create a new {@link NetworkTask} to execute the {@link Callable} in the network thread and call the {@link AsyncHttpCallback} in the UI thread when done
+	 * Create a new {@link NetworkTask} to execute the {@link Callable} in the network thread and call the {@link NetworkCallback} in the UI thread when done
 	 * @param callable The callable to execute in the network thread
 	 * @param callback The callback that will be called in the UI thread after the job is done or on error
 	 * @return The {@link NetworkTask} to run
 	 */
-	NetworkTask<T> createNetworkTask(Callable<T> callable, AsyncHttpCallback<T> callback);
+	NetworkTask<T> createNetworkTask(Callable<T> callable, NetworkCallback<T> callback);
 }
