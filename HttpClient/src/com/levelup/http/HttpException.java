@@ -37,6 +37,7 @@ public class HttpException extends Exception {
 	static public final int ERROR_HTTP_BACKOFF      = 420; // Twitter thing
 	static public final int ERROR_HTTP_RATELIMIT    = 429; // Twitter thing
 	static public final int ERROR_HTTP_OVERLOADED   = 503;
+	static public final int ERROR_HTTP_GATEWAY_TIMEOUT = 504;
 	static public final int ERROR_HTTP_INTERNAL     = 506;
 
 
