@@ -29,7 +29,7 @@ public interface NetworkCallback<T> {
 	void onNetworkStarted(NetworkTask<T> task);
 	
 	/**
-	 * Called when the HTTP request has finished processing
+	 * Called when the HTTP request has finished processing. You can use {@link NetworkTask#get()} to get the result or an exception if it didn't finish correctly.
 	 * <p>Always balanced with {@link #onNetworkStarted(NetworkTask)}
 	 * @param task The {@link NetworkTask} that has stopped
 	 */
