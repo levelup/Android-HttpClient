@@ -1,6 +1,5 @@
 package com.levelup.http.async;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -101,7 +100,7 @@ public class AsyncHttpClient {
 	 * @see #doRequest(HttpRequest, String, InputStreamParser, NetworkCallback)
 	 */
 	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
-		if (null==parser) throw new InvalidParameterException();
+		if (null==parser) throw new NullPointerException();
 
 		return doRequest(executor, factory, new HttpCallable<T>(request, parser), callback);
 	}
@@ -133,7 +132,7 @@ public class AsyncHttpClient {
 	 * @see #getString(HttpRequest, String, NetworkCallback)
 	 */
 	public static <T> void doRequest(final HttpRequest request, String tag, final InputStreamParser<T> parser, NetworkCallback<T> callback) {
-		if (null==parser) throw new InvalidParameterException();
+		if (null==parser) throw new NullPointerException();
 
 		if (TextUtils.isEmpty(tag)) {
 			doRequest(request, parser, callback);

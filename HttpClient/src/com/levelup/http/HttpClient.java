@@ -9,7 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
@@ -271,7 +270,7 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static <T> T parseRequest(HttpRequest request, InputStreamParser<T> parser) throws HttpException {
-		if (null==parser) throw new InvalidParameterException();
+		if (null==parser) throw new NullPointerException();
 		InputStream is = getInputStream(request);
 		if (null==is)
 			return null;
