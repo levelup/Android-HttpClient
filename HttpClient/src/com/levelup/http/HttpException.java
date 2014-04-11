@@ -248,6 +248,9 @@ public class HttpException extends Exception {
 
 				try {
 					this.statusCode = resp.getResponseCode();
+				} catch (ArrayIndexOutOfBoundsException e) {
+					// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
+					this.statusCode = 0;
 				} catch (IOException e) {
 					this.statusCode = 200;
 				}
