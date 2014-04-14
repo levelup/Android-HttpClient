@@ -164,6 +164,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	public HttpURLConnection getResponse() {
 		return httpResponse;
 	}
+	
+	protected String getToStringExtra() {
+		return uri.toString();
+	}
 
 	@Override
 	public String toString() {
@@ -180,7 +184,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 		sb.append('{');
 		sb.append(Integer.toHexString(System.identityHashCode(this)));
 		sb.append(' ');
-		sb.append(uri.toString());
+		sb.append(getToStringExtra());
 		sb.append('}');
 		return sb.toString();
 	}

@@ -16,16 +16,6 @@ public class HttpExceptionSigned extends HttpException {
 	public OAuthUser getOAuthUser() {
 		return user;
 	}
-
-	@Override
-	public String getMessage() {
-		if (null==user)
-			return super.getMessage();
-		StringBuilder sb = new StringBuilder(super.getMessage());
-		sb.append(" for ");
-		sb.append(user);
-		return sb.toString();
-	}
 	
 	public static class Builder extends HttpException.Builder {
 	

@@ -42,4 +42,10 @@ public class HttpRequestSignedGet extends HttpRequestGet implements HttpRequestS
 			return null;
 		return signer.getOAuthUser();
 	}
+
+	@Override
+	protected String getToStringExtra() {
+		String result = super.getToStringExtra();
+		return result + " for " + getOAuthUser();
+	}
 }

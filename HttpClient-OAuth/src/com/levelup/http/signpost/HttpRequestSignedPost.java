@@ -37,4 +37,10 @@ public class HttpRequestSignedPost extends HttpRequestPost implements HttpReques
 			return null;
 		return signer.getOAuthUser();
 	}
+
+	@Override
+	protected String getToStringExtra() {
+		String result = super.getToStringExtra();
+		return result + " for " + getOAuthUser();
+	}
 }
