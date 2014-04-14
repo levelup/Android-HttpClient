@@ -179,6 +179,13 @@ public class HttpClient {
 				builder.setCause(e);
 				builder.setErrorCode(HttpException.ERROR_NETWORK);
 				throw builder.build();
+			} catch (IOException e) {
+				LogManager.getLogger().i("fail for "+request);
+				HttpException.Builder builder = request.newException();
+				builder.setErrorMessage("IO error "+e.getMessage());
+				builder.setCause(e);
+				builder.setErrorCode(HttpException.ERROR_NETWORK);
+				throw builder.build();
 			}
 		}
 		return connection;
