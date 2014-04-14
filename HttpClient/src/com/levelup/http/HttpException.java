@@ -203,6 +203,9 @@ public class HttpException extends Exception {
 				} catch (NullPointerException e) {
 					// issue https://github.com/square/okhttp/issues/348
 					this.receivedHeaders = Collections.emptyList();
+				} catch (ArrayIndexOutOfBoundsException e) {
+					// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
+					this.receivedHeaders = Collections.emptyList();
 				}
 			}
 		}
