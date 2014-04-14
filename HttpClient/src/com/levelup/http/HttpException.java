@@ -234,6 +234,16 @@ public class HttpException extends Exception {
 			this.exception = tr;
 			return this;
 		}
+		
+		/**
+		 * Alternative to {@link #setHTTPResponse(HttpURLConnection)} to simulate some issues
+		 * @param statusCode
+		 * @return The builder for easy chaining
+		 */
+		public Builder setHttpStatusCode(int statusCode) {
+			this.statusCode = statusCode;
+			return this;
+		}
 
 		public Builder setHTTPResponse(HttpURLConnection resp) {
 			if (null!=resp) {
