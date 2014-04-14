@@ -3,7 +3,7 @@ apply plugin: 'android-library'
 archivesBaseName = 'HttpClient-OkHttp'
 
 dependencies {
-    compile project(':Android-HttpClient:HttpClient')
+    compile project(':HttpClient')
     //compile 'com.squareup.okhttp:okhttp:1.5.+'
     compile files('libs/okhttp-2.0.0-SNAPSHOT.jar')
 }

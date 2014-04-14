@@ -3,7 +3,7 @@ apply plugin: 'android-library'
 archivesBaseName = 'HttpClient-OAuth'
 
 dependencies {
-    compile project(':Android-HttpClient:HttpClient')
+    compile project(':HttpClient')
     compile 'oauth.signpost:signpost-core:1.2.+'
 }
 

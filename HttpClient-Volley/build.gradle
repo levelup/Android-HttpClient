@@ -4,7 +4,7 @@ archivesBaseName = 'HttpClient-Volley'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile project(':Android-HttpClient:HttpClient')
+    compile project(':HttpClient')
 }
 
 android {
@@ -28,8 +28,9 @@ android {
         }
     }
 
-    release {
-        runProguard false
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
+        }
     }
 }

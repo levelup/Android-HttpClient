@@ -3,7 +3,7 @@ apply plugin: 'android-library'
 archivesBaseName = 'HttpClient-Async'
 
 dependencies {
-    compile project(':Android-HttpClient:HttpClient')
+    compile project(':HttpClient')
 }
 
 android {
