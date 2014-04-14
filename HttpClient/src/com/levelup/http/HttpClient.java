@@ -313,6 +313,8 @@ public class HttpClient {
 		} finally {
 			try {
 				is.close();
+			} catch (NullPointerException ignored) {
+				// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
 			} catch (IOException ignored) {
 			}
 		}

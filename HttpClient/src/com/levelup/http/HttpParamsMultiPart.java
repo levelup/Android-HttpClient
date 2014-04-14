@@ -110,6 +110,8 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						if (input != null)
 							try {
 								input.close(); 
+							} catch (NullPointerException ignored) {
+								// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
 							} catch (IOException ignored) {
 							}
 					}
@@ -140,6 +142,8 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						if (input != null)
 							try {
 								input.close();
+							} catch (NullPointerException ignored) {
+								// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
 							} catch (IOException ignored) {
 							}
 					}

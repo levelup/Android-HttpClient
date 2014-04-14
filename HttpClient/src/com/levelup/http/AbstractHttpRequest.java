@@ -234,6 +234,8 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			if (null!=errorStream) {
 				try {
 					errorStream.close();
+				} catch (NullPointerException ignored) {
+					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
 				} catch (IOException ignored) {
 				}
 				errorStream = null;
