@@ -144,8 +144,17 @@ public class HttpClient {
 					request.getLogger().d(header.getKey()+": "+header.getValue());
 				}
 			}
+			
+		} catch (SecurityException e) {
+			LogManager.getLogger().w("fail for "+request+' '+e);
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("Security error "+e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_NETWORK);
+			throw builder.build();
+
 		} catch (SocketTimeoutException e) {
-			LogManager.getLogger().i("fail for "+request);
+			LogManager.getLogger().i("timeout for "+request);
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("Timeout error "+e.getMessage());
 			builder.setCause(e);
