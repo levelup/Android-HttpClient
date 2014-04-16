@@ -40,7 +40,7 @@ HttpClientOAuthProvider provider = new HttpClientOAuthProvider(appSignature,
     "https://twitter.com/oauth/access_token",
     "https://twitter.com/oauth/authorize");
 
-// The URL that will be launched in the system
+// The URL that will be launched in the WebView after the user authenticates successfully
 String OAUTH_CALLBACK_URL = "twitteroauth://request_token/";
 
 String webUrl = provider.retrieveRequestToken(OAUTH_CALLBACK_URL);
@@ -48,7 +48,7 @@ String webUrl = provider.retrieveRequestToken(OAUTH_CALLBACK_URL);
 // launch the web browser for the user to authorize your app
 webview.loadUrl(webUrl);
 
-// track our OAUTH_CALLBACK_URL called by Twitter
+// track our OAUTH_CALLBACK_URL called by Twitter in the WebView
 webview.setWebViewClient(new WebViewClient() {
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 		if (url.startsWith(OAUTH_CALLBACK_URL)) {
@@ -57,7 +57,9 @@ webview.setWebViewClient(new WebViewClient() {
 			
 			String userToken = provider.getConsumer().getToken();
 			String userSecret = provider.getConsumer().getTokenSecret();
+			return true;
 		}
+		return false;
 	};
 });
 ```
