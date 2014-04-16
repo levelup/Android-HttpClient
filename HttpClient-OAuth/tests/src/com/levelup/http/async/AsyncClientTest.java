@@ -21,7 +21,7 @@ public class AsyncClientTest extends TestCase {
 	private static final String BASIC_URL_TAG = "test1";
 	private static final String LARGE_URL = "http://video.webmfiles.org/big-buck-bunny_trailer.webm";
 	private static final String BASIC_URL_HTTPS = "https://www.google.com/";
-	private static final String LARGE_URL_HTTPS = "https://r9---sn-h5q7dn7z.googlevideo.com/videoplayback?source=youtube&upn=Dnfh7W6F4SE&mv=m&sparams=id%2Cip%2Cipbits%2Citag%2Cratebypass%2Crequiressl%2Csource%2Cupn%2Cexpire&signature=D3957D5C696B6C837DAC7CDCB4AA8B9063535409.C9922A68DB258307C6A8473870829E5012089A0F&key=yt5&ip=90.55.187.57&requiressl=yes&ms=au&fexp=902904%2C919122%2C939939%2C945031%2C916807%2C936207%2C936108%2C940204%2C937417%2C913434%2C936916%2C934022%2C936921%2C936923&mt=1397033661&ratebypass=yes&expire=1397056090&itag=18&ipbits=0&id=o-AMplDYPpfxK9OzIL_ooaTp101GKK7z4syFDckhfeY_pN&sver=3&cpn=Iv1jJdzergLmN6Wz&ptk=youtube_none&pltype=contentugc";
+	private static final String LARGE_URL_HTTPS = "https://r5---sn-h5q7ener.googlevideo.com/videoplayback?upn=1FcIIG1R44M&ip=2.6.208.180&sparams=id%2Cip%2Cipbits%2Citag%2Cratebypass%2Crequiressl%2Csource%2Cupn%2Cexpire&requiressl=yes&sver=3&source=youtube&mv=m&ms=au&itag=18&ipbits=0&expire=1397658501&id=o-AB0c1o6tDQ6m9wnBycuEl-5fDEz0Pg20MeAX0W2f0Qvh&key=yt5&signature=1F574C12088A00E5B8A4FE0581C276079F52921C.E0C162202EEB022993F1874D001ED090BFEDD4E2&ratebypass=yes&fexp=900161%2C937417%2C913434%2C923328%2C936916%2C934022%2C936923&mt=1397634061&cpn=7R6rPhkfEpZ9usUK&ptk=AntenaTvGroupRomania&oid=9V7PWSIHHUBefBR9xKX70Q&pltype=contentugc&c=WEB&cver=html5";
 
 	// TODO test with streaming connection (chunked over HTTPS with sometimes no data sent for 1 minute)
 	// TODO test with streaming connection with SPDY
