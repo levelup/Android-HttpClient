@@ -1,5 +1,7 @@
 package com.levelup.http.signpost;
 
+import oauth.signpost.exception.OAuthException;
+
 import com.levelup.http.HttpClient;
 import com.levelup.http.okhttp.OkHttpClient;
 
@@ -9,6 +11,18 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 		HttpClient.setConnectionFactory(OkHttpClient.instance);
 	};
 
+	public void testRequestTokenBlacklist() {
+		try {
+			OkHttpClient.addUrlBlacklist(TWITTER_REQUEST_TOKEN);
+			assertNotNull(twitterAppProvider.retrieveRequestToken("androidhttp://request_token/"));
+		} catch (OAuthException e) {
+			fail(e.getMessage());
+		} finally {
+			OkHttpClient.removeUrlBlacklist(TWITTER_REQUEST_TOKEN);
+		}
+	}
+	
+	
 	public void testIdentityEncoding() throws Exception {
 		HttpRequestSignedGet search = getSearchRequest();
 		search.setHeader("Accept-Encoding", "identity");

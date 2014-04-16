@@ -10,6 +10,9 @@ public abstract class AbstractTwitterTest extends TestCase {
 	private static final String TWITTER_AUTH_KEY = "STPlfE2JWMdgFw3Zwd8lw";
 	private static final String TWITTER_AUTH_SECRET = "n7RCQdXIamonfiBqGayvi9QGzwZqIXtsXmO8ZTd8aCc";
 
+	private static final String TWITTER_USER_TOKEN = "93009608-hIOBvpgiRFrFAEhHP1o3vm1s0EpqRslUX2EYSSYex";
+	private static final String TWITTER_USER_SECRET = "ieI3JHQSjl4iwbC3eJKCHvV44Uo6WsJx2QPCsH8U";
+	
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
 		@Override
 		public String getConsumerSecret() {
@@ -25,21 +28,21 @@ public abstract class AbstractTwitterTest extends TestCase {
 	protected static final OAuthUser twitterUser = new OAuthUser() {
 		@Override
 		public String getToken() {
-			return "93009608-hIOBvpgiRFrFAEhHP1o3vm1s0EpqRslUX2EYSSYex";
+			return TWITTER_USER_TOKEN;
 		}
 		@Override
 		public String getTokenSecret() {
-			return "ieI3JHQSjl4iwbC3eJKCHvV44Uo6WsJx2QPCsH8U";
+			return TWITTER_USER_SECRET;
 		}
 	};
 	
-	private static final String TWITTER_REQUEST_TOKEN = "https://twitter.com/oauth/request_token";
-	private static final String TWITTER_ACCESS_TOKEN = "https://twitter.com/oauth/access_token";
-	private static final String TWITTER_AUTHORIZE = "https://twitter.com/oauth/authorize";
+	protected static final String TWITTER_REQUEST_TOKEN = "https://twitter.com/oauth/request_token";
+	protected static final String TWITTER_ACCESS_TOKEN = "https://twitter.com/oauth/access_token";
+	protected static final String TWITTER_AUTHORIZE = "https://twitter.com/oauth/authorize";
 
-	private static final HttpClientOAuthProvider twitterAppProvider = new HttpClientOAuthProvider(twitterApp, TWITTER_REQUEST_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_AUTHORIZE);
+	protected static final HttpClientOAuthProvider twitterAppProvider = new HttpClientOAuthProvider(twitterApp, TWITTER_REQUEST_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_AUTHORIZE);
 		
-	public void testARequestToken() {
+	public void testRequestToken() {
 		try {
 			assertNotNull(twitterAppProvider.retrieveRequestToken("androidhttp://request_token/"));
 		} catch (OAuthException e) {
