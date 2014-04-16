@@ -1,24 +1,24 @@
 package com.levelup.http.signpost;
 
 import junit.framework.TestCase;
+import oauth.signpost.exception.OAuthException;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpParamsGet;
-import com.levelup.http.signpost.HttpRequestSignedGet;
-import com.levelup.http.signpost.OAuthClientApp;
-import com.levelup.http.signpost.OAuthUser;
-import com.levelup.http.signpost.RequestSigner;
 
 public abstract class AbstractTwitterTest extends TestCase {
+	private static final String TWITTER_AUTH_KEY = "STPlfE2JWMdgFw3Zwd8lw";
+	private static final String TWITTER_AUTH_SECRET = "n7RCQdXIamonfiBqGayvi9QGzwZqIXtsXmO8ZTd8aCc";
+
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
 		@Override
 		public String getConsumerSecret() {
-			return "n7RCQdXIamonfiBqGayvi9QGzwZqIXtsXmO8ZTd8aCc";
+			return TWITTER_AUTH_SECRET;
 		}
 		
 		@Override
 		public String getConsumerKey() {
-			return "STPlfE2JWMdgFw3Zwd8lw";
+			return TWITTER_AUTH_KEY;
 		}
 	};
 	
@@ -32,6 +32,20 @@ public abstract class AbstractTwitterTest extends TestCase {
 			return "ieI3JHQSjl4iwbC3eJKCHvV44Uo6WsJx2QPCsH8U";
 		}
 	};
+	
+	private static final String TWITTER_REQUEST_TOKEN = "https://twitter.com/oauth/request_token";
+	private static final String TWITTER_ACCESS_TOKEN = "https://twitter.com/oauth/access_token";
+	private static final String TWITTER_AUTHORIZE = "https://twitter.com/oauth/authorize";
+
+	private static final HttpClientOAuthProvider twitterAppProvider = new HttpClientOAuthProvider(twitterApp, TWITTER_REQUEST_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_AUTHORIZE);
+		
+	public void testARequestToken() {
+		try {
+			assertNotNull(twitterAppProvider.retrieveRequestToken("androidhttp://request_token/"));
+		} catch (OAuthException e) {
+			fail(e.getMessage());
+		}	
+	}
 	
 	protected HttpRequestSignedGet getSearchRequest() {
 		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);

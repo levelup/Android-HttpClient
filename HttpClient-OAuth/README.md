@@ -33,6 +33,35 @@ HttpRequest get = new HttpRequestSignedGet(signer, "http://my.com/hello", httpPa
 HttpClient.getQueryResponse(get);
 ```
 
+<h2>Request a Twitter authentication key</h2>
+```java
+HttpClientOAuthProvider provider = new HttpClientOAuthProvider(appSignature,
+    "https://twitter.com/oauth/request_token",
+    "https://twitter.com/oauth/access_token",
+    "https://twitter.com/oauth/authorize");
+
+// The URL that will be launched in the system
+String OAUTH_CALLBACK_URL = "twitteroauth://request_token/";
+
+String webUrl = provider.retrieveRequestToken(OAUTH_CALLBACK_URL);
+
+// launch the web browser for the user to authorize your app
+webview.loadUrl(webUrl);
+
+// track our OAUTH_CALLBACK_URL called by Twitter
+webview.setWebViewClient(new WebViewClient() {
+	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		if (url.startsWith(OAUTH_CALLBACK_URL)) {
+			Uri tokenUrl = Uri.parse(url);
+			provider.retrieveAccessToken(tokenUrl.getQueryParameter("oauth_verifier"));
+			
+			String userToken = provider.getConsumer().getToken();
+			String userSecret = provider.getConsumer().getTokenSecret();
+		}
+	};
+});
+```
+
 License
 -------
 
