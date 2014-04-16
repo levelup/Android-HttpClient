@@ -5,6 +5,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashSet;
 
+import android.text.format.DateUtils;
+
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpUrlConnectionFactory;
 
@@ -15,7 +17,7 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 	/** Flag to enable/disable usage of OkHttp */
 	private static final boolean __WITH_OKHTTP = true;
 
-	private static final long HTTP_KEEP_ALIVE = 1 * 60 * 1000; // 1 minute
+	private static final long HTTP_KEEP_ALIVE = 1 * DateUtils.MINUTE_IN_MILLIS;
 
 	private static final com.squareup.okhttp.OkHttpClient okClient;
 	public static final OkHttpClient instance;
