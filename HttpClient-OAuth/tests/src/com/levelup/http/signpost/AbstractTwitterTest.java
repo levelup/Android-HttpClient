@@ -7,32 +7,26 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpParamsGet;
 
 public abstract class AbstractTwitterTest extends TestCase {
-	private static final String TWITTER_AUTH_KEY = "STPlfE2JWMdgFw3Zwd8lw";
-	private static final String TWITTER_AUTH_SECRET = "n7RCQdXIamonfiBqGayvi9QGzwZqIXtsXmO8ZTd8aCc";
-
-	private static final String TWITTER_USER_TOKEN = "93009608-hIOBvpgiRFrFAEhHP1o3vm1s0EpqRslUX2EYSSYex";
-	private static final String TWITTER_USER_SECRET = "ieI3JHQSjl4iwbC3eJKCHvV44Uo6WsJx2QPCsH8U";
-	
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
 		@Override
 		public String getConsumerSecret() {
-			return TWITTER_AUTH_SECRET;
+			return TwitterTokens.TWITTER_AUTH_SECRET;
 		}
 		
 		@Override
 		public String getConsumerKey() {
-			return TWITTER_AUTH_KEY;
+			return TwitterTokens.TWITTER_AUTH_KEY;
 		}
 	};
 	
 	protected static final OAuthUser twitterUser = new OAuthUser() {
 		@Override
 		public String getToken() {
-			return TWITTER_USER_TOKEN;
+			return TwitterTokens.TWITTER_USER_TOKEN;
 		}
 		@Override
 		public String getTokenSecret() {
-			return TWITTER_USER_SECRET;
+			return TwitterTokens.TWITTER_USER_SECRET;
 		}
 	};
 	
