@@ -32,7 +32,7 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 		}
 
 		if (null != request.getLogger() && sb != null) {
-			request.getLogger().v(sb.toString());
+			request.getLogger().v(request.toString() + '>' + sb.toString());
 		}
 
 		return sb.toString();
