@@ -11,6 +11,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.levelup.http.HttpRequest;
@@ -30,9 +32,12 @@ public class AsyncHttpClient {
 
 	private static final HashMap<String, Future<?>> taggedJobs = new HashMap<String, Future<?>>();
 
-	private static ExecutorService executor = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
+	private static ExecutorService executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
 
+	@SuppressLint("NewApi")
 	private AsyncHttpClient() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
+			((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
 	}
 
 	/**
@@ -110,7 +115,7 @@ public class AsyncHttpClient {
 		executor.execute(task);
 		return task;
 	}
-	
+
 	/**
 	 * Do an {@link HttpRequest} query to load a String though this asynchronous client
 	 * @param request {@link HttpRequest HTTP request} to execute
