@@ -247,14 +247,14 @@ public class HttpClient {
 				}
 
 				if (resp.getResponseCode() < 200 || resp.getResponseCode() >= 300) {
-					HttpException.Builder builder = request.newExceptionFromResponse(resp);
+					HttpException.Builder builder = request.newExceptionFromResponse();
 					builder.setErrorCode(HttpException.ERROR_HTTP);
 					throw builder.build();
 				}
 
 			} catch (FileNotFoundException e) {
 				LogManager.getLogger().i("fail for "+request);
-				HttpException.Builder builder = request.newExceptionFromResponse(resp);
+				HttpException.Builder builder = request.newExceptionFromResponse();
 				builder.setCause(e);
 				throw builder.build();
 

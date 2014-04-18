@@ -195,11 +195,11 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	}
 	
 	@Override
-	public HttpException.Builder newExceptionFromResponse(HttpURLConnection response) {
+	public HttpException.Builder newExceptionFromResponse() {
 		InputStream errorStream = null;
 		Builder builder = null;
-		StringBuilder sb = null;
 		try {
+			final HttpURLConnection response = getResponse();
 			builder = newException();
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			builder.setHTTPResponse(response);
@@ -209,30 +209,15 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 				errorStream = new InflaterInputStream(errorStream);
 			if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
 				errorStream = new GZIPInputStream(errorStream);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"), 1250);
-			sb = new StringBuilder(response.getContentLength() > 0 ? response.getContentLength() : 64);
-			String line;
-			while ((line = reader.readLine())!=null) {
-				if (!TextUtils.isEmpty(line)) {
-					if (sb.length()!=0)
-						sb.append('\n');
-					sb.append(line);
-				}
-			}
-
+			
 			if (response.getContentType()!=null && response.getContentType().startsWith("application/json")) {
-				JSONObject jsonData = new JSONObject(sb.toString());
+				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
+				builder.setErrorMessage(jsonData.toString());
 				builder = handleJSONError(builder, jsonData);
+			} else {
+				String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
+				builder.setErrorMessage(errorData);
 			}
-
-			builder.setErrorMessage(sb.toString());
-		} catch (UnsupportedEncodingException ignored) {
-		} catch (JSONException e) {
-			HttpException.Builder b = newException();
-			b.setErrorCode(HttpException.ERROR_JSON);
-			b.setErrorMessage(sb.length()==0 ? "json error" : sb.toString());
-			b.setCause(builder.build());
-			builder = b;
 		} catch (IOException ignored) {
 		} finally {
 			if (null!=errorStream) {
