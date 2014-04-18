@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 public class InputStreamStringParser implements InputStreamParser<String> {
 
 	public static final InputStreamStringParser instance = new InputStreamStringParser();
-	
+
 	private InputStreamStringParser() {
 	}
 
@@ -20,9 +20,12 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 	public String parseInputStream(InputStream is, HttpRequest request) throws IOException {
 		final StringBuilder sb = new StringBuilder();
 
-		final int contentLength = request.getResponse().getContentLength();
-		if (contentLength >= 0)
-			sb.ensureCapacity(contentLength);
+		int contentLength = -1;
+		if (null != request) {
+			contentLength = request.getResponse().getContentLength();
+			if (contentLength > 0)
+				sb.ensureCapacity(contentLength);
+		}
 		if (contentLength != 0) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
 			for (String line = reader.readLine(); line!=null; line = reader.readLine())
@@ -34,7 +37,7 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 			}
 		}
 
-		if (null != request.getLogger() && sb != null) {
+		if (null != request && null != request.getLogger() && sb != null) {
 			request.getLogger().v(request.toString() + '>' + sb.toString());
 		}
 
