@@ -12,6 +12,9 @@ import java.io.InputStreamReader;
 public class InputStreamStringParser implements InputStreamParser<String> {
 
 	public static final InputStreamStringParser instance = new InputStreamStringParser();
+	
+	private InputStreamStringParser() {
+	}
 
 	@Override
 	public String parseInputStream(InputStream is, HttpRequest request) throws IOException {

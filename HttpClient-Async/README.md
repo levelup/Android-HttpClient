@@ -35,7 +35,19 @@ Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStri
 downloadTask.cancel(true);
 ```
 
-<h2>Sample with an InputStreamParser</h2>
+<h2>Sample with JSONObject reader</h2>
+```java
+// Do the JSON API query in the background and get the result in the UI thread
+HttpRequest request = new HttpRequestGet("http://service.com/api.json");
+AsyncHttpClient.doRequest(request, InputStreamJSONObjectParser.instance, new BaseAsyncHttpCallback<MyObject>() {
+	@Override
+	public void onHttpSuccess(JSONObject response) {
+		// the object parsed from JSON data, called in the UI thread
+	}
+});
+```
+
+<h2>Sample with a custom InputStreamParser</h2>
 ```java
 // Generic parser to turn some JSON data into your own MyObject class
 final static InputStreamParser<MyObject> JsonToObject = new InputStreamParser<MyObject>) {
