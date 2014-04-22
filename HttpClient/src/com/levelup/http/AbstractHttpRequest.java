@@ -83,7 +83,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	public void settleHttpHeaders() throws HttpException {
 		// do nothing
 	}
-	
+
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) throws ProtocolException {
 		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
@@ -156,15 +156,18 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster!=null) {
-			cookieMaster.setCookieResponse(this, resp);
+			try {
+				cookieMaster.setCookieResponse(this, resp);
+			} catch (IOException ignored) {
+			}
 		}
 	}
-	
+
 	@Override
 	public HttpURLConnection getResponse() {
 		return httpResponse;
 	}
-	
+
 	protected String getToStringExtra() {
 		return uri.toString();
 	}
@@ -193,7 +196,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	public HttpException.Builder newException() {
 		return new HttpException.Builder(this);
 	}
-	
+
 	@Override
 	public HttpException.Builder newExceptionFromResponse() {
 		InputStream errorStream = null;
@@ -209,7 +212,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 				errorStream = new InflaterInputStream(errorStream);
 			if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
 				errorStream = new GZIPInputStream(errorStream);
-			
+
 			if (response.getContentType()!=null && response.getContentType().startsWith("application/json")) {
 				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
 				builder.setErrorMessage(jsonData.toString());
