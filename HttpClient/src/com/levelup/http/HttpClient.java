@@ -123,9 +123,9 @@ public class HttpClient {
 
 			final LoggerTagged logger = request.getLogger(); 
 			if (null != logger) {
-				logger.d(connection.getRequestMethod() + ' ' + request.getUri());
+				logger.v(connection.getRequestMethod() + ' ' + request.getUri());
 				for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
-					logger.d(header.getKey()+": "+header.getValue());
+					logger.v(header.getKey()+": "+header.getValue());
 				}
 			}
 
@@ -140,9 +140,9 @@ public class HttpClient {
 			request.outputBody(connection);
 
 			if (null != logger) {
-				logger.d(connection.getResponseMessage());
+				logger.v(connection.getResponseMessage());
 				for (Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
-					logger.d(header.getKey()+": "+header.getValue());
+					logger.v(header.getKey()+": "+header.getValue());
 				}
 			}
 			

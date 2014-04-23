@@ -38,7 +38,7 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 		}
 
 		if (null != request && null != request.getLogger() && sb != null) {
-			request.getLogger().v(request.toString() + '>' + sb.toString());
+			request.getLogger().d(request.toString() + '>' + sb.toString());
 		}
 
 		return sb.toString();
