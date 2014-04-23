@@ -77,7 +77,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback) {
+	public static <T> Future<T> doRequest(HttpRequest request, InputStreamParser<T> parser, NetworkCallback<T> callback) {
 		return doRequest(request, parser, callback, BaseNetworkTaskFactory.instance);
 	}
 
@@ -90,7 +90,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #doRequest(HttpRequest, InputStreamParser, NetworkCallback)
 	 */
-	public static <T> Future<T> doRequest(final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(HttpRequest request, InputStreamParser<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		return doRequest(executor, request, parser, callback, factory);
 	}
 
@@ -104,7 +104,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #doRequest(HttpRequest, String, InputStreamParser, NetworkCallback)
 	 */
-	public static <T> Future<T> doRequest(Executor executor, final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(Executor executor, HttpRequest request, InputStreamParser<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		if (null==parser) throw new NullPointerException();
 
 		return doRequest(executor, factory, new HttpCallable<T>(request, parser), callback);
@@ -123,7 +123,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @see #getString(String, String, NetworkCallback)
 	 */
-	public static void getString(final HttpRequest request, final String tag, final NetworkCallback<String> callback) {
+	public static void getString(HttpRequest request, String tag, NetworkCallback<String> callback) {
 		doRequest(request, tag, InputStreamStringParser.instance, callback);
 	}
 
@@ -136,7 +136,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @see #getString(HttpRequest, String, NetworkCallback)
 	 */
-	public static <T> void doRequest(final HttpRequest request, String tag, final InputStreamParser<T> parser, NetworkCallback<T> callback) {
+	public static <T> void doRequest(HttpRequest request, String tag, InputStreamParser<T> parser, NetworkCallback<T> callback) {
 		if (null==parser) throw new NullPointerException();
 
 		if (TextUtils.isEmpty(tag)) {
