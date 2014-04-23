@@ -175,13 +175,11 @@ public class AsyncHttpClient {
 					try {
 						super.onDownloadDone();
 					} finally {
-						if (null!=tag) {
-							synchronized (taggedJobs) {
-								taggedJobs.remove(tag);
-							}
+						synchronized (taggedJobs) {
+							taggedJobs.remove(tag);
 						}
 					}
-				};
+				}
 			};
 		}
 	};
