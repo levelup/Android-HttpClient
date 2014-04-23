@@ -141,21 +141,18 @@ public class AsyncHttpClient {
 
 		if (TextUtils.isEmpty(tag)) {
 			doRequest(request, parser, callback);
+			return;
 		}
 
 		synchronized (taggedJobs) {
-			if (null!=tag) {
-				Future<?> oldTask = taggedJobs.get(tag);
-				if (null != oldTask) {
-					oldTask.cancel(true);
-				}
+			Future<?> oldTask = taggedJobs.get(tag);
+			if (null != oldTask) {
+				oldTask.cancel(true);
 			}
 
 			Future<T> task = doRequest(request, parser, callback, new TaggedStringDownloadFactory<T>(tag));
 
-			if (null!=tag) {
-				taggedJobs.put(tag, task);
-			}
+			taggedJobs.put(tag, task);
 		}
 	}
 
