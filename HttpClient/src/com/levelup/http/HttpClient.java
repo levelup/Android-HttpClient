@@ -121,10 +121,11 @@ public class HttpClient {
 			request.settleHttpHeaders();
 			request.setConnectionProperties(connection);
 
-			if (null != request.getLogger()) {
-				request.getLogger().d(connection.getRequestMethod() + ' ' + request.getUri());
+			final LoggerTagged logger = request.getLogger(); 
+			if (null != logger) {
+				logger.d(connection.getRequestMethod() + ' ' + request.getUri());
 				for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
-					request.getLogger().d(header.getKey()+": "+header.getValue());
+					logger.d(header.getKey()+": "+header.getValue());
 				}
 			}
 
@@ -138,10 +139,10 @@ public class HttpClient {
 
 			request.outputBody(connection);
 
-			if (null != request.getLogger()) {
-				request.getLogger().d(connection.getResponseMessage());
+			if (null != logger) {
+				logger.d(connection.getResponseMessage());
 				for (Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
-					request.getLogger().d(header.getKey()+": "+header.getValue());
+					logger.d(header.getKey()+": "+header.getValue());
 				}
 			}
 			
