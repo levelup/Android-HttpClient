@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import junit.framework.TestCase;
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.util.JsonReader;
 
 public class testParser extends TestCase {
@@ -12,6 +14,7 @@ public class testParser extends TestCase {
 	public testParser() {
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void testCustomParser() {
 		HttpRequestGet apiGet = new HttpRequestGet("http://my.com/api.json");
 
