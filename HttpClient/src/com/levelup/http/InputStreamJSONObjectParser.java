@@ -19,7 +19,7 @@ public class InputStreamJSONObjectParser implements InputStreamParser<JSONObject
 		try {
 			return new JSONObject(srcData);
 		} catch (JSONException e) {
-			IOException forward = new IOException("Bad JSON data "+srcData);
+			IOException forward = new IOException("Bad JSON data "+srcData+' '+e.getMessage());
 			forward.initCause(e);
 			throw forward;
 		} catch (NullPointerException e) {
