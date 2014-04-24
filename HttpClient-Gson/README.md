@@ -1,7 +1,8 @@
-Android-HttpClient OAuth module
+Android-HttpClient Gson module
 ===============================
 
-A module for HttpClient that uses [gson][1] to do data parsing from HTTP
+A module for HttpClient that uses [gson][1] to parse the data received from HTTP.
+Like the other `InputStreamParser` they can be used [../HttpClient](synchronously) or [../HttpClient-Async](asynchronously).
 
 Sample Code
 -----------
