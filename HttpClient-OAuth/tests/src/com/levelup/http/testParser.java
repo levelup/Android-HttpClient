@@ -16,7 +16,7 @@ public class testParser extends TestCase {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void testCustomParser() {
-		HttpRequestGet apiGet = new HttpRequestGet("http://my.com/api.json");
+		HttpRequestGet apiGet = new HttpRequestGet("http://social.appxoid.com/json/get_apps_by_pages2");
 
 		try {
 			Void parsed = HttpClient.parseRequest(apiGet, new InputStreamParser<Void>() {
