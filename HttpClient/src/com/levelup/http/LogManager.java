@@ -1,5 +1,7 @@
 package com.levelup.http;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -75,11 +77,13 @@ public final class LogManager {
 			return Log.e(tag, msg, tr);
 		}
 
+		@TargetApi(Build.VERSION_CODES.FROYO)
 		@Override
         public int wtf(String msg) {
 	        return Log.wtf(tag, msg);
         }
 
+		@TargetApi(Build.VERSION_CODES.FROYO)
 		@Override
         public int wtf(String msg, Throwable tr) {
 	        return Log.wtf(tag, msg, tr);
