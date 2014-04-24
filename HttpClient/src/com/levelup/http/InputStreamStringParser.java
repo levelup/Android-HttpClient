@@ -27,13 +27,18 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 				sb.ensureCapacity(contentLength);
 		}
 		if (contentLength != 0) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
-			for (String line = reader.readLine(); line!=null; line = reader.readLine())
-				sb.append(line);
+			BufferedReader reader = null;
 			try {
-				reader.close();
-			} catch (ArrayIndexOutOfBoundsException ignored) {
-				// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
+				reader = new BufferedReader(new InputStreamReader(is, Util.getInputCharsetOrUtf8(request)), 1250);
+				for (String line = reader.readLine(); line!=null; line = reader.readLine())
+					sb.append(line);
+			} finally {
+				if (null!=reader)
+					try {
+						reader.close();
+					} catch (ArrayIndexOutOfBoundsException ignored) {
+						// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
+					}
 			}
 		}
 
