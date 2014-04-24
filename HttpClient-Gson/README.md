@@ -2,7 +2,7 @@ Android-HttpClient Gson module
 ===============================
 
 A module for HttpClient that uses [gson][1] to parse the data received from HTTP.
-Like the other `InputStreamParser` they can be used [../HttpClient](synchronously) or [../HttpClient-Async](asynchronously).
+Like the other `InputStreamParser` they can be used [synchronously](../HttpClient) or [asynchronously](../HttpClient-Async).
 
 Sample Code
 -----------
