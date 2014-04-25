@@ -232,8 +232,8 @@ public class HttpClient {
 				final String expectedMimeType = resp.getRequestProperty("Accept");
 				if (!TextUtils.isEmpty(expectedMimeType)) {
 					// test if it's the right MIME type or throw an exception that can be caught to use the bad data
-					String contentType = (resp.getInputStream()==null || resp.getContentType()==null) ? null : resp.getContentType();
-					if (contentType!=null && !contentType.startsWith(expectedMimeType)) {
+					MediaType expectedType = MediaType.parse(expectedMimeType);
+					if (null!=expectedType && !expectedType.equalsType(MediaType.parse(resp.getContentType()))) {
 						StringBuilder sb = contentLength!=0 ? new StringBuilder(contentLength) : new StringBuilder();
 						BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
 						for (String line = reader.readLine(); line!=null; line = reader.readLine())
@@ -241,7 +241,7 @@ public class HttpClient {
 						reader.close();
 
 						HttpException.Builder builder = request.newException();
-						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+contentType+"' - "+sb.toString());
+						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+resp.getContentType()+"' - "+sb.toString());
 						builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
 						throw builder.build();
 					}

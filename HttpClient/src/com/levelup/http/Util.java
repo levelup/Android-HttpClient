@@ -13,6 +13,8 @@ public final class Util {
 	private Util() {
 	}
 
+	public final static MediaType MediaTypeJSON = MediaType.parse("application/json");
+	
 	/**
 	 * Get the {@link Charset} of the HTTP response of the provided request or UTF-8
 	 * @param request that was queried on the server

@@ -1,10 +1,7 @@
 package com.levelup.http;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -19,11 +16,9 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.net.Uri;
-import android.text.TextUtils;
 
 import com.levelup.http.HttpException.Builder;
 
@@ -213,7 +208,8 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
 				errorStream = new GZIPInputStream(errorStream);
 
-			if (response.getContentType()!=null && response.getContentType().startsWith("application/json")) {
+			MediaType type = MediaType.parse(response.getContentType());
+			if (Util.MediaTypeJSON.equalsType(type)) {
 				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
 				builder.setErrorMessage(jsonData.toString());
 				builder = handleJSONError(builder, jsonData);
