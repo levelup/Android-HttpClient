@@ -1,10 +1,8 @@
 package com.levelup.http;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -216,15 +214,11 @@ public class HttpClient {
 						is = new GZIPInputStream(is);
 				}
 
-				if (resp.getResponseMessage()==null) {
-					StringBuilder sb = contentLength!=0 ? new StringBuilder(contentLength) : new StringBuilder();
-					BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
-					for (String line = reader.readLine(); line!=null; line = reader.readLine())
-						sb.append(line);
-					reader.close();
-
+				if (resp.getResponseMessage()==null && null!=is) {
+					String body = InputStreamStringParser.instance.parseInputStream(is, request);
+					
 					HttpException.Builder builder = request.newException();
-					builder.setErrorMessage(sb.length()==0 ? "empty response" : sb.toString());
+					builder.setErrorMessage(TextUtils.isEmpty(body) ? "empty response" : body);
 					builder.setErrorCode(HttpException.ERROR_HTTP);
 					throw builder.build();
 				}
@@ -234,14 +228,10 @@ public class HttpClient {
 					// test if it's the right MIME type or throw an exception that can be caught to use the bad data
 					MediaType expectedType = MediaType.parse(expectedMimeType);
 					if (null!=expectedType && !expectedType.equalsType(MediaType.parse(resp.getContentType()))) {
-						StringBuilder sb = contentLength!=0 ? new StringBuilder(contentLength) : new StringBuilder();
-						BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 1250);
-						for (String line = reader.readLine(); line!=null; line = reader.readLine())
-							sb.append(line);
-						reader.close();
+						String body = InputStreamStringParser.instance.parseInputStream(is, request);
 
 						HttpException.Builder builder = request.newException();
-						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+resp.getContentType()+"' - "+sb.toString());
+						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+resp.getContentType()+"' - "+body);
 						builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
 						throw builder.build();
 					}
