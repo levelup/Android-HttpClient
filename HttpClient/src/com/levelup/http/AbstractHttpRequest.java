@@ -203,19 +203,24 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			builder.setHTTPResponse(response);
 
 			errorStream = response.getErrorStream();
-			if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
-				errorStream = new InflaterInputStream(errorStream);
-			if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
-				errorStream = new GZIPInputStream(errorStream);
+			if (null==errorStream)
+				errorStream = response.getInputStream();
 
-			MediaType type = MediaType.parse(response.getContentType());
-			if (Util.MediaTypeJSON.equalsType(type)) {
-				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
-				builder.setErrorMessage(jsonData.toString());
-				builder = handleJSONError(builder, jsonData);
-			} else {
-				String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
-				builder.setErrorMessage(errorData);
+			if (null!=errorStream) {
+				if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
+					errorStream = new InflaterInputStream(errorStream);
+				if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
+					errorStream = new GZIPInputStream(errorStream);
+
+				MediaType type = MediaType.parse(response.getContentType());
+				if (Util.MediaTypeJSON.equalsType(type)) {
+					JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
+					builder.setErrorMessage(jsonData.toString());
+					builder = handleJSONError(builder, jsonData);
+				} else {
+					String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
+					builder.setErrorMessage(errorData);
+				}
 			}
 		} catch (IOException ignored) {
 		} finally {
