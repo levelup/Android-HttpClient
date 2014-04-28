@@ -30,8 +30,11 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new InputStreamReader(is, Util.getInputCharsetOrUtf8(request)), 1250);
-				for (String line = reader.readLine(); line!=null; line = reader.readLine())
+				for (String line = reader.readLine(); line!=null; line = reader.readLine()) {
+					if (sb.length()>0)
+						sb.append('\n');
 					sb.append(line);
+				}
 			} finally {
 				if (null!=reader)
 					try {
