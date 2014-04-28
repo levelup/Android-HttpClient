@@ -18,14 +18,20 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 
 	@Override
 	public String parseInputStream(InputStream is, HttpRequest request) throws IOException {
-		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sb;
 
 		int contentLength = -1;
 		if (null != request) {
 			contentLength = request.getResponse().getContentLength();
-			if (contentLength > 0)
-				sb.ensureCapacity(contentLength);
+			if (contentLength > 0) {
+				sb = new StringBuilder(contentLength);
+			} else {
+				sb = new StringBuilder();
+			}
+		} else {
+			sb = new StringBuilder();
 		}
+
 		if (contentLength != 0) {
 			BufferedReader reader = null;
 			try {
