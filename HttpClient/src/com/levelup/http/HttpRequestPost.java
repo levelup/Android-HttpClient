@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 
+import org.apache.http.protocol.HTTP;
+
 import android.net.Uri;
 
 public class HttpRequestPost extends AbstractHttpRequest {
@@ -45,6 +47,8 @@ public class HttpRequestPost extends AbstractHttpRequest {
 	public void settleHttpHeaders() throws HttpException {
 		if (null != httpParams)
 			httpParams.settleHttpHeaders(this);
+		else
+			setHeader(HTTP.CONTENT_LEN, "0");
 
 		super.settleHttpHeaders();
 	}
