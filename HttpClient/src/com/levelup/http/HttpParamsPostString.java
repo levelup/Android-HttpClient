@@ -12,11 +12,11 @@ import org.apache.http.protocol.HTTP;
  */
 public class HttpParamsPostString implements HttpPostParameters {
 
-	private final String value;
+	private final byte[] value;
 	private final String contentType;
 
 	public HttpParamsPostString(String value, String contentType) {
-		this.value = value;
+		this.value = value.getBytes();
 		this.contentType = contentType;
 	}
 
@@ -63,15 +63,16 @@ public class HttpParamsPostString implements HttpPostParameters {
 	@Override
 	public void settleHttpHeaders(HttpRequestPost request) {
 		request.setHeader(HTTP.CONTENT_TYPE, contentType);
+		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(value.length));
 	}
 	
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) {
-		connection.setFixedLengthStreamingMode(value.getBytes().length);
+		connection.setFixedLengthStreamingMode(value.length);
 	}
 
 	@Override
 	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws IOException {
-		output.write(value.getBytes());
+		output.write(value);
 	}
 }

@@ -17,7 +17,7 @@ import org.apache.http.protocol.HTTP;
 public class HttpParamsUrlEncoded implements HttpPostParameters {
 
 	private final ArrayList<NameValuePair> mParams;
-	private String encodedParams;
+	private byte[] encodedParams;
 	private static final String CONTENT_TYPE = URLEncodedUtils.CONTENT_TYPE + "; charset=utf-8";
 
 	/**
@@ -35,9 +35,9 @@ public class HttpParamsUrlEncoded implements HttpPostParameters {
 		mParams = new ArrayList<NameValuePair>(capacity);
 	}
 
-	private String getEncodedParams() {
+	private byte[] getEncodedParams() {
 		if (null==encodedParams) {
-			encodedParams = URLEncodedUtils.format(mParams, "UTF-8").replace("*", "%2A");
+			encodedParams = URLEncodedUtils.format(mParams, "UTF-8").replace("*", "%2A").getBytes();
 			mParams.clear();
 		}
 		return encodedParams;
@@ -46,16 +46,17 @@ public class HttpParamsUrlEncoded implements HttpPostParameters {
 	@Override
 	public void settleHttpHeaders(HttpRequestPost request) {
 		request.setHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE);
+		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(getEncodedParams().length));
 	}
 	
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) {
-		connection.setFixedLengthStreamingMode(getEncodedParams().getBytes().length);
+		connection.setFixedLengthStreamingMode(getEncodedParams().length);
 	}
 
 	@Override
 	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws UnsupportedEncodingException, IOException {
-		output.write(getEncodedParams().getBytes());
+		output.write(getEncodedParams());
 	}
 
 	@Override
