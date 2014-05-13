@@ -29,6 +29,8 @@ import com.levelup.http.HttpException.Builder;
  * @see {@link HttpRequestPost} 
  */
 public abstract class AbstractHttpRequest implements HttpRequest {
+	public static final String ACCEPT_ENCODING = "Accept-Encoding";
+	
 	private final Uri uri;
 	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -97,10 +99,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 				connection.addRequestProperty(entry.getKey(), value);
 		}
 
-		if (connection.getRequestProperty("Accept-Encoding")==null) {
+		if (connection.getRequestProperty(ACCEPT_ENCODING)==null) {
 			String acceptedEncoding = getAcceptedEncoding();
 			if (!TextUtils.isEmpty(acceptedEncoding))
-				connection.setRequestProperty("Accept-Encoding", acceptedEncoding);
+				connection.setRequestProperty(ACCEPT_ENCODING, acceptedEncoding);
 		}
 	}
 

@@ -2,6 +2,7 @@ package com.levelup.http.signpost;
 
 import oauth.signpost.exception.OAuthException;
 
+import com.levelup.http.AbstractHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.okhttp.OkHttpClient;
 
@@ -25,7 +26,7 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 	
 	public void testIdentityEncoding() throws Exception {
 		HttpRequestSignedGet search = getSearchRequest();
-		search.setHeader("Accept-Encoding", "identity");
+		search.setHeader(AbstractHttpRequest.ACCEPT_ENCODING, "identity");
 		String response = HttpClient.getStringResponse(search);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
@@ -34,7 +35,7 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 
 	public void testGzipEncoding() throws Exception {
 		HttpRequestSignedGet search = getSearchRequest();
-		search.setHeader("Accept-Encoding", "gzip");
+		search.setHeader(AbstractHttpRequest.ACCEPT_ENCODING, "gzip");
 		String response = HttpClient.getStringResponse(search);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
