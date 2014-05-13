@@ -77,7 +77,6 @@ public class HttpClient {
 	/**
 	 * Process the HTTP request on the network and return the HttpURLConnection
 	 * @param request
-	 * @param config
 	 * @return an {@link HttpURLConnection} with the network response
 	 * @throws HttpException
 	 */
@@ -95,7 +94,6 @@ public class HttpClient {
 		HttpURLConnection connection = null;
 		try {
 			connection = openURL(url);
-			// TODO handle transparent gzip when okclient is not used request.addHeader("Accept-Encoding", "gzip");
 
 			/*
 			HttpResponse resp = null;

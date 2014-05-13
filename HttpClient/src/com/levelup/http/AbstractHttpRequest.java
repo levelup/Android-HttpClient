@@ -87,6 +87,10 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			for (String value : entry.getValue())
 				connection.addRequestProperty(entry.getKey(), value);
 		}
+
+        if (connection.getRequestProperty("Accept-Encoding")==null) {
+            connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+        }
 	}
 
 	@Override
