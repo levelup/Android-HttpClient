@@ -69,7 +69,7 @@ public class AsyncClientTest extends TestCase {
 		try {
 			latch.await(20, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			fail("unreanably slow");
+			fail("unreasonably slow");
 		}
 	}
 
