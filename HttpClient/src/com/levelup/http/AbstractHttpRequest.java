@@ -19,7 +19,6 @@ import java.util.zip.InflaterInputStream;
 import org.json.JSONObject;
 
 import android.net.Uri;
-import android.text.TextUtils;
 
 import com.levelup.http.HttpException.Builder;
 
@@ -29,8 +28,6 @@ import com.levelup.http.HttpException.Builder;
  * @see {@link HttpRequestPost} 
  */
 public abstract class AbstractHttpRequest implements HttpRequest {
-	public static final String ACCEPT_ENCODING = "Accept-Encoding";
-	
 	private final Uri uri;
 	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -82,14 +79,6 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 		// do nothing
 	}
 
-	/**
-	 * Get the {@code Accept-Encoding} value to set in the header if it's not set manually, may be {@code null}
-	 * @return {@code gzip,deflate} by default
-	 */
-	protected String getAcceptedEncoding() {
-		return "gzip,deflate";
-	}
-
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) throws ProtocolException {
 		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
@@ -97,12 +86,6 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
 			for (String value : entry.getValue())
 				connection.addRequestProperty(entry.getKey(), value);
-		}
-
-		if (connection.getRequestProperty(ACCEPT_ENCODING)==null) {
-			String acceptedEncoding = getAcceptedEncoding();
-			if (!TextUtils.isEmpty(acceptedEncoding))
-				connection.setRequestProperty(ACCEPT_ENCODING, acceptedEncoding);
 		}
 	}
 

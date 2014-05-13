@@ -59,11 +59,6 @@ public class OAuthConsumerClocked extends HttpClientOAuthConsumer {
 						}
 					}
 				}
-
-				@Override
-				protected String getAcceptedEncoding() {
-					return null;
-				}
 			};
 		}
 	};

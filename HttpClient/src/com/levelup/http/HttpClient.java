@@ -24,6 +24,8 @@ import android.text.TextUtils;
  * HTTP client that handles {@link HttpRequest} 
  */
 public class HttpClient {
+	public static final String ACCEPT_ENCODING = "Accept-Encoding";
+	
 	private static HttpUrlConnectionFactory connectionFactory;
 	private static String userAgent;
 	private static CookieManager cookieManager;
@@ -81,6 +83,17 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static HttpURLConnection getQueryResponse(HttpRequest request) throws HttpException {
+		return getQueryResponse(request, false);
+	}
+	
+	
+	/**
+	 * Process the HTTP request on the network and return the HttpURLConnection
+	 * @param request
+	 * @return an {@link HttpURLConnection} with the network response
+	 * @throws HttpException
+	 */
+	private static HttpURLConnection getQueryResponse(HttpRequest request, boolean allowGzip) throws HttpException {
 		final URL url;
 		try {
 			url = request.getURL();
@@ -117,6 +130,10 @@ public class HttpClient {
 			request.settleHttpHeaders();
 			request.setConnectionProperties(connection);
 
+			if (allowGzip && connection.getRequestProperty(ACCEPT_ENCODING)==null) {
+				connection.setRequestProperty(ACCEPT_ENCODING, "gzip,deflate");
+			}
+			
 			final LoggerTagged logger = request.getLogger(); 
 			if (null != logger) {
 				logger.v(connection.getRequestMethod() + ' ' + request.getUri());
@@ -141,7 +158,7 @@ public class HttpClient {
 					logger.v(header.getKey()+": "+header.getValue());
 				}
 			}
-			
+
 		} catch (SecurityException e) {
 			LogManager.getLogger().w("fail for "+request+' '+e);
 			HttpException.Builder builder = request.newException();
@@ -198,7 +215,7 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static InputStream getInputStream(HttpRequest request) throws HttpException {
-		HttpURLConnection resp = getQueryResponse(request);
+		HttpURLConnection resp = getQueryResponse(request, true);
 
 		InputStream is = null;
 		if (resp!=null) {
@@ -214,7 +231,7 @@ public class HttpClient {
 
 				if (resp.getResponseMessage()==null && null!=is) {
 					String body = InputStreamStringParser.instance.parseInputStream(is, request);
-					
+
 					HttpException.Builder builder = request.newException();
 					builder.setErrorMessage(TextUtils.isEmpty(body) ? "empty response" : body);
 					builder.setErrorCode(HttpException.ERROR_HTTP);
