@@ -11,7 +11,7 @@ import android.net.Uri;
 
 /**
  * Interface for HTTP requests to be passed to {@link HttpClient}
- * @see {@link AbstractHttpRequest} 
+ * @see AbstractHttpRequest
  */
 public interface HttpRequest extends HttpExceptionCreator {
 

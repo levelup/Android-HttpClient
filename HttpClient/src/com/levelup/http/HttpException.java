@@ -170,7 +170,7 @@ public class HttpException extends Exception {
 		protected String errorMessage;
 		protected Throwable exception;
 		protected int statusCode;
-		protected HttpRequest httpRequest;
+		protected final HttpRequest httpRequest;
 		protected final List<Header> headers;
 		protected List<Header> receivedHeaders;
 
@@ -272,8 +272,7 @@ public class HttpException extends Exception {
 		}
 
 		public HttpException build() {
-			HttpException result = new HttpException(this);
-			return result;
+			return new HttpException(this);
 		}
 	}
 }

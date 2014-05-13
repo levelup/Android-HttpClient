@@ -20,13 +20,7 @@ public class Header {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(64);
-		sb.append('{');
-		sb.append(name);
-		sb.append(':');
-		sb.append(value);
-		sb.append('}');
-		return sb.toString();
+        return "{" + name + ':' + value + '}';
 	}
 	
 }

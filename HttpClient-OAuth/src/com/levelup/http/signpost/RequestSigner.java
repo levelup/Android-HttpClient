@@ -13,7 +13,7 @@ import com.levelup.http.HttpRequest;
 public class RequestSigner {
 
 	private final OAuthUser user;
-	private OAuthConsumer mOAuthConsumer;
+	private final OAuthConsumer mOAuthConsumer;
 
 	/**
 	 * A {@link RequestSigner} for the specified clientApp and user authenticating

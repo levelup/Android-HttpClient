@@ -85,7 +85,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 
 					// Send binary file.
 					writer.append(boundarySplit).append(boundary).append(CRLF);
-					writer.append("Content-Disposition: form-data; name=\""+param.name+"\"; filename=\"" + ((File) param.value).getName() + '\"').append(CRLF);
+					writer.append("Content-Disposition: form-data; name=\"").append(param.name).append("\"; filename=\"").append(((File) param.value).getName()).append('\"').append(CRLF);
 					if (!TextUtils.isEmpty(param.contentType))
 						writer.append("Content-Type: ").append(param.contentType).append(CRLF);
 					writer.append("Content-Transfer-Encoding: binary").append(CRLF);
@@ -97,7 +97,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 					try {
 						input = new FileInputStream(file);
 						byte[] buffer = new byte[1024];
-						for (int length = 0; (length = input.read(buffer)) > 0;) {
+						for (int length; (length = input.read(buffer)) > 0;) {
 							output.write(buffer, 0, length);
 							progress += length;
 							if (null!=progressListener)
@@ -122,7 +122,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 
 					// Send binary file.
 					writer.append(boundarySplit).append(boundary).append(CRLF);
-					writer.append("Content-Disposition: form-data; name=\""+param.name+"\"; filename=\"rawstream\"").append(CRLF);
+					writer.append("Content-Disposition: form-data; name=\"").append(param.name).append("\"; filename=\"rawstream\"").append(CRLF);
 					if (!TextUtils.isEmpty(param.contentType))
 						writer.append("Content-Type: ").append(param.contentType).append(CRLF);
 					writer.append("Content-Transfer-Encoding: binary").append(CRLF);
@@ -130,7 +130,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 					InputStream input = (InputStream) param.value;
 					try {
 						byte[] buffer = new byte[1024];
-						for (int length = 0; (length = input.read(buffer)) > 0;) {
+						for (int length; (length = input.read(buffer)) > 0;) {
 							output.write(buffer, 0, length);
 							if (null!=progressListener)
 								progressListener.onParamUploadProgress(request, param.name, -1);
@@ -139,13 +139,12 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 						if (null!=progressListener)
 							progressListener.onParamUploadProgress(request, param.name, 100);
 					} finally {
-						if (input != null)
-							try {
-								input.close();
-							} catch (NullPointerException ignored) {
-								// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-							} catch (IOException ignored) {
-							}
+                        try {
+                            input.close();
+                        } catch (NullPointerException ignored) {
+                            // okhttp 2.0 bug https://github.com/square/okhttp/issues/690
+                        } catch (IOException ignored) {
+                        }
 					}
 					writer.append(CRLF).flush(); // CRLF is important! It indicates end of binary boundary.
 				}
@@ -159,7 +158,7 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 					// Send text string
 					writer.append(boundarySplit).append(boundary).append(CRLF);
 					if (!TextUtils.isEmpty(param.name))
-						writer.append("Content-Disposition: form-data; name=\""+param.name+"\"").append(CRLF);
+						writer.append("Content-Disposition: form-data; name=\"").append(param.name).append("\"").append(CRLF);
 					writer.append("Content-Type: ");
 					if (TextUtils.isEmpty(param.contentType))
 						writer.append("text/plain; charset=" + charset);
@@ -177,7 +176,6 @@ public class HttpParamsMultiPart implements HttpPostParameters {
 		} finally {
 			if (null != writer) {
 				writer.close();
-				writer = null;
 			}
 		}
 	}

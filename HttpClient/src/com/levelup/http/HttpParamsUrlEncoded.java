@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
@@ -12,7 +11,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 /**
- * HTTP POST parameter that are sent as {@link form-urlencoded}
+ * HTTP POST parameter that are sent as {@code form-urlencoded}
  */
 public class HttpParamsUrlEncoded implements HttpPostParameters {
 
@@ -55,7 +54,7 @@ public class HttpParamsUrlEncoded implements HttpPostParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws UnsupportedEncodingException, IOException {
+	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws IOException {
 		output.write(getEncodedParams());
 	}
 

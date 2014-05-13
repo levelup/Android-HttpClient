@@ -22,7 +22,7 @@ public final class Util {
 	 * @throws IOException
 	 */
 	@SuppressLint("NewApi")
-	public static final Charset getInputCharsetOrUtf8(HttpRequest request) throws IOException {
+	public static Charset getInputCharsetOrUtf8(HttpRequest request) throws IOException {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
 			return getInputCharset(request, StandardCharsets.UTF_8);
 		
@@ -36,7 +36,7 @@ public final class Util {
 	 * @return The Charset of specified by the server, if found locally, otherwise {@code defaultCharset}
 	 * @throws IOException
 	 */
-	public static final Charset getInputCharset(HttpRequest request, Charset defaultCharset) throws IOException {
+	public static Charset getInputCharset(HttpRequest request, Charset defaultCharset) throws IOException {
 		Charset readCharset = defaultCharset;
 		String contentType = request.getResponse().getContentType();
 		if (!TextUtils.isEmpty(contentType)) {

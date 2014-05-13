@@ -235,7 +235,6 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
 				} catch (IOException ignored) {
 				}
-				errorStream = null;
 			}
 		}
 		return builder;

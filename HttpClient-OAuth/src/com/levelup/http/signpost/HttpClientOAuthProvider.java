@@ -2,13 +2,13 @@ package com.levelup.http.signpost;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 
 import oauth.signpost.basic.DefaultOAuthProvider;
 import oauth.signpost.basic.HttpURLConnectionResponseAdapter;
 import oauth.signpost.exception.OAuthException;
 import oauth.signpost.http.HttpParameters;
 import oauth.signpost.http.HttpResponse;
+import oauth.signpost.OAuth;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
@@ -68,7 +68,7 @@ public class HttpClientOAuthProvider {
 			private static final long serialVersionUID = 8102585589144551017L;
 
 			@Override
-			protected oauth.signpost.http.HttpRequest createRequest(String endpointUrl) throws MalformedURLException, IOException {
+			protected oauth.signpost.http.HttpRequest createRequest(String endpointUrl) throws IOException {
 				HttpRequest request = requestFactory.createRequest(endpointUrl);
 				return new OAuthRequestAdapter(request);
 			}

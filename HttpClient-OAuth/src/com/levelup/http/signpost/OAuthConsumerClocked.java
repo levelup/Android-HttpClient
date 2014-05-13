@@ -36,7 +36,7 @@ public class OAuthConsumerClocked extends HttpClientOAuthConsumer {
 			//Date twitterDate = getDate(DATE_FORMAT_HTTP, value);
 			Date twitterDate = DateUtils.parseDate(value);
 			serverDelayInMilliseconds = now - twitterDate.getTime();
-		} catch (DateParseException e) {
+		} catch (DateParseException ignored) {
 		}
 	}
 
