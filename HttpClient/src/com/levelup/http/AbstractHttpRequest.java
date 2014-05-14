@@ -193,7 +193,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 	}
 
 	@Override
-	public HttpException.Builder newExceptionFromResponse() {
+	public HttpException.Builder newExceptionFromResponse(Throwable cause) {
 		InputStream errorStream = null;
 		Builder builder = null;
 		try {
@@ -201,6 +201,7 @@ public abstract class AbstractHttpRequest implements HttpRequest {
 			builder = newException();
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			builder.setHTTPResponse(response);
+			builder.setCause(cause);
 
 			errorStream = response.getErrorStream();
 			if (null==errorStream)

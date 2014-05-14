@@ -225,9 +225,17 @@ public class HttpException extends Exception {
 			return this;
 		}
 
+		public int getErrorCode() {
+			return errorCode;
+		}
+
 		public Builder setErrorMessage(String message) {
 			this.errorMessage = message;
 			return this;
+		}
+		
+		public String getErrorMessage() {
+			return errorMessage;
 		}
 
 		public Builder setCause(Throwable tr) {
