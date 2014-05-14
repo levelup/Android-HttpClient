@@ -10,7 +10,7 @@ package com.levelup.http.async;
 public interface NetworkCallback<T> {
 	/**
 	 * The resulting data, called in the UI thread
-	 * @param result The parsed response after execution
+	 * @param result The parsed response after execution, may be {@code null}
 	 */
 	void onNetworkSuccess(T result);
 	

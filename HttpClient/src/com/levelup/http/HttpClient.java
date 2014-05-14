@@ -25,7 +25,7 @@ import android.text.TextUtils;
  */
 public class HttpClient {
 	public static final String ACCEPT_ENCODING = "Accept-Encoding";
-	
+
 	private static HttpUrlConnectionFactory connectionFactory;
 	private static String userAgent;
 	private static CookieManager cookieManager;
@@ -85,8 +85,8 @@ public class HttpClient {
 	public static HttpURLConnection getQueryResponse(HttpRequest request) throws HttpException {
 		return getQueryResponse(request, false);
 	}
-	
-	
+
+
 	/**
 	 * Process the HTTP request on the network and return the HttpURLConnection
 	 * @param request
@@ -133,7 +133,7 @@ public class HttpClient {
 			if (allowGzip && connection.getRequestProperty(ACCEPT_ENCODING)==null) {
 				connection.setRequestProperty(ACCEPT_ENCODING, "gzip,deflate");
 			}
-			
+
 			final LoggerTagged logger = request.getLogger(); 
 			if (null != logger) {
 				logger.v(connection.getRequestMethod() + ' ' + request.getUri());
@@ -288,18 +288,20 @@ public class HttpClient {
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
 	 * @param request The HTTP request to process
-	 * @param parser The {@link InputStreamParser parser} used to transform the input stream into the desired type
+	 * @param parser The {@link InputStreamParser parser} used to transform the input stream into the desired type. May be {@code null}
 	 * @return The parsed object or null
 	 * @throws HttpException
 	 */
 	public static <T> T parseRequest(HttpRequest request, InputStreamParser<T> parser) throws HttpException {
-		if (null==parser) throw new NullPointerException();
 		InputStream is = getInputStream(request);
 		if (null==is)
 			return null;
 
 		try {
-			return parser.parseInputStream(is, request);
+			if (null!=parser)
+				return parser.parseInputStream(is, request);
+			else
+				return null;
 
 		} catch (SocketTimeoutException e) {
 			HttpException.Builder builder = request.newException();
