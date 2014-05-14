@@ -4,7 +4,7 @@ archivesBaseName = 'HttpClient-Gson'
 
 dependencies {
     compile project(':HttpClient')
-    compile 'com.google.code.gson:gson:jar:2.2.+'
+    compile 'com.google.code.gson:gson:2.2.+'
 }
 
 android {
