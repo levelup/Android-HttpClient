@@ -115,10 +115,10 @@ public class HttpException extends Exception {
 		}
 		sb.append(':');*/
 		sb.append(getLocalizedMessage());
-		if (null!=httpRequest) {
+		/*if (null!=httpRequest) {
 			sb.append(" on ");
-			sb.append(httpRequest.getUri());
-		}
+			sb.append(httpRequest);
+		}*/
 		return sb.toString();
 	}
 
