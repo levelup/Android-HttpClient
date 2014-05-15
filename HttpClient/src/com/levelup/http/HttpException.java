@@ -243,6 +243,10 @@ public class HttpException extends Exception {
 			return this;
 		}
 		
+		public Throwable getCause() {
+			return exception;
+		}
+
 		/**
 		 * Alternative to {@link #setHTTPResponse(HttpURLConnection)} to simulate some issues
 		 * @param statusCode
