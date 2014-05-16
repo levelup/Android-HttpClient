@@ -321,6 +321,9 @@ public class HttpClient {
 
 		} catch (IOException e) {
 			LogManager.getLogger().i("fail for "+request);
+			if (e.getCause() instanceof HttpException)
+				throw (HttpException) e.getCause();
+			
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("IO error "+e.getMessage());
 			builder.setCause(e);
