@@ -9,17 +9,19 @@ import org.apache.http.protocol.HTTP;
 
 import android.net.Uri;
 
-public class HttpRequestPost extends AbstractHttpRequest {
+public class HttpRequestPost extends BaseHttpRequest {
+	private static final String HTTP_METHOD = "POST";
+
 	private final HttpPostParameters httpParams;
 	private UploadProgressListener mProgressListener;
 
 	public HttpRequestPost(String url, HttpPostParameters httpParams) {
-		super(url);
+		super(url, HTTP_METHOD);
 		this.httpParams = httpParams;
 	}
 
 	public HttpRequestPost(Uri uri, HttpPostParameters httpParams) {
-		super(uri);
+		super(uri, HTTP_METHOD);
 		this.httpParams = httpParams;
 	}
 
@@ -33,7 +35,6 @@ public class HttpRequestPost extends AbstractHttpRequest {
 
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) throws ProtocolException {
-		connection.setRequestMethod("POST");
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
 

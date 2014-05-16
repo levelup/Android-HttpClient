@@ -24,29 +24,39 @@ import com.levelup.http.HttpException.Builder;
 
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
- * @see {@link HttpRequestGet} 
- * @see {@link HttpRequestPost} 
+ * @see HttpRequestGet 
+ * @see HttpRequestPost 
  */
-public abstract class AbstractHttpRequest implements HttpRequest {
+public class BaseHttpRequest implements HttpRequest {
 	private final Uri uri;
 	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
 	private HttpURLConnection httpResponse;
+	private final String method;
 
 	/**
 	 * Constructor with a string HTTP URL
+	 * @param method HTTP method, like {@code GET} or {@code POST}
 	 */
-	protected AbstractHttpRequest(String url) {
+	protected BaseHttpRequest(String url, String method) {
 		this.uri = Uri.parse(url);
+		this.method = method;
 	}
 
 	/**
 	 * Constructor with a {@link Uri} constructor
+	 * @param method HTTP method, like {@code GET} or {@code POST}
 	 */
-	protected AbstractHttpRequest(Uri uri) {
+	protected BaseHttpRequest(Uri uri, String method) {
 		this.uri = uri;
+		this.method = method;
+	}
+
+	@Override
+	public String getHttpMethod() {
+		return method;
 	}
 
 	/**

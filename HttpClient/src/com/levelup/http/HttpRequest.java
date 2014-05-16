@@ -11,7 +11,7 @@ import android.net.Uri;
 
 /**
  * Interface for HTTP requests to be passed to {@link HttpClient}
- * @see AbstractHttpRequest
+ * @see BaseHttpRequest
  */
 public interface HttpRequest extends HttpExceptionCreator {
 
@@ -19,12 +19,17 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Get the target URL in {@link android.net.Uri Uri} format
 	 */
 	Uri getUri();
-	
+
 	/**
 	 * Get the target URL in {@link java.net.URL URL} format
 	 * @throws MalformedURLException
 	 */
 	URL getURL() throws MalformedURLException;
+
+	/**
+	 * Get the HTTP method used to process the request, like {@code "GET"} or {@code "POST"}
+	 */
+	String getHttpMethod();
 
 	/**
 	 * Add an extra HTTP header to this request
@@ -39,7 +44,7 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * @param value Value of the header
 	 */
 	void setHeader(String name, String value);
-	
+
 	/**
 	 * Get the single value of a HTTP header for this request
 	 * @param name Name of the header
@@ -92,7 +97,7 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Set the {@link HttpConfig} for this request or {@code null} 
 	 */
 	void setHttpConfig(HttpConfig config);
-	
+
 	/**
 	 * Get the list of extra headers set for this request
 	 */

@@ -127,6 +127,7 @@ public class HttpClient {
 				cookieManager.setCookieHeader(request);
 			}
 
+			connection.setRequestMethod(request.getHttpMethod());
 			request.settleHttpHeaders();
 			request.setConnectionProperties(connection);
 
