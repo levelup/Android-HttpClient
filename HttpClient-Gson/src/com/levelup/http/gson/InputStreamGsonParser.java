@@ -7,8 +7,12 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
+import com.levelup.http.ParserException;
 import com.levelup.http.Util;
 
 public class InputStreamGsonParser<T> implements InputStreamParser<T> {
@@ -28,7 +32,7 @@ public class InputStreamGsonParser<T> implements InputStreamParser<T> {
 	}
 
 	@Override
-	public T parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
+	public T parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
 		final Charset readCharset;
 		if ("UTF-8".equals(charset))
 			readCharset = Util.getInputCharsetOrUtf8(request);
@@ -38,6 +42,10 @@ public class InputStreamGsonParser<T> implements InputStreamParser<T> {
 		InputStreamReader reader = new InputStreamReader(inputStream, readCharset);
 		try {
 			return gson.fromJson(reader, type);
+		} catch (JsonIOException e) {
+			throw (IOException) new IOException().initCause(e);
+		} catch (JsonSyntaxException e) {
+			throw new ParserException(request.newException().setCause(e).setErrorCode(HttpException.ERROR_JSON).build());
 		} finally {
 			reader.close();
 		}

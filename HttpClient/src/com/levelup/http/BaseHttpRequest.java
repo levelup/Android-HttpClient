@@ -234,6 +234,7 @@ public class BaseHttpRequest implements HttpRequest {
 				}
 			}
 		} catch (IOException ignored) {
+		} catch (ParserException ignored) {
 		} finally {
 			if (null!=errorStream) {
 				try {

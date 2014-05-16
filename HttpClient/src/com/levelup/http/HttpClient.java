@@ -318,18 +318,25 @@ public class HttpClient {
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
 			throw builder.build();
-
-		} catch (IOException e) {
-			LogManager.getLogger().i("fail for "+request);
-			if (e.getCause() instanceof HttpException)
-				throw (HttpException) e.getCause();
 			
+		} catch (IOException e) {
+			LogManager.getLogger().d("fail for "+request);
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("IO error "+e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
 			throw builder.build();
 
+		} catch (ParserException e) {
+			LogManager.getLogger().i("incorrect data for "+request);
+			if (e.getCause() instanceof HttpException)
+				throw (HttpException) e.getCause();
+			
+			HttpException.Builder builder = request.newException();
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_DATA);
+			throw builder.build();
+			
 		} finally {
 			try {
 				is.close();

@@ -21,7 +21,7 @@ public class testParser extends TestCase {
 		try {
 			Void parsed = HttpClient.parseRequest(apiGet, new InputStreamParser<Void>() {
 				@Override
-				public Void parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
+				public Void parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
 					// Process your InputStream
 					JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
 					try {

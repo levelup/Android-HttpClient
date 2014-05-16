@@ -14,18 +14,14 @@ public class InputStreamJSONObjectParser implements InputStreamParser<JSONObject
 	}
 
 	@Override
-	public JSONObject parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
+	public JSONObject parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
 		String srcData = InputStreamStringParser.instance.parseInputStream(inputStream, request);
 		try {
 			return new JSONObject(srcData);
 		} catch (JSONException e) {
-			IOException forward = new IOException("Bad JSON data "+srcData+' '+e.getMessage());
-			forward.initCause(e);
-			throw forward;
+			throw new ParserException("Bad JSON data "+srcData+' '+e.getMessage(), request.newException().setCause(e).setErrorCode(HttpException.ERROR_JSON).build());
 		} catch (NullPointerException e) {
-			IOException forward = new IOException("Invalid JSON data "+srcData);
-			forward.initCause(e);
-			throw forward;
+			throw new ParserException("Invalid JSON data "+srcData, request.newException().setCause(e).build());
 		}
 	}
 }

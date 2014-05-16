@@ -14,18 +14,14 @@ public class InputStreamJSONArrayParser implements InputStreamParser<JSONArray> 
 	}
 
 	@Override
-	public JSONArray parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
+	public JSONArray parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
 		String srcData = InputStreamStringParser.instance.parseInputStream(inputStream, request);
 		try {
 			return new JSONArray(srcData);
 		} catch (JSONException e) {
-			IOException forward = new IOException("Bad JSON data "+srcData);
-			forward.initCause(e);
-			throw forward;
+			throw new ParserException("Bad JSON data "+srcData+' '+e.getMessage(), request.newException().setCause(e).setErrorCode(HttpException.ERROR_JSON).build());
 		} catch (NullPointerException e) {
-			IOException forward = new IOException("Invalid JSON data "+srcData);
-			forward.initCause(e);
-			throw forward;
+			throw new ParserException("Invalid JSON data "+srcData, e);
 		}
 	}
 }
