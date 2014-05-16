@@ -2,7 +2,11 @@ package com.levelup.http;
 
 import android.net.Uri;
 
-
+/**
+ * Basic HTTP GET request to use with {@link HttpClient}
+ * 
+ * @author Steve Lhomme
+ */
 public class HttpRequestGet extends BaseHttpRequest {
 	private static final String HTTP_METHOD = "GET";
 

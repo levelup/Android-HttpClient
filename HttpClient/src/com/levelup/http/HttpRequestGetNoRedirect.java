@@ -7,7 +7,11 @@ import android.net.Uri;
 
 /**
  * An Http GET request that doesn't follow redirections
- *  
+ * <p>
+ * Using {@link HttpURLConnection#setInstanceFollowRedirects(boolean)
+ * setInstanceFollowRedirects()} in
+ * {@link #setConnectionProperties(HttpURLConnection) setConnectionProperties()}
+ * 
  * @author Steve Lhomme
  */
 public class HttpRequestGetNoRedirect extends HttpRequestGet {

@@ -9,6 +9,11 @@ import org.apache.http.protocol.HTTP;
 
 import android.net.Uri;
 
+/**
+ * Basic HTTP POST request to use with {@link HttpClient}
+ * 
+ * @author Steve Lhomme
+ */
 public class HttpRequestPost extends BaseHttpRequest {
 	private static final String HTTP_METHOD = "POST";
 
