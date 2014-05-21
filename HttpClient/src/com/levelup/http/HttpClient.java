@@ -161,7 +161,7 @@ public class HttpClient {
 			}
 
 		} catch (SecurityException e) {
-			LogManager.getLogger().w("fail for "+request+' '+e);
+			LogManager.getLogger().w("security error for "+request+' '+e);
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("Security error "+e.getMessage());
 			builder.setCause(e);
@@ -169,7 +169,7 @@ public class HttpClient {
 			throw builder.build();
 
 		} catch (SocketTimeoutException e) {
-			LogManager.getLogger().i("timeout for "+request);
+			LogManager.getLogger().d("timeout for "+request);
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("Timeout error "+e.getMessage());
 			builder.setCause(e);
@@ -177,7 +177,7 @@ public class HttpClient {
 			throw builder.build();
 
 		} catch (IOException e) {
-			LogManager.getLogger().i("fail for "+request);
+			LogManager.getLogger().d("i/o error for "+request);
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("IO error "+e.getMessage());
 			builder.setCause(e);
@@ -260,11 +260,16 @@ public class HttpClient {
 				}
 
 			} catch (FileNotFoundException e) {
-				LogManager.getLogger().i("fail for "+request);
 				HttpException.Builder builder = request.newExceptionFromResponse(e);
-				throw builder.build();
+				HttpException exception = builder.build();
+				if (null==exception.getCause())
+					LogManager.getLogger().d("http error "+exception.getMessage());
+				else
+					LogManager.getLogger().d("http error for "+request, e);
+				throw exception;
 
 			} catch (SocketTimeoutException e) {
+				LogManager.getLogger().d("timeout for "+request);
 				HttpException.Builder builder = request.newException();
 				builder.setErrorMessage("timeout");
 				builder.setCause(e);
@@ -272,7 +277,7 @@ public class HttpClient {
 				throw builder.build();
 
 			} catch (IOException e) {
-				LogManager.getLogger().i("fail for "+request);
+				LogManager.getLogger().d("i/o error for "+request);
 				HttpException.Builder builder = request.newException();
 				builder.setErrorMessage("IO error "+e.getMessage());
 				builder.setCause(e);
@@ -320,7 +325,7 @@ public class HttpClient {
 			throw builder.build();
 			
 		} catch (IOException e) {
-			LogManager.getLogger().d("fail for "+request);
+			LogManager.getLogger().d("i/o error for "+request);
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("IO error "+e.getMessage());
 			builder.setCause(e);
