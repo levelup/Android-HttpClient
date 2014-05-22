@@ -213,25 +213,16 @@ public class BaseHttpRequest implements HttpRequest {
 			builder.setHTTPResponse(response);
 			builder.setCause(cause);
 
-			errorStream = response.getErrorStream();
-			if (null==errorStream)
-				errorStream = response.getInputStream();
-
-			if (null!=errorStream) {
-				if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
-					errorStream = new InflaterInputStream(errorStream);
-				if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
-					errorStream = new GZIPInputStream(errorStream);
-
-				MediaType type = MediaType.parse(response.getContentType());
-				if (Util.MediaTypeJSON.equalsType(type)) {
-					JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
-					builder.setErrorMessage(jsonData.toString());
-					builder = handleJSONError(builder, jsonData);
-				} else {
-					String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
-					builder.setErrorMessage(errorData);
-				}
+			MediaType type = MediaType.parse(response.getContentType());
+			if (Util.MediaTypeJSON.equalsType(type)) {
+				errorStream = getParseableErrorStream(response);
+				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
+				builder.setErrorMessage(jsonData.toString());
+				builder = handleJSONError(builder, jsonData);
+			} else if (null==type || "text".equals(type.type())) {
+				errorStream = getParseableErrorStream(response);
+				String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
+				builder.setErrorMessage(errorData);
 			}
 		} catch (IOException ignored) {
 		} catch (ParserException ignored) {
@@ -246,6 +237,22 @@ public class BaseHttpRequest implements HttpRequest {
 			}
 		}
 		return builder;
+	}
+
+	private static InputStream getParseableErrorStream(HttpURLConnection response) throws IOException {
+		InputStream errorStream = response.getErrorStream();
+		if (null==errorStream)
+			errorStream = response.getInputStream();
+
+		if (null==errorStream)
+			return null;
+
+		if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
+			errorStream = new InflaterInputStream(errorStream);
+		if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
+			errorStream = new GZIPInputStream(errorStream);
+
+		return errorStream;
 	}
 
 	/**
