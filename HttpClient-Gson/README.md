@@ -10,14 +10,14 @@ Sample Code
 ```java
 class MyClass {
 	@SerializedName("id") int id;
-	@SerializedName("id") String name;
+	@SerializedName("name") String name;
 }
 
 HttpRequestGet request = new HttpRequestGet("https://api.com/1/test.json");
 
 // Create a parser for MyClass using Gson
 Gson gson = new GsonBuilder().create();
-InputStreamGsonParser<MyClass> parser = new InputStreamGsonParser<MyClass>(gson, MyClass.getType());
+InputStreamGsonParser<MyClass> parser = new InputStreamGsonParser<MyClass>(gson, MyClass.class);
 
 // query the data from the server directly in the form of an object of class MyClass
 MyClass dlInstance = HttpClient.parseRequest(request, parser);

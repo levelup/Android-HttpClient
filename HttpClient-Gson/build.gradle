@@ -26,6 +26,8 @@ android {
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
+
+        instrumentTest.setRoot('tests')
     }
 
     buildTypes {
