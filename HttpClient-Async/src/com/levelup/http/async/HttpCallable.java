@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
+import com.levelup.http.TypedHttpRequest;
 
 /**
  * Base class to execute an {@link HttpRequest} and parse the received data to return the result of type {@code <T>}
@@ -18,6 +19,12 @@ import com.levelup.http.InputStreamParser;
 public class HttpCallable<T> implements Callable<T>, Closeable {
 	private final HttpRequest request;
 	private final InputStreamParser<T> parser;
+
+	public HttpCallable(TypedHttpRequest<T> request) {
+		if (null==request) throw new IllegalArgumentException();
+		this.request = request;
+		this.parser = request.getInputStreamParser();
+	}
 
 	public HttpCallable(HttpRequest request, InputStreamParser<T> parser) {
 		if (null==request) throw new IllegalArgumentException();
