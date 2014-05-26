@@ -9,6 +9,7 @@ import android.text.format.DateUtils;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpUrlConnectionFactory;
+import com.squareup.okhttp.OkUrlFactory;
 
 /**
  * {@link HttpClient} class that uses <a href="http://square.github.io/okhttp/">OkHttp</a> for all connection handling
@@ -21,6 +22,7 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 
 	private static final com.squareup.okhttp.OkHttpClient okClient;
 	public static final OkHttpClient instance;
+	private static final OkUrlFactory factory; 
 
 	private final HashSet<String> urlSpdyBlackList = new HashSet<String>(); 
 
@@ -29,8 +31,10 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 		if (__WITH_OKHTTP) {
 			okClient = new com.squareup.okhttp.OkHttpClient();
 			System.setProperty("http.keepAliveDuration", String.valueOf(HTTP_KEEP_ALIVE));
+			factory = new OkUrlFactory(okClient);
 		} else {
 			okClient = null;
+			factory = null;
 		}
 	}
 
@@ -62,7 +66,7 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 
 	@Override
 	public HttpURLConnection createConnection(URL url) throws IOException {
-		if (null == okClient)
+		if (null == factory)
 			return (HttpURLConnection) url.openConnection();
 
 		synchronized (urlSpdyBlackList) {
@@ -76,6 +80,7 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 				}
 			}
 		}
-		return okClient.open(url);
+		
+		return factory.open(url);
 	}
 }
