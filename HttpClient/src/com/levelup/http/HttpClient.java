@@ -293,6 +293,17 @@ public class HttpClient {
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
 	 * @param request The HTTP request to process
+	 * @return The parsed object or null
+	 * @throws HttpException
+	 */
+	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
+		return parseRequest(request, request.getInputStreamParser());
+	}
+	
+	/**
+	 * Perform the query on the network and get the resulting body as an InputStream
+	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
+	 * @param request The HTTP request to process
 	 * @param parser The {@link InputStreamParser parser} used to transform the input stream into the desired type. May be {@code null}
 	 * @return The parsed object or null
 	 * @throws HttpException

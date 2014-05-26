@@ -19,6 +19,7 @@ import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
+import com.levelup.http.TypedHttpRequest;
 
 /**
  * Basic HttpClient to run network queries outside of the UI thread
@@ -70,6 +71,17 @@ public class AsyncHttpClient {
 	}
 
 	/**
+	 * Run an {@link TypedHttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
+	 * @param request {@link TypedHttpRequest HTTP request} to execute to get the parsed object
+	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
+	 * @return A Future<T> representing the download task, if you need to cancel it
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback) {
+		return doRequest(request, request.getInputStreamParser(), callback, BaseNetworkTaskFactory.instance);
+	}
+
+	/**
 	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
@@ -82,6 +94,19 @@ public class AsyncHttpClient {
 	}
 
 	/**
+	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
+	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
+	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
+	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
+	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
+	 * @return A Future<T> representing the download task, if you need to cancel it
+	 * @see #doRequest(HttpRequest, InputStreamParser, NetworkCallback)
+	 */
+	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
+		return doRequest(executor, request, request.getInputStreamParser(), callback, factory);
+	}
+
+		/**
 	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
@@ -127,6 +152,18 @@ public class AsyncHttpClient {
 		doRequest(request, tag, InputStreamStringParser.instance, callback);
 	}
 
+	/**
+	 * Run an {@link TypedHttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
+	 * <p>The {@code tag} is used to identify similar queries so previous instances can be canceled so that only the last call gives a result.
+	 * @param request {@link TypedHttpRequest HTTP request} to execute to get the parsed object
+	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
+	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
+	 * @see #getString(HttpRequest, String, NetworkCallback)
+	 */
+	public static <T> void doRequest(TypedHttpRequest<T> request, String tag, NetworkCallback<T> callback) {
+		doRequest(request, tag, request.getInputStreamParser(), callback);
+	}
+	
 	/**
 	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * <p>The {@code tag} is used to identify similar queries so previous instances can be canceled so that only the last call gives a result.
