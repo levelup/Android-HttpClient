@@ -26,6 +26,8 @@
 -keepnames interface com.squareup.okhttp.** { *; }
 
 # OkHttp oddities
--dontwarn com.squareup.okhttp.internal.http.*
+-dontwarn com.squareup.okhttp.internal.**
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 
+# Okio oddities
+-dontwarn java.nio.file.*

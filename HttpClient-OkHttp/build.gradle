@@ -31,7 +31,7 @@ android {
 
     buildTypes {
         release {
-            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-project.txt'
         }
     }
 }
