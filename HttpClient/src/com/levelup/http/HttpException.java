@@ -277,6 +277,9 @@ public class HttpException extends Exception {
 				} catch (ArrayIndexOutOfBoundsException e) {
 					// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
 					this.statusCode = 0;
+				} catch (IllegalStateException e) {
+					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+					this.statusCode = 200;
 				} catch (IOException e) {
 					this.statusCode = 200;
 				}
