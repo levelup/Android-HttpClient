@@ -195,14 +195,6 @@ public class HttpClient {
 				builder.setCause(e);
 				builder.setErrorCode(HttpException.ERROR_NETWORK);
 				throw builder.build();
-			} catch (ArrayIndexOutOfBoundsException e) {
-				// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
-				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-				HttpException.Builder builder = request.newException();
-				builder.setErrorMessage("Connection closed "+e.getMessage());
-				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_NETWORK);
-				throw builder.build();
 			}
 		}
 		return connection;
@@ -326,15 +318,6 @@ public class HttpClient {
 			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
 			throw builder.build();
 
-		} catch (ArrayIndexOutOfBoundsException e) {
-			// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
-			LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Connection closed "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			throw builder.build();
-			
 		} catch (IOException e) {
 			LogManager.getLogger().d("i/o error for "+request);
 			HttpException.Builder builder = request.newException();

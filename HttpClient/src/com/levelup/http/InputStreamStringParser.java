@@ -43,11 +43,7 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 				}
 			} finally {
 				if (null!=reader)
-					try {
-						reader.close();
-					} catch (ArrayIndexOutOfBoundsException ignored) {
-						// okhttp 1.5.3 issue https://github.com/square/okhttp/issues/658
-					}
+					reader.close();
 			}
 		}
 
