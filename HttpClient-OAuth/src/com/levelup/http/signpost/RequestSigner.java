@@ -8,7 +8,7 @@ import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 
 /**
- * Helper class to OAuth sign a {@link HttpRequest} using <a href="https://code.google.com/p/oauth-signpost/">oauth-signpost</a>
+ * Helper class to OAuth sign a {@link HttpRequestSigned} using <a href="https://code.google.com/p/oauth-signpost/">oauth-signpost</a>
  */
 public class RequestSigner {
 
