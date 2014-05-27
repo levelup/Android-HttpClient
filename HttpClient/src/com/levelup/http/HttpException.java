@@ -156,7 +156,7 @@ public class HttpException extends Exception {
 		}
 		return msg.toString();
 	}
-	
+
 	/**
 	 * Get the error message without the extra formating of {@link #getMessage()} containing HTTP error codes
 	 * <p>Can be useful when the error data are JSON or XML data</p>
@@ -231,7 +231,7 @@ public class HttpException extends Exception {
 			this.errorMessage = message;
 			return this;
 		}
-		
+
 		public String getErrorMessage() {
 			return errorMessage;
 		}
@@ -240,7 +240,7 @@ public class HttpException extends Exception {
 			this.exception = tr;
 			return this;
 		}
-		
+
 		public Throwable getCause() {
 			return exception;
 		}
@@ -273,6 +273,9 @@ public class HttpException extends Exception {
 					this.statusCode = resp.getResponseCode();
 				} catch (IllegalStateException e) {
 					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+					this.statusCode = 200;
+				} catch (NullPointerException ignored) {
+					// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
 					this.statusCode = 200;
 				} catch (IOException e) {
 					this.statusCode = 200;
