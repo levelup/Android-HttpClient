@@ -204,6 +204,9 @@ public class HttpException extends Exception {
 				} catch (IllegalStateException ignored) {
 					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 					this.receivedHeaders = Collections.emptyList();
+				} catch (IllegalArgumentException e) {
+					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/875
+					this.receivedHeaders = Collections.emptyList();
 				} catch (NullPointerException e) {
 					// issue https://github.com/square/okhttp/issues/348
 					this.receivedHeaders = Collections.emptyList();
