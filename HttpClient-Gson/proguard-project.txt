@@ -19,8 +19,8 @@
 #   public *;
 #}
 
--keepnames class com.levelup.http.signpost.** { *; }
--keepnames interface com.levelup.http.signpost.** { *; }
+-keepnames class com.levelup.http.gson.** { *; }
+-keepnames interface com.levelup.http.gson.** { *; }
 
--keepnames class oauth.signpost.** { *; }
--keepnames interface oauth.signpost.** { *; }
+-keepnames class com.google.gson.** { *; }
+-keepnames interface com.google.gson.** { *; }
