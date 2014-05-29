@@ -5,9 +5,9 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
@@ -26,7 +26,7 @@ public class AsyncClientTest extends TestCase {
 	// TODO test with streaming connection (chunked over HTTPS with sometimes no data sent for 1 minute)
 	// TODO test with streaming connection with SPDY
 	// TODO test with long POST
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -36,7 +36,7 @@ public class AsyncClientTest extends TestCase {
 	public void testAsyncSimpleQuery() {
 		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, null);
 	}
-	
+
 	private static class TestAsyncCallback extends BaseNetworkCallback<String> {
 		@Override
 		public void onNetworkFailed(Throwable t) {
@@ -49,7 +49,7 @@ public class AsyncClientTest extends TestCase {
 			}
 		}
 	}
-	
+
 	private static class TestLongAsyncCallback extends TestAsyncCallback {
 		@Override
 		public void onNetworkSuccess(String response) {
@@ -57,6 +57,7 @@ public class AsyncClientTest extends TestCase {
 		}
 	}
 
+	@MediumTest
 	public void testAsyncSimpleQueryResult() {
 		final CountDownLatch latch = new CountDownLatch(1);
 
@@ -67,7 +68,7 @@ public class AsyncClientTest extends TestCase {
 			}
 		});
 		try {
-			latch.await(20, TimeUnit.SECONDS);
+			latch.await();
 		} catch (InterruptedException e) {
 			fail("unreasonably slow");
 		}
@@ -128,7 +129,7 @@ public class AsyncClientTest extends TestCase {
 			fail("the task did not exit correctly "+e);
 		}
 	}
-	
+
 	public void testCancelLongHttps() {
 		HttpRequest request = new HttpRequestGet(LARGE_URL_HTTPS);
 		Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new TestLongAsyncCallback());
