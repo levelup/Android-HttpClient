@@ -101,7 +101,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public String getHttpMethod() {
+	public final String getHttpMethod() {
 		return method;
 	}
 	
