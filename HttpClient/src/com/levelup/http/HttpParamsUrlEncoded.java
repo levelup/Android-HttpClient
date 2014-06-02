@@ -13,7 +13,7 @@ import org.apache.http.protocol.HTTP;
 /**
  * HTTP POST parameter that are sent as {@code form-urlencoded}
  */
-public class HttpParamsUrlEncoded implements HttpPostParameters {
+public class HttpParamsUrlEncoded implements HttpBodyParameters {
 
 	private final ArrayList<NameValuePair> mParams;
 	private byte[] encodedParams;

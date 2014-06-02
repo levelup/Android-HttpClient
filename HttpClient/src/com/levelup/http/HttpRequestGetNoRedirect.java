@@ -14,18 +14,18 @@ import android.net.Uri;
  * 
  * @author Steve Lhomme
  */
-public class HttpRequestGetNoRedirect extends HttpRequestGet {
+public class HttpRequestGetNoRedirect extends HttpRequestGet<Void> {
 
 	public HttpRequestGetNoRedirect(String baseUrl) {
-		super(baseUrl);
+		super(baseUrl, null);
 	}
 
-	public HttpRequestGetNoRedirect(String baseUrl, HttpGetParameters httpParams) {
-		super(baseUrl, httpParams);
+	public HttpRequestGetNoRedirect(String baseUrl, HttpUriParameters httpParams) {
+		super(baseUrl, httpParams, null);
 	}
 
-	public HttpRequestGetNoRedirect(Uri baseUrl, HttpGetParameters httpParams) {
-		super(baseUrl, httpParams);
+	public HttpRequestGetNoRedirect(Uri baseUrl, HttpUriParameters httpParams) {
+		super(baseUrl, httpParams, null);
 	}
 
 	@Override

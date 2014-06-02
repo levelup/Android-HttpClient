@@ -8,26 +8,61 @@ import java.net.ProtocolException;
 import org.apache.http.protocol.HTTP;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 /**
  * Basic HTTP POST request to use with {@link HttpClient}
  * 
  * @author Steve Lhomme
  */
-public class HttpRequestPost extends BaseHttpRequest {
+public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 	private static final String HTTP_METHOD = "POST";
 
-	private final HttpPostParameters httpParams;
+	public static class Builder<T> extends BaseHttpRequest.Builder<T> {
+
+		public Builder() {
+			super.setHttpMethod(HTTP_METHOD);
+		}
+
+		public Builder<T> setHttpMethod(String httpMethod) {
+			if (TextUtils.equals(httpMethod, "GET") || TextUtils.equals(httpMethod, "HEAD"))
+				throw new IllegalArgumentException("invalid HTTP method with body:"+httpMethod);
+			super.setHttpMethod(httpMethod);
+			return this;
+		}
+
+		private HttpBodyParameters bodyParams;
+		
+		public Builder<T> setHttpParams(HttpBodyParameters httpParams) {
+			this.bodyParams = httpParams;
+			return this;
+		}
+
+		public final HttpBodyParameters getHttpParams() {
+			return bodyParams;
+		}
+
+		public HttpRequestPost<T> build() {
+			return new HttpRequestPost<T>(this);
+		}
+	}
+
+	private final HttpBodyParameters httpParams;
 	private UploadProgressListener mProgressListener;
 
-	public HttpRequestPost(String url, HttpPostParameters httpParams) {
-		super(url, HTTP_METHOD);
+	public HttpRequestPost(String url, HttpBodyParameters httpParams, InputStreamParser<T> streamParser) {
+		super(url, HTTP_METHOD, streamParser);
 		this.httpParams = httpParams;
 	}
 
-	public HttpRequestPost(Uri uri, HttpPostParameters httpParams) {
-		super(uri, HTTP_METHOD);
+	public HttpRequestPost(Uri uri, HttpBodyParameters httpParams, InputStreamParser<T> streamParser) {
+		super(uri, HTTP_METHOD, streamParser);
 		this.httpParams = httpParams;
+	}
+
+	protected HttpRequestPost(Builder<T> builder) {
+		super(builder);
+		this.httpParams = builder.getHttpParams();
 	}
 
 	public void setProgressListener(UploadProgressListener listener) {

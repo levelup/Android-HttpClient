@@ -18,7 +18,7 @@ import android.text.TextUtils;
  * HTTP POST parameters encoded as {@code multipart/form-data}
  * <p>Useful to send {@link File} or {@link InputStream}</p> 
  */
-public class HttpParamsMultiPart implements HttpPostParameters {
+public class HttpParamsMultiPart implements HttpBodyParameters {
 	private final ArrayList<HttpParam> mParams;
 
 	protected static final String charset = "UTF-8";

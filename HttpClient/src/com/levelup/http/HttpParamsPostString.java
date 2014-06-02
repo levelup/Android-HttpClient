@@ -10,7 +10,7 @@ import org.apache.http.protocol.HTTP;
 /**
  * HTTP POST parameter that consists of a String data and its Content-Type 
  */
-public class HttpParamsPostString implements HttpPostParameters {
+public class HttpParamsPostString implements HttpBodyParameters {
 
 	private final byte[] value;
 	private final String contentType;

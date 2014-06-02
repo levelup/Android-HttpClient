@@ -43,23 +43,40 @@ public class OAuthConsumerClocked extends HttpClientOAuthConsumer {
 	public OAuthConsumerClocked(OAuthClientApp clientApp) {
 		super(clientApp);
 	}
+	
+	private class RequestBuilder extends HttpRequestPost.Builder<Void> {
+		RequestBuilder(String endpointUrl) {
+			setUrl(endpointUrl);
+		}
+		
+		@Override
+		public HttpProviderRequest build() {
+			return new HttpProviderRequest(this);
+		}
+	}
+	
+	private class HttpProviderRequest extends HttpRequestPost<Void> {
+		private HttpProviderRequest(RequestBuilder builder) {
+			super(builder);
+		}
+
+		@Override
+		public void setResponse(HttpURLConnection resp) {
+			super.setResponse(resp);
+
+			if (null!=resp) {
+				String serverDate = resp.getHeaderField("date");
+				if (!TextUtils.isEmpty(serverDate)) {
+					setServerDate(serverDate);
+				}
+			}
+		}
+	}
 
 	public final ProviderHttpRequestFactory providerRequestFactory = new ProviderHttpRequestFactory() {
 		@Override
 		public HttpRequest createRequest(String endpointUrl) {
-			return new HttpRequestPost(endpointUrl, null) {
-				@Override
-				public void setResponse(HttpURLConnection resp) {
-					super.setResponse(resp);
-
-					if (null!=resp) {
-						String serverDate = resp.getHeaderField("date");
-						if (!TextUtils.isEmpty(serverDate)) {
-							setServerDate(serverDate);
-						}
-					}
-				}
-			};
+			return new RequestBuilder(endpointUrl).build();
 		}
 	};
 }

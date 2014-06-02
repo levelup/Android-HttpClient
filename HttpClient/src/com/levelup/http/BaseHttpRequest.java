@@ -20,14 +20,12 @@ import org.json.JSONObject;
 
 import android.net.Uri;
 
-import com.levelup.http.HttpException.Builder;
-
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
  * @see HttpRequestGet 
  * @see HttpRequestPost 
  */
-public class BaseHttpRequest implements HttpRequest {
+public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final Uri uri;
 	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -35,28 +33,81 @@ public class BaseHttpRequest implements HttpRequest {
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
 	private HttpURLConnection httpResponse;
 	private final String method;
+	private final InputStreamParser<T> streamParser;
+
+	public static class Builder<T> {
+
+		private Uri uri;
+		private InputStreamParser<T> streamParser;
+		private String httpMethod;
+
+		public Builder<T> setUri(Uri uri) {
+			this.uri = uri;
+			return this;
+		}
+
+		public Uri getUri() {
+			return uri;
+		}
+
+		public Builder<T> setUrl(String url) {
+	        return setUrl(url, null);
+        }
+
+		public Builder<T> setUrl(String url, HttpUriParameters httpParams) {
+	        this.uri = HttpRequestGet.addUriParams(url, httpParams);
+	        return this;
+        }
+
+		public Builder<T> setStreamParser(InputStreamParser<T> streamParser) {
+			this.streamParser = streamParser;
+			return this;
+		}
+
+		public Builder<T> setHttpMethod(String httpMethod) {
+			this.httpMethod = httpMethod;
+			return this;
+		}
+		
+		public BaseHttpRequest<T> build() {
+			return new BaseHttpRequest<T>(this);
+		}
+	}
 
 	/**
 	 * Constructor with a string HTTP URL
 	 * @param method HTTP method, like {@code GET} or {@code POST}
+	 * @param streamParser TODO
 	 */
-	protected BaseHttpRequest(String url, String method) {
+	protected BaseHttpRequest(String url, String method, InputStreamParser<T> streamParser) {
 		this.uri = Uri.parse(url);
 		this.method = method;
+		this.streamParser = streamParser;
 	}
-
+	
 	/**
 	 * Constructor with a {@link Uri} constructor
 	 * @param method HTTP method, like {@code GET} or {@code POST}
+	 * @param streamParser TODO
 	 */
-	protected BaseHttpRequest(Uri uri, String method) {
+	protected BaseHttpRequest(Uri uri, String method, InputStreamParser<T> streamParser) {
 		this.uri = uri;
 		this.method = method;
+		this.streamParser = streamParser;
+	}
+
+	protected BaseHttpRequest(Builder<T> builder) {
+		this(builder.getUri(), builder.httpMethod, builder.streamParser);
 	}
 
 	@Override
 	public String getHttpMethod() {
 		return method;
+	}
+	
+	@Override
+	public final InputStreamParser<T> getInputStreamParser() {
+		return streamParser;
 	}
 
 	/**
@@ -205,7 +256,7 @@ public class BaseHttpRequest implements HttpRequest {
 	@Override
 	public HttpException.Builder newExceptionFromResponse(Throwable cause) {
 		InputStream errorStream = null;
-		Builder builder = null;
+		HttpException.Builder builder = null;
 		try {
 			final HttpURLConnection response = getResponse();
 			builder = newException();

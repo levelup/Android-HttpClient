@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import oauth.signpost.exception.OAuthException;
 
 import com.levelup.http.HttpClient;
-import com.levelup.http.HttpParamsGet;
+import com.levelup.http.UriParams;
 
 public abstract class AbstractTwitterTest extends TestCase {
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
@@ -46,7 +46,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 	
 	protected HttpRequestSignedGet getSearchRequest() {
 		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
-		HttpParamsGet searchParams = new HttpParamsGet(2);
+		UriParams searchParams = new UriParams(2);
 		searchParams.add("q", "toto");
 		searchParams.add("count", 5);
 		return new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/search/tweets.json", searchParams);
@@ -68,7 +68,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 	 */
 	public void testFriendsList() throws Exception {
 		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
-		HttpParamsGet httpParams = new HttpParamsGet(2);
+		UriParams httpParams = new UriParams(2);
 		httpParams.add("cursor", -1);
 		httpParams.add("screen_name", "twitterapi");
 		HttpRequestSignedGet request = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/friends/list.json", httpParams);
@@ -83,7 +83,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 	 */
 	public void testUser() throws Exception {
 		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
-		HttpParamsGet httpParams = new HttpParamsGet(1);
+		UriParams httpParams = new UriParams(1);
 		httpParams.add("screen_name", "touiteurtest");
 		HttpRequestSignedGet request = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/users/show.json", httpParams);
 		String response = HttpClient.getStringResponse(request);

@@ -19,21 +19,6 @@ public class HttpCall<T> {
 
 	private static final HashMap<String, Future<?>> taggedJobs = new HashMap<String, Future<?>>();
 	
-	private static class TypedGet<T> extends HttpRequestGet implements TypedHttpRequest<T> {
-		private final InputStreamParser<T> parser;
-		
-		public TypedGet(String url, InputStreamParser<T> parser) {
-			super(url);
-			this.parser = parser;
-		}
-
-		@Override
-		public InputStreamParser<T> getInputStreamParser() {
-			return parser;
-		}
-		
-	}
-	
 	public static class Builder<T> {
 		final TypedHttpRequest<T> request;
 		String tag;
@@ -42,11 +27,11 @@ public class HttpCall<T> {
 		NetworkTaskFactory<T> taskFactory = BaseNetworkTaskFactory.instance;
 		
 		public Builder(String url) {
-			this(new TypedGet(url, InputStreamStringParser.instance));
+			this(new HttpRequestGet.Builder().setUrl(url, null).setStreamParser(InputStreamStringParser.instance).build());
 		}
 		
 		public Builder(String url, InputStreamParser<T> parser) {
-			this(new TypedGet<T>(url, parser));
+			this(new HttpRequestGet.Builder<T>().setUrl(url, null).setStreamParser(parser).build());
 		}
 		
 		public Builder(TypedHttpRequest<T> request) {

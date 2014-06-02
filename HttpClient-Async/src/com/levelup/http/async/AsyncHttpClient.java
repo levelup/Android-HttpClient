@@ -66,7 +66,9 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 */
 	public static void getString(String url, String tag, NetworkCallback<String> callback) {
-		HttpRequestGet req = new HttpRequestGet(url);
+		HttpRequestGet.Builder<Void> reqBuilder = new HttpRequestGet.Builder<Void>();
+		reqBuilder.setUrl(url, null);
+		HttpRequestGet<?> req = reqBuilder.build();
 		getString(req, tag, callback);
 	}
 
