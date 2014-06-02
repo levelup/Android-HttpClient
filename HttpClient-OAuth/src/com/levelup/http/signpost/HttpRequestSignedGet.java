@@ -1,9 +1,6 @@
 package com.levelup.http.signpost;
 
-import android.net.Uri;
-
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpUriParameters;
 import com.levelup.http.HttpRequestGet;
 
 public class HttpRequestSignedGet<T> extends HttpRequestGet<T> implements HttpRequestSigned {
@@ -13,6 +10,9 @@ public class HttpRequestSignedGet<T> extends HttpRequestGet<T> implements HttpRe
 		private RequestSigner signer;
 
 		public Builder<T> setSigner(RequestSigner signer) {
+			if (null==signer) {
+				throw new IllegalArgumentException();
+			}
 	        this.signer = signer;
 	        return this;
         }
@@ -26,24 +26,12 @@ public class HttpRequestSignedGet<T> extends HttpRequestGet<T> implements HttpRe
 
 	protected HttpRequestSignedGet(Builder<T> builder) {
 		super(builder);
+		if (builder.signer==null) {
+			throw new NullPointerException();
+		}
 		this.signer = builder.signer;
 	}
 
-	public HttpRequestSignedGet(RequestSigner signer, String baseUrl, HttpUriParameters httpParams) {
-		super(baseUrl, httpParams, null);
-		this.signer = signer;
-	}
-
-	public HttpRequestSignedGet(RequestSigner signer, Uri baseUri, HttpUriParameters httpParams) {
-		super(baseUri, httpParams, null);
-		this.signer = signer;
-	}
-
-	public HttpRequestSignedGet(RequestSigner signer, String url) {
-		super(url, null);
-		this.signer = signer;
-	}
-	
 	@Override
 	public void settleHttpHeaders() throws HttpException {
 		super.settleHttpHeaders();

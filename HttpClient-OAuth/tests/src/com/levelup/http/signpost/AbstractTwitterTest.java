@@ -49,7 +49,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 		UriParams searchParams = new UriParams(2);
 		searchParams.add("q", "toto");
 		searchParams.add("count", 5);
-		return new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/search/tweets.json", searchParams);
+		return (HttpRequestSignedGet) new HttpRequestSignedGet.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/search/tweets.json", searchParams).build();
 	}
 	
 	/**
@@ -71,7 +71,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 		UriParams httpParams = new UriParams(2);
 		httpParams.add("cursor", -1);
 		httpParams.add("screen_name", "twitterapi");
-		HttpRequestSignedGet request = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/friends/list.json", httpParams);
+		HttpRequestSignedGet request = (HttpRequestSignedGet) new HttpRequestSignedGet.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/friends/list.json", httpParams).build();
 		String response = HttpClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
@@ -85,7 +85,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
 		UriParams httpParams = new UriParams(1);
 		httpParams.add("screen_name", "touiteurtest");
-		HttpRequestSignedGet request = new HttpRequestSignedGet(twitterSigner, "https://api.twitter.com/1.1/users/show.json", httpParams);
+		HttpRequestSignedGet request = (HttpRequestSignedGet) new HttpRequestSignedGet.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/users/show.json", httpParams).build();
 		String response = HttpClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);

@@ -25,7 +25,7 @@ public class OAuthUserTest extends TestCase {
 		UriParams httpParams = new UriParams(1);
 		httpParams.add("msg", "signed message");
 
-		HttpRequest get = new HttpRequestSignedGet(signer, "http://www.levelupstudio.com/", httpParams);
+		HttpRequest get = new HttpRequestSignedGet.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", httpParams).build();
 
 		HttpClient.getQueryResponse(get);
 	}
@@ -47,7 +47,7 @@ public class OAuthUserTest extends TestCase {
 		UriParams httpParams = new UriParams(1);
 		httpParams.add("msg", "signed message");
 
-		HttpRequest get = new HttpRequestSignedGet(signer, "http://www.levelupstudio.com/", httpParams);
+		HttpRequest get = new HttpRequestSignedGet.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", httpParams).build();
 
 		HttpClient.getQueryResponse(get);
 	}
