@@ -4,20 +4,20 @@ package com.levelup.http;
  * @deprecated Use {@link HttpBodyMultiPart}
  */
 @Deprecated
-public class HttpParamsMultipart extends HttpBodyMultiPart {
+public class HttpParamsMultiPart extends HttpBodyMultiPart {
 
 	/**
 	 * @deprecated Use {@link HttpBodyMultiPart}
 	 */
 	@Deprecated
-	public HttpParamsMultipart() {
+	public HttpParamsMultiPart() {
 	}
 
 	/**
 	 * @deprecated Use {@link HttpBodyMultiPart}
 	 */
 	@Deprecated
-	public HttpParamsMultipart(int capacity) {
+	public HttpParamsMultiPart(int capacity) {
 		super(capacity);
 	}
 }
