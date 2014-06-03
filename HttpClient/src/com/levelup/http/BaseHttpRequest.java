@@ -25,8 +25,9 @@ import android.text.TextUtils;
 
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
- * @see HttpRequestGet 
- * @see HttpRequestPost 
+ * @see HttpRequestGet for a more simple API 
+ * @see HttpRequestPost for a more simple POST API
+ * @param <T> type of the data read from the HTTP response
  */
 public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final Uri uri;
@@ -40,6 +41,10 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final HttpBodyParameters bodyParams;
 	private UploadProgressListener mProgressListener;
 
+	/**
+	 * Builder for 
+	 * @param <T> type of the data read from the HTTP response
+	 */
 	public static class Builder<T> {
 		private static final String DEFAULT_HTTP_METHOD = "GET";
 		private static final String DEFAULT_POST_METHOD = "POST";
@@ -49,14 +54,30 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		private InputStreamParser<T> streamParser;
 		private String httpMethod = "GET";
 
+		/**
+		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
+		 */
 		public Builder() {
 			setHttpMethod(DEFAULT_HTTP_METHOD);
 		}
 
+		/**
+		 * Set the class that will be responsible to send the HTTP body of the query
+		 * <p>sets {@code POST} method by default
+		 * @param bodyParams the object that will write the HTTP body to the remote server
+		 * @return Current Builder
+		 */
 		public Builder<T> setBody(HttpBodyParameters bodyParams) {
 			return setBody(DEFAULT_POST_METHOD, bodyParams);
 		}
 
+		/**
+		 * Set the class that will be responsible to send the HTTP body of the query
+		 * @param postMethod HTTP method to use with this request, {@code GET} and {@code HEAD} not possible
+		 * @param bodyParams the object that will write the HTTP body to the remote server
+		 * @return Current Builder
+		 * @see {@link #setHttpMethod(String)}
+		 */
 		public Builder<T> setBody(String postMethod, HttpBodyParameters bodyParams) {
 			setHttpMethod(postMethod);
 			if (null!=bodyParams && httpMethod!=null && !isMethodWithBody(httpMethod))
@@ -65,6 +86,11 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			return this;
 		}
 
+		/**
+		 * Sets the HTTP method to use for the request like {@code GET}, {@code POST} or {@code HEAD}
+		 * @param httpMethod HTTP method to use with this request
+		 * @return Current Builder
+		 */
 		public Builder<T> setHttpMethod(String httpMethod) {
 			if (TextUtils.isEmpty(httpMethod))
 				throw new IllegalArgumentException("invalid null HTTP method");
@@ -74,29 +100,56 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			return this;
 		}
 
+		/**
+		 * Set the URL that will be queried on the remote server
+		 * @param url requested on the server
+		 * @return Current Builder
+		 */
 		public Builder<T> setUrl(String url) {
 			return setUrl(url, null);
 		}
 
+		/**
+		 * Set the URL that will be queried on the remote server
+		 * @param url requested on the server
+		 * @param uriParams parameters to add to the URL
+		 * @return Current Builder
+		 */
 		public Builder<T> setUrl(String url, HttpUriParameters uriParams) {
-			this.uri = addUriParams(url, uriParams);
+			Uri uri = Uri.parse(url);
+			if (null==uriParams) {
+				this.uri = uri;
+			} else {
+				Uri.Builder uriBuilder = uri.buildUpon();
+				uriParams.addUriParameters(uriBuilder);
+				this.uri = uriBuilder.build();
+			}
 			return this;
 		}
 
+		/**
+		 * Set the URL that will be queried on the remote server
+		 * @param uri requested on the server
+		 * @return Current Builder
+		 */
 		public Builder<T> setUri(Uri uri) {
 			this.uri = uri;
 			return this;
 		}
 
-		public Uri getUri() {
-			return uri;
-		}
-
+		/**
+		 * Set the parser that will be responsible for transforming the response body from the server into object {@code T}
+		 * @param streamParser HTTP response body parser
+		 * @return Current Builder
+		 */
 		public Builder<T> setStreamParser(InputStreamParser<T> streamParser) {
 			this.streamParser = streamParser;
 			return this;
 		}
 
+		/**
+		 * Build the HTTP request to run through {@link HttpClient}
+		 */
 		public BaseHttpRequest<T> build() {
 			return new BaseHttpRequest<T>(this);
 		}
@@ -121,7 +174,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
-		this.uri = builder.getUri();
+		this.uri = builder.uri;
 		this.method = builder.httpMethod;
 		this.streamParser = builder.streamParser;
 		this.bodyParams = builder.bodyParams;
@@ -386,17 +439,5 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	public HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
 		// do nothing, we don't handle JSON errors
 		return builder;
-	}
-
-	static Uri addUriParams(Uri uri, HttpUriParameters uriParams) {
-		if (null==uriParams)
-			return uri;
-		Uri.Builder uriBuilder = uri.buildUpon();
-		uriParams.addUriParameters(uriBuilder);
-		return uriBuilder.build();
-	}
-
-	static Uri addUriParams(String baseUrl, HttpUriParameters uriParams) {
-		return addUriParams(Uri.parse(baseUrl), uriParams);
 	}
 }

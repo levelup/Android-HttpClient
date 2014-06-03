@@ -6,6 +6,7 @@ import android.net.Uri;
  * Basic HTTP GET request to use with {@link HttpClient}
  * 
  * @author Steve Lhomme
+ * @see BaseHttpRequest for a more complete API
  */
 public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 	public static class Builder<T> extends BaseHttpRequest.Builder<T> {
