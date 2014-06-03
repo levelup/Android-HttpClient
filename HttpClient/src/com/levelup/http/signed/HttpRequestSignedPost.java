@@ -1,4 +1,4 @@
-package com.levelup.http.signpost;
+package com.levelup.http.signed;
 
 import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpException;
@@ -8,13 +8,13 @@ public class HttpRequestSignedPost<T> extends HttpRequestPost<T> implements Http
 
 	public static class Builder<T> extends HttpRequestPost.Builder<T> {
 
-		private RequestSigner signer;
+		private AbstractRequestSigner signer;
 
 		public Builder(HttpBodyParameters bodyParams) {
 			super(bodyParams);
 		}
 
-		public Builder<T> setSigner(RequestSigner signer) {
+		public Builder<T> setSigner(AbstractRequestSigner signer) {
 			if (null==signer) {
 				throw new IllegalArgumentException();
 			}
@@ -27,7 +27,7 @@ public class HttpRequestSignedPost<T> extends HttpRequestPost<T> implements Http
 		}
 	}
 
-	private final RequestSigner signer;
+	private final AbstractRequestSigner signer;
 
 	protected HttpRequestSignedPost(Builder<T> builder) {
 		super(builder);
@@ -40,7 +40,7 @@ public class HttpRequestSignedPost<T> extends HttpRequestPost<T> implements Http
 	@Override
 	public void settleHttpHeaders() throws HttpException  {
 		super.settleHttpHeaders();
-		signer.sign(this, null);
+		signer.sign(this);
 	}
 
 	@Override

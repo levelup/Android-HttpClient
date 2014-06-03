@@ -1,9 +1,10 @@
-package com.levelup.http.signpost;
+package com.levelup.http.signed.oauth1;
 
 import oauth.signpost.exception.OAuthException;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.okhttp.OkHttpClient;
+import com.levelup.http.signed.HttpRequestSignedGet;
 
 public class OkHttpTwitterTest extends AbstractTwitterTest {
 	protected void setUp() throws Exception {

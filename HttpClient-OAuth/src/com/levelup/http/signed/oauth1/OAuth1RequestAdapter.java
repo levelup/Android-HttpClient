@@ -1,4 +1,4 @@
-package com.levelup.http.signpost;
+package com.levelup.http.signed.oauth1;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -7,21 +7,22 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import oauth.signpost.http.HttpRequest;
+
 import org.apache.http.protocol.HTTP;
 
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.Header;
-import com.levelup.http.HttpRequest;
 
 /**
  * Wrap a {@link HttpRequest HttpClient HttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
  */
-public class OAuthRequestAdapter implements oauth.signpost.http.HttpRequest {
-	private final HttpRequest req;
+public class OAuth1RequestAdapter implements HttpRequest {
+	private final BaseHttpRequest<?> req;
 
-	public OAuthRequestAdapter(HttpRequest request) {
+	public OAuth1RequestAdapter(BaseHttpRequest<?> request) {
 		this.req = request;
 	}
 	

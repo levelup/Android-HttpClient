@@ -1,18 +1,20 @@
-package com.levelup.http.signpost;
+package com.levelup.http.signed.oauth1;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
+import oauth.signpost.OAuth;
 import oauth.signpost.basic.DefaultOAuthProvider;
 import oauth.signpost.basic.HttpURLConnectionResponseAdapter;
 import oauth.signpost.exception.OAuthException;
 import oauth.signpost.http.HttpParameters;
+import oauth.signpost.http.HttpRequest;
 import oauth.signpost.http.HttpResponse;
-import oauth.signpost.OAuth;
 
+import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequest;
+import com.levelup.http.signed.OAuthClientApp;
 
 /**
  * Helper class to retrieve the <a
@@ -20,9 +22,9 @@ import com.levelup.http.HttpRequest;
  * href="http://tools.ietf.org/html/rfc5849#page-4">Access Token</a> (user token) from an
  * <a href="http://tools.ietf.org/html/rfc5849">OAuth 1.0</a> service for the specified {@link OAuthClientApp}
  */
-public class HttpClientOAuthProvider {
+public class HttpClientOAuth1Provider {
 
-	private final HttpClientOAuthConsumer consumer;
+	private final HttpClientOAuth1Consumer consumer;
 	private final DefaultOAuthProvider provider;
 
 	/**
@@ -35,47 +37,39 @@ public class HttpClientOAuthProvider {
 	 * @param accessTokenUrl The URL of the service provider to get an Access token
 	 * @param authorizationWebsiteUrl The URL of the service provider to authorize your website
 	 */
-	public HttpClientOAuthProvider(OAuthClientApp clientApp, String requestTokenUrl, String accessTokenUrl, String authorizationWebsiteUrl) {
-		this(new OAuthConsumerClocked(clientApp), requestTokenUrl, accessTokenUrl, authorizationWebsiteUrl);
+	public HttpClientOAuth1Provider(OAuthClientApp clientApp, String requestTokenUrl, String accessTokenUrl, String authorizationWebsiteUrl) {
+		this(new OAuth1ConsumerClocked(clientApp), requestTokenUrl, accessTokenUrl, authorizationWebsiteUrl);
 	}
 
 	/**
-	 * Constructor to retrieve the tokens for the given client app with a custom {@link HttpClientOAuthConsumer}
-	 * 
-	 * @param consumer The consumer used to retrieve the tokens
-	 * @param requestTokenUrl The URL of the service provider to get a Request token
-	 * @param accessTokenUrl The URL of the service provider to get an Access token
-	 * @param authorizationWebsiteUrl The URL of the service provider to authorize your website
-	 */
-	public HttpClientOAuthProvider(HttpClientOAuthConsumer consumer, String requestTokenUrl, String accessTokenUrl, String authorizationWebsiteUrl) {
-		this(consumer, requestTokenUrl, accessTokenUrl, authorizationWebsiteUrl,
-				consumer instanceof OAuthConsumerClocked ? ((OAuthConsumerClocked) consumer).providerRequestFactory : new BaseProviderHttpRequestFactory());
-	}
-
-	/**
-	 * Constructor to retrieve the tokens for the given client app with a custom {@link HttpClientOAuthConsumer} and {@link ProviderHttpRequestFactory}
+	 * Constructor to retrieve the tokens for the given client app with a custom {@link HttpClientOAuth1Consumer} and {@link ProviderHttpRequestFactory}
 	 * <p>The {@code requestFactory} can do special processing on the response via {@link HttpRequest#setResponse(HttpURLConnection) HttpRequest.setResponse}
 	 * 
 	 * @param consumer The consumer used to retrieve the tokens
 	 * @param requestTokenUrl The URL of the service provider to get a Request token
 	 * @param accessTokenUrl The URL of the service provider to get an Access token
 	 * @param authorizationWebsiteUrl The URL of the service provider to authorize your website
-	 * @param requestFactory Factory that will create the {@link HttpRequest} that will be processed by HttpClient
 	 */
-	public HttpClientOAuthProvider(final HttpClientOAuthConsumer consumer, String requestTokenUrl, String accessTokenUrl, String authorizationWebsiteUrl, final ProviderHttpRequestFactory requestFactory) {
+	public HttpClientOAuth1Provider(HttpClientOAuth1Consumer consumer, String requestTokenUrl, String accessTokenUrl, String authorizationWebsiteUrl) {
 		this.consumer = consumer;
 		this.provider = new DefaultOAuthProvider(requestTokenUrl, accessTokenUrl, authorizationWebsiteUrl) {
 			private static final long serialVersionUID = 8102585589144551017L;
 
 			@Override
-			protected oauth.signpost.http.HttpRequest createRequest(String endpointUrl) throws IOException {
-				HttpRequest request = requestFactory.createRequest(endpointUrl);
-				return new OAuthRequestAdapter(request);
+			protected HttpRequest createRequest(String endpointUrl) throws IOException {
+				final BaseHttpRequest<?> request;
+				if (HttpClientOAuth1Provider.this.consumer instanceof OAuth1ConsumerClocked) {
+					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
+					request = cons.createRequest(endpointUrl);
+				} else {
+					request = new BaseHttpRequest.Builder<Void>("POST").setUrl(endpointUrl).build();
+				}
+				return new OAuth1RequestAdapter(request);
 			}
 
 			@Override
-			protected HttpResponse sendRequest(oauth.signpost.http.HttpRequest request) throws IOException {
-				HttpRequest req = (HttpRequest) request.unwrap();
+			protected HttpResponse sendRequest(HttpRequest request) throws IOException {
+				BaseHttpRequest<?> req = (BaseHttpRequest<?>) request.unwrap();
 				HttpURLConnection response;
 				try {
 					response = HttpClient.getQueryResponse(req);
@@ -88,7 +82,7 @@ public class HttpClientOAuthProvider {
 			}
 
 			@Override
-			protected void closeConnection(oauth.signpost.http.HttpRequest request, HttpResponse response) {
+			protected void closeConnection(HttpRequest request, HttpResponse response) {
 				HttpURLConnection connection = (HttpURLConnection) response.unwrap();
 				if (connection != null) {
 					connection.disconnect();
@@ -152,11 +146,11 @@ public class HttpClientOAuthProvider {
 	}
 
 	/**
-	 * Get the {@link HttpClientOAuthConsumer} class used to retrieved the tokens
-	 * <p>Might be a {@link OAuthConsumerClocked}
+	 * Get the {@link HttpClientOAuth1Consumer} class used to retrieved the tokens
+	 * <p>Might be a {@link OAuth1ConsumerClocked}
 	 * @return
 	 */
-	public HttpClientOAuthConsumer getConsumer() {
+	public HttpClientOAuth1Consumer getConsumer() {
 		return consumer;
 	}
 }

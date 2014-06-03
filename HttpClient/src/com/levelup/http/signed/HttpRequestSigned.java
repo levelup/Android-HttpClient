@@ -1,4 +1,4 @@
-package com.levelup.http.signpost;
+package com.levelup.http.signed;
 
 import com.levelup.http.HttpRequest;
 

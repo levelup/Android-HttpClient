@@ -1,10 +1,14 @@
-package com.levelup.http.signpost;
+package com.levelup.http.signed.oauth1;
 
 import junit.framework.TestCase;
 import oauth.signpost.exception.OAuthException;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.UriParams;
+import com.levelup.http.signed.HttpRequestSignedGet;
+import com.levelup.http.signed.OAuthClientApp;
+import com.levelup.http.signed.OAuthUser;
+import com.levelup.http.signed.oauth1.TwitterTokens;
 
 public abstract class AbstractTwitterTest extends TestCase {
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
@@ -34,7 +38,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 	protected static final String TWITTER_ACCESS_TOKEN = "https://twitter.com/oauth/access_token";
 	protected static final String TWITTER_AUTHORIZE = "https://twitter.com/oauth/authorize";
 
-	protected static final HttpClientOAuthProvider twitterAppProvider = new HttpClientOAuthProvider(twitterApp, TWITTER_REQUEST_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_AUTHORIZE);
+	protected static final HttpClientOAuth1Provider twitterAppProvider = new HttpClientOAuth1Provider(twitterApp, TWITTER_REQUEST_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_AUTHORIZE);
 		
 	public void testRequestToken() {
 		try {
@@ -45,7 +49,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 	}
 	
 	protected HttpRequestSignedGet getSearchRequest() {
-		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
+		RequestSignerOAuth1 twitterSigner = new RequestSignerOAuth1(twitterApp, twitterUser);
 		UriParams searchParams = new UriParams(2);
 		searchParams.add("q", "toto");
 		searchParams.add("count", 5);
@@ -67,7 +71,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/friends/list">twitter friends list query</a>
 	 */
 	public void testFriendsList() throws Exception {
-		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
+		RequestSignerOAuth1 twitterSigner = new RequestSignerOAuth1(twitterApp, twitterUser);
 		UriParams uriParams = new UriParams(2);
 		uriParams.add("cursor", -1);
 		uriParams.add("screen_name", "twitterapi");
@@ -82,7 +86,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/users/show">twitter user lookup</a>
 	 */
 	public void testUser() throws Exception {
-		RequestSigner twitterSigner = new RequestSigner(twitterApp, twitterUser);
+		RequestSignerOAuth1 twitterSigner = new RequestSignerOAuth1(twitterApp, twitterUser);
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("screen_name", "touiteurtest");
 		HttpRequestSignedGet request = (HttpRequestSignedGet) new HttpRequestSignedGet.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/users/show.json", uriParams).build();

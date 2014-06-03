@@ -1,4 +1,4 @@
-package com.levelup.http.signpost;
+package com.levelup.http.signed.oauth1;
 
 public final class TwitterTokens {
 

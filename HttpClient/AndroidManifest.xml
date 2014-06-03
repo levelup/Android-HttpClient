@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.levelup.http"
     android:versionCode="2"
-    android:versionName="2.0" >
+    android:versionName="0.2" >
 
     <uses-sdk
         android:minSdkVersion="7"
