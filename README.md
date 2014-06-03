@@ -27,20 +27,21 @@ Sample Code
 -----------
 
 ```java
-HttpParamsMultiPart multipart = new HttpParamsMultiPart();
+HttpBodyMultiPart multipart = new HttpBodyMultiPart();
 multipart.addFile("file", myImageFile, "image/png");
-multipart.add("text", "my picture");
+multipart.add("text", "#selfie");
 
-HttpRequestPost post = new HttpRequestPost("http://my.com/picture.upload", multipart);
+HttpRequest post = new BaseHttpRequest.Builder()
+	.setUrl("http://my.com/picture.upload")
+	.setBody(multipart)
+	.build();
 
 String response = HttpClient.getStringResponse(post);
 ```
 
 <h2>Sample with an InputStreamParser</h2>
 ```java
-HttpRequestGet apiGet = new HttpRequestGet("http://my.com/api.json");
-
-ApiObject parsed = HttpClient.parseRequest(apiGet, new InputStreamParser<ApiObject>() {
+InputStreamParser<ApiObject> parser = new InputStreamParser<ApiObject>() {
 	@Override
 	public ApiObject parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
 		// Process your InputStream
@@ -51,7 +52,13 @@ ApiObject parsed = HttpClient.parseRequest(apiGet, new InputStreamParser<ApiObje
 			reader.close();
 		}
 	}
-});
+}
+TypedHttpRequest<ApiObject> apiGet = new BaseHttpRequest.Builder()
+	.setUrl("http://my.com/api.json")
+	.setStreamParser(parser)
+	.build();
+
+ApiObject parsed = HttpClient.parseRequest(apiGet);
 ```
 
 License

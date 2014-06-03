@@ -1,11 +1,9 @@
 package com.levelup.http.async;
 
 import java.net.HttpURLConnection;
-import java.util.HashMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
@@ -17,8 +15,6 @@ public class HttpCall<T> {
 	
 	private static ExecutorService DEFAULT_EXECUTOR = AsyncHttpClient.getExecutorService();
 
-	private static final HashMap<String, Future<?>> taggedJobs = new HashMap<String, Future<?>>();
-	
 	public static class Builder<T> {
 		final TypedHttpRequest<T> request;
 		String tag;
