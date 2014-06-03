@@ -43,7 +43,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	public static class Builder<T> {
 		private static final String DEFAULT_HTTP_METHOD = "GET";
 		private static final String DEFAULT_POST_METHOD = "POST";
-		
+
 		private HttpBodyParameters bodyParams;
 		private Uri uri;
 		private InputStreamParser<T> streamParser;
@@ -54,11 +54,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		}
 
 		public Builder<T> setBody(HttpBodyParameters bodyParams) {
-			if (null==bodyParams)
-				this.bodyParams = bodyParams;
-			else
-				return setBody(DEFAULT_POST_METHOD, bodyParams);
-			return this;
+			return setBody(DEFAULT_POST_METHOD, bodyParams);
 		}
 
 		public Builder<T> setBody(String postMethod, HttpBodyParameters bodyParams) {
