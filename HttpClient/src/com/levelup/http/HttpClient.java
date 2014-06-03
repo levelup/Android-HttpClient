@@ -177,7 +177,7 @@ public class HttpClient {
 			throw builder.build();
 
 		} catch (IOException e) {
-			LogManager.getLogger().d("i/o error for "+request);
+			LogManager.getLogger().d("i/o error for "+request+' '+e.getMessage());
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("IO error "+e.getMessage());
 			builder.setCause(e);
@@ -269,7 +269,7 @@ public class HttpClient {
 				throw builder.build();
 
 			} catch (IOException e) {
-				LogManager.getLogger().d("i/o error for "+request);
+				LogManager.getLogger().d("i/o error for "+request+' '+e.getMessage());
 				HttpException.Builder builder = request.newException();
 				builder.setErrorMessage("IO error "+e.getMessage());
 				builder.setCause(e);
@@ -319,7 +319,7 @@ public class HttpClient {
 			throw builder.build();
 
 		} catch (IOException e) {
-			LogManager.getLogger().d("i/o error for "+request);
+			LogManager.getLogger().d("i/o error for "+request+' '+e.getMessage());
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("IO error "+e.getMessage());
 			builder.setCause(e);
