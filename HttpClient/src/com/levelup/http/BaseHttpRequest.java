@@ -2,6 +2,7 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -16,9 +17,11 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
+import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
@@ -34,12 +37,46 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private HttpURLConnection httpResponse;
 	private final String method;
 	private final InputStreamParser<T> streamParser;
+	private final HttpBodyParameters bodyParams;
+	private UploadProgressListener mProgressListener;
 
 	public static class Builder<T> {
 
+		private final HttpBodyParameters bodyParams;
 		private Uri uri;
 		private InputStreamParser<T> streamParser;
 		private String httpMethod;
+
+		public Builder() {
+			this("GET");
+		}
+
+		public Builder(String httpMethod) {
+			this(httpMethod, null);
+		}
+
+		public Builder(String httpMethod, HttpBodyParameters bodyParams) {
+			this.bodyParams = bodyParams;
+			setHttpMethod(httpMethod);
+		}
+
+		public Builder<T> setHttpMethod(String httpMethod) {
+			if (TextUtils.isEmpty(httpMethod))
+				throw new IllegalArgumentException("invalid null HTTP method");
+			if (null!=bodyParams && !isMethodWithBody(httpMethod))
+				throw new IllegalArgumentException("invalid HTTP method with body:"+httpMethod);
+			this.httpMethod = httpMethod;
+			return this;
+		}
+
+		public Builder<T> setUrl(String url) {
+			return setUrl(url, null);
+		}
+
+		public Builder<T> setUrl(String url, HttpUriParameters uriParams) {
+			this.uri = addUriParams(url, uriParams);
+			return this;
+		}
 
 		public Builder<T> setUri(Uri uri) {
 			this.uri = uri;
@@ -50,28 +87,18 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			return uri;
 		}
 
-		public Builder<T> setUrl(String url) {
-	        return setUrl(url, null);
-        }
-
-		public Builder<T> setUrl(String url, HttpUriParameters uriParams) {
-	        this.uri = HttpRequestGet.addUriParams(url, uriParams);
-	        return this;
-        }
-
 		public Builder<T> setStreamParser(InputStreamParser<T> streamParser) {
 			this.streamParser = streamParser;
 			return this;
 		}
 
-		public Builder<T> setHttpMethod(String httpMethod) {
-			this.httpMethod = httpMethod;
-			return this;
-		}
-		
 		public BaseHttpRequest<T> build() {
 			return new BaseHttpRequest<T>(this);
 		}
+	}
+
+	private static boolean isMethodWithBody(String httpMethod) {
+		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
 	/**
@@ -80,31 +107,30 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	 * @param streamParser TODO
 	 */
 	protected BaseHttpRequest(String url, String method, InputStreamParser<T> streamParser) {
-		this.uri = Uri.parse(url);
-		this.method = method;
-		this.streamParser = streamParser;
+		this(new Builder<T>(method).setUrl(url).setStreamParser(streamParser));
 	}
-	
+
 	/**
 	 * Constructor with a {@link Uri} constructor
 	 * @param method HTTP method, like {@code GET} or {@code POST}
 	 * @param streamParser TODO
 	 */
 	protected BaseHttpRequest(Uri uri, String method, InputStreamParser<T> streamParser) {
-		this.uri = uri;
-		this.method = method;
-		this.streamParser = streamParser;
+		this(new Builder<T>(method).setUri(uri).setStreamParser(streamParser));
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
-		this(builder.getUri(), builder.httpMethod, builder.streamParser);
+		this.uri = builder.getUri();
+		this.method = builder.httpMethod;
+		this.streamParser = builder.streamParser;
+		this.bodyParams = builder.bodyParams;
 	}
 
 	@Override
 	public final String getHttpMethod() {
 		return method;
 	}
-	
+
 	@Override
 	public final InputStreamParser<T> getInputStreamParser() {
 		return streamParser;
@@ -137,11 +163,22 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 	@Override
 	public void settleHttpHeaders() throws HttpException {
-		// do nothing
+		if (null != bodyParams) {
+			bodyParams.settleHttpHeaders(this);
+		} else if (!isMethodWithBody(method)) {
+			setHeader(HTTP.CONTENT_LEN, "0");
+		}
 	}
 
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) throws ProtocolException {
+		if (null != bodyParams) {
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+
+			bodyParams.setConnectionProperties(connection);
+		}
+
 		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
@@ -204,8 +241,41 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return uri;
 	}
 
+	/**
+	 * This is {@code final} as {@link #outputBody(OutputStream)} should be the one extended
+	 */
 	@Override
-	public void outputBody(HttpURLConnection connection) throws IOException {}
+	public final void outputBody(HttpURLConnection connection) throws IOException {
+		if (null != bodyParams) {
+			OutputStream output = null;
+			try {
+				output = connection.getOutputStream();
+				outputBody(output);
+			} finally {
+				if (null != output) {
+					output.close();
+				}
+			}
+		}
+	}
+
+	public void setProgressListener(UploadProgressListener listener) {
+		this.mProgressListener = listener;
+	}
+
+	public UploadProgressListener getProgressListener() {
+		return mProgressListener;
+	}
+
+	public void outputBody(OutputStream output) throws IOException {
+		final UploadProgressListener listener = mProgressListener;
+		if (null != listener)
+			listener.onParamUploadProgress(this, null, 0);
+		if (null != bodyParams)
+			bodyParams.writeBodyTo(output, this, listener);
+		if (null != listener)
+			listener.onParamUploadProgress(this, null, 100);
+	}
 
 	@Override
 	public void setResponse(HttpURLConnection resp) {
@@ -315,5 +385,17 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	public HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
 		// do nothing, we don't handle JSON errors
 		return builder;
+	}
+
+	static Uri addUriParams(Uri uri, HttpUriParameters uriParams) {
+		if (null==uriParams)
+			return uri;
+		Uri.Builder uriBuilder = uri.buildUpon();
+		uriParams.addUriParameters(uriBuilder);
+		return uriBuilder.build();
+	}
+
+	static Uri addUriParams(String baseUrl, HttpUriParameters uriParams) {
+		return addUriParams(Uri.parse(baseUrl), uriParams);
 	}
 }

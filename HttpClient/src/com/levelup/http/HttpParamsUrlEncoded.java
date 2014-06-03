@@ -43,7 +43,7 @@ public class HttpParamsUrlEncoded implements HttpBodyParameters {
 	}
 	
 	@Override
-	public void settleHttpHeaders(HttpRequestPost request) {
+	public void settleHttpHeaders(BaseHttpRequest<?> request) {
 		request.setHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE);
 		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(getEncodedParams().length));
 	}
@@ -54,7 +54,7 @@ public class HttpParamsUrlEncoded implements HttpBodyParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws IOException {
+	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
 		output.write(getEncodedParams());
 	}
 

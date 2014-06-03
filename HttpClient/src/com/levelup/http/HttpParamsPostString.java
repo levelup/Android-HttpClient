@@ -61,7 +61,7 @@ public class HttpParamsPostString implements HttpBodyParameters {
 	}
 
 	@Override
-	public void settleHttpHeaders(HttpRequestPost request) {
+	public void settleHttpHeaders(BaseHttpRequest<?> request) {
 		request.setHeader(HTTP.CONTENT_TYPE, contentType);
 		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(value.length));
 	}
@@ -72,7 +72,7 @@ public class HttpParamsPostString implements HttpBodyParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws IOException {
+	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
 		output.write(value);
 	}
 }

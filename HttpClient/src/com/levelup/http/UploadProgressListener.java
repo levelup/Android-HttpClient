@@ -7,5 +7,5 @@ public interface UploadProgressListener {
 	 * @param name Name of the parameter, null when the whole upload starts/ends
 	 * @param progress 0 when starting, 100 when finished, -1 when uploading without a known size
 	 */
-	void onParamUploadProgress(HttpRequest request, String name, int progress);
+	void onParamUploadProgress(BaseHttpRequest<?> request, String name, int progress);
 }

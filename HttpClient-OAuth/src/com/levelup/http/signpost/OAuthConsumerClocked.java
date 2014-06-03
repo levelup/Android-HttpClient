@@ -46,6 +46,7 @@ public class OAuthConsumerClocked extends HttpClientOAuthConsumer {
 	
 	private class RequestBuilder extends HttpRequestPost.Builder<Void> {
 		RequestBuilder(String endpointUrl) {
+			super(null);
 			setUrl(endpointUrl);
 		}
 		

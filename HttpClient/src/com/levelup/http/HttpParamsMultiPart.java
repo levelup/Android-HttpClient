@@ -62,7 +62,7 @@ public class HttpParamsMultiPart implements HttpBodyParameters {
 	}
 
 	@Override
-	public void settleHttpHeaders(HttpRequestPost request) {
+	public void settleHttpHeaders(BaseHttpRequest<?> request) {
 		request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
 	}
 
@@ -72,7 +72,7 @@ public class HttpParamsMultiPart implements HttpBodyParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output, HttpRequestPost request, UploadProgressListener progressListener) throws IOException {
+	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new OutputStreamWriter(output, charset), true); // true = autoFlush, important!

@@ -1,5 +1,6 @@
 package com.levelup.http.signpost;
 
+import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestPost;
 
@@ -8,6 +9,10 @@ public class HttpRequestSignedPost<T> extends HttpRequestPost<T> implements Http
 	public static class Builder<T> extends HttpRequestPost.Builder<T> {
 
 		private RequestSigner signer;
+
+		public Builder(HttpBodyParameters bodyParams) {
+			super(bodyParams);
+		}
 
 		public Builder<T> setSigner(RequestSigner signer) {
 			if (null==signer) {

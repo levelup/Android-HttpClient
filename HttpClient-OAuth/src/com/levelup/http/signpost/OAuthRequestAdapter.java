@@ -11,9 +11,9 @@ import org.apache.http.protocol.HTTP;
 
 import android.text.TextUtils;
 
+import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.Header;
 import com.levelup.http.HttpRequest;
-import com.levelup.http.HttpRequestPost;
 
 /**
  * Wrap a {@link HttpRequest HttpClient HttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
@@ -51,7 +51,7 @@ public class OAuthRequestAdapter implements oauth.signpost.http.HttpRequest {
 		if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
 			String contentLength = req.getHeader(HTTP.CONTENT_LEN);
 			ByteArrayOutputStream output = new ByteArrayOutputStream(TextUtils.isEmpty(contentLength) ? 32 : Integer.parseInt(contentLength));
-			((HttpRequestPost) req).outputBody(output);
+			((BaseHttpRequest<?>) req).outputBody(output);
 			return new ByteArrayInputStream(output.toByteArray());
 		}
 		return null;
@@ -64,7 +64,7 @@ public class OAuthRequestAdapter implements oauth.signpost.http.HttpRequest {
 
 	@Override
 	public String getMethod() {
-		return (req instanceof HttpRequestPost) ? "POST" : "GET";
+		return req.getHttpMethod();
 	}
 
 	@Override

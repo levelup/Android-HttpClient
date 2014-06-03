@@ -14,6 +14,6 @@ public class BaseProviderHttpRequestFactory implements ProviderHttpRequestFactor
 	}
 
 	public HttpRequest createRequest(String endpointUrl) {
-		return new HttpRequestPost.Builder<Void>().setUrl(endpointUrl, null).build();
+		return new HttpRequestPost.Builder<Void>(null).setUrl(endpointUrl).build();
 	}
 }
