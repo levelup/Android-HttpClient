@@ -2,18 +2,18 @@ package com.levelup.http;
 
 import org.json.JSONObject;
 
-
 /**
- * HTTP POST parameter that consists of a JSON data passed as a String 
+ * @deprecated Use {@link HttpBodyJSON}
  */
-public class HttpParamsJSON extends HttpParamsPostString {
-
-	private static final String JSON_TYPE = "application/json; charset=UTF-8";
+@Deprecated
+public class HttpParamsJSON extends HttpBodyJSON {
 
 	/**
-	 * Constructor with the JSON data to set in the POST body
+	 * @deprecated Use {@link HttpBodyJSON}
 	 */
+	@Deprecated
 	public HttpParamsJSON(JSONObject value) {
-		super(value.toString(), JSON_TYPE);
+		super(value);
 	}
+
 }

@@ -1,78 +1,17 @@
 package com.levelup.http;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-
-import org.apache.http.protocol.HTTP;
-
-
 /**
- * HTTP POST parameter that consists of a String data and its Content-Type 
+ * @deprecated Use {@link HttpBodyString}
  */
-public class HttpParamsPostString implements HttpBodyParameters {
+@Deprecated
+public class HttpParamsPostString extends HttpBodyString {
 
-	private final byte[] value;
-	private final String contentType;
-
+	/**
+	 * @deprecated Use {@link HttpBodyString}
+	 */
+	@Deprecated
 	public HttpParamsPostString(String value, String contentType) {
-		this.value = value.getBytes();
-		this.contentType = contentType;
+		super(value, contentType);
 	}
 
-	/**
-	 * Do not use, extra parameters in the URL are not supported
-	 * @throws IllegalAccessError
-	 */
-	@Deprecated
-	@Override
-	public void add(String name, String value) {
-		throw new IllegalAccessError();
-	}
-
-	/**
-	 * Do not use, extra parameters in the URL are not supported
-	 * @throws IllegalAccessError
-	 */
-	@Deprecated
-	@Override
-	public void add(String name, boolean b) {
-		throw new IllegalAccessError();
-	}
-
-	/**
-	 * Do not use, extra parameters in the URL are not supported
-	 * @throws IllegalAccessError
-	 */
-	@Deprecated
-	@Override
-	public void add(String name, int value) {
-		throw new IllegalAccessError();
-	}
-
-	/**
-	 * Do not use, extra parameters in the URL are not supported
-	 * @throws IllegalAccessError
-	 */
-	@Deprecated
-	@Override
-	public void add(String name, long value) {
-		throw new IllegalAccessError();
-	}
-
-	@Override
-	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		request.setHeader(HTTP.CONTENT_TYPE, contentType);
-		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(value.length));
-	}
-	
-	@Override
-	public void setConnectionProperties(HttpURLConnection connection) {
-		connection.setFixedLengthStreamingMode(value.length);
-	}
-
-	@Override
-	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
-		output.write(value);
-	}
 }

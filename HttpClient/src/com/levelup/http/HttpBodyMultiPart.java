@@ -18,7 +18,7 @@ import android.text.TextUtils;
  * HTTP POST parameters encoded as {@code multipart/form-data}
  * <p>Useful to send {@link File} or {@link InputStream}</p> 
  */
-public class HttpParamsMultiPart implements HttpBodyParameters {
+public class HttpBodyMultiPart implements HttpBodyParameters {
 	private final ArrayList<HttpParam> mParams;
 
 	protected static final String charset = "UTF-8";
@@ -30,14 +30,14 @@ public class HttpParamsMultiPart implements HttpBodyParameters {
 	 * Constructor with an initial amount of parameters to hold
 	 * @param capacity amount of parameters the object will get
 	 */
-	public HttpParamsMultiPart(int capacity) {
+	public HttpBodyMultiPart(int capacity) {
 		mParams = new ArrayList<HttpParam>(capacity);
 	}
 
 	/**
 	 * Basic constructor
 	 */
-	public HttpParamsMultiPart() {
+	public HttpBodyMultiPart() {
 		mParams = new ArrayList<HttpParam>();
 	}
 
