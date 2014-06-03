@@ -29,12 +29,12 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	public HttpRequestGet(String baseUrl, HttpUriParameters httpParams, InputStreamParser<T> streamParser) {
-		super(addUriParams(baseUrl, httpParams), HTTP_METHOD, streamParser);
+	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, InputStreamParser<T> streamParser) {
+		super(addUriParams(baseUrl, uriParams), HTTP_METHOD, streamParser);
 	}
 
-	public HttpRequestGet(Uri baseUri, HttpUriParameters httpParams, InputStreamParser<T> streamParser) {
-		super(addUriParams(baseUri, httpParams), HTTP_METHOD, streamParser);
+	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, InputStreamParser<T> streamParser) {
+		super(addUriParams(baseUri, uriParams), HTTP_METHOD, streamParser);
 	}
 
 	public HttpRequestGet(String url, InputStreamParser<T> streamParser) {
@@ -49,15 +49,15 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 		super(builder);
 	}
 
-	static Uri addUriParams(String baseUrl, HttpUriParameters httpParams) {
-		return addUriParams(Uri.parse(baseUrl), httpParams);
+	static Uri addUriParams(String baseUrl, HttpUriParameters uriParams) {
+		return addUriParams(Uri.parse(baseUrl), uriParams);
 	}
 
-	private static Uri addUriParams(Uri uri, HttpUriParameters httpParams) {
-		if (null==httpParams)
+	private static Uri addUriParams(Uri uri, HttpUriParameters uriParams) {
+		if (null==uriParams)
 			return uri;
 		Uri.Builder uriBuilder = uri.buildUpon();
-		httpParams.addUriParameters(uriBuilder);
+		uriParams.addUriParameters(uriBuilder);
 		return uriBuilder.build();
 	}
 

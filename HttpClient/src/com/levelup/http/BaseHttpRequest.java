@@ -54,8 +54,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	        return setUrl(url, null);
         }
 
-		public Builder<T> setUrl(String url, HttpUriParameters httpParams) {
-	        this.uri = HttpRequestGet.addUriParams(url, httpParams);
+		public Builder<T> setUrl(String url, HttpUriParameters uriParams) {
+	        this.uri = HttpRequestGet.addUriParams(url, uriParams);
 	        return this;
         }
 
