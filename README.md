@@ -26,6 +26,7 @@ Features
 Sample Code
 -----------
 
+<h2>Synchronous client</h2>
 ```java
 HttpBodyMultiPart multipart = new HttpBodyMultiPart();
 multipart.addFile("file", myImageFile, "image/png");
@@ -39,7 +40,7 @@ HttpRequest post = new BaseHttpRequest.Builder()
 String response = HttpClient.getStringResponse(post);
 ```
 
-<h2>Sample with an InputStreamParser</h2>
+<h3>Sample with an InputStreamParser</h3>
 ```java
 InputStreamParser<ApiObject> parser = new InputStreamParser<ApiObject>() {
 	@Override
@@ -59,6 +60,74 @@ TypedHttpRequest<ApiObject> apiGet = new BaseHttpRequest.Builder()
 	.build();
 
 ApiObject parsed = HttpClient.parseRequest(apiGet);
+```
+
+<h2>Asynchronous client</h2>
+Your `NetworkCallback` is run in the UI thread after the query has finished processing the response body.
+There are helper API to simply query a String. You can also use the HttpClient's `InputStreamParser` 
+interface to proces the data the way you want in the network thread, for example to process the data with GSon.
+
+By default the network tasks run in a pool of 3 * NumberOfProcessor but you can change the default Executor or use a different one per query.
+
+```java
+AsyncHttpClient.getString("http://www.levelupstudio.com/", null, new BaseAsyncHttpCallback<String>() {
+	@Override
+	public void onHttpSuccess(String response) {
+		// your String result here
+	}
+});
+```
+
+<h3>Sample to cancel a download</h3>
+```java
+HttpRequest request = new HttpRequestGet("http://www.levelupstudio.com/");
+Future<String> downloadTask = AsyncHttpClient.doRequest(request, InputStreamStringParser.instance, new BaseAsyncHttpCallback<String>() {
+	@Override
+	public void onHttpSuccess(String response) {
+		// the HTML code of the web page
+	}
+});
+
+// cancel the download we just started/queued
+downloadTask.cancel(true);
+```
+
+<h3>Sample with JSONObject reader</h3>
+```java
+// Do the JSON API query in the background and get the result in the UI thread
+HttpRequest request = new HttpRequestGet("http://service.com/api.json");
+AsyncHttpClient.doRequest(request, InputStreamJSONObjectParser.instance, new BaseAsyncHttpCallback<MyObject>() {
+	@Override
+	public void onHttpSuccess(JSONObject response) {
+		// the object parsed from JSON data, called in the UI thread
+	}
+});
+```
+
+<h3>Sample with a custom InputStreamParser</h3>
+```java
+// Generic parser to turn some JSON data into your own MyObject class
+final static InputStreamParser<MyObject> JsonToObject = new InputStreamParser<MyObject>) {
+	@Override
+	public MyObject parseInputStream(InputStream inputStream, HttpRequest request) throws IOException {
+		// Process your InputStream
+		JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
+		try {
+			return jsonReaderToMyObject(reader);
+		} finally {
+			reader.close();
+		}
+	}
+}
+
+// Do the JSON API query in the background and get the result in the UI thread
+HttpRequest request = new HttpRequestGet("http://service.com/api.json");
+AsyncHttpClient.doRequest(request, JsonToObject, new BaseAsyncHttpCallback<MyObject>() {
+	@Override
+	public void onHttpSuccess(MyObject response) {
+		// the object parsed from JSON data, called in the UI thread
+	}
+});
 ```
 
 License

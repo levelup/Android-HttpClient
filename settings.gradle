@@ -3,9 +3,6 @@
 include 'HttpClient'
 project(':HttpClient').projectDir = new File('Android-HttpClient/HttpClient')
 
-include 'HttpClient-Async'
-project(':HttpClient-Async').projectDir = new File('Android-HttpClient/HttpClient-Async')
-
 include 'HttpClient-Gson'
 project(':HttpClient-Gson').projectDir = new File('Android-HttpClient/HttpClient-Gson')
 
