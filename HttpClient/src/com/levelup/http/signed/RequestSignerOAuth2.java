@@ -6,7 +6,7 @@ import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 
 /**
- * Helper class to OAuth2 sign a {@link HttpRequestSigned}
+ * Helper class to OAuth2 sign a {@link BaseHttpRequestSigned}
  */
 public class RequestSignerOAuth2 extends AbstractRequestSigner {
 

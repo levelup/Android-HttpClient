@@ -5,10 +5,10 @@ import oauth.signpost.exception.OAuthException;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.UriParams;
-import com.levelup.http.signed.HttpRequestSignedGet;
+import com.levelup.http.signed.BaseHttpRequestSigned;
+import com.levelup.http.signed.HttpRequestSigned;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
-import com.levelup.http.signed.oauth1.TwitterTokens;
 
 public abstract class AbstractTwitterTest extends TestCase {
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
@@ -16,13 +16,13 @@ public abstract class AbstractTwitterTest extends TestCase {
 		public String getConsumerSecret() {
 			return TwitterTokens.TWITTER_AUTH_SECRET;
 		}
-		
+
 		@Override
 		public String getConsumerKey() {
 			return TwitterTokens.TWITTER_AUTH_KEY;
 		}
 	};
-	
+
 	protected static final OAuthUser twitterUser = new OAuthUser() {
 		@Override
 		public String getToken() {
@@ -33,13 +33,13 @@ public abstract class AbstractTwitterTest extends TestCase {
 			return TwitterTokens.TWITTER_USER_SECRET;
 		}
 	};
-	
+
 	protected static final String TWITTER_REQUEST_TOKEN = "https://twitter.com/oauth/request_token";
 	protected static final String TWITTER_ACCESS_TOKEN = "https://twitter.com/oauth/access_token";
 	protected static final String TWITTER_AUTHORIZE = "https://twitter.com/oauth/authorize";
 
 	protected static final HttpClientOAuth1Provider twitterAppProvider = new HttpClientOAuth1Provider(twitterApp, TWITTER_REQUEST_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_AUTHORIZE);
-		
+
 	public void testRequestToken() {
 		try {
 			assertNotNull(twitterAppProvider.retrieveRequestToken("androidhttp://request_token/"));
@@ -47,20 +47,20 @@ public abstract class AbstractTwitterTest extends TestCase {
 			fail(e.getMessage());
 		}	
 	}
-	
-	protected HttpRequestSignedGet getSearchRequest() {
+
+	protected HttpRequestSigned getSearchRequest() {
 		RequestSignerOAuth1 twitterSigner = new RequestSignerOAuth1(twitterApp, twitterUser);
 		UriParams searchParams = new UriParams(2);
 		searchParams.add("q", "toto");
 		searchParams.add("count", 5);
-		return (HttpRequestSignedGet) new HttpRequestSignedGet.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/search/tweets.json", searchParams).build();
+		return (HttpRequestSigned) new BaseHttpRequestSigned.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/search/tweets.json", searchParams).build();
 	}
-	
+
 	/**
 	 * Do a <a href="https://dev.twitter.com/docs/api/1.1/get/search/tweets">twitter search query</a>
 	 */
 	public void testTwitterSearch() throws Exception {
-		HttpRequestSignedGet search = getSearchRequest();
+		HttpRequestSigned search = getSearchRequest();
 		String response = HttpClient.getStringResponse(search);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
@@ -75,7 +75,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 		UriParams uriParams = new UriParams(2);
 		uriParams.add("cursor", -1);
 		uriParams.add("screen_name", "twitterapi");
-		HttpRequestSignedGet request = (HttpRequestSignedGet) new HttpRequestSignedGet.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/friends/list.json", uriParams).build();
+		HttpRequestSigned request = (HttpRequestSigned) new BaseHttpRequestSigned.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/friends/list.json", uriParams).build();
 		String response = HttpClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
@@ -89,7 +89,7 @@ public abstract class AbstractTwitterTest extends TestCase {
 		RequestSignerOAuth1 twitterSigner = new RequestSignerOAuth1(twitterApp, twitterUser);
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("screen_name", "touiteurtest");
-		HttpRequestSignedGet request = (HttpRequestSignedGet) new HttpRequestSignedGet.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/users/show.json", uriParams).build();
+		HttpRequestSigned request = (HttpRequestSigned) new BaseHttpRequestSigned.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/users/show.json", uriParams).build();
 		String response = HttpClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);

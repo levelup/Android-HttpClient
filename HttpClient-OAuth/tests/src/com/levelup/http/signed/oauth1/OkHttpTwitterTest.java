@@ -4,7 +4,7 @@ import oauth.signpost.exception.OAuthException;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.okhttp.OkHttpClient;
-import com.levelup.http.signed.HttpRequestSignedGet;
+import com.levelup.http.signed.HttpRequestSigned;
 
 public class OkHttpTwitterTest extends AbstractTwitterTest {
 	protected void setUp() throws Exception {
@@ -22,10 +22,9 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 			OkHttpClient.removeUrlBlacklist(TWITTER_REQUEST_TOKEN);
 		}
 	}
-	
-	
+
 	public void testIdentityEncoding() throws Exception {
-		HttpRequestSignedGet search = getSearchRequest();
+		HttpRequestSigned search = getSearchRequest();
 		search.setHeader(HttpClient.ACCEPT_ENCODING, "identity");
 		String response = HttpClient.getStringResponse(search);
 		assertNotNull(response);
@@ -34,7 +33,7 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 	}
 
 	public void testGzipEncoding() throws Exception {
-		HttpRequestSignedGet search = getSearchRequest();
+		HttpRequestSigned search = getSearchRequest();
 		search.setHeader(HttpClient.ACCEPT_ENCODING, "gzip");
 		String response = HttpClient.getStringResponse(search);
 		assertNotNull(response);
@@ -43,7 +42,7 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 	}
 
 	public void testDirectTransport() throws Exception {
-		HttpRequestSignedGet search = getSearchRequest();
+		HttpRequestSigned search = getSearchRequest();
 		search.setHeader("X-Android-Transports", "http/1.1");
 		String response = HttpClient.getStringResponse(search);
 		assertNotNull(response);
@@ -52,7 +51,7 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 	}
 
 	public void testBlacklistTransport() throws Exception {
-		HttpRequestSignedGet search = getSearchRequest();
+		HttpRequestSigned search = getSearchRequest();
 		OkHttpClient.addUrlBlacklist(search.getUri().toString());
 		try {
 			String response = HttpClient.getStringResponse(search);
