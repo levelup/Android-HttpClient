@@ -14,16 +14,12 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, InputStreamParser<T> streamParser) {
-		this((Builder<T>) new Builder<T>().setUrl(baseUrl, uriParams).setStreamParser(streamParser));
+	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams) {
+		this((Builder<T>) new Builder<T>().setUrl(baseUrl, uriParams));
 	}
 
-	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, InputStreamParser<T> streamParser) {
-		this((Builder<T>) new Builder<T>().setUrl(baseUri.toString(), uriParams).setStreamParser(streamParser));
-	}
-
-	public HttpRequestGet(String url, InputStreamParser<T> streamParser) {
-		this((Builder<T>) new Builder<T>().setUrl(url).setStreamParser(streamParser));
+	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams) {
+		this((Builder<T>) new Builder<T>().setUrl(baseUri.toString(), uriParams));
 	}
 
 	public HttpRequestGet(String url) {

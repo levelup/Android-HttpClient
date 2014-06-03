@@ -21,11 +21,11 @@ public class HttpRequestGetNoRedirect extends HttpRequestGet<Void> {
 	}
 
 	public HttpRequestGetNoRedirect(String baseUrl, HttpUriParameters uriParams) {
-		super(baseUrl, uriParams, null);
+		super(baseUrl, uriParams);
 	}
 
 	public HttpRequestGetNoRedirect(Uri baseUrl, HttpUriParameters uriParams) {
-		super(baseUrl, uriParams, null);
+		super(baseUrl, uriParams);
 	}
 
 	@Override

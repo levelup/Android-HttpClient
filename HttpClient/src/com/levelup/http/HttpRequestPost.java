@@ -19,12 +19,12 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	public HttpRequestPost(String url, HttpBodyParameters bodyParams, InputStreamParser<T> streamParser) {
-		this((Builder<T>) new Builder<T>(bodyParams).setUrl(url).setStreamParser(streamParser));
+	public HttpRequestPost(String url, HttpBodyParameters bodyParams) {
+		this((Builder<T>) new Builder<T>(bodyParams).setUrl(url));
 	}
 
-	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, InputStreamParser<T> streamParser) {
-		this((Builder<T>) new Builder<T>(bodyParams).setUri(uri).setStreamParser(streamParser));
+	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams) {
+		this((Builder<T>) new Builder<T>(bodyParams).setUri(uri));
 	}
 
 	protected HttpRequestPost(Builder<T> builder) {

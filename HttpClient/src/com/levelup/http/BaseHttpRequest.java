@@ -103,20 +103,16 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 	/**
 	 * Constructor with a string HTTP URL
-	 * @param method HTTP method, like {@code GET} or {@code POST}
-	 * @param streamParser TODO
 	 */
-	protected BaseHttpRequest(String url, String method, InputStreamParser<T> streamParser) {
-		this(new Builder<T>(method).setUrl(url).setStreamParser(streamParser));
+	protected BaseHttpRequest(String url) {
+		this(new Builder<T>().setUrl(url));
 	}
 
 	/**
 	 * Constructor with a {@link Uri} constructor
-	 * @param method HTTP method, like {@code GET} or {@code POST}
-	 * @param streamParser TODO
 	 */
-	protected BaseHttpRequest(Uri uri, String method, InputStreamParser<T> streamParser) {
-		this(new Builder<T>(method).setUri(uri).setStreamParser(streamParser));
+	protected BaseHttpRequest(Uri uri) {
+		this(new Builder<T>().setUri(uri));
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
