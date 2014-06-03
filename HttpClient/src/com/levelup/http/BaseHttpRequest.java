@@ -41,23 +41,32 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private UploadProgressListener mProgressListener;
 
 	public static class Builder<T> {
-
-		private final HttpBodyParameters bodyParams;
+		private static final String DEFAULT_HTTP_METHOD = "GET";
+		private static final String DEFAULT_POST_METHOD = "POST";
+		
+		private HttpBodyParameters bodyParams;
 		private Uri uri;
 		private InputStreamParser<T> streamParser;
-		private String httpMethod;
+		private String httpMethod = "GET";
 
 		public Builder() {
-			this("GET");
+			setHttpMethod(DEFAULT_HTTP_METHOD);
 		}
 
-		public Builder(String httpMethod) {
-			this(httpMethod, null);
+		public Builder<T> setBody(HttpBodyParameters bodyParams) {
+			if (null==bodyParams)
+				this.bodyParams = bodyParams;
+			else
+				return setBody(DEFAULT_POST_METHOD, bodyParams);
+			return this;
 		}
 
-		public Builder(String httpMethod, HttpBodyParameters bodyParams) {
+		public Builder<T> setBody(String postMethod, HttpBodyParameters bodyParams) {
+			setHttpMethod(postMethod);
+			if (null!=bodyParams && httpMethod!=null && !isMethodWithBody(httpMethod))
+				throw new IllegalArgumentException("invalid body for HTTP method:"+httpMethod);
 			this.bodyParams = bodyParams;
-			setHttpMethod(httpMethod);
+			return this;
 		}
 
 		public Builder<T> setHttpMethod(String httpMethod) {

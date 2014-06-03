@@ -47,7 +47,7 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 
 	private class HttpProviderRequest extends HttpRequestPost<Void> {
 		protected HttpProviderRequest(String endpointUrl) {
-			super((Builder<Void>) new Builder<Void>(null).setUrl(endpointUrl));
+			super((Builder<Void>) new Builder<Void>().setUrl(endpointUrl));
 		}
 
 		@Override

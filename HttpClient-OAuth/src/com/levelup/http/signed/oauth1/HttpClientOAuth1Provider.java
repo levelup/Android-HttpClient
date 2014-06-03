@@ -62,7 +62,7 @@ public class HttpClientOAuth1Provider {
 					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
 					request = cons.createRequest(endpointUrl);
 				} else {
-					request = new BaseHttpRequest.Builder<Void>("POST").setUrl(endpointUrl).build();
+					request = new BaseHttpRequest.Builder<Void>().setHttpMethod("POST").setUrl(endpointUrl).build();
 				}
 				return new OAuth1RequestAdapter(request);
 			}

@@ -9,9 +9,8 @@ import android.net.Uri;
  */
 public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 	public static class Builder<T> extends BaseHttpRequest.Builder<T> {
-
-		public Builder(HttpBodyParameters bodyParams) {
-			super("POST", bodyParams);
+		public Builder() {
+			setHttpMethod("POST");
 		}
 
 		public HttpRequestPost<T> build() {
@@ -20,11 +19,11 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 	}
 
 	public HttpRequestPost(String url, HttpBodyParameters bodyParams) {
-		this((Builder<T>) new Builder<T>(bodyParams).setUrl(url));
+		this((Builder<T>) new Builder<T>().setBody(bodyParams).setUrl(url));
 	}
 
 	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams) {
-		this((Builder<T>) new Builder<T>(bodyParams).setUri(uri));
+		this((Builder<T>) new Builder<T>().setBody(bodyParams).setUri(uri));
 	}
 
 	protected HttpRequestPost(Builder<T> builder) {
