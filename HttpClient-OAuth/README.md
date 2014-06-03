@@ -23,19 +23,19 @@ OAuthUser userSignature = new OAuthUser() {
 		return "user-token-secret";
 	}
 }
-RequestSigner signer = new RequestSigner(appSignature, userSignature);
+RequestSignerOAuth1 signer = new RequestSignerOAuth1(appSignature, userSignature);
 
-HttpParamsGet httpParams = new HttpParamsGet(1);
-httpParams.add("msg", "signed message");
+UriParams uriParams = new UriParams(1);
+uriParams.add("msg", "signed message");
 
-HttpRequest get = new HttpRequestSignedGet(signer, "http://my.com/hello", httpParams);
+HttpRequest get = new HttpRequestSignedGet.Builder().setUrl("http://my.com/hello", uriParams).setSigner(signer).build();
 
 HttpClient.getQueryResponse(get);
 ```
 
 <h2>Request a Twitter authentication key</h2>
 ```java
-HttpClientOAuthProvider provider = new HttpClientOAuthProvider(appSignature,
+HttpClientOAuth1Provider provider = new HttpClientOAuth1Provider(appSignature,
     "https://twitter.com/oauth/request_token",
     "https://twitter.com/oauth/access_token",
     "https://twitter.com/oauth/authorize");
