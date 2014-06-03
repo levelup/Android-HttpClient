@@ -33,8 +33,8 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 
 		private HttpBodyParameters bodyParams;
 		
-		public Builder<T> setHttpParams(HttpBodyParameters httpParams) {
-			this.bodyParams = httpParams;
+		public Builder<T> setHttpParams(HttpBodyParameters bodyParams) {
+			this.bodyParams = bodyParams;
 			return this;
 		}
 
@@ -47,22 +47,22 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	private final HttpBodyParameters httpParams;
+	private final HttpBodyParameters bodyParams;
 	private UploadProgressListener mProgressListener;
 
-	public HttpRequestPost(String url, HttpBodyParameters httpParams, InputStreamParser<T> streamParser) {
+	public HttpRequestPost(String url, HttpBodyParameters bodyParams, InputStreamParser<T> streamParser) {
 		super(url, HTTP_METHOD, streamParser);
-		this.httpParams = httpParams;
+		this.bodyParams = bodyParams;
 	}
 
-	public HttpRequestPost(Uri uri, HttpBodyParameters httpParams, InputStreamParser<T> streamParser) {
+	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, InputStreamParser<T> streamParser) {
 		super(uri, HTTP_METHOD, streamParser);
-		this.httpParams = httpParams;
+		this.bodyParams = bodyParams;
 	}
 
 	protected HttpRequestPost(Builder<T> builder) {
 		super(builder);
-		this.httpParams = builder.getHttpParams();
+		this.bodyParams = builder.getHttpParams();
 	}
 
 	public void setProgressListener(UploadProgressListener listener) {
@@ -78,16 +78,16 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
 
-		if (null != httpParams)
-			httpParams.setConnectionProperties(connection);
+		if (null != bodyParams)
+			bodyParams.setConnectionProperties(connection);
 
 		super.setConnectionProperties(connection);
 	}
 
 	@Override
 	public void settleHttpHeaders() throws HttpException {
-		if (null != httpParams)
-			httpParams.settleHttpHeaders(this);
+		if (null != bodyParams)
+			bodyParams.settleHttpHeaders(this);
 		else
 			setHeader(HTTP.CONTENT_LEN, "0");
 
@@ -113,8 +113,8 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		final UploadProgressListener listener = mProgressListener;
 		if (null != listener)
 			listener.onParamUploadProgress(this, null, 0);
-		if (null != httpParams)
-			httpParams.writeBodyTo(output, this, listener);
+		if (null != bodyParams)
+			bodyParams.writeBodyTo(output, this, listener);
 		if (null != listener)
 			listener.onParamUploadProgress(this, null, 100);
 	}
