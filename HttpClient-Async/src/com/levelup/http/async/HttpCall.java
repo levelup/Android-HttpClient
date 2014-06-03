@@ -27,11 +27,11 @@ public class HttpCall<T> {
 		NetworkTaskFactory<T> taskFactory = BaseNetworkTaskFactory.instance;
 		
 		public Builder(String url) {
-			this(new HttpRequestGet.Builder().setUrl(url, null).setStreamParser(InputStreamStringParser.instance).build());
+			this(new HttpRequestGet.Builder().setUrl(url).setStreamParser(InputStreamStringParser.instance).build());
 		}
 		
 		public Builder(String url, InputStreamParser<T> parser) {
-			this(new HttpRequestGet.Builder<T>().setUrl(url, null).setStreamParser(parser).build());
+			this(new HttpRequestGet.Builder<T>().setUrl(url).setStreamParser(parser).build());
 		}
 		
 		public Builder(TypedHttpRequest<T> request) {

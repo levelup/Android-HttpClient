@@ -22,10 +22,10 @@ public class OAuthUserTest extends TestCase {
 	
 	public void testNullUser() throws Exception {
 		RequestSigner signer = new RequestSigner(testApp, null);
-		UriParams httpParams = new UriParams(1);
-		httpParams.add("msg", "signed message");
+		UriParams uriParams = new UriParams(1);
+		uriParams.add("msg", "signed message");
 
-		HttpRequest get = new HttpRequestSignedGet.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", httpParams).build();
+		HttpRequest get = new HttpRequestSignedGet.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
 
 		HttpClient.getQueryResponse(get);
 	}
@@ -44,10 +44,10 @@ public class OAuthUserTest extends TestCase {
 		};
 
 		RequestSigner signer = new RequestSigner(testApp, emptyUser);
-		UriParams httpParams = new UriParams(1);
-		httpParams.add("msg", "signed message");
+		UriParams uriParams = new UriParams(1);
+		uriParams.add("msg", "signed message");
 
-		HttpRequest get = new HttpRequestSignedGet.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", httpParams).build();
+		HttpRequest get = new HttpRequestSignedGet.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
 
 		HttpClient.getQueryResponse(get);
 	}

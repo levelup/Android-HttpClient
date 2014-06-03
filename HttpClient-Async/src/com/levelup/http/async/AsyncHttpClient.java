@@ -67,7 +67,7 @@ public class AsyncHttpClient {
 	 */
 	public static void getString(String url, String tag, NetworkCallback<String> callback) {
 		HttpRequestGet.Builder<Void> reqBuilder = new HttpRequestGet.Builder<Void>();
-		reqBuilder.setUrl(url, null);
+		reqBuilder.setUrl(url);
 		HttpRequestGet<?> req = reqBuilder.build();
 		getString(req, tag, callback);
 	}
