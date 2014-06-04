@@ -83,7 +83,7 @@ public class HttpClient {
 
 	public static HttpURLConnection openURL(URL url) throws IOException {
 		if (null != connectionFactory) {
-			HttpRequest request = new BaseHttpRequest<>(url.toExternalForm());
+			HttpRequest request = new BaseHttpRequest<Void>(url.toExternalForm());
 			return connectionFactory.createConnection(request);
 		}
 
