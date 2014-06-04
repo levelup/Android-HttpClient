@@ -8,6 +8,7 @@ import java.util.HashSet;
 import android.text.format.DateUtils;
 
 import com.levelup.http.HttpClient;
+import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpUrlConnectionFactory;
 import com.squareup.okhttp.OkUrlFactory;
 
@@ -65,13 +66,14 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 	}
 
 	@Override
-	public HttpURLConnection createConnection(URL url) throws IOException {
+	public HttpURLConnection createConnection(HttpRequest request) throws IOException {
+		final URL url = request.getURL();
 		if (null == factory)
 			return (HttpURLConnection) url.openConnection();
 
 		synchronized (urlSpdyBlackList) {
 			if (!urlSpdyBlackList.isEmpty()) {
-				String urlString = url.toExternalForm();
+				String urlString = request.getUri().toString();
 				for (String blacklistURL : urlSpdyBlackList) {
 					if (urlString.contains(blacklistURL)) {
 						//result.setRequestProperty("X-Android-Transports", "http/1.1");
@@ -81,6 +83,11 @@ public class OkHttpClient extends HttpClient implements HttpUrlConnectionFactory
 			}
 		}
 		
+		if (null != request.getHttpConfig()) {
+			int readTimeout = request.getHttpConfig().getReadTimeout(request);
+			if (readTimeout>=0) // it uses special connection values, so need a clone client
+				return factory.clone().open(url);
+		}
 		return factory.open(url);
 	}
 }

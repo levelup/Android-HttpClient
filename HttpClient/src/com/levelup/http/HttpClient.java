@@ -69,11 +69,25 @@ public class HttpClient {
 		return defaultHeaders;
 	}
 
-	public static HttpURLConnection openURL(URL url) throws IOException {
+	public static HttpURLConnection openURL(HttpRequest request) throws IOException {
 		if (null != connectionFactory)
-			return connectionFactory.createConnection(url);
-		else
+			return connectionFactory.createConnection(request);
+
+		try {
+			URL url = request.getURL();
 			return (HttpURLConnection) url.openConnection();
+		} catch (MalformedURLException e) {
+			throw (IOException) new IOException("Malformed URL on:"+request).initCause(e);
+		}
+	}
+
+	public static HttpURLConnection openURL(URL url) throws IOException {
+		if (null != connectionFactory) {
+			HttpRequest request = new BaseHttpRequest<>(url.toExternalForm());
+			return connectionFactory.createConnection(request);
+		}
+
+		return (HttpURLConnection) url.openConnection();
 	}
 
 	/**
@@ -94,19 +108,9 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	private static HttpURLConnection getQueryResponse(HttpRequest request, boolean allowGzip) throws HttpException {
-		final URL url;
-		try {
-			url = request.getURL();
-		} catch (MalformedURLException e) {
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Malformed URL on:"+request);
-			builder.setCause(e);
-			throw builder.build();
-		}
-
 		HttpURLConnection connection = null;
 		try {
-			connection = openURL(url);
+			connection = openURL(request);
 
 			/*
 			HttpResponse resp = null;
@@ -293,7 +297,7 @@ public class HttpClient {
 		if (null==streamParser) throw new NullPointerException("typed request without a stream parser:"+request);
 		return parseRequest(request, streamParser);
 	}
-	
+
 	/**
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
@@ -332,12 +336,12 @@ public class HttpClient {
 			LogManager.getLogger().i("incorrect data for "+request);
 			if (e.getCause() instanceof HttpException)
 				throw (HttpException) e.getCause();
-			
+
 			HttpException.Builder builder = request.newException();
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_DATA);
 			throw builder.build();
-			
+
 		} finally {
 			try {
 				is.close();
