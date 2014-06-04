@@ -3,7 +3,7 @@ Android-HttpClient
 
 An Android library to make HTTP calls with parameters easier.
 
-There is a module to support OAuth signatures using [oauth-signpost][1].
+There is a module to support OAuth1 signatures using [oauth-signpost][1].
 
 There is a module that supports [OkHttp][2] for SPDY and other enhancements.
 
@@ -128,6 +128,29 @@ AsyncHttpClient.doRequest(request, JsonToObject, new BaseAsyncHttpCallback<MyObj
 		// the object parsed from JSON data, called in the UI thread
 	}
 });
+```
+
+<h2>OAuth signature</h2>
+The HTTPClient also provides a simple API for signing HTTP requests. A `RequestSigner` for OAuth2 is provided
+by default. There is also a module for OAuth1 signature using [oauth-signpost][1].
+
+```java
+OAuthUser facebookUser = new OAuthUser() {
+	public String getToken() {
+		return "user-token";
+	}
+	public String getTokenSecret() {
+		return "user-token-secret";
+	}
+}
+RequestSigner facebookUserSigner = new RequestSignerOAuth2(facebookUser);
+
+HttpRequest signedFacebook = new BaseHttpRequest.Builder()
+	.setUrl("http://graph.facebook.com/me")
+	.setRequestSigner(facebookUserSigner)
+	.build();
+
+JSONObject fbData = HttpClient.parseRequest(signedFacebook, InputStreamJSONObjectParser.instance);
 ```
 
 License

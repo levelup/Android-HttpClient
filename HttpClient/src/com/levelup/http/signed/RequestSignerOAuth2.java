@@ -2,11 +2,12 @@ package com.levelup.http.signed;
 
 import android.text.TextUtils;
 
+import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 
 /**
- * Helper class to OAuth2 sign a {@link BaseHttpRequestSigned}
+ * Helper class to OAuth2 sign a {@link BaseHttpRequest}
  */
 public class RequestSignerOAuth2 extends AbstractRequestSigner {
 

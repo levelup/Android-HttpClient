@@ -1,9 +1,9 @@
 package com.levelup.http.signed;
 
-import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequest;
+import com.levelup.http.RequestSigner;
 
-public abstract class AbstractRequestSigner {
+
+public abstract class AbstractRequestSigner implements RequestSigner {
 
 	private final OAuthUser user;
 
@@ -15,5 +15,4 @@ public abstract class AbstractRequestSigner {
 		return user;
 	}
 	
-	protected abstract void sign(HttpRequest req) throws HttpException;
 }

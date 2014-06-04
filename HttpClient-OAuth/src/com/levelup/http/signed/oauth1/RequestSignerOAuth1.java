@@ -7,7 +7,6 @@ import oauth.signpost.http.HttpParameters;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.signed.AbstractRequestSigner;
-import com.levelup.http.signed.HttpRequestSigned;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
 
@@ -43,7 +42,7 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 	}
 
 	@Override
-	protected void sign(HttpRequest req) throws HttpException {
+	public void sign(HttpRequest req) throws HttpException {
 		sign(req, null);
 	}
 	

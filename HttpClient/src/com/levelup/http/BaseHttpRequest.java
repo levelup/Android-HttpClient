@@ -23,6 +23,8 @@ import org.json.JSONObject;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.levelup.http.signed.AbstractRequestSigner;
+
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
  * @see HttpRequestGet for a more simple API 
@@ -39,6 +41,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final String method;
 	private final InputStreamParser<T> streamParser;
 	private final HttpBodyParameters bodyParams;
+	private final RequestSigner signer;
 	private UploadProgressListener mProgressListener;
 
 	/**
@@ -53,6 +56,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		private Uri uri;
 		private InputStreamParser<T> streamParser;
 		private String httpMethod = "GET";
+		private RequestSigner signer;
 
 		/**
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
@@ -148,6 +152,19 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		}
 
 		/**
+		 * Set the object that will be responsible for signing the {@link HttpRequest}
+		 * @param signer object that will sign the {@link HttpRequest}
+		 * @return Current Builder
+		 */
+		public Builder<T> setSigner(RequestSigner signer) {
+			if (null==signer) {
+				throw new IllegalArgumentException();
+			}
+			this.signer = signer;
+			return this;
+		}
+
+		/**
 		 * Build the HTTP request to run through {@link HttpClient}
 		 */
 		public BaseHttpRequest<T> build() {
@@ -178,6 +195,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		this.method = builder.httpMethod;
 		this.streamParser = builder.streamParser;
 		this.bodyParams = builder.bodyParams;
+		this.signer = builder.signer;
 	}
 
 	@Override
@@ -222,6 +240,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		} else if (!isMethodWithBody(method)) {
 			setHeader(HTTP.CONTENT_LEN, "0");
 		}
+		if (null!=signer)
+			signer.sign(this);
 	}
 
 	@Override
@@ -348,8 +368,15 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return httpResponse;
 	}
 
+	public RequestSigner getRequestSigner() {
+		return signer;
+	}
+
 	protected String getToStringExtra() {
-		return uri.toString();
+		String result = uri.toString();
+		if (signer instanceof AbstractRequestSigner)
+			result += " for " + ((AbstractRequestSigner) signer).getOAuthUser();
+		return result;
 	}
 
 	@Override

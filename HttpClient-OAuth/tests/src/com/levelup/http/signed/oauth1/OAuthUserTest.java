@@ -2,10 +2,10 @@ package com.levelup.http.signed.oauth1;
 
 import junit.framework.TestCase;
 
+import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.UriParams;
-import com.levelup.http.signed.BaseHttpRequestSigned;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
 
@@ -28,7 +28,7 @@ public class OAuthUserTest extends TestCase {
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("msg", "signed message");
 
-		HttpRequest get = new BaseHttpRequestSigned.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
+		HttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
 
 		HttpClient.getQueryResponse(get);
 	}
@@ -50,7 +50,7 @@ public class OAuthUserTest extends TestCase {
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("msg", "signed message");
 
-		HttpRequest get = new BaseHttpRequestSigned.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
+		HttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
 
 		HttpClient.getQueryResponse(get);
 	}
