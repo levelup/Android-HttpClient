@@ -231,6 +231,12 @@ public class HttpClient {
 					throw builder.build();
 				}
 
+				if (resp.getResponseCode() < 200 || resp.getResponseCode() >= 300) {
+					HttpException.Builder builder = request.newExceptionFromResponse(null);
+					builder.setErrorCode(HttpException.ERROR_HTTP);
+					throw builder.build();
+				}
+
 				final String expectedMimeType = resp.getRequestProperty("Accept");
 				if (!TextUtils.isEmpty(expectedMimeType)) {
 					// test if it's the right MIME type or throw an exception that can be caught to use the bad data
@@ -243,12 +249,6 @@ public class HttpClient {
 						builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
 						throw builder.build();
 					}
-				}
-
-				if (resp.getResponseCode() < 200 || resp.getResponseCode() >= 300) {
-					HttpException.Builder builder = request.newExceptionFromResponse(null);
-					builder.setErrorCode(HttpException.ERROR_HTTP);
-					throw builder.build();
 				}
 
 			} catch (FileNotFoundException e) {
