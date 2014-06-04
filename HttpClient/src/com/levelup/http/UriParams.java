@@ -9,11 +9,42 @@ public class UriParams implements HttpUriParameters {
 	private final ArrayList<Pair<String,String>> mParams;
 
 	public UriParams(int capacity) {
-		mParams = new ArrayList<Pair<String,String>>(capacity);
+		this.mParams = new ArrayList<Pair<String,String>>(capacity);
 	}
 
 	public UriParams() {
-		mParams = new ArrayList<Pair<String,String>>();
+		this.mParams = new ArrayList<Pair<String,String>>();
+	}
+
+	public UriParams(Uri fromUri) {
+		this.mParams = new ArrayList<Pair<String,String>>();
+		String query = fromUri.getEncodedQuery();
+		if (query != null) {
+			int start = 0;
+			do {
+				int next = query.indexOf('&', start);
+				int end = (next == -1) ? query.length() : next;
+
+				int separator = query.indexOf('=', start);
+				if (separator > end || separator == -1) {
+					separator = end;
+				}
+
+				final String value;
+				if (separator == end) {
+					value = "";
+				} else {
+					String encodedValue = query.substring(separator + 1, end);
+					value = Uri.decode(encodedValue);
+				}
+
+				String name = query.substring(start, separator);
+				add(Uri.decode(name), value);
+
+				// Move start to end of name.
+				start = end + 1;
+			} while (start < query.length());
+		}
 	}
 
 	@Override
