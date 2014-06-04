@@ -289,7 +289,9 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
-		return parseRequest(request, request.getInputStreamParser());
+		InputStreamParser<T> streamParser = request.getInputStreamParser();
+		if (null==streamParser) throw new NullPointerException("typed request without a stream parser:"+request);
+		return parseRequest(request, streamParser);
 	}
 	
 	/**
