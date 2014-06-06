@@ -13,7 +13,7 @@ import com.levelup.http.TypedHttpRequest;
 
 public class HttpCall<T> {
 	
-	private static ExecutorService DEFAULT_EXECUTOR = AsyncHttpClient.getExecutorService();
+	private static final ExecutorService DEFAULT_EXECUTOR = AsyncHttpClient.getExecutorService();
 
 	public static class Builder<T> {
 		final TypedHttpRequest<T> request;

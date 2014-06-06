@@ -104,8 +104,6 @@ public class HttpException extends Exception {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(64);
-		sb.append(getClass().getSimpleName());
 		/*sb.append(' ');
 		sb.append('#');
 		sb.append(mErrorCode);
@@ -115,12 +113,11 @@ public class HttpException extends Exception {
 			sb.append(mHttpStatusCode);
 		}
 		sb.append(':');*/
-		sb.append(getLocalizedMessage());
 		/*if (null!=httpRequest) {
 			sb.append(" on ");
 			sb.append(httpRequest);
 		}*/
-		return sb.toString();
+		return getClass().getSimpleName() + ' ' + getLocalizedMessage();
 	}
 
 	@Override

@@ -34,9 +34,8 @@ public final class Util {
 	 * @param request that was queried on the server
 	 * @param defaultCharset to use if the server sets no Charset or it's not found locally
 	 * @return The Charset of specified by the server, if found locally, otherwise {@code defaultCharset}
-	 * @throws IOException
 	 */
-	public static Charset getInputCharset(HttpRequest request, Charset defaultCharset) throws IOException {
+	public static Charset getInputCharset(HttpRequest request, Charset defaultCharset) {
 		Charset readCharset = defaultCharset;
 		String contentType = request.getResponse().getContentType();
 		if (!TextUtils.isEmpty(contentType)) {

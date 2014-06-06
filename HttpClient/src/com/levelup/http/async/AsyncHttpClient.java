@@ -98,7 +98,6 @@ public class AsyncHttpClient {
 	/**
 	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
-	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
