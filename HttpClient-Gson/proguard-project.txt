@@ -24,3 +24,9 @@
 
 -keepnames class com.google.gson.** { *; }
 -keepnames interface com.google.gson.** { *; }
+
+-keepattributes Signature
+-keep class sun.misc.Unsafe { *; }
+-keepclasseswithmembers class * {
+	@com.google.gson.annotations.* <fields>;
+}
