@@ -7,6 +7,6 @@
         android:minSdkVersion="7"
         android:targetSdkVersion="19" />
 
-    <application android:label="HttpClient-OAuth"/>
+    <application />
 
 </manifest>
