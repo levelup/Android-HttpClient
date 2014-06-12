@@ -30,3 +30,6 @@
 -keepclasseswithmembers class * {
 	@com.google.gson.annotations.* <fields>;
 }
+
+-keep interface com.levelup.http.gson.GsonReflected
+-keepnames class * extends com.levelup.http.gson.GsonReflected
