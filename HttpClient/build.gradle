@@ -1,7 +1,5 @@
 apply plugin: 'android-library'
 
-archivesBaseName = 'HttpClient'
-
 android {
     compileSdkVersion 19
     buildToolsVersion '19.1'
@@ -9,6 +7,9 @@ android {
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+        versionCode 2
+        versionName '0.2'
+        applicationId 'com.levelup.http'
     }
 
     sourceSets {
