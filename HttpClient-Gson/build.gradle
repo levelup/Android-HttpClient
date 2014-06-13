@@ -14,6 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+        applicationId 'com.levelup.http.gson'
     }
 
     sourceSets {
@@ -27,7 +28,10 @@ android {
             assets.srcDirs = ['assets']
         }
 
-        instrumentTest.setRoot('tests')
+        androidTest {
+            manifest.srcFile 'tests/AndroidManifest.xml'
+            java.srcDirs = ['tests/src']
+        }
     }
 
     buildTypes {
