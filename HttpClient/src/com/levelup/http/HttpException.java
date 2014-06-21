@@ -44,8 +44,6 @@ public class HttpException extends Exception {
 
 	private static final long serialVersionUID = 4993791558983072165L;
 
-	private static final Header[] EMPTY_HEADERS = new Header[0]; 
-
 	private final int mErrorCode;
 	private final int mHttpStatusCode;
 	private final HttpRequest httpRequest;
@@ -57,8 +55,8 @@ public class HttpException extends Exception {
 		this.mErrorCode = builder.errorCode;
 		this.mHttpStatusCode = builder.statusCode;
 		this.httpRequest = builder.httpRequest;
-		this.headers = builder.headers.toArray(EMPTY_HEADERS);
-		this.receivedHeaders = builder.receivedHeaders.toArray(EMPTY_HEADERS);
+		this.headers = builder.headers.toArray(new Header[builder.headers.size()]);
+		this.receivedHeaders = builder.receivedHeaders.toArray(new Header[builder.receivedHeaders.size()]);
 		if ((getMessage()==null || "null".equals(getMessage())) && BuildConfig.DEBUG) throw new NullPointerException("We need an error message for "+mErrorCode+"/"+mHttpStatusCode+" query:"+httpRequest);
 	}
 

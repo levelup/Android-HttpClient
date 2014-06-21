@@ -289,7 +289,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return null;
 	}
 
-	private static final Header[] EMPTY_HEADERS = new Header[0];
 	private static final String[] EMPTY_STRINGS = {};
 
 	public Header[] getAllHeaders() {
@@ -302,7 +301,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 				headers.add(new Header(entries.getKey(), entry));
 			}
 		}
-		return headers.toArray(EMPTY_HEADERS);
+		return headers.toArray(new Header[headers.size()]);
 	}
 
 	@Override
