@@ -47,8 +47,8 @@ public class HttpException extends Exception {
 	private final int mErrorCode;
 	private final int mHttpStatusCode;
 	private final HttpRequest httpRequest;
-	protected final Header[] headers;
-	protected final Header[] receivedHeaders;
+	private final Header[] headers;
+	private final Header[] receivedHeaders;
 
 	protected HttpException(Builder builder) {
 		super(builder.errorMessage, builder.exception);
@@ -97,7 +97,7 @@ public class HttpException extends Exception {
 	}
 
 	public Header[] getReceivedHeaders() {
-		return headers;
+		return receivedHeaders;
 	}
 
 	@Override
