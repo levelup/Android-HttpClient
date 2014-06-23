@@ -8,6 +8,6 @@ public class AsyncOkhttpTest extends AsyncClientTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		HttpClient.setConnectionFactory(OkHttpClient.instance);
-	};
+	}
 
 }

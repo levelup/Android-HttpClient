@@ -10,7 +10,7 @@ public class OkHttpTwitterTest extends AbstractTwitterTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		HttpClient.setConnectionFactory(OkHttpClient.instance);
-	};
+	}
 
 	public void testRequestTokenBlacklist() {
 		try {
