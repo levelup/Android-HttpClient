@@ -7,7 +7,7 @@ public abstract class AbstractRequestSigner implements RequestSigner {
 
 	private final OAuthUser user;
 
-	public AbstractRequestSigner(OAuthUser user) {
+	protected AbstractRequestSigner(OAuthUser user) {
 		this.user = user;
 	}
 	

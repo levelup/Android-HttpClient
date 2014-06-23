@@ -31,7 +31,7 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 		return String.valueOf(getServerTime() / 1000);
 	}
 
-	public void setServerDate(String value) {
+	protected void setServerDate(String value) {
 		long now = System.currentTimeMillis();
 		try {
 			//Date twitterDate = getDate(DATE_FORMAT_HTTP, value);

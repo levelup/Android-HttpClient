@@ -462,7 +462,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	 * @param jsonData
 	 * @return
 	 */
-	public HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
+	protected HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
 		// do nothing, we don't handle JSON errors
 		return builder;
 	}

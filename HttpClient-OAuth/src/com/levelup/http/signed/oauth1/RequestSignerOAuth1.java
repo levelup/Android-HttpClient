@@ -11,7 +11,8 @@ import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
 
 /**
- * Helper class to OAuth sign a {@link HttpRequestSigned} using <a href="https://code.google.com/p/oauth-signpost/">oauth-signpost</a>
+ * Helper class to add a {@link com.levelup.http.BaseHttpRequest BaseHttpRequest} OAuth1 signature
+ * using <a href="https://code.google.com/p/oauth-signpost/">oauth-signpost</a>
  */
 public class RequestSignerOAuth1 extends AbstractRequestSigner {
 
