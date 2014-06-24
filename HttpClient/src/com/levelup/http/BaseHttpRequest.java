@@ -351,6 +351,11 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
+	public boolean hasBody() {
+		return null != bodyParams;
+	}
+
+	@Override
 	public void setResponse(HttpURLConnection resp) {
 		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();

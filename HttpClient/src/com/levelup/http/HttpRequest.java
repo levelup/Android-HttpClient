@@ -102,4 +102,9 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Get the list of extra headers set for this request
 	 */
 	Header[] getAllHeaders();
+
+	/**
+	 * Tell if the request has a body (for POST, PUT, DELETE, etc methods)
+	 */
+	boolean hasBody();
 }
