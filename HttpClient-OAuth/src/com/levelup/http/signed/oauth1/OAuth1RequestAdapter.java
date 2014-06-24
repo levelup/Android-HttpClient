@@ -52,7 +52,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 		if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
 			String contentLength = req.getHeader(HTTP.CONTENT_LEN);
 			ByteArrayOutputStream output = new ByteArrayOutputStream(TextUtils.isEmpty(contentLength) ? 32 : Integer.parseInt(contentLength));
-			((BaseHttpRequest<?>) req).outputBody(output);
+			req.outputBody(output);
 			return new ByteArrayInputStream(output.toByteArray());
 		}
 		return null;
