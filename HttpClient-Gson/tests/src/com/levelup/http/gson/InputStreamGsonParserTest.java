@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
+import com.levelup.http.ParserException;
 
 import junit.framework.TestCase;
 
@@ -17,10 +18,12 @@ public class InputStreamGsonParserTest extends TestCase {
 		try {
 			HttpClient.parseRequest(request);
 		} catch (HttpException e) {
-			if (e.getErrorCode()!=HttpException.ERROR_JSON)
+			if (e.getErrorCode()!=HttpException.ERROR_PARSER)
 				throw e; // forward
-			assertNotNull(e.getMessage());
-			assertTrue(e.getMessage().startsWith("Bad Json data:"));
+			assertTrue(e.getCause() instanceof ParserException);
+			ParserException pe = (ParserException) e.getCause();
+			assertTrue(pe.getMessage().equals("Bad Json data"));
+			assertNotNull(pe.getSourceData());
 		}
 	}
 }

@@ -12,10 +12,13 @@ public class InputStreamJSONObjectParserTest extends TestCase {
 		try {
 			HttpClient.parseRequest(request);
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_JSON)
+			if (e.getErrorCode() != HttpException.ERROR_PARSER)
 				throw e; // forward
 			assertNotNull(e.getMessage());
-			assertTrue(e.getErrorMessage().startsWith("Bad JSON data"));
+			assertTrue(e.getCause() instanceof ParserException);
+			ParserException pe = (ParserException) e.getCause();
+			assertTrue(pe.getMessage().equals("Bad JSON data"));
+			assertNotNull(pe.getSourceData());
 		}
 	}
 }

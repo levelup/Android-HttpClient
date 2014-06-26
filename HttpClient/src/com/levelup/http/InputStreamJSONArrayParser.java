@@ -19,9 +19,9 @@ public class InputStreamJSONArrayParser implements InputStreamParser<JSONArray> 
 		try {
 			return new JSONArray(srcData);
 		} catch (JSONException e) {
-			throw new ParserException("Bad JSON data", request.newException().setErrorMessage("Bad JSON data "+srcData+' '+e.getMessage()).setCause(e).setErrorCode(HttpException.ERROR_JSON).build());
+			throw new ParserException("Bad JSON data", e, srcData);
 		} catch (NullPointerException e) {
-			throw new ParserException("Invalid JSON data", request.newException().setErrorMessage("Invalid JSON data "+srcData).setCause(e).build());
+			throw new ParserException("Invalid JSON data", e, srcData);
 		}
 	}
 }

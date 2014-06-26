@@ -24,7 +24,8 @@ public class HttpException extends Exception {
 	static public final int ERROR_HTTP_MIME        = 4003;
 	static public final int ERROR_JSON             = 4004;
 	static public final int ERROR_AUTH             = 4005;
-	static public final int ERROR_DATA             = 4006;
+	/**	Inidicates there was a data parsing error, the {@link #getCause()} must be a {@link com.levelup.http.ParserException ParserException} */
+	static public final int ERROR_PARSER           = 4006;
 
 	// HTTP errors found on getHttpStatusCode()
 	static public final int ERROR_HTTP_BAD_REQUEST  = 400;

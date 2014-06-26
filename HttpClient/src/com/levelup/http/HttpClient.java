@@ -339,7 +339,7 @@ public class HttpClient {
 
 			HttpException.Builder builder = request.newException();
 			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_DATA);
+			builder.setErrorCode(HttpException.ERROR_PARSER);
 			throw builder.build();
 
 		} finally {

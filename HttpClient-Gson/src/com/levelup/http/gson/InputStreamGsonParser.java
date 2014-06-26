@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
@@ -64,10 +63,7 @@ public class InputStreamGsonParser<T> implements InputStreamParser<T> {
 		} catch (JsonIOException e) {
 			throw (IOException) new IOException().initCause(e);
 		} catch (JsonSyntaxException e) {
-			HttpException.Builder pe = request.newException().setCause(e).setErrorCode(HttpException.ERROR_JSON);
-			if (null != fullData)
-				pe.setErrorMessage("Bad Json data:" + fullData);
-			throw new ParserException(pe.build());
+			throw new ParserException("Bad Json data", e, fullData);
 		} finally {
 			reader.close();
 		}
