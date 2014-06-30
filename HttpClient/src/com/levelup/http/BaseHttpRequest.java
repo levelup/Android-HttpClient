@@ -237,7 +237,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	public void settleHttpHeaders() throws HttpException {
 		if (null != bodyParams) {
 			bodyParams.settleHttpHeaders(this);
-		} else if (!isMethodWithBody(method)) {
+		} else if (!isMethodWithBody(getHttpMethod())) {
 			setHeader(HTTP.CONTENT_LEN, "0");
 		}
 		if (null!=signer)
@@ -306,11 +306,11 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 	@Override
 	public URL getURL() throws MalformedURLException {
-		return new URL(uri.toString());
+		return new URL(getUri().toString());
 	}
 
 	@Override
-	public Uri getUri() {
+	public final Uri getUri() {
 		return uri;
 	}
 
@@ -377,7 +377,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	protected String getToStringExtra() {
-		String result = uri.toString();
+		String result = getUri().toString();
 		if (signer instanceof AbstractRequestSigner)
 			result += " for " + ((AbstractRequestSigner) signer).getOAuthUser();
 		return result;
