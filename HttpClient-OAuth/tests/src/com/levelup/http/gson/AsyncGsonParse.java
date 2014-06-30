@@ -7,6 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import android.content.Context;
+import android.test.AndroidTestCase;
+
 import junit.framework.TestCase;
 
 import com.google.gson.Gson;
@@ -20,7 +23,7 @@ import com.google.gson.stream.JsonWriter;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequestGet;
 
-public class AsyncGsonParse extends TestCase {
+public class AsyncGsonParse extends AndroidTestCase {
 
 	private static final String JSON_URL = "http://social.appxoid.com/json/get_apps_by_pages2";
 	private static final String JSON_DATE_FORMAT = "yyyy-mm-dd'T'HH:mm:ss";
@@ -36,6 +39,12 @@ public class AsyncGsonParse extends TestCase {
 		@SerializedName("pk") int apkNum;
 		@SerializedName("model") String model;
 		@SerializedName("fields") AppXoidInfo data;
+	}
+
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
 	}
 
 	public void testGsonParser() throws Exception {
@@ -127,7 +136,7 @@ public class AsyncGsonParse extends TestCase {
 
 		Type listType = new TypeToken<ArrayList<AppXoidReader>>() {}.getType();
 
-		InputStreamGsonParser<ArrayList<AppXoidReader>> parser = new InputStreamGsonParser<ArrayList<AppXoidReader>>(gson, listType);
+		InputStreamGsonParser<ArrayList<AppXoidReader>> parser = new InputStreamGsonParser<ArrayList<AppXoidReader>>(gson, new TypeToken<ArrayList<AppXoidReader>>(){});
 		HttpRequestGet request = new HttpRequestGet(JSON_URL);
 		ArrayList<AppXoidReader> items = HttpClient.parseRequest(request, parser);
 		assertNotNull(items);

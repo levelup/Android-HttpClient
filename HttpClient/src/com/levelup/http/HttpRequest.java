@@ -8,6 +8,8 @@ import java.net.URL;
 
 import android.net.Uri;
 
+import com.koushikdutta.ion.Response;
+
 
 /**
  * Interface for HTTP requests to be passed to {@link HttpClient}
@@ -76,12 +78,13 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Called when the request has been performed on the server, even if the response is an error
 	 * @param resp Contains the received headers/data from the server
 	 */
-	void setResponse(HttpURLConnection resp);
+
+	void setResponse(Response<?> response);
 
 	/**
 	 * @return the HTTP response if there was any
 	 */
-	HttpURLConnection getResponse();
+	Response<?> getResponse();
 
 	/**
 	 * Returns the {@link LoggerTagged} for this request or {@code null} 

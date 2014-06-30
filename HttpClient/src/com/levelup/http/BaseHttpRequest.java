@@ -14,15 +14,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
 import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.Response;
+import com.koushikdutta.ion.builder.Builders;
+import com.koushikdutta.ion.builder.LoadBuilder;
+import com.levelup.http.gson.InputStreamGsonParser;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -35,9 +39,10 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final Uri uri;
 	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
+	final Builders.Any.B requestBuilder;
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
-	private HttpURLConnection httpResponse;
+	private Response<?> httpResponse;
 	private final String method;
 	private final InputStreamParser<T> streamParser;
 	private final HttpBodyParameters bodyParams;
@@ -52,6 +57,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		private static final String DEFAULT_HTTP_METHOD = "GET";
 		private static final String DEFAULT_POST_METHOD = "POST";
 
+		private Context context;
 		private HttpBodyParameters bodyParams;
 		private Uri uri;
 		private InputStreamParser<T> streamParser;
@@ -62,7 +68,12 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
 		 */
 		public Builder() {
+			this(HttpClient.defaultContext);
+		}
+
+		public Builder(Context context) {
 			setHttpMethod(DEFAULT_HTTP_METHOD);
+			setContext(context);
 		}
 
 		/**
@@ -164,6 +175,11 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			return this;
 		}
 
+		public Builder<T> setContext(Context context) {
+			this.context = context;
+			return this;
+		}
+
 		/**
 		 * Build the HTTP request to run through {@link HttpClient}
 		 */
@@ -191,6 +207,17 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
+		final LoadBuilder<Builders.Any.B> ion;
+		if (builder.streamParser instanceof InputStreamGsonParser) {
+			InputStreamGsonParser gsonParser = (InputStreamGsonParser) builder.streamParser;
+			Ion io = Ion.getInstance(builder.context, gsonParser.getClass().getCanonicalName());
+			io.configure().setGson(gsonParser.gson);
+			ion = io.build(builder.context);
+		} else {
+			ion = Ion.with(builder.context);
+		}
+		requestBuilder = ion.load(builder.httpMethod, builder.uri.toString());
+
 		this.uri = builder.uri;
 		this.method = builder.httpMethod;
 		this.streamParser = builder.streamParser;
@@ -242,6 +269,13 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		}
 		if (null!=signer)
 			signer.sign(this);
+
+		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
+			requestBuilder.setHeader(entry.getKey(), entry.getValue());
+		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
+			for (String value : entry.getValue())
+				requestBuilder.addHeader(entry.getKey(), value);
+		}
 	}
 
 	@Override
@@ -251,13 +285,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			connection.setDoOutput(true);
 
 			bodyParams.setConnectionProperties(connection);
-		}
-
-		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
-			connection.setRequestProperty(entry.getKey(), entry.getValue());
-		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
-			for (String value : entry.getValue())
-				connection.addRequestProperty(entry.getKey(), value);
 		}
 	}
 
@@ -356,7 +383,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public void setResponse(HttpURLConnection resp) {
+	public void setResponse(Response<?> resp) {
 		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster!=null) {
@@ -368,7 +395,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public HttpURLConnection getResponse() {
+	public Response<?> getResponse() {
 		return httpResponse;
 	}
 
@@ -413,13 +440,13 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		InputStream errorStream = null;
 		HttpException.Builder builder = null;
 		try {
-			final HttpURLConnection response = getResponse();
+			final Response<?> response = getResponse();
 			builder = newException();
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			builder.setHTTPResponse(response);
 			builder.setCause(cause);
 
-			MediaType type = MediaType.parse(response.getContentType());
+			MediaType type = MediaType.parse(response.getHeaders().get(HTTP.CONTENT_TYPE));
 			if (Util.MediaTypeJSON.equalsType(type)) {
 				errorStream = getParseableErrorStream(response);
 				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
@@ -445,7 +472,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return builder;
 	}
 
-	private static InputStream getParseableErrorStream(HttpURLConnection response) throws IOException {
+	private static InputStream getParseableErrorStream(Response<?> response) throws IOException {
+		/** TODO, not handle the same with Ion
 		InputStream errorStream = response.getErrorStream();
 		if (null==errorStream)
 			errorStream = response.getInputStream();
@@ -459,6 +487,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			errorStream = new GZIPInputStream(errorStream);
 
 		return errorStream;
+		*/
+		throw new IOException("error stream not supported");
 	}
 
 	/**

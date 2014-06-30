@@ -70,14 +70,15 @@ public class HttpClientOAuth1Provider {
 			@Override
 			protected HttpResponse sendRequest(HttpRequest request) throws IOException {
 				BaseHttpRequest<?> req = (BaseHttpRequest<?>) request.unwrap();
-				HttpURLConnection response;
+				HttpURLConnection response = null;
+				/* TODO
 				try {
-					response = HttpClient.getQueryResponse(req);
+					response = null; HttpClient.getQueryResponse(req);
 				} catch (HttpException e) {
 					IOException ex = new IOException("failed to query data "+e.getMessage());
 					ex.initCause(e);
 					throw ex;
-				}
+				}*/
 				return new HttpURLConnectionResponseAdapter(response);
 			}
 

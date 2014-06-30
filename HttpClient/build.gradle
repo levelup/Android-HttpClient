@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
-        versionCode 2
-        versionName '0.2'
+        versionCode 3
+        versionName '0.3'
         applicationId 'com.levelup.http'
     }
 
@@ -29,4 +29,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
         }
     }
+}
+
+dependencies {
+    compile project(':support-v4')
+    //compile 'com.koushikdutta.async:androidasync:1.2.+'
+    //compile 'com.koushikdutta.ion:ion:1.2.+'
+    compile 'com.google.code.gson:gson:2.2.+'
+    compile files('libs/androidasync-1.2.6.jar')
+    compile files('libs/ion-1.2.7.jar')
 }

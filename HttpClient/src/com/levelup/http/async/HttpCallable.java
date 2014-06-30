@@ -39,8 +39,10 @@ public class HttpCallable<T> implements Callable<T>, Closeable {
 
 	@Override
 	public void close() throws IOException {
+		/** TODO not working the same in Ion
 		final HttpURLConnection connection = request.getResponse();
 		if (null!=connection)
 			connection.disconnect();
+			*/
 	}
 }

@@ -7,10 +7,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
@@ -19,23 +21,36 @@ import com.levelup.http.Util;
 
 public class InputStreamGsonParser<T> implements InputStreamParser<T> {
 
-	private final Gson gson;
-	private final Type type;
+	public final Gson gson;
+	public final Type type;
+	public final TypeToken<T> typeToken;
 	private final String charset;
 	private boolean debugData;
 
-	public InputStreamGsonParser(Gson gson, Type type) {
+	public InputStreamGsonParser(Gson gson, Type  type) {
 		this(gson, type, "UTF-8");
 	}
 
 	public InputStreamGsonParser(Gson gson, Type type, String charset) {
 		this.gson = gson;
-		this.type = type;
 		this.charset = charset;
+		this.type = type;
+		this.typeToken = null;
+	}
+
+	public InputStreamGsonParser(Gson gson, TypeToken<T> typeToken) {
+		this(gson, typeToken, "UTF-8");
+	}
+
+	public InputStreamGsonParser(Gson gson, TypeToken<T> typeToken, String charset) {
+		this.gson = gson;
+		this.charset = charset;
+		this.typeToken = typeToken;
+		this.type = typeToken.getType();
 	}
 
 	/**
-	 * Enable debugging of bogus data by providing the data in the {@link ParserException} message
+	 * Enable debugging of bogus data by providing the data in the {@link com.levelup.http.ParserException} message
 	 * @param enable
 	 */
 	public InputStreamGsonParser<T> enableDebugData(boolean enable) {

@@ -8,6 +8,7 @@ import org.apache.http.impl.cookie.DateUtils;
 
 import android.text.TextUtils;
 
+import com.koushikdutta.ion.Response;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpRequestPost;
 import com.levelup.http.signed.OAuthClientApp;
@@ -51,11 +52,11 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 		}
 
 		@Override
-		public void setResponse(HttpURLConnection resp) {
+		public void setResponse(Response<?> resp) {
 			super.setResponse(resp);
 
 			if (null!=resp) {
-				String serverDate = resp.getHeaderField("date");
+				String serverDate = resp.getHeaders().get("Date");
 				if (!TextUtils.isEmpty(serverDate)) {
 					setServerDate(serverDate);
 				}

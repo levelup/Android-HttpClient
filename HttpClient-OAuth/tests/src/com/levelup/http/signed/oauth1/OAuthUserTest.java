@@ -28,9 +28,8 @@ public class OAuthUserTest extends TestCase {
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("msg", "signed message");
 
-		HttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
-
-		HttpClient.getQueryResponse(get);
+		BaseHttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
+		HttpClient.parseRequest(get);
 	}
 
 	public void testEmptyUser() throws Exception {
@@ -50,9 +49,8 @@ public class OAuthUserTest extends TestCase {
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("msg", "signed message");
 
-		HttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
-
-		HttpClient.getQueryResponse(get);
+		BaseHttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
+		HttpClient.parseRequest(get);
 	}
 
 }

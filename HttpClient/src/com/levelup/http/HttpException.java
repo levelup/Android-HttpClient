@@ -1,6 +1,5 @@
 package com.levelup.http;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +10,9 @@ import java.util.Map.Entry;
 
 import android.net.Uri;
 import android.text.TextUtils;
+
+import com.koushikdutta.async.http.libcore.RequestHeaders;
+import com.koushikdutta.ion.Response;
 
 /**
  * Exception that will occur by using {@link HttpClient}
@@ -180,13 +182,13 @@ public class HttpException extends Exception {
 				this.headers = new ArrayList<Header>(srcHeaders.length);
 				headers.addAll(Arrays.asList(srcHeaders));
 			}
-			HttpURLConnection response = httpRequest.getResponse();
+			Response<?> response = httpRequest.getResponse();
 			if (null==response) {
 				this.receivedHeaders = Collections.emptyList();
 			} else {
 				setHTTPResponse(response);
 				try {
-					final Map<String, List<String>> responseHeaders = response.getHeaderFields();
+					final Map<String, List<String>> responseHeaders = response.getHeaders().toMultimap();
 					if (null==responseHeaders)
 						this.receivedHeaders = Collections.emptyList();
 					else {
@@ -257,12 +259,12 @@ public class HttpException extends Exception {
 			return this;
 		}
 
-		public Builder setHTTPResponse(HttpURLConnection resp) {
-			if (null!=resp) {
+		public Builder setHTTPResponse(Response<?> response) {
+			if (null!=response) {
 				try {
-					Map<String, List<String>> reqProperties = resp.getRequestProperties();
+					RequestHeaders reqProperties = response.getRequest().getHeaders();
 					headers.clear();
-					for (Entry<String, List<String>> props : reqProperties.entrySet()) {
+					for (Entry<String, List<String>> props : reqProperties.getHeaders().toMultimap().entrySet()) {
 						for (String prop : props.getValue()) {
 							headers.add(new Header(props.getKey(), prop));
 						}
@@ -272,14 +274,12 @@ public class HttpException extends Exception {
 				}
 
 				try {
-					this.statusCode = resp.getResponseCode();
+					this.statusCode = response.getHeaders().getResponseCode();
 				} catch (IllegalStateException e) {
 					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 					this.statusCode = 200;
 				} catch (NullPointerException ignored) {
 					// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
-					this.statusCode = 200;
-				} catch (IOException e) {
 					this.statusCode = 200;
 				}
 			}

@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.http.protocol.HTTP;
+
+import android.text.TextUtils;
+
 /**
  * Singleton {@link InputStreamParser} class to get a {@link String} from an {@link InputStream}
  * @see #instance
@@ -22,7 +26,9 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 
 		int contentLength = -1;
 		if (null != request) {
-			contentLength = request.getResponse().getContentLength();
+			String contentLengthString = request.getResponse().getHeaders().get(HTTP.CONTENT_LEN);
+			if (!TextUtils.isEmpty(contentLengthString))
+				contentLength = Integer.parseInt(contentLengthString);
 			if (contentLength > 0) {
 				sb = new StringBuilder(contentLength);
 			} else {

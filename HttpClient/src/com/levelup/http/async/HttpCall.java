@@ -5,6 +5,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import com.koushikdutta.ion.Response;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.InputStreamParser;
@@ -90,9 +91,11 @@ public class HttpCall<T> {
 			if (runningTask!=null)
 				runningTask.cancel(true);
 
-			HttpURLConnection response = request.getResponse();
+			/** TODO not working the same in Ion
+			Response<?> response = request.getResponse();
 			if (null!=response)
 				response.disconnect();
+				*/
 			
 			runningTask = null;
 		}
