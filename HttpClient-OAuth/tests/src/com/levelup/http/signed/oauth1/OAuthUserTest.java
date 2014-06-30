@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
-import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.UriParams;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
@@ -29,11 +28,7 @@ public class OAuthUserTest extends TestCase {
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("msg", "signed message");
 
-		BaseHttpRequest<String> get = new BaseHttpRequest.Builder<String>().
-				setSigner(signer).
-				setUrl("http://www.levelupstudio.com/", uriParams).
-				setStreamParser(InputStreamStringParser.instance).
-				build();
+		BaseHttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
 		HttpClient.parseRequest(get);
 	}
 
@@ -54,11 +49,7 @@ public class OAuthUserTest extends TestCase {
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("msg", "signed message");
 
-		BaseHttpRequest<String> get = new BaseHttpRequest.Builder<String>().
-				setSigner(signer).
-				setUrl("http://www.levelupstudio.com/", uriParams).
-				setStreamParser(InputStreamStringParser.instance).
-				build();
+		BaseHttpRequest get = new BaseHttpRequest.Builder().setSigner(signer).setUrl("http://www.levelupstudio.com/", uriParams).build();
 		HttpClient.parseRequest(get);
 	}
 

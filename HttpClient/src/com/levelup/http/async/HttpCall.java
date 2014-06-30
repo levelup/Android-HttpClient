@@ -4,6 +4,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import com.koushikdutta.ion.Response;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.InputStreamParser;
