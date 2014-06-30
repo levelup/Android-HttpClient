@@ -1,6 +1,5 @@
 package com.levelup.http;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -171,21 +170,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		 * @return Current Builder
 		 */
 		public Builder<T> setStreamParser(InputStreamParser<T> streamParser) {
-			if (streamParser==streamingRequest)
-				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.streamParser = streamParser;
-			return this;
-		}
-		
-		/**
-		 * Indicate that this query will be used as a continuous stream rather than outputting an Object 
-		 * @return Current Builder
-		 */
-		@SuppressWarnings("unchecked")
-		public Builder<T> setStreaming() {
-			if (streamParser!=null && streamParser!=streamingRequest)
-				throw new IllegalArgumentException("Trying to set a streaming request that has a streaming parser");
-			this.streamParser = (InputStreamParser<T>) streamingRequest;
 			return this;
 		}
 
@@ -246,18 +231,16 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
+		final LoadBuilder<Builders.Any.B> ion;
 		if (builder.streamParser instanceof InputStreamGsonParser) {
 			InputStreamGsonParser gsonParser = (InputStreamGsonParser) builder.streamParser;
-			ion = Ion.getInstance(builder.context, gsonParser.getClass().getName());
-			ion.configure().setGson(gsonParser.gson);
-		} else if (builder.streamParser==streamingRequest) {
-			ion = Ion.getInstance(builder.context, streamingRequest.getClass().getName());
+			Ion io = Ion.getInstance(builder.context, gsonParser.getClass().getCanonicalName());
+			io.configure().setGson(gsonParser.gson);
+			ion = io.build(builder.context);
 		} else {
-			ion = Ion.getDefault(builder.context);
+			ion = Ion.with(builder.context);
 		}
-		
-		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.context);
-		requestBuilder = ionLoadBuilder.load(builder.httpMethod, builder.uri.toString());
+		requestBuilder = ion.load(builder.httpMethod, builder.uri.toString());
 
 		this.uri = builder.uri;
 		this.method = builder.httpMethod;
@@ -358,7 +341,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	private static final String[] EMPTY_STRINGS = {};
-	private Ion ion;
 
 	public Header[] getAllHeaders() {
 		List<Header> headers = null==HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
@@ -422,11 +404,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	@Override
 	public boolean hasBody() {
 		return null != bodyParams;
-	}
-	
-	@Override
-	public boolean isStreaming() {
-		return streamParser == streamingRequest;
 	}
 
 	@Override
@@ -525,14 +502,22 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	private static InputStream getParseableErrorStream(Response<?> response) throws IOException {
-		Object result = response.getResult();
-		if (result instanceof InputStream) {
-			return (InputStream) result;
-		}
-		if (result==null)
-			throw new IOException("error stream not supported");
-		
-		return new ByteArrayInputStream(result.toString().getBytes());
+		/** TODO, not handle the same with Ion
+		InputStream errorStream = response.getErrorStream();
+		if (null==errorStream)
+			errorStream = response.getInputStream();
+
+		if (null==errorStream)
+			return null;
+
+		if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
+			errorStream = new InflaterInputStream(errorStream);
+		if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
+			errorStream = new GZIPInputStream(errorStream);
+
+		return errorStream;
+		*/
+		throw new IOException("error stream not supported");
 	}
 
 	/**
