@@ -21,3 +21,16 @@
 
 -keepnames class com.levelup.http.** { *; }
 -keepnames interface com.levelup.http.** { *; }
+
+# AndroidAsync
+-keepnames class com.koushikdutta.async.** { *; }
+-keepnames interface com.koushikdutta.async.** { *; }
+
+# Ion
+-keepnames class com.koushikdutta.ion.** { *; }
+-keepnames interface com.koushikdutta.ion.** { *; }
+
+# Okio oddities
+-keepnames class okio.** { *; }
+-keepnames interface okio.** { *; }
+-dontwarn java.nio.file.*
