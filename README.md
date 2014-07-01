@@ -130,6 +130,30 @@ AsyncHttpClient.doRequest(request, JsonToObject, new BaseAsyncHttpCallback<MyObj
 });
 ```
 
+<h2>Sample with Gson reader</h2>
+A module for HttpClient that uses [gson][1] to parse the data received from HTTP.
+Like the other `InputStreamParser` they can be used [synchronously or asynchronously](../HttpClient).
+
+Sample Code
+-----------
+
+```java
+class MyClass {
+	@SerializedName("id") int id;
+	@SerializedName("name") String name;
+}
+
+HttpRequestGet request = new HttpRequestGet("https://api.com/1/test.json");
+
+// Create a parser for MyClass using Gson
+Gson gson = new GsonBuilder().create();
+InputStreamGsonParser<MyClass> parser = new InputStreamGsonParser<MyClass>(gson, MyClass.class);
+
+// query the data from the server directly in the form of an object of class MyClass
+MyClass dlInstance = HttpClient.parseRequest(request, parser);
+```
+
+
 <h2>OAuth signature</h2>
 The HTTPClient also provides a simple API for signing HTTP requests. A `RequestSigner` for OAuth2 is provided
 by default. There is also a module for OAuth1 signature using [oauth-signpost][1].
