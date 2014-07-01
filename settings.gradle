@@ -3,14 +3,8 @@
 include 'HttpClient'
 project(':HttpClient').projectDir = new File('Android-HttpClient/HttpClient')
 
-include 'HttpClient-Gson'
-project(':HttpClient-Gson').projectDir = new File('Android-HttpClient/HttpClient-Gson')
-
 include 'HttpClient-OAuth'
 project(':HttpClient-OAuth').projectDir = new File('Android-HttpClient/HttpClient-OAuth')
 
 include 'HttpClient-OkHttp'
 project(':HttpClient-OkHttp').projectDir = new File('Android-HttpClient/HttpClient-OkHttp')
-
-include 'HttpClient-Volley'
-project(':HttpClient-Volley').projectDir = new File('Android-HttpClient/HttpClient-Volley')
