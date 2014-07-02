@@ -280,7 +280,7 @@ public class HttpClient {
 			BaseHttpRequest httpRequest = (BaseHttpRequest) request;
 			try {
 				if (request.isStreaming()) {
-					// TODO: we need to wait for the InputStream, with a timeout
+					// we need to wait for the InputStream, with a timeout
 					prepareRequest(httpRequest);
 					//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
 					ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new AsyncParser<InputStream>() {
@@ -530,6 +530,7 @@ public class HttpClient {
 					if (null!=req) {
 						Future<Response<T>> withResponse = req.withResponse();
 						Response<T> response = withResponse.get();
+						request.setResponse(response);
 						throwResponseException(request, response);
 						return response.getResult();
 					}
