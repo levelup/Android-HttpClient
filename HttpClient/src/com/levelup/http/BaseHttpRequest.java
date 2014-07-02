@@ -84,6 +84,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
 		 */
 		public Builder(Context context) {
+			setContext(context);
 			setHttpMethod(DEFAULT_HTTP_METHOD);
 			setContext(context);
 		}
