@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import okio.AsyncTimeout;
 import okio.Buffer;
@@ -238,11 +239,11 @@ public class HttpClient {
 		@Override
 		public long read(Buffer sink, long byteCount) throws IOException {
 			synchronized (buffer) {
-			if (buffer.size()==0)
-				try {
-					buffer.wait(90 * 1000); // TODO it should be configurable for the request
-				} catch (InterruptedException e) {
-				}
+				if (buffer.size()==0)
+					try {
+						buffer.wait(90 * 1000); // TODO it should be configurable for the request
+					} catch (InterruptedException e) {
+					}
 			}
 			return buffer.read(sink, byteCount);
 		}
@@ -439,14 +440,18 @@ public class HttpClient {
 		}
 
 		if (e instanceof ExecutionException) {
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("execution error");
-			builder.setCause(e.getCause());
-			builder.setErrorCode(HttpException.ERROR_HTTP);
-			throw builder.build();
+			if (e.getCause() instanceof Exception)
+				forwardResponseException(request, (Exception) e.getCause());
+			else {
+				HttpException.Builder builder = request.newException();
+				builder.setErrorMessage("execution error");
+				builder.setCause(e.getCause());
+				builder.setErrorCode(HttpException.ERROR_HTTP);
+				throw builder.build();
+			}
 		}
 
-		if (e instanceof SocketTimeoutException) {
+		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("timeout");
 			builder.setCause(e);
