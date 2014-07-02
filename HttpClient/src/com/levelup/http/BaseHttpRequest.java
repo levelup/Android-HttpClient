@@ -238,6 +238,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
+		final Ion ion;
 		if (builder.streamParser instanceof InputStreamGsonParser) {
 			InputStreamGsonParser gsonParser = (InputStreamGsonParser) builder.streamParser;
 			ion = Ion.getInstance(builder.context, gsonParser.getClass().getName());
@@ -414,7 +415,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	private static final String[] EMPTY_STRINGS = {};
-	private final Ion ion;
 
 	public Header[] getAllHeaders() {
 		List<Header> headers = null==HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
