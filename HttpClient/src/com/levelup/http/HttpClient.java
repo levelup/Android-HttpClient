@@ -30,6 +30,7 @@ public class HttpClient {
 	private static String userAgent;
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
+	static Context defaultContext;
 
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
@@ -39,6 +40,7 @@ public class HttpClient {
 	public static void setup(Context context) {
 		userAgent = "LevelUp-HttpClient/00000";
 		if (null!=context) {
+			defaultContext = context;
 			PackageManager pM = context.getPackageManager();
 			try {
 				PackageInfo pI = pM.getPackageInfo(context.getPackageName(), 0);

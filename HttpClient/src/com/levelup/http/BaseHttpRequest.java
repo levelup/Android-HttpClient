@@ -20,6 +20,7 @@ import java.util.zip.InflaterInputStream;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -52,6 +53,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		private static final String DEFAULT_HTTP_METHOD = "GET";
 		private static final String DEFAULT_POST_METHOD = "POST";
 
+		private Context context;
 		private HttpBodyParameters bodyParams;
 		private Uri uri;
 		private InputStreamParser<T> streamParser;
@@ -62,6 +64,14 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
 		 */
 		public Builder() {
+			this(HttpClient.defaultContext);
+		}
+
+		/**
+		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
+		 */
+		public Builder(Context context) {
+			setContext(context);
 			setHttpMethod(DEFAULT_HTTP_METHOD);
 		}
 
@@ -161,6 +171,11 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 				throw new IllegalArgumentException();
 			}
 			this.signer = signer;
+			return this;
+		}
+
+		public Builder<T> setContext(Context context) {
+			this.context = context;
 			return this;
 		}
 
