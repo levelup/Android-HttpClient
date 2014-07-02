@@ -73,6 +73,7 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * @throws IOException
 	 */
 	void outputBody(HttpURLConnection connection) throws IOException;
+	void outputBody();
 
 	/**
 	 * Called when the request has been performed on the server, even if the response is an error

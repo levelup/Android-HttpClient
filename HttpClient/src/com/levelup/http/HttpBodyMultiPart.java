@@ -14,6 +14,8 @@ import org.apache.http.protocol.HTTP;
 
 import android.text.TextUtils;
 
+import com.koushikdutta.ion.builder.Builders;
+
 /**
  * HTTP POST parameters encoded as {@code multipart/form-data}
  * <p>Useful to send {@link File} or {@link InputStream}</p> 
@@ -69,6 +71,25 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) {
 		//connection.setChunkedStreamingMode(0); // use the default chunked size
+	}
+
+	@Override
+	public void setOuputData(Builders.Any.B requestBuilder) {
+		for (HttpParam param : mParams) {
+			if (param.value instanceof File) {
+				if (!TextUtils.isEmpty(param.contentType))
+					requestBuilder.setMultipartFile(param.name, param.contentType, (File) param.value);
+				else
+					requestBuilder.setMultipartFile(param.name, (File) param.value);
+			} else if (param.value instanceof InputStream) {
+				// TODO
+			}
+		}
+		for (HttpParam param : mParams) {
+			if (param.value instanceof String) {
+				requestBuilder.setMultipartParameter(param.name, (String) param.value);
+			}
+		}
 	}
 
 	@Override
@@ -139,12 +160,12 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 						if (null!=progressListener)
 							progressListener.onParamUploadProgress(request, param.name, 100);
 					} finally {
-                        try {
-                            input.close();
-                        } catch (NullPointerException ignored) {
-                            // okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-                        } catch (IOException ignored) {
-                        }
+						try {
+							input.close();
+						} catch (NullPointerException ignored) {
+							// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
+						} catch (IOException ignored) {
+						}
 					}
 					writer.append(CRLF).flush(); // CRLF is important! It indicates end of binary boundary.
 				}

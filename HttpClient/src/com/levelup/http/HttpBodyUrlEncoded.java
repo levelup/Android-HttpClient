@@ -10,6 +10,8 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
+import com.koushikdutta.ion.builder.Builders;
+
 /**
  * HTTP body class with data sent as {@code form-urlencoded}
  */
@@ -52,7 +54,14 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 	public void setConnectionProperties(HttpURLConnection connection) {
 		connection.setFixedLengthStreamingMode(getEncodedParams().length);
 	}
-
+	
+	@Override
+	public void setOuputData(Builders.Any.B requestBuilder) {
+		for (NameValuePair param : mParams) {
+			requestBuilder.setBodyParameter(param.getName(), param.getValue());
+		}
+	}
+	
 	@Override
 	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
 		output.write(getEncodedParams());

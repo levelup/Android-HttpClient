@@ -5,7 +5,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import okio.AsyncTimeout;
+import okio.Buffer;
+import okio.Okio;
+import okio.Source;
+import okio.Timeout;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,8 +19,15 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
+import com.koushikdutta.async.ByteBufferList;
+import com.koushikdutta.async.DataEmitter;
+import com.koushikdutta.async.DataSink;
+import com.koushikdutta.async.callback.CompletedCallback;
+import com.koushikdutta.async.callback.DataCallback;
 import com.koushikdutta.async.future.Future;
+import com.koushikdutta.async.future.SimpleFuture;
 import com.koushikdutta.async.http.libcore.RawHeaders;
+import com.koushikdutta.async.parser.AsyncParser;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
@@ -73,7 +86,7 @@ public class HttpClient {
 	public static Header[] getDefaultHeaders() {
 		return defaultHeaders;
 	}
-/*
+	/*
 	public static HttpURLConnection openURL(HttpRequest request) throws IOException {
 		if (null != connectionFactory)
 			return connectionFactory.createConnection(request);
@@ -94,7 +107,7 @@ public class HttpClient {
 
 		return (HttpURLConnection) url.openConnection();
 	}
-*/
+	 */
 	/**
 	 * Process the HTTP request on the network and return the HttpURLConnection
 	 * @param request
@@ -105,22 +118,31 @@ public class HttpClient {
 		return getQueryResponse(request, false);
 	}*/
 
-	private static <T> void prepareRequest(BaseHttpRequest<T> httpRequest) throws HttpException {
+	private static <T> void prepareRequest(BaseHttpRequest<T> request) throws HttpException {
 		if (!TextUtils.isEmpty(userAgent))
-			httpRequest.requestBuilder.userAgent(userAgent);
+			request.requestBuilder.userAgent(userAgent);
 
 		if (null!=defaultHeaders) {
 			for (Header header : defaultHeaders) {
-				httpRequest.requestBuilder.setHeader(header.getName(), header.getValue());
+				request.requestBuilder.setHeader(header.getName(), header.getValue());
 			}
 		}
 
-		httpRequest.settleHttpHeaders();
+		request.outputBody();
+		request.settleHttpHeaders();
 
-		if (null != httpRequest.getHttpConfig()) {
-			int readTimeout = httpRequest.getHttpConfig().getReadTimeout(httpRequest);
+		final LoggerTagged logger = request.getLogger(); 
+		if (null != logger) {
+			logger.v(request.getHttpMethod() + ' ' + request.getUri());
+			/** TODO for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
+				logger.v(header.getKey()+": "+header.getValue());
+			}*/
+		}
+
+		if (null != request.getHttpConfig()) {
+			int readTimeout = request.getHttpConfig().getReadTimeout(request);
 			if (readTimeout>=0)
-				httpRequest.requestBuilder.setTimeout(readTimeout);
+				request.requestBuilder.setTimeout(readTimeout);
 		}
 	}
 
@@ -152,10 +174,6 @@ public class HttpClient {
 					logger.v(header.getKey()+": "+header.getValue());
 				}
 			}
-
-			connection.connect();
-
-			request.outputBody(connection);
 
 			if (null != logger) {
 				logger.v(connection.getResponseMessage());
@@ -204,6 +222,52 @@ public class HttpClient {
 		return connection;
 	}*/
 
+	private static class OkDataCallback implements DataCallback, Source {
+
+		private final Buffer buffer = new okio.Buffer();
+		private InputStream is;
+
+		@Override
+		public void onDataAvailable(DataEmitter emitter, ByteBufferList bb) {
+			synchronized (buffer) {
+				buffer.write(bb.getAllByteArray());
+				buffer.notifyAll();
+			}
+		}
+
+		@Override
+		public long read(Buffer sink, long byteCount) throws IOException {
+			synchronized (buffer) {
+			if (buffer.size()==0)
+				try {
+					buffer.wait(90 * 1000); // TODO it should be configurable for the request
+				} catch (InterruptedException e) {
+				}
+			}
+			return buffer.read(sink, byteCount);
+		}
+
+		@Override
+		public Timeout timeout() {
+			return Timeout.NONE;
+		}
+
+		@Override
+		public void close() throws IOException {
+			buffer.close();
+		}
+
+		public InputStream getInputStream() {
+			if (null==is) {
+				AsyncTimeout timeout = new AsyncTimeout();
+				timeout.timeout(90, TimeUnit.SECONDS); // TODO it should be configurable for the request
+				Source tb = timeout.source(this);
+				is = Okio.buffer(tb).inputStream();
+			}
+			return is;
+		}
+	}
+
 	/**
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
@@ -214,28 +278,66 @@ public class HttpClient {
 	public static InputStream getInputStream(HttpRequest request) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest httpRequest = (BaseHttpRequest) request;
-			ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
-			Future<Response<InputStream>> withResponse = req.withResponse();
-			InputStream is = null;
 			try {
-				Response<InputStream> response = withResponse.get();
-				request.setResponse(response);
-				throwResponseException(request, response);
-				return response.getResult();
+				if (request.isStreaming()) {
+					// TODO: we need to wait for the InputStream, with a timeout
+					prepareRequest(httpRequest);
+					//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
+					ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new AsyncParser<InputStream>() {
+						@Override
+						public Future<InputStream> parse(final DataEmitter emitter) {
+							final OkDataCallback stream = new OkDataCallback();
+							final SimpleFuture<InputStream> ret = new SimpleFuture<InputStream>() {
+								@Override
+								protected void cancelCleanup() {
+									emitter.close();
+								}
+							};
+
+							emitter.setDataCallback(stream);
+
+							emitter.setEndCallback(new CompletedCallback() {
+								@Override
+								public void onCompleted(Exception ex) {
+									if (ex != null) {
+										ret.setComplete(ex);
+										return;
+									}
+
+									try {
+										ret.setComplete(stream.getInputStream());
+									}
+									catch (Exception e) {
+										ret.setComplete(e);
+									}
+								}
+							});
+
+							ret.setComplete(stream.getInputStream());
+							return ret;
+						}
+
+						@Override
+						public void write(DataSink sink, InputStream value, CompletedCallback completed) {
+							throw new IllegalStateException("not supported");
+						}
+					});
+					return req.get();
+				} else {
+					prepareRequest(httpRequest);
+					ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
+					Future<Response<InputStream>> withResponse = req.withResponse();
+					Response<InputStream> response = withResponse.get();
+					request.setResponse(response);
+					throwResponseException(request, response);
+					return response.getResult();
+				}
 			} catch (InterruptedException e) {
 				forwardResponseException(request, e);
 
 			} catch (ExecutionException e) {
 				forwardResponseException(request, e);
 
-			} finally {
-				if (null != is)
-					try {
-						is.close();
-					} catch (NullPointerException ignored) {
-						// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-					} catch (IOException ignored) {
-					}
 			}
 		}
 
@@ -386,11 +488,10 @@ public class HttpClient {
 		if (null!=headers) {
 			if (headers.getResponseCode() < 200 || headers.getResponseCode() >= 300) {
 				HttpException.Builder builder = request.newExceptionFromResponse(null);
-				builder.setErrorCode(HttpException.ERROR_HTTP);
 				throw builder.build();
 			}
 		}
-		
+
 		Exception e = response.getException();
 		if (null!=e) {
 			forwardResponseException(request, e);
@@ -408,7 +509,6 @@ public class HttpClient {
 	public static <T> T parseRequest(HttpRequest request, InputStreamParser<T> parser) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest<T> httpRequest = (BaseHttpRequest<T>) request;
-			prepareRequest(httpRequest);
 
 			if (parser == null)
 				parser = httpRequest.getInputStreamParser();
@@ -418,9 +518,11 @@ public class HttpClient {
 					InputStreamGsonParser gsonParser = (InputStreamGsonParser) parser;
 					final ResponseFuture<T> req;
 					if (gsonParser.typeToken!=null) {
+						prepareRequest(httpRequest);
 						req = httpRequest.requestBuilder.as(gsonParser.typeToken);
 					} else if (gsonParser.type instanceof Class) {
 						Class<T> clazz = (Class<T>) gsonParser.type;
+						prepareRequest(httpRequest);
 						req = httpRequest.requestBuilder.as(clazz);
 					} else {
 						req = null;

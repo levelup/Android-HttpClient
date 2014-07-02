@@ -6,18 +6,19 @@ import java.net.HttpURLConnection;
 
 import org.apache.http.protocol.HTTP;
 
+import com.koushikdutta.async.http.body.StringBody;
+import com.koushikdutta.ion.builder.Builders;
+
 
 /**
  * HTTP body class that consists of a String data and its Content-Type 
  */
 public class HttpBodyString implements HttpBodyParameters {
 
-	private final byte[] value;
-	private final String contentType;
+	private final String value;
 
-	public HttpBodyString(String value, String contentType) {
-		this.value = value.getBytes();
-		this.contentType = contentType;
+	public HttpBodyString(String value) {
+		this.value = value;
 	}
 
 	/**
@@ -62,17 +63,20 @@ public class HttpBodyString implements HttpBodyParameters {
 
 	@Override
 	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		request.setHeader(HTTP.CONTENT_TYPE, contentType);
-		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(value.length));
+		request.setHeader(HTTP.CONTENT_TYPE, StringBody.CONTENT_TYPE);
 	}
 	
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) {
-		connection.setFixedLengthStreamingMode(value.length);
 	}
 
 	@Override
+	public void setOuputData(Builders.Any.B requestBuilder) {
+		requestBuilder.setStringBody(value);
+	}
+	
+	@Override
 	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
-		output.write(value);
+		throw new IllegalAccessError();
 	}
 }

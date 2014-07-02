@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 
+import com.koushikdutta.ion.builder.Builders;
+
 /**
  * HTTP parameters suitable to pass to {@link BaseHttpRequest} 
  */
@@ -29,4 +31,6 @@ public interface HttpBodyParameters extends HttpParameters {
 	 * @param connection to setup
 	 */
 	void setConnectionProperties(HttpURLConnection connection);
+
+	void setOuputData(Builders.Any.B requestBuilder);
 }
