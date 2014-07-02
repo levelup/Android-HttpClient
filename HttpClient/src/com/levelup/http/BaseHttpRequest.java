@@ -25,6 +25,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.koushikdutta.async.http.AsyncHttpRequest;
+import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
+import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
@@ -307,6 +309,16 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 							mLogger.e(message, e);
 						else
 							super.loge(message, e);
+					}
+					
+					@Override
+					public void setBody(AsyncHttpRequestBody body) {
+						if (body instanceof MultipartFormDataBody) {
+							MultipartFormDataBody multipartFormDataBody = (MultipartFormDataBody) body;
+							multipartFormDataBody.setBoundary("plUmeMultip4rt");
+						}
+						
+						super.setBody(body);
 					}
 				};
 				return request;

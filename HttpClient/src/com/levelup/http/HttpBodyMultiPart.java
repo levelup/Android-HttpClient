@@ -11,15 +11,12 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import android.text.TextUtils;
 
 import com.koushikdutta.async.http.body.FilePart;
 import com.koushikdutta.async.http.body.Part;
-import com.koushikdutta.async.http.body.StreamPart;
 import com.koushikdutta.ion.builder.Builders;
+import com.levelup.http.internal.InputStreamPart;
 
 /**
  * HTTP POST parameters encoded as {@code multipart/form-data}
@@ -76,30 +73,6 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) {
 		//connection.setChunkedStreamingMode(0); // use the default chunked size
-	}
-
-	private static class InputStreamPart extends StreamPart {
-
-		private final InputStream inputStream;
-
-		public InputStreamPart(String streamName, InputStream value) {
-			super(streamName, 0, new ArrayList<NameValuePair>() {
-				{
-					add(new BasicNameValuePair("filename", "rawstream"));
-				}
-			});
-			this.inputStream = value;
-		}
-
-		@Override
-		protected InputStream getInputStream() throws IOException {
-			return inputStream;
-		}
-		
-		@Override
-		public int length() {
-			return 0;
-		}
 	}
 
 	@Override
