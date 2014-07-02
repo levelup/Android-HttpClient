@@ -116,7 +116,7 @@ public class HttpClient {
 		return getQueryResponse(request, false);
 	}*/
 
-	private static <T> void prepareRequest(BaseHttpRequest<T> request) throws HttpException {
+	private static void prepareRequest(BaseHttpRequest<?> request) throws HttpException {
 		if (!TextUtils.isEmpty(userAgent))
 			request.requestBuilder.userAgent(userAgent);
 
