@@ -54,6 +54,7 @@ public class HttpClient {
 		userAgent = "LevelUp-HttpClient/00000";
 		defaultContext = context;
 		if (null!=context) {
+			defaultContext = context;
 			PackageManager pM = context.getPackageManager();
 			try {
 				PackageInfo pI = pM.getPackageInfo(context.getPackageName(), 0);
