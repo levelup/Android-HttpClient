@@ -2,7 +2,6 @@ package com.levelup.http.async;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
 
 import com.levelup.http.HttpClient;
