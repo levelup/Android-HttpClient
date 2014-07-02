@@ -9,11 +9,16 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.http.protocol.HTTP;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.text.TextUtils;
 
+import com.koushikdutta.async.http.body.FilePart;
+import com.koushikdutta.async.http.body.Part;
+import com.koushikdutta.async.http.body.StreamPart;
 import com.koushikdutta.ion.builder.Builders;
 
 /**
@@ -65,7 +70,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 	@Override
 	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+		//request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
 	}
 
 	@Override
@@ -73,16 +78,53 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 		//connection.setChunkedStreamingMode(0); // use the default chunked size
 	}
 
+	private static class InputStreamPart extends StreamPart {
+
+		private final InputStream inputStream;
+
+		public InputStreamPart(String streamName, InputStream value) {
+			super(streamName, 0, new ArrayList<NameValuePair>() {
+				{
+					add(new BasicNameValuePair("filename", "rawstream"));
+				}
+			});
+			this.inputStream = value;
+		}
+
+		@Override
+		protected InputStream getInputStream() throws IOException {
+			return inputStream;
+		}
+		
+		@Override
+		public int length() {
+			return 0;
+		}
+	}
+
 	@Override
 	public void setOuputData(Builders.Any.B requestBuilder) {
 		for (HttpParam param : mParams) {
 			if (param.value instanceof File) {
+				FilePart part = new FilePart(param.name, (File) param.value);
 				if (!TextUtils.isEmpty(param.contentType))
+					part.setContentType(param.contentType);
+				part.getRawHeaders().add("Content-Transfer-Encoding", "binary");
+				List<Part> partList = new ArrayList<Part>(1);
+				partList.add(part);
+				requestBuilder.addMultipartParts(partList);
+				/*if (!TextUtils.isEmpty(param.contentType))
 					requestBuilder.setMultipartFile(param.name, param.contentType, (File) param.value);
 				else
-					requestBuilder.setMultipartFile(param.name, (File) param.value);
+					requestBuilder.setMultipartFile(param.name, (File) param.value);*/
 			} else if (param.value instanceof InputStream) {
-				// TODO
+				InputStreamPart part = new InputStreamPart(param.name, (InputStream) param.value);
+				if (!TextUtils.isEmpty(param.contentType))
+					part.setContentType(param.contentType);
+				part.getRawHeaders().add("Content-Transfer-Encoding", "binary");
+				List<Part> partList = new ArrayList<Part>(1);
+				partList.add(part);
+				requestBuilder.addMultipartParts(partList);
 			}
 		}
 		for (HttpParam param : mParams) {
