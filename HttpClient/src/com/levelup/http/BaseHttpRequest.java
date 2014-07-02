@@ -414,7 +414,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	private static final String[] EMPTY_STRINGS = {};
-	private Ion ion;
+	private final Ion ion;
 
 	public Header[] getAllHeaders() {
 		List<Header> headers = null==HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
