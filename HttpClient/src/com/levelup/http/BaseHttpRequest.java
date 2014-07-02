@@ -382,6 +382,12 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			}
 		}
 	}
+	
+	public final void outputBody() {
+		if (null != bodyParams) {
+			bodyParams.setOuputData(this.requestBuilder);
+		}
+	}
 
 	public void setProgressListener(UploadProgressListener listener) {
 		this.mProgressListener = listener;
