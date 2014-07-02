@@ -2,12 +2,22 @@ package com.levelup.http;
 
 import org.json.JSONObject;
 
-import junit.framework.TestCase;
+import android.content.Context;
+import android.test.AndroidTestCase;
 
-public class InputStreamJSONObjectParserTest extends TestCase {
+public class InputStreamJSONObjectParserTest extends AndroidTestCase {
 
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
+	}
+	
 	public void testBogusData() throws Exception {
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().setUrl("http://android.com/").setStreamParser(InputStreamJSONObjectParser.instance).build();
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+				setUrl("http://android.com/").
+				setStreamParser(InputStreamJSONObjectParser.instance).
+				build();
 
 		try {
 			HttpClient.parseRequest(request);

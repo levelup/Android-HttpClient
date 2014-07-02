@@ -1,19 +1,29 @@
 package com.levelup.http.gson;
 
+import android.content.Context;
+import android.test.AndroidTestCase;
+
 import com.google.gson.GsonBuilder;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.ParserException;
 
-import junit.framework.TestCase;
+public class InputStreamGsonParserTest extends AndroidTestCase {
 
-public class InputStreamGsonParserTest extends TestCase {
-
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
+	}
+	
 	public void testSetDebugData() throws Exception {
 		InputStreamGsonParser<Void> testParser = new InputStreamGsonParser<Void>(new GsonBuilder().create(), Void.class);
 		testParser.enableDebugData(true);
-		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().setUrl("http://android.com/").setStreamParser(testParser).build();
+		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().
+				setUrl("http://android.com/").
+				setStreamParser(testParser).
+				build();
 
 		try {
 			HttpClient.parseRequest(request);
