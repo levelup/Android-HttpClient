@@ -33,9 +33,10 @@ android {
 
 dependencies {
     compile project(':support-v4')
+    compile 'com.google.code.gson:gson:2.2.+'
+    compile 'com.squareup.okio:okio:1.0.+'
     //compile 'com.koushikdutta.async:androidasync:1.2.+'
     //compile 'com.koushikdutta.ion:ion:1.2.+'
-    compile 'com.google.code.gson:gson:2.2.+'
     compile files('libs/androidasync-1.2.6.jar')
     compile files('libs/ion-1.2.7.jar')
 }

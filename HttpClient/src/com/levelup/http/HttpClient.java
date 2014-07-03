@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import okio.AsyncTimeout;
 import okio.Buffer;
@@ -52,7 +53,6 @@ public class HttpClient {
 	 */
 	public static void setup(Context context) {
 		userAgent = "LevelUp-HttpClient/00000";
-		defaultContext = context;
 		if (null!=context) {
 			defaultContext = context;
 			PackageManager pM = context.getPackageManager();
@@ -236,11 +236,11 @@ public class HttpClient {
 		@Override
 		public long read(Buffer sink, long byteCount) throws IOException {
 			synchronized (buffer) {
-			if (buffer.size()==0)
-				try {
-					buffer.wait(90 * 1000); // TODO it should be configurable for the request
-				} catch (InterruptedException e) {
-				}
+				if (buffer.size()==0)
+					try {
+						buffer.wait(90 * 1000); // TODO it should be configurable for the request
+					} catch (InterruptedException e) {
+					}
 			}
 			return buffer.read(sink, byteCount);
 		}
@@ -278,7 +278,7 @@ public class HttpClient {
 			BaseHttpRequest httpRequest = (BaseHttpRequest) request;
 			try {
 				if (request.isStreaming()) {
-					// TODO: we need to wait for the InputStream, with a timeout
+					// we need to wait for the InputStream, with a timeout
 					prepareRequest(httpRequest);
 					//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
 					ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new AsyncParser<InputStream>() {
@@ -437,14 +437,18 @@ public class HttpClient {
 		}
 
 		if (e instanceof ExecutionException) {
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("execution error");
-			builder.setCause(e.getCause());
-			builder.setErrorCode(HttpException.ERROR_HTTP);
-			throw builder.build();
+			if (e.getCause() instanceof Exception)
+				forwardResponseException(request, (Exception) e.getCause());
+			else {
+				HttpException.Builder builder = request.newException();
+				builder.setErrorMessage("execution error");
+				builder.setCause(e.getCause());
+				builder.setErrorCode(HttpException.ERROR_HTTP);
+				throw builder.build();
+			}
 		}
 
-		if (e instanceof SocketTimeoutException) {
+		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("timeout");
 			builder.setCause(e);
@@ -528,6 +532,7 @@ public class HttpClient {
 					if (null!=req) {
 						Future<Response<T>> withResponse = req.withResponse();
 						Response<T> response = withResponse.get();
+						request.setResponse(response);
 						throwResponseException(request, response);
 						return response.getResult();
 					}

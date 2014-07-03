@@ -7,9 +7,11 @@ import java.io.FileOutputStream;
 import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
 public class HttpClientTest extends AndroidTestCase {
 
+	@MediumTest
 	public void testUploadStream() throws Exception {
 		final String fileFieldName = "media";
 		final String uploadData = "Uploaded Stream Data";
@@ -17,7 +19,7 @@ public class HttpClientTest extends AndroidTestCase {
 		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), uploadData.length(), "text/plain");
 
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
-				setUrl("http://httpbin.org/post").
+				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
 				setStreamParser(InputStreamJSONObjectParser.instance).
 				build();
@@ -30,6 +32,7 @@ public class HttpClientTest extends AndroidTestCase {
 		assertEquals(uploadData, files.optString(fileFieldName));
 	}
 
+	@MediumTest
 	public void testUploadFile() throws Exception {
 		final String fileFieldName = "media";
 		final String uploadData = "Uploaded File Data";
@@ -43,7 +46,7 @@ public class HttpClientTest extends AndroidTestCase {
 			body.addFile(fileFieldName, tempFile, "text/plain");
 
 			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
-					setUrl("http://httpbin.org/post").
+					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
 					setStreamParser(InputStreamJSONObjectParser.instance).
 					build();
@@ -70,7 +73,7 @@ public class HttpClientTest extends AndroidTestCase {
 		body.add(fieldName2, uploadData2);
 
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
-				setUrl("http://httpbin.org/post").
+				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
 				setStreamParser(InputStreamJSONObjectParser.instance).
 				build();
@@ -93,7 +96,7 @@ public class HttpClientTest extends AndroidTestCase {
 		body.add(fieldName, uploadData);
 
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
-				setUrl("http://httpbin.org/post").
+				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
 				setStreamParser(InputStreamJSONObjectParser.instance).
 				build();
