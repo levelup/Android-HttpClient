@@ -107,4 +107,9 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Tell if the request has a body (for POST, PUT, DELETE, etc methods)
 	 */
 	boolean hasBody();
+
+	/**
+	 * Tell if the request is reading an object or just data from a continuous stream
+	 */
+	boolean isStreaming();
 }

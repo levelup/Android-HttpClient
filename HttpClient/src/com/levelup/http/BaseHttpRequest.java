@@ -45,6 +45,14 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final RequestSigner signer;
 	private UploadProgressListener mProgressListener;
 
+	/**	Object to tell we are not outputting an object but using streaming data */
+	private static final InputStreamParser<HttpStream> streamingRequest = new InputStreamParser<HttpStream>() {
+		@Override
+		public HttpStream parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
+			return new HttpStream(inputStream, request);
+		}
+	};
+
 	/**
 	 * Builder for 
 	 * @param <T> type of the data read from the HTTP response
@@ -157,8 +165,22 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		 * @return Current Builder
 		 */
 		public Builder<T> setStreamParser(InputStreamParser<T> streamParser) {
+			if (streamParser==streamingRequest)
+				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.streamParser = streamParser;
 			return this;
+		}
+
+		/**
+		 * Indicate that this query will be used as a continuous stream rather than outputting an Object 
+		 * @return Current Builder
+		 */
+		@SuppressWarnings("unchecked")
+		public Builder<HttpStream> setStreaming() {
+			if (streamParser!=null && streamParser!=streamingRequest)
+				throw new IllegalArgumentException("Trying to set a streaming request that has a streaming parser");
+			this.streamParser = (InputStreamParser<T>) streamingRequest;
+			return (Builder<HttpStream>) this;
 		}
 
 		/**
@@ -368,6 +390,11 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	@Override
 	public boolean hasBody() {
 		return null != bodyParams;
+	}
+
+	@Override
+	public boolean isStreaming() {
+		return streamParser == streamingRequest;
 	}
 
 	@Override

@@ -345,11 +345,14 @@ public class HttpClient {
 			throw builder.build();
 
 		} finally {
-			try {
-				is.close();
-			} catch (NullPointerException ignored) {
-				// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-			} catch (IOException ignored) {
+			if (!request.isStreaming()) {
+				// the input stream data should have been all parsed
+				try {
+					is.close();
+				} catch (NullPointerException ignored) {
+					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
+				} catch (IOException ignored) {
+				}
 			}
 		}
 	}
