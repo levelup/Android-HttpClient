@@ -276,10 +276,10 @@ public class HttpClient {
 	public static InputStream getInputStream(HttpRequest request) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest httpRequest = (BaseHttpRequest) request;
+			prepareRequest(httpRequest);
 			try {
 				if (request.isStreaming()) {
 					// we need to wait for the InputStream, with a timeout
-					prepareRequest(httpRequest);
 					//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
 					ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new AsyncParser<InputStream>() {
 						@Override
@@ -322,7 +322,6 @@ public class HttpClient {
 					});
 					return req.get();
 				} else {
-					prepareRequest(httpRequest);
 					ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
 					Future<Response<InputStream>> withResponse = req.withResponse();
 					Response<InputStream> response = withResponse.get();
