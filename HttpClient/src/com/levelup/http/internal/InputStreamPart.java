@@ -13,8 +13,8 @@ public class InputStreamPart extends StreamPart {
 
 	private final InputStream inputStream;
 
-	public InputStreamPart(String streamName, InputStream value) {
-		super(streamName, -1, new ArrayList<NameValuePair>() {
+	public InputStreamPart(String streamName, InputStream value, long length) {
+		super(streamName, (int) length, new ArrayList<NameValuePair>() {
 			{
 				add(new BasicNameValuePair("filename", "rawstream"));
 			}

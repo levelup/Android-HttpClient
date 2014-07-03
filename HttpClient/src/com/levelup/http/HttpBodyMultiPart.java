@@ -9,12 +9,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-
-import org.apache.http.protocol.HTTP;
+import java.util.List;
 
 import android.text.TextUtils;
 
+import com.koushikdutta.async.http.body.FilePart;
+import com.koushikdutta.async.http.body.Part;
 import com.koushikdutta.ion.builder.Builders;
+import com.levelup.http.internal.InputStreamPart;
 
 /**
  * HTTP POST parameters encoded as {@code multipart/form-data}
@@ -25,7 +27,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 	private static final String charset = "UTF-8";
 	private static final String CRLF = "\r\n";
-	private static final String boundary = "plUmeMultip4rt";
+	static final String boundary = "plUmeMultip4rt";
 	private static final String boundarySplit = "--";
 
 	/**
@@ -84,7 +86,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 	@Override
 	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+		//request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
 	}
 
 	@Override
@@ -96,12 +98,25 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	public void setOuputData(Builders.Any.B requestBuilder) {
 		for (HttpParam param : mParams) {
 			if (param.value instanceof File) {
+				FilePart part = new FilePart(param.name, (File) param.value);
 				if (!TextUtils.isEmpty(param.contentType))
+					part.setContentType(param.contentType);
+				part.getRawHeaders().add("Content-Transfer-Encoding", "binary");
+				List<Part> partList = new ArrayList<Part>(1);
+				partList.add(part);
+				requestBuilder.addMultipartParts(partList);
+				/*if (!TextUtils.isEmpty(param.contentType))
 					requestBuilder.setMultipartFile(param.name, param.contentType, (File) param.value);
 				else
-					requestBuilder.setMultipartFile(param.name, (File) param.value);
+					requestBuilder.setMultipartFile(param.name, (File) param.value);*/
 			} else if (param.value instanceof InputStream) {
-				// TODO
+				InputStreamPart part = new InputStreamPart(param.name, (InputStream) param.value, param.length);
+				if (!TextUtils.isEmpty(param.contentType))
+					part.setContentType(param.contentType);
+				part.getRawHeaders().add("Content-Transfer-Encoding", "binary");
+				List<Part> partList = new ArrayList<Part>(1);
+				partList.add(part);
+				requestBuilder.addMultipartParts(partList);
 			}
 		}
 		for (HttpParam param : mParams) {

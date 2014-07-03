@@ -14,7 +14,7 @@ public class HttpClientTest extends AndroidTestCase {
 		final String fileFieldName = "media";
 		final String uploadData = "Uploaded Stream Data";
 		HttpBodyMultiPart body = new HttpBodyMultiPart(1);
-		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), "text/plain");
+		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), uploadData.length(), "text/plain");
 
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post").

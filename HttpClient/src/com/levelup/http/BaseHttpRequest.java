@@ -25,6 +25,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.koushikdutta.async.http.AsyncHttpRequest;
+import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
+import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
@@ -238,6 +240,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
+		final Ion ion;
 		if (builder.streamParser instanceof InputStreamGsonParser) {
 			InputStreamGsonParser gsonParser = (InputStreamGsonParser) builder.streamParser;
 			ion = Ion.getInstance(builder.context, gsonParser.getClass().getName());
@@ -306,6 +309,16 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 							mLogger.e(message, e);
 						else
 							super.loge(message, e);
+					}
+					
+					@Override
+					public void setBody(AsyncHttpRequestBody body) {
+						if (body instanceof MultipartFormDataBody) {
+							MultipartFormDataBody multipartFormDataBody = (MultipartFormDataBody) body;
+							multipartFormDataBody.setBoundary(HttpBodyMultiPart.boundary);
+						}
+						
+						super.setBody(body);
 					}
 				};
 				return request;
@@ -414,7 +427,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	private static final String[] EMPTY_STRINGS = {};
-	private Ion ion;
 
 	public Header[] getAllHeaders() {
 		List<Header> headers = null==HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
