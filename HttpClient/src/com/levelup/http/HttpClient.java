@@ -5,14 +5,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import okio.AsyncTimeout;
-import okio.Buffer;
-import okio.Okio;
-import okio.Source;
-import okio.Timeout;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -20,11 +14,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
-import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.DataSink;
 import com.koushikdutta.async.callback.CompletedCallback;
-import com.koushikdutta.async.callback.DataCallback;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.SimpleFuture;
 import com.koushikdutta.async.http.libcore.RawHeaders;
@@ -32,7 +24,7 @@ import com.koushikdutta.async.parser.AsyncParser;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
-//import java.net.HttpURLConnection;
+import com.levelup.http.internal.OkDataCallback;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -219,52 +211,6 @@ public class HttpClient {
 		}
 		return connection;
 	}*/
-
-	private static class OkDataCallback implements DataCallback, Source {
-
-		private final Buffer buffer = new okio.Buffer();
-		private InputStream is;
-
-		@Override
-		public void onDataAvailable(DataEmitter emitter, ByteBufferList bb) {
-			synchronized (buffer) {
-				buffer.write(bb.getAllByteArray());
-				buffer.notifyAll();
-			}
-		}
-
-		@Override
-		public long read(Buffer sink, long byteCount) throws IOException {
-			synchronized (buffer) {
-				if (buffer.size()==0)
-					try {
-						buffer.wait(90 * 1000); // TODO it should be configurable for the request
-					} catch (InterruptedException e) {
-					}
-			}
-			return buffer.read(sink, byteCount);
-		}
-
-		@Override
-		public Timeout timeout() {
-			return Timeout.NONE;
-		}
-
-		@Override
-		public void close() throws IOException {
-			buffer.close();
-		}
-
-		public InputStream getInputStream() {
-			if (null==is) {
-				AsyncTimeout timeout = new AsyncTimeout();
-				timeout.timeout(90, TimeUnit.SECONDS); // TODO it should be configurable for the request
-				Source tb = timeout.source(this);
-				is = Okio.buffer(tb).inputStream();
-			}
-			return is;
-		}
-	}
 
 	/**
 	 * Perform the query on the network and get the resulting body as an InputStream
