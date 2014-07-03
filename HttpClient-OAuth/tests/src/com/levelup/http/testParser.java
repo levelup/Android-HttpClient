@@ -4,16 +4,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import junit.framework.TestCase;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
+import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
-public class testParser extends TestCase {
+public class testParser extends AndroidTestCase {
 
-	public testParser() {
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
 	}
-
+	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void testCustomParser() {
 		HttpRequestGet apiGet = new HttpRequestGet("http://social.appxoid.com/json/get_apps_by_pages2");

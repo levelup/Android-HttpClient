@@ -6,7 +6,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import junit.framework.TestCase;
+import android.content.Context;
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.HttpClient;
@@ -15,7 +16,7 @@ import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.InputStreamStringParser;
 
-public class AsyncClientTest extends TestCase {
+public class AsyncClientTest extends AndroidTestCase {
 
 	private static final String BASIC_URL = "http://www.levelupstudio.com/";
 	private static final String BASIC_URL_TAG = "test1";
@@ -27,6 +28,12 @@ public class AsyncClientTest extends TestCase {
 	// TODO test with streaming connection with SPDY
 	// TODO test with long POST
 
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
+	}
+	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();

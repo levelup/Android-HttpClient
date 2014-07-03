@@ -2,6 +2,8 @@ package com.levelup.http.signed.oauth1;
 
 import junit.framework.TestCase;
 import oauth.signpost.exception.OAuthException;
+import android.content.Context;
+import android.test.AndroidTestCase;
 
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
@@ -10,7 +12,7 @@ import com.levelup.http.UriParams;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
 
-public abstract class AbstractTwitterTest extends TestCase {
+public abstract class AbstractTwitterTest extends AndroidTestCase {
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
 		@Override
 		public String getConsumerSecret() {
@@ -40,6 +42,12 @@ public abstract class AbstractTwitterTest extends TestCase {
 
 	protected static final HttpClientOAuth1Provider twitterAppProvider = new HttpClientOAuth1Provider(twitterApp, TWITTER_REQUEST_TOKEN, TWITTER_ACCESS_TOKEN, TWITTER_AUTHORIZE);
 
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
+	}
+	
 	public void testRequestToken() {
 		try {
 			assertNotNull(twitterAppProvider.retrieveRequestToken("androidhttp://request_token/"));
