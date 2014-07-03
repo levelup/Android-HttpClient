@@ -92,7 +92,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		public Builder(Context context) {
 			setContext(context);
 			setHttpMethod(DEFAULT_HTTP_METHOD);
-			setContext(context);
 		}
 
 		/**
