@@ -1,6 +1,5 @@
 package com.levelup.http.signed.oauth1;
 
-import junit.framework.TestCase;
 import oauth.signpost.exception.OAuthException;
 import android.content.Context;
 import android.test.AndroidTestCase;

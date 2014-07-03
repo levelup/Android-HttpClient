@@ -22,7 +22,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
@@ -326,7 +325,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.context);
 		requestBuilder = ionLoadBuilder.load(builder.httpMethod, builder.uri.toString());
-
+		
 		this.uri = builder.uri;
 		this.method = builder.httpMethod;
 		this.streamParser = builder.streamParser;
