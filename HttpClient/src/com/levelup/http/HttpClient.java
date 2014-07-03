@@ -46,8 +46,6 @@ public class HttpClient {
 	private static Header[] defaultHeaders;
 	static Context defaultContext;
 
-	public static Context defaultContext;
-
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
 	 * <p>The user agent is deduced from the app name of the {@code context} if it's not {@code null}</p>
@@ -55,7 +53,6 @@ public class HttpClient {
 	 */
 	public static void setup(Context context) {
 		userAgent = "LevelUp-HttpClient/00000";
-		defaultContext = context;
 		if (null!=context) {
 			defaultContext = context;
 			PackageManager pM = context.getPackageManager();
