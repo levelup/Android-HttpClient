@@ -1,6 +1,5 @@
 package com.levelup.http;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
@@ -22,18 +23,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.koushikdutta.async.http.AsyncHttpRequest;
-import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
-import com.koushikdutta.async.http.body.MultipartFormDataBody;
-import com.koushikdutta.async.http.libcore.RawHeaders;
-import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.Response;
-import com.koushikdutta.ion.builder.Builders;
-import com.koushikdutta.ion.builder.LoadBuilder;
-import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
-import com.levelup.http.gson.InputStreamGsonParser;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -46,10 +36,9 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final Uri uri;
 	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
-	final Builders.Any.B requestBuilder;
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
-	private Response<?> httpResponse;
+	private HttpURLConnection httpResponse;
 	private final String method;
 	private final InputStreamParser<T> streamParser;
 	private final HttpBodyParameters bodyParams;
@@ -92,7 +81,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		public Builder(Context context) {
 			setContext(context);
 			setHttpMethod(DEFAULT_HTTP_METHOD);
-			setContext(context);
 		}
 
 		/**
@@ -240,94 +228,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
-		final Ion ion;
-		if (builder.streamParser instanceof InputStreamGsonParser) {
-			InputStreamGsonParser gsonParser = (InputStreamGsonParser) builder.streamParser;
-			ion = Ion.getInstance(builder.context, gsonParser.getClass().getName());
-			ion.configure().setGson(gsonParser.gson);
-		} else if (builder.streamParser==streamingRequest) {
-			ion = Ion.getInstance(builder.context, streamingRequest.getClass().getName());
-		} else {
-			ion = Ion.getDefault(builder.context);
-		}
-
-		ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
-			@Override
-			public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, RawHeaders headers) {
-				AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers) {
-					@Override
-					public void logd(String message) {
-						if (mLogger!=null)
-							mLogger.d(message);
-						else
-							super.logd(message);
-					}
-
-					@Override
-					public void logd(String message, Exception e) {
-						if (mLogger!=null)
-							mLogger.d(message, e);
-						else
-							super.logd(message, e);
-					}
-
-					@Override
-					public void logi(String message) {
-						if (mLogger!=null)
-							mLogger.i(message);
-						else
-							super.logi(message);
-					}
-
-					@Override
-					public void logv(String message) {
-						if (mLogger!=null)
-							mLogger.v(message);
-						else
-							super.logv(message);
-					}
-
-					@Override
-					public void logw(String message) {
-						if (mLogger!=null)
-							mLogger.w(message);
-						else
-							super.logw(message);
-					}
-
-					@Override
-					public void loge(String message) {
-						if (mLogger!=null)
-							mLogger.e(message);
-						else
-							super.loge(message);
-					}
-
-					@Override
-					public void loge(String message, Exception e) {
-						if (mLogger!=null)
-							mLogger.e(message, e);
-						else
-							super.loge(message, e);
-					}
-					
-					@Override
-					public void setBody(AsyncHttpRequestBody body) {
-						if (body instanceof MultipartFormDataBody) {
-							MultipartFormDataBody multipartFormDataBody = (MultipartFormDataBody) body;
-							multipartFormDataBody.setBoundary("plUmeMultip4rt");
-						}
-						
-						super.setBody(body);
-					}
-				};
-				return request;
-			}
-		});
-
-		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.context);
-		requestBuilder = ionLoadBuilder.load(builder.httpMethod, builder.uri.toString());
-
 		this.uri = builder.uri;
 		this.method = builder.httpMethod;
 		this.streamParser = builder.streamParser;
@@ -379,13 +279,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		}
 		if (null!=signer)
 			signer.sign(this);
-
-		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
-			requestBuilder.setHeader(entry.getKey(), entry.getValue());
-		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
-			for (String value : entry.getValue())
-				requestBuilder.addHeader(entry.getKey(), value);
-		}
 	}
 
 	@Override
@@ -395,6 +288,13 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			connection.setDoOutput(true);
 
 			bodyParams.setConnectionProperties(connection);
+		}
+
+		for (Entry<String, String> entry : mRequestSetHeaders.entrySet())
+			connection.setRequestProperty(entry.getKey(), entry.getValue());
+		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
+			for (String value : entry.getValue())
+				connection.addRequestProperty(entry.getKey(), value);
 		}
 	}
 
@@ -469,12 +369,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		}
 	}
 
-	public final void outputBody() {
-		if (null != bodyParams) {
-			bodyParams.setOuputData(this.requestBuilder);
-		}
-	}
-
 	public void setProgressListener(UploadProgressListener listener) {
 		this.mProgressListener = listener;
 	}
@@ -504,7 +398,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public void setResponse(Response<?> resp) {
+	public void setResponse(HttpURLConnection resp) {
 		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster!=null) {
@@ -516,7 +410,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public Response<?> getResponse() {
+	public HttpURLConnection getResponse() {
 		return httpResponse;
 	}
 
@@ -561,13 +455,13 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		InputStream errorStream = null;
 		HttpException.Builder builder = null;
 		try {
-			final Response<?> response = getResponse();
+			final HttpURLConnection response = getResponse();
 			builder = newException();
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			builder.setHTTPResponse(response);
 			builder.setCause(cause);
 
-			MediaType type = MediaType.parse(response.getHeaders().get(HTTP.CONTENT_TYPE));
+			MediaType type = MediaType.parse(response.getContentType());
 			if (Util.MediaTypeJSON.equalsType(type)) {
 				errorStream = getParseableErrorStream(response);
 				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
@@ -593,15 +487,20 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return builder;
 	}
 
-	private static InputStream getParseableErrorStream(Response<?> response) throws IOException {
-		Object result = response.getResult();
-		if (result instanceof InputStream) {
-			return (InputStream) result;
-		}
-		if (result==null)
-			throw new IOException("error stream not supported");
+	private static InputStream getParseableErrorStream(HttpURLConnection response) throws IOException {
+		InputStream errorStream = response.getErrorStream();
+		if (null==errorStream)
+			errorStream = response.getInputStream();
 
-		return new ByteArrayInputStream(result.toString().getBytes());
+		if (null==errorStream)
+			return null;
+
+		if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
+			errorStream = new InflaterInputStream(errorStream);
+		if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
+			errorStream = new GZIPInputStream(errorStream);
+
+		return errorStream;
 	}
 
 	/**
