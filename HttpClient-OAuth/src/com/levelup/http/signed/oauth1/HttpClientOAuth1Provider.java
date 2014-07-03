@@ -1,11 +1,11 @@
 package com.levelup.http.signed.oauth1;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 
 import oauth.signpost.OAuth;
 import oauth.signpost.basic.DefaultOAuthProvider;
-import oauth.signpost.basic.HttpURLConnectionResponseAdapter;
 import oauth.signpost.exception.OAuthException;
 import oauth.signpost.http.HttpParameters;
 import oauth.signpost.http.HttpRequest;
@@ -15,6 +15,7 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.signed.OAuthClientApp;
+import com.levelup.http.signed.oauth1.internal.ResponseAdapter;
 
 /**
  * Helper class to retrieve the <a
@@ -70,23 +71,24 @@ public class HttpClientOAuth1Provider {
 			@Override
 			protected HttpResponse sendRequest(HttpRequest request) throws IOException {
 				BaseHttpRequest<?> req = (BaseHttpRequest<?>) request.unwrap();
-				HttpURLConnection response = null;
-				/* TODO
 				try {
-					response = null; HttpClient.getQueryResponse(req);
+					InputStream inputStream = HttpClient.getInputStream(req);
+					return new ResponseAdapter(req, inputStream);
 				} catch (HttpException e) {
 					IOException ex = new IOException("failed to query data "+e.getMessage());
 					ex.initCause(e);
 					throw ex;
-				}*/
-				return new HttpURLConnectionResponseAdapter(response);
+				}
 			}
 
 			@Override
 			protected void closeConnection(HttpRequest request, HttpResponse response) {
-				HttpURLConnection connection = (HttpURLConnection) response.unwrap();
-				if (connection != null) {
-					connection.disconnect();
+				InputStream inputStream = (InputStream) response.unwrap();
+				if (inputStream != null) {
+					try {
+						inputStream.close();
+					} catch (IOException ignored) {
+					}
 				}
 			}
 		}; 

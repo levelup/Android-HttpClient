@@ -1,6 +1,5 @@
 package com.levelup.http.signed.oauth1;
 
-import java.net.HttpURLConnection;
 import java.util.Date;
 
 import org.apache.http.impl.cookie.DateParseException;
