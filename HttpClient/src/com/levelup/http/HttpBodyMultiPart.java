@@ -49,10 +49,29 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 * Add an {@link InputStream} parameter for the HTTP query
 	 * @param name Name of the parameter
 	 * @param stream {@link InputStream} to send in the query
+	 * @param streamLength the length of the InputStream, must be known in advance
+	 * @param contentType Content-Type of the stream or {@code null} if unknown. You may use {@link java.net.URLConnection#guessContentTypeFromStream(InputStream) guessContentTypeFromStream(InputStream)} to determine it.
+	 */
+	public void addStream(String name, InputStream stream, long streamLength, String contentType) {
+		mParams.add(new HttpParam(name, stream, streamLength, contentType));
+	}
+
+	/**
+	 * Add an {@link InputStream} parameter for the HTTP query, the stream must be seekable to the end
+	 * @param name Name of the parameter
+	 * @param stream {@link InputStream} to send in the query
 	 * @param contentType Content-Type of the stream or {@code null} if unknown. You may use {@link java.net.URLConnection#guessContentTypeFromStream(InputStream) guessContentTypeFromStream(InputStream)} to determine it.
 	 */
 	public void addStream(String name, InputStream stream, String contentType) {
-		mParams.add(new HttpParam(name, stream, contentType));
+		if (!stream.markSupported()) throw new IllegalArgumentException("the stream '"+name+"' must be seekable");
+		stream.mark(Integer.MAX_VALUE);
+		try {
+			long streamLength = stream.skip(Integer.MAX_VALUE);
+			stream.reset();
+			addStream(name, stream, streamLength, contentType);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("cannot seek to the end of the stream '"+name+"'", e);
+		}
 	}
 
 	/**
@@ -251,6 +270,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 		private final String name;
 		private final Object value;
+		private final long length;
 		private final String contentType;
 
 		HttpParam(String name, String value) {
@@ -262,6 +282,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 			if (null == value) throw new NullPointerException();
 			this.name = name;
 			this.value = value;
+			this.length = value.getBytes().length;
 			this.contentType = contentType;
 		}
 
@@ -270,14 +291,16 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 			if (null == value) throw new NullPointerException();
 			this.name = name;
 			this.value = value;
+			this.length = value.length();
 			this.contentType = contentType;
 		}
 
-		HttpParam(String name, InputStream value, String contentType) {
+		HttpParam(String name, InputStream value, long length, String contentType) {
 			if (null == name) throw new NullPointerException();
 			if (null == value) throw new NullPointerException();
 			this.name = name;
 			this.value = value;
+			this.length = length;
 			this.contentType = contentType;
 		}
 	}
