@@ -68,7 +68,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 	@Override
 	public void setConnectionProperties(HttpURLConnection connection) {
-		connection.setChunkedStreamingMode(0); // use the default chunked size
+		//connection.setChunkedStreamingMode(0); // use the default chunked size
 	}
 
 	@Override
