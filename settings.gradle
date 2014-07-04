@@ -1,16 +1,13 @@
 // You need to put this in your <root>/settings.gradle and adapt the folder location
 
 include 'HttpClient'
-project(':HttpClient').projectDir = new File('Android-HttpClient/HttpClient')
+project(':HttpClient').projectDir = new File('HttpClient')
 
 include 'HttpClient-Gson'
-project(':HttpClient-Gson').projectDir = new File('Android-HttpClient/HttpClient-Gson')
+project(':HttpClient-Gson').projectDir = new File('HttpClient-Gson')
 
 include 'HttpClient-OAuth'
-project(':HttpClient-OAuth').projectDir = new File('Android-HttpClient/HttpClient-OAuth')
+project(':HttpClient-OAuth').projectDir = new File('HttpClient-OAuth')
 
 include 'HttpClient-OkHttp'
-project(':HttpClient-OkHttp').projectDir = new File('Android-HttpClient/HttpClient-OkHttp')
-
-include 'HttpClient-Volley'
-project(':HttpClient-Volley').projectDir = new File('Android-HttpClient/HttpClient-Volley')
+project(':HttpClient-OkHttp').projectDir = new File('HttpClient-OkHttp')
