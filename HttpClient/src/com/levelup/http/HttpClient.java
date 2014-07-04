@@ -224,57 +224,12 @@ public class HttpClient {
 			BaseHttpRequest httpRequest = (BaseHttpRequest) request;
 			prepareRequest(httpRequest);
 			try {
-				if (request.isStreaming()) {
-					// we need to wait for the InputStream, with a timeout
-					//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
-					ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new AsyncParser<InputStream>() {
-						@Override
-						public Future<InputStream> parse(final DataEmitter emitter) {
-							final OkDataCallback stream = new OkDataCallback();
-							final SimpleFuture<InputStream> ret = new SimpleFuture<InputStream>() {
-								@Override
-								protected void cancelCleanup() {
-									emitter.close();
-								}
-							};
-
-							emitter.setDataCallback(stream);
-
-							emitter.setEndCallback(new CompletedCallback() {
-								@Override
-								public void onCompleted(Exception ex) {
-									if (ex != null) {
-										ret.setComplete(ex);
-										return;
-									}
-
-									try {
-										ret.setComplete(stream.getInputStream());
-									}
-									catch (Exception e) {
-										ret.setComplete(e);
-									}
-								}
-							});
-
-							ret.setComplete(stream.getInputStream());
-							return ret;
-						}
-
-						@Override
-						public void write(DataSink sink, InputStream value, CompletedCallback completed) {
-							throw new IllegalStateException("not supported");
-						}
-					});
-					return req.get();
-				} else {
-					ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
-					Future<Response<InputStream>> withResponse = req.withResponse();
-					Response<InputStream> response = withResponse.get();
-					request.setResponse(response);
-					throwResponseException(request, response);
-					return response.getResult();
-				}
+				ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
+				Future<Response<InputStream>> withResponse = req.withResponse();
+				Response<InputStream> response = withResponse.get();
+				request.setResponse(response);
+				throwResponseException(request, response);
+				return response.getResult();
 			} catch (InterruptedException e) {
 				forwardResponseException(request, e);
 
@@ -453,9 +408,61 @@ public class HttpClient {
 	 * @return The parsed object or null
 	 * @throws HttpException
 	 */
-	public static <T> T parseRequest(HttpRequest request, InputStreamParser<T> parser) throws HttpException {
+	public static <T> T parseRequest(final HttpRequest request, InputStreamParser<T> parser) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest<T> httpRequest = (BaseHttpRequest<T>) request;
+
+			if (request.isStreaming()) {
+				// we need to wait for the InputStream, with a timeout
+				//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
+				ResponseFuture<HttpStream> req = httpRequest.requestBuilder.as(new AsyncParser<HttpStream>() {
+					@Override
+					public Future<HttpStream> parse(final DataEmitter emitter) {
+						final OkDataCallback stream = new OkDataCallback();
+						final SimpleFuture<HttpStream> ret = new SimpleFuture<HttpStream>() {
+							@Override
+							protected void cancelCleanup() {
+								emitter.close();
+							}
+						};
+
+						emitter.setDataCallback(stream);
+
+						emitter.setEndCallback(new CompletedCallback() {
+							@Override
+							public void onCompleted(Exception ex) {
+								if (ex != null) {
+									ret.setComplete(ex);
+									return;
+								}
+
+								try {
+									ret.setComplete(new HttpStream(stream, request));
+								} catch (Exception e) {
+									ret.setComplete(e);
+								}
+							}
+						});
+
+						ret.setComplete(new HttpStream(stream, request));
+						return ret;
+					}
+
+					@Override
+					public void write(DataSink sink, HttpStream value, CompletedCallback completed) {
+						throw new IllegalStateException("not supported");
+					}
+				});
+				try {
+					return (T) req.get();
+				} catch (InterruptedException e) {
+					forwardResponseException(request, e);
+
+				} catch (ExecutionException e) {
+					forwardResponseException(request, e);
+
+				}
+			}
 
 			if (parser == null)
 				parser = httpRequest.getInputStreamParser();

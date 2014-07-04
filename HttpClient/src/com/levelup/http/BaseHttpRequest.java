@@ -59,7 +59,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private static final InputStreamParser<HttpStream> streamingRequest = new InputStreamParser<HttpStream>() {
 		@Override
 		public HttpStream parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
-			return new HttpStream(inputStream, request);
+			throw new IllegalAccessError("this parser should not be used");
 		}
 	};
 

@@ -3,18 +3,20 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.levelup.http.internal.OkDataCallback;
+
 public class HttpStream {
 
-	private final InputStream inputStream;
+	private final OkDataCallback inputStream;
 	private final HttpRequest request;
 
-	public HttpStream(InputStream inputStream, HttpRequest request) {
-		this.inputStream = inputStream;
+	public HttpStream(OkDataCallback callback, HttpRequest request) {
+		this.inputStream = callback;
 		this.request = request;
 	}
 
 	public InputStream getInputStream() {
-		return inputStream;
+		return inputStream.getInputStream();
 	}
 
 	public void disconnect() {
@@ -22,7 +24,7 @@ public class HttpStream {
 			inputStream.close();
 		} catch (IOException ignored) {
 		} finally {
-			//request.getResponse().disconnect();
+			//TODO request.getResponse().disconnect();
 		}
 	}
 
