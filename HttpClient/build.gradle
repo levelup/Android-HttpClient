@@ -2,7 +2,7 @@ apply plugin: 'android-library'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.1'
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         minSdkVersion 7
@@ -32,7 +32,21 @@ android {
 }
 
 dependencies {
-    compile project(':support-v4')
+    def useLocalV4 = false
+    allprojects {
+        parent.allprojects.project.each {
+            if (it.path == ':support-v4') {
+                println 'Using local support-v4 library in ' + project.path
+                useLocalV4 = true
+            }
+        }
+    }
+
+    if (useLocalV4) {
+        compile project(':support-v4')
+    } else {
+        compile 'com.android.support:support-v4:20.+'
+    }
     compile 'com.google.code.gson:gson:2.2.+'
     compile 'com.squareup.okio:okio:1.0.+'
     //compile 'com.koushikdutta.async:androidasync:1.2.+'
