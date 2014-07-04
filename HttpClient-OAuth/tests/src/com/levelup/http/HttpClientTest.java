@@ -3,10 +3,12 @@ package com.levelup.http;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+
+import okio.BufferedSource;
+import okio.Okio;
 
 import org.json.JSONObject;
-
-import com.google.gson.JsonObject;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -138,30 +140,47 @@ public class HttpClientTest extends AndroidTestCase {
 		assertEquals(uploadData2, json.optString(fieldName2));
 	}
 	
-	public void testUploadGson() throws Exception {
-		final String fieldName1 = "name";
-		final String uploadData1 = "Steve Lhomme";
-		final String fieldName2 = "screenName";
-		final String uploadData2 = "robUx4";
-
-		JsonObject object = new JsonObject();
-		object.addProperty(fieldName1, uploadData1);
-		object.addProperty(fieldName2, uploadData2);
-		
-		HttpBodyJSON body = new HttpBodyJSON(object);
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
-				setUrl("http://httpbin.org/post?test=jsonBody").
-				setBody(body).
-				setStreamParser(InputStreamJSONObjectParser.instance).
+	@MediumTest
+	public void testStreaming() throws Exception {
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=3&delay=1").
+				setStreaming().
 				build();
+		
+		HttpStream stream = HttpClient.parseRequest(request);
+		try {
+			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
+			String line = lineReader.readUtf8();
+			assertNotNull(line);
+			assertNotNull(line.startsWith("*****"));
+			
+			line = lineReader.readUtf8();
+			assertNotNull(line);
+			assertNotNull(line.startsWith("*****"));
+			
+			line = lineReader.readUtf8();
+			assertNotNull(line);
+			assertNotNull(line.startsWith("*****"));
+		} finally {
+			stream.disconnect();
+		}
+	}
 
-		JSONObject result = HttpClient.parseRequest(request);
-		assertNotNull(result);
-		assertFalse(result.isNull("json"));
-		JSONObject json = result.optJSONObject("json");
-		assertFalse(json.isNull(fieldName1));
-		assertEquals(uploadData1, json.optString(fieldName1));
-		assertFalse(json.isNull(fieldName2));
-		assertEquals(uploadData2, json.optString(fieldName2));
+	@MediumTest
+	public void testStreamingDisconnect() throws Exception {
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=4").
+				setStreaming().
+				build();
+		
+		HttpStream stream = HttpClient.parseRequest(request);
+		try {
+			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
+			String line = lineReader.readUtf8();
+			assertNotNull(line);
+			assertNotNull(line.startsWith("*****"));
+		} finally {
+			stream.disconnect();
+		}
 	}
 }

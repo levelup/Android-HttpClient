@@ -56,10 +56,10 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private UploadProgressListener mProgressListener;
 
 	/**	Object to tell we are not outputting an object but using streaming data */
-	private static final InputStreamParser<?> streamingRequest = new InputStreamParser<Object>() {
+	private static final InputStreamParser<HttpStream> streamingRequest = new InputStreamParser<HttpStream>() {
 		@Override
-		public Object parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
-			throw new AssertionError("not supported");
+		public HttpStream parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
+			return new HttpStream(inputStream, request);
 		}
 	};
 
@@ -186,11 +186,11 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		 * @return Current Builder
 		 */
 		@SuppressWarnings("unchecked")
-		public Builder<T> setStreaming() {
+		public Builder<HttpStream> setStreaming() {
 			if (streamParser!=null && streamParser!=streamingRequest)
 				throw new IllegalArgumentException("Trying to set a streaming request that has a streaming parser");
 			this.streamParser = (InputStreamParser<T>) streamingRequest;
-			return this;
+			return (Builder<HttpStream>) this;
 		}
 
 		/**
