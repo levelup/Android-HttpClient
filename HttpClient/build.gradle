@@ -34,7 +34,7 @@ android {
 dependencies {
     def useLocalV4 = false
     allprojects {
-        parent.allprojects.project.each {
+        rootProject.allprojects.project.each {
             if (it.path == ':support-v4') {
                 println 'Using local support-v4 library in ' + project.path
                 useLocalV4 = true
