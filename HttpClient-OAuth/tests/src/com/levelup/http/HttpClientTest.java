@@ -3,22 +3,21 @@ package com.levelup.http;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-
-import okio.BufferedSource;
-import okio.Okio;
 
 import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import okio.BufferedSource;
+import okio.Okio;
+
 public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
-	public void testUploadStream() throws Exception {
+	public void testUploadInputStream() throws Exception {
 		final String fileFieldName = "media";
-		final String uploadData = "Uploaded Stream Data";
+		final String uploadData = "Uploaded Streamé Data";
 		HttpBodyMultiPart body = new HttpBodyMultiPart(1);
 		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), uploadData.length(), "text/plain");
 
@@ -163,6 +162,49 @@ public class HttpClientTest extends AndroidTestCase {
 			assertNotNull(line.startsWith("*****"));
 		} finally {
 			stream.disconnect();
+		}
+	}
+
+	@MediumTest
+	public void testStreamingTimeout() throws Exception {
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=8").
+				setStreaming().
+				build();
+		request.setHttpConfig(new HttpConfig() {
+			@Override
+			public int getReadTimeout(HttpRequest request) {
+				return 5000; // 5s
+			}
+		});
+
+		try {
+			HttpStream stream = HttpClient.parseRequest(request);
+			try {
+				BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
+				String line = lineReader.readUtf8();
+				assertNotNull(line);
+				assertNotNull(line.startsWith("*****"));
+
+				line = lineReader.readUtf8();
+				assertNotNull(line);
+				assertNotNull(line.startsWith("*****"));
+
+				line = lineReader.readUtf8();
+				assertNotNull(line);
+				assertNotNull(line.startsWith("*****"));
+
+				line = lineReader.readUtf8();
+				assertNotNull(line);
+				assertNotNull(line.startsWith("*****"));
+				fail("we should not read 4 items");
+			} finally {
+				stream.disconnect();
+			}
+			fail("we should have been in timeout");
+		} catch (HttpException e) {
+			if (e.getErrorCode() != HttpException.ERROR_TIMEOUT)
+				throw e;
 		}
 	}
 
