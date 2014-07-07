@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import android.content.Context;
@@ -415,10 +416,18 @@ public class HttpClient {
 			if (request.isStreaming()) {
 				// we need to wait for the InputStream, with a timeout
 				//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
+				final int readTimeout = request.getHttpConfig().getReadTimeout(request);
+				if (readTimeout != -1) {
+					httpRequest.requestBuilder.setTimeout(readTimeout);
+				}
 				ResponseFuture<HttpStream> req = httpRequest.requestBuilder.as(new AsyncParser<HttpStream>() {
 					@Override
 					public Future<HttpStream> parse(final DataEmitter emitter) {
-						final OkDataCallback stream = new OkDataCallback();
+						final OkDataCallback stream;
+						if (readTimeout != -1)
+							stream = new OkDataCallback(readTimeout, TimeUnit.MILLISECONDS);
+						else
+							stream = new OkDataCallback(90, TimeUnit.SECONDS);
 						final SimpleFuture<HttpStream> ret = new SimpleFuture<HttpStream>() {
 							@Override
 							protected void cancelCleanup() {

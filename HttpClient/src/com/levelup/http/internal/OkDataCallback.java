@@ -17,13 +17,18 @@ import com.koushikdutta.async.callback.DataCallback;
 public class OkDataCallback implements DataCallback, Source {
 
 	private final Buffer buffer = new okio.Buffer();
+	private final Timeout timeout = new AsyncTimeout();
 	private InputStream is;
+
+	public OkDataCallback(long timeout, TimeUnit unit) {
+		this.timeout.timeout(timeout, unit);
+	}
 
 	@Override
 	public void onDataAvailable(DataEmitter emitter, ByteBufferList bb) {
 		synchronized (buffer) {
 			byte[] data = bb.getAllByteArray();
-			if (null!=data && data.length > 0) {
+			if (null != data && data.length > 0) {
 				buffer.write(data);
 				buffer.notifyAll();
 			}
@@ -33,9 +38,9 @@ public class OkDataCallback implements DataCallback, Source {
 	@Override
 	public long read(Buffer sink, long byteCount) throws IOException {
 		synchronized (buffer) {
-			if (buffer.size()==0)
+			if (buffer.size() == 0)
 				try {
-					buffer.wait(90 * 1000); // TODO it should be configurable for the request
+					buffer.wait(timeout.timeoutNanos() / 1000000L);
 				} catch (InterruptedException e) {
 				}
 		}
@@ -44,12 +49,12 @@ public class OkDataCallback implements DataCallback, Source {
 
 	@Override
 	public Timeout timeout() {
-		return Timeout.NONE;
+		return timeout;
 	}
 
 	@Override
 	public void close() throws IOException {
-		if (null!=is) {
+		if (null != is) {
 			is.close();
 		}
 		synchronized (buffer) {
@@ -59,11 +64,10 @@ public class OkDataCallback implements DataCallback, Source {
 	}
 
 	public InputStream getInputStream() {
-		if (null==is) {
-			AsyncTimeout timeout = new AsyncTimeout();
-			timeout.timeout(90, TimeUnit.SECONDS); // TODO it should be configurable for the request
-			Source tb = timeout.source(this);
-			is = Okio.buffer(tb).inputStream();
+		if (null == is) {
+			//Source tb = timeout.source(this);
+			//is = Okio.buffer(tb).inputStream();
+			is = buffer.inputStream();
 		}
 		return is;
 	}
