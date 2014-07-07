@@ -1,9 +1,13 @@
 package com.levelup.http;
 
 import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import org.json.JSONObject;
 
@@ -13,6 +17,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.Okio;
+import okio.Source;
 
 public class HttpClientTest extends AndroidTestCase {
 
@@ -144,36 +149,64 @@ public class HttpClientTest extends AndroidTestCase {
 	@MediumTest
 	public void testStreaming() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
-				setUrl("http://httpbin.org/drip?numbytes=5&duration=3&delay=1").
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=5").
+				setStreaming().
+				build();
+
+		HttpStream stream = HttpClient.parseRequest(request);
+		try {
+			InputStream streamIn = stream.getInputStream();
+			byte[] buffer = new byte[1];
+			int read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			assertEquals(-1 ,streamIn.read(buffer));
+		} finally {
+			stream.disconnect();
+		}
+	}
+
+	@MediumTest
+	public void testStreamingLine() throws Exception {
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
+				setUrl("http://httpbin.org/stream/2").
 				setStreaming().
 				build();
 
 		HttpStream stream = HttpClient.parseRequest(request);
 		try {
 			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
-			String line = lineReader.readUtf8();
+			String line = lineReader.readUtf8LineStrict();
 			assertNotNull(line);
-			assertTrue(line.startsWith("*****"));
+			assertTrue(line.contains("\"headers\":"));
 
-			line = lineReader.readUtf8();
+			line = lineReader.readUtf8LineStrict();
 			assertNotNull(line);
-			assertTrue(line.startsWith("*****"));
+			assertTrue(line.contains("\"headers\":"));
 
-			line = lineReader.readUtf8();
-			assertNotNull(line);
-			assertTrue(line.startsWith("*****"));
-			/*Buffer byteReader = new Buffer();
-			byteReader.readFrom(stream.getInputStream(), 5);
-			String drip = byteReader.readUtf8();
-			assertEquals("*****", drip);
-
-			byteReader.readFrom(stream.getInputStream(), 5);
-			drip = byteReader.readUtf8();
-			assertEquals("*****", drip);
-
-			byteReader.readFrom(stream.getInputStream(), 5);
-			drip = byteReader.readUtf8();
-			assertEquals("*****", drip);*/
+			try {
+				line = lineReader.readUtf8LineStrict();
+				fail("we should throw after the 2 lines are received");
+			} catch (EOFException ok) {
+				// all good
+			}
 		} finally {
 			stream.disconnect();
 		}
@@ -198,20 +231,8 @@ public class HttpClientTest extends AndroidTestCase {
 				BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
 				String line = lineReader.readUtf8();
 				assertNotNull(line);
-				assertNotNull(line.startsWith("*****"));
-
-				line = lineReader.readUtf8();
-				assertNotNull(line);
-				assertNotNull(line.startsWith("*****"));
-
-				line = lineReader.readUtf8();
-				assertNotNull(line);
-				assertNotNull(line.startsWith("*****"));
-
-				line = lineReader.readUtf8();
-				assertNotNull(line);
-				assertNotNull(line.startsWith("*****"));
-				fail("we should not read 4 items");
+				assertTrue(line.startsWith("*****"));
+				fail("we should not read 1 item");
 			} finally {
 				stream.disconnect();
 			}
@@ -225,25 +246,27 @@ public class HttpClientTest extends AndroidTestCase {
 	@MediumTest
 	public void testStreamingDisconnect() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
-				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=5").
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
 				setStreaming().
 				build();
 
 		HttpStream stream = HttpClient.parseRequest(request);
 		try {
-			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
-			String line = lineReader.readUtf8();
-			assertNotNull(line);
-			assertNotNull(line.startsWith("*****"));
+			InputStream streamIn = stream.getInputStream();
+			byte[] buffer = new byte[1];
+			int read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
 		} finally {
 			stream.disconnect();
 
-			if (byteReader != null) {
-				try {
-					byteReader.readFrom(stream.getInputStream(), 1);
-					fail("we shouldn't be able to read after disconnection");
-				} catch (IOException e) {
-				}
+			try {
+				stream.getInputStream().read(new byte[1]);
+				fail("we shouldn't be able to read after disconnection");
+			} catch (EOFException ok) {
+				// all good
+			} catch (IOException ok) {
+				assertTrue(ok.getMessage().contains("closed"));
 			}
 		}
 	}
