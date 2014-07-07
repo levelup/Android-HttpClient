@@ -30,7 +30,7 @@ public class OkDataCallback implements DataCallback, Source {
 			byte[] data = bb.getAllByteArray();
 			if (null != data && data.length > 0) {
 				buffer.write(data);
-				buffer.notifyAll();
+				((Object) buffer).notifyAll();
 			}
 		}
 	}
@@ -40,7 +40,7 @@ public class OkDataCallback implements DataCallback, Source {
 		synchronized (buffer) {
 			if (buffer.size() == 0)
 				try {
-					buffer.wait(timeout.timeoutNanos() / 1000000L);
+					((Object) buffer).wait(timeout.timeoutNanos() / 1000000L);
 				} catch (InterruptedException e) {
 				}
 		}
@@ -59,7 +59,7 @@ public class OkDataCallback implements DataCallback, Source {
 		}
 		synchronized (buffer) {
 			buffer.close();
-			buffer.notifyAll();
+			((Object) buffer).notifyAll();
 		}
 	}
 
