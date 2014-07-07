@@ -3,12 +3,14 @@ package com.levelup.http;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import okio.Buffer;
 import okio.BufferedSource;
 import okio.Okio;
 
@@ -19,7 +21,7 @@ public class HttpClientTest extends AndroidTestCase {
 		final String fileFieldName = "media";
 		final String uploadData = "Uploaded Streamé Data";
 		HttpBodyMultiPart body = new HttpBodyMultiPart(1);
-		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), uploadData.length(), "text/plain");
+		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), uploadData.getBytes().length, "text/plain");
 
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=stream").
@@ -111,7 +113,7 @@ public class HttpClientTest extends AndroidTestCase {
 		assertFalse(form.isNull(fieldName));
 		assertEquals(uploadData, form.optString(fieldName));
 	}
-	
+
 	public void testUploadJson() throws Exception {
 		final String fieldName1 = "name";
 		final String uploadData1 = "Steve Lhomme";
@@ -121,7 +123,7 @@ public class HttpClientTest extends AndroidTestCase {
 		JSONObject object = new JSONObject();
 		object.put(fieldName1, uploadData1);
 		object.put(fieldName2, uploadData2);
-		
+
 		HttpBodyJSON body = new HttpBodyJSON(object);
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=jsonBody").
@@ -138,28 +140,40 @@ public class HttpClientTest extends AndroidTestCase {
 		assertFalse(json.isNull(fieldName2));
 		assertEquals(uploadData2, json.optString(fieldName2));
 	}
-	
+
 	@MediumTest
 	public void testStreaming() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
 				setUrl("http://httpbin.org/drip?numbytes=5&duration=3&delay=1").
 				setStreaming().
 				build();
-		
+
 		HttpStream stream = HttpClient.parseRequest(request);
 		try {
 			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
 			String line = lineReader.readUtf8();
 			assertNotNull(line);
-			assertNotNull(line.startsWith("*****"));
-			
+			assertTrue(line.startsWith("*****"));
+
 			line = lineReader.readUtf8();
 			assertNotNull(line);
-			assertNotNull(line.startsWith("*****"));
-			
+			assertTrue(line.startsWith("*****"));
+
 			line = lineReader.readUtf8();
 			assertNotNull(line);
-			assertNotNull(line.startsWith("*****"));
+			assertTrue(line.startsWith("*****"));
+			/*Buffer byteReader = new Buffer();
+			byteReader.readFrom(stream.getInputStream(), 5);
+			String drip = byteReader.readUtf8();
+			assertEquals("*****", drip);
+
+			byteReader.readFrom(stream.getInputStream(), 5);
+			drip = byteReader.readUtf8();
+			assertEquals("*****", drip);
+
+			byteReader.readFrom(stream.getInputStream(), 5);
+			drip = byteReader.readUtf8();
+			assertEquals("*****", drip);*/
 		} finally {
 			stream.disconnect();
 		}
@@ -211,10 +225,10 @@ public class HttpClientTest extends AndroidTestCase {
 	@MediumTest
 	public void testStreamingDisconnect() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
-				setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=4").
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=5").
 				setStreaming().
 				build();
-		
+
 		HttpStream stream = HttpClient.parseRequest(request);
 		try {
 			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
@@ -223,6 +237,14 @@ public class HttpClientTest extends AndroidTestCase {
 			assertNotNull(line.startsWith("*****"));
 		} finally {
 			stream.disconnect();
+
+			if (byteReader != null) {
+				try {
+					byteReader.readFrom(stream.getInputStream(), 1);
+					fail("we shouldn't be able to read after disconnection");
+				} catch (IOException e) {
+				}
+			}
 		}
 	}
 }
