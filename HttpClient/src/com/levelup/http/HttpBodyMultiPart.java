@@ -16,7 +16,7 @@ import android.text.TextUtils;
 
 /**
  * HTTP POST parameters encoded as {@code multipart/form-data}
- * <p>Useful to send {@link File} or {@link InputStream}</p> 
+ * <p>Useful to send {@link File} or {@link InputStream}</p>
  */
 public class HttpBodyMultiPart implements HttpBodyParameters {
 	private final ArrayList<HttpParam> mParams;
@@ -83,6 +83,8 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	@Override
 	public void settleHttpHeaders(BaseHttpRequest<?> request) {
 		request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+		int contentLength = getContentLength();
+		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(contentLength));
 	}
 
 	@Override
@@ -128,7 +130,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 					} finally {
 						if (input != null)
 							try {
-								input.close(); 
+								input.close();
 							} catch (NullPointerException ignored) {
 								// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
 							} catch (IOException ignored) {
@@ -176,8 +178,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 					// Send text string
 					writer.append(boundarySplit).append(boundary).append(CRLF);
-					if (!TextUtils.isEmpty(param.name))
-						writer.append("Content-Disposition: form-data; name=\"").append(param.name).append("\"").append(CRLF);
+					writer.append("Content-Disposition: form-data; name=\"").append(param.name).append("\"").append(CRLF);
 					writer.append("Content-Type: ");
 					if (TextUtils.isEmpty(param.contentType))
 						writer.append("text/plain; charset=" + charset);
@@ -197,6 +198,88 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 				writer.close();
 			}
 		}
+	}
+
+	private int getContentLength() {
+		int contentLength = 0;
+		// everything but strings first in the multipart
+		for (HttpParam param : mParams)
+			if (param.value instanceof File) {
+				// Send binary file.
+				contentLength += boundarySplit.length();
+				contentLength += boundary.length();
+				contentLength += CRLF.length();
+
+				contentLength += ("Content-Disposition: form-data; name=\"" + param.name + "\"; filename=\"" + ((File) param.value).getName() + '\"').length();
+				contentLength += CRLF.length();
+
+				if (!TextUtils.isEmpty(param.contentType)) {
+					contentLength += "Content-Type: ".length();
+					contentLength += param.contentType.length();
+					contentLength += CRLF.length();
+				}
+				contentLength += "Content-Transfer-Encoding: binary".length();
+				contentLength += CRLF.length();
+				contentLength += CRLF.length();
+
+				contentLength += param.length;
+
+				contentLength += CRLF.length(); // CRLF is important! It indicates end of binary boundary.
+			} else if (param.value instanceof InputStream) {
+				contentLength += boundarySplit.length();
+				contentLength += boundary.length();
+				contentLength += CRLF.length();
+
+				contentLength += ("Content-Disposition: form-data; name=\"" + param.name + "\"; filename=\"rawstream\"").length();
+				contentLength += CRLF.length();
+
+				if (!TextUtils.isEmpty(param.contentType)) {
+					contentLength += "Content-Type: ".length();
+					contentLength += param.contentType.length();
+					contentLength += CRLF.length();
+				}
+				contentLength += "Content-Transfer-Encoding: binary".length();
+				contentLength += CRLF.length();
+				contentLength += CRLF.length();
+
+				contentLength += param.length;
+
+				contentLength += CRLF.length(); // CRLF is important! It indicates end of binary boundary.
+			}
+
+		// strings last in the multipart in case it fails before
+		for (HttpParam param : mParams)
+			if (param.value instanceof String) {
+				// Send text string
+				contentLength += boundarySplit.length();
+				contentLength += boundary.length();
+				contentLength += CRLF.length();
+
+				if (!TextUtils.isEmpty(param.name)) {
+					contentLength += ("Content-Disposition: form-data; name=\"" + param.name + "\"").length();
+					contentLength += CRLF.length();
+				}
+				contentLength += "Content-Type: ".length();
+				if (TextUtils.isEmpty(param.contentType)) {
+					contentLength += "text/plain; charset=".length();
+					contentLength += charset.length();
+				} else
+					contentLength += param.contentType.length();
+				contentLength += CRLF.length();
+				contentLength += CRLF.length();
+
+				contentLength += param.length;
+
+				contentLength += CRLF.length();
+			}
+
+		// End of multipart/form-data.
+		contentLength += boundarySplit.length();
+		contentLength += boundary.length();
+		contentLength += boundarySplit.length();
+		contentLength += CRLF.length();
+
+		return contentLength;
 	}
 
 	@Override
@@ -262,6 +345,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 		HttpParam(String name, InputStream value, long length, String contentType) {
 			if (null == name) throw new NullPointerException();
 			if (null == value) throw new NullPointerException();
+			if (length < 0) throw new IllegalArgumentException("unknown InputStream size to upload");
 			this.name = name;
 			this.value = value;
 			this.length = length;
