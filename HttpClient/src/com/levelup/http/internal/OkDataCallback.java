@@ -1,8 +1,10 @@
 package com.levelup.http.internal;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import okio.AsyncTimeout;
 import okio.Buffer;
@@ -14,7 +16,7 @@ import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.callback.DataCallback;
 
-public class OkDataCallback implements DataCallback, Source {
+public class OkDataCallback implements DataCallback {
 
 	private final Buffer buffer = new okio.Buffer();
 	private final Timeout timeout = new AsyncTimeout();
@@ -35,24 +37,6 @@ public class OkDataCallback implements DataCallback, Source {
 		}
 	}
 
-	@Override
-	public long read(Buffer sink, long byteCount) throws IOException {
-		synchronized (buffer) {
-			if (buffer.size() == 0)
-				try {
-					((Object) buffer).wait(timeout.timeoutNanos() / 1000000L);
-				} catch (InterruptedException e) {
-				}
-		}
-		return buffer.read(sink, byteCount);
-	}
-
-	@Override
-	public Timeout timeout() {
-		return timeout;
-	}
-
-	@Override
 	public void close() throws IOException {
 		if (null != is) {
 			is.close();
@@ -65,9 +49,52 @@ public class OkDataCallback implements DataCallback, Source {
 
 	public InputStream getInputStream() {
 		if (null == is) {
-			//Source tb = timeout.source(this);
-			//is = Okio.buffer(tb).inputStream();
-			is = buffer.inputStream();
+			final InputStream bufferInputStream = buffer.inputStream();
+			is = new InputStream() {
+				private final AtomicBoolean closed = new AtomicBoolean();
+				@Override
+				public int read(byte[] buf, int byteOffset, int byteCount) throws IOException {
+					if (closed.get()) throw new EOFException();
+					synchronized (buffer) {
+						if (buffer.size() == 0)
+							try {
+								((Object) buffer).wait(timeout.timeoutNanos() / 1000000L);
+							} catch (InterruptedException e) {
+							}
+					}
+					if (closed.get()) throw new EOFException();
+					return bufferInputStream.read(buf, byteOffset, byteCount);
+				}
+
+				@Override
+				public int read() throws IOException {
+					if (closed.get()) throw new EOFException();
+					synchronized (buffer) {
+						if (buffer.size() == 0)
+							try {
+								((Object) buffer).wait(timeout.timeoutNanos() / 1000000L);
+							} catch (InterruptedException e) {
+							}
+					}
+					if (closed.get()) throw new EOFException();
+					return bufferInputStream.read();
+				}
+
+				@Override
+				public int available() throws IOException {
+					return bufferInputStream.available();
+				}
+
+				@Override
+				public void close() throws IOException {
+					synchronized (buffer) {
+						closed.set(true);
+						((Object) buffer).notifyAll();
+					}
+					bufferInputStream.close();
+					buffer.close();
+				}
+			};
 		}
 		return is;
 	}
