@@ -7,21 +7,21 @@ import com.levelup.http.internal.OkDataCallback;
 
 public class HttpStream {
 
-	private final OkDataCallback inputStream;
+	private final OkDataCallback dataBuffer;
 	private final HttpRequest request;
 
 	public HttpStream(OkDataCallback callback, HttpRequest request) {
-		this.inputStream = callback;
+		this.dataBuffer = callback;
 		this.request = request;
 	}
 
 	public InputStream getInputStream() {
-		return inputStream.getInputStream();
+		return dataBuffer.getInputStream();
 	}
 
 	public void disconnect() {
 		try {
-			inputStream.close();
+			dataBuffer.close();
 		} catch (IOException ignored) {
 		} finally {
 			//TODO request.getResponse().disconnect();
