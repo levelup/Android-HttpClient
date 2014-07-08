@@ -148,6 +148,27 @@ public class HttpClientTest extends AndroidTestCase {
 		assertEquals(uploadData2, json.optString(fieldName2));
 	}
 
+	public void testTimeout() throws Exception {
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+				setUrl("http://httpbin.org/delay/10").
+				setStreamParser(InputStreamJSONObjectParser.instance).
+				build();
+		request.setHttpConfig(new HttpConfig() {
+			@Override
+			public int getReadTimeout(HttpRequest request) {
+				return 3000; // 3s
+			}
+		});
+
+		try {
+			JSONObject result = HttpClient.parseRequest(request);
+			fail("we should have timed out after 3s");
+		} catch (HttpException e) {
+			if (e.getErrorCode() != HttpException.ERROR_TIMEOUT)
+				throw e;
+		}
+	}
+
 	@MediumTest
 	public void testStreaming() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
