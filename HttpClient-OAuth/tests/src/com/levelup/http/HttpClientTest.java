@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -16,10 +14,8 @@ import org.json.JSONObject;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import okio.Buffer;
 import okio.BufferedSource;
 import okio.Okio;
-import okio.Source;
 
 public class HttpClientTest extends AndroidTestCase {
 
