@@ -11,11 +11,9 @@ import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.callback.DataCallback;
 
-import okio.Buffer;
-
 public class OkDataCallback implements DataCallback {
 
-	private final Buffer buffer = new okio.Buffer();
+	private final ByteBufferList buffer = new ByteBufferList();
 	private final long timeout;
 	private InputStream is;
 	private final AtomicBoolean closed = new AtomicBoolean();
@@ -32,10 +30,9 @@ public class OkDataCallback implements DataCallback {
 			if (closed.get())
 				asyncserver.stop();
 			else {
-				byte[] data = bb.getAllByteArray();
-				if (null != data && data.length > 0) {
-					buffer.write(data);
-					((Object) buffer).notifyAll();
+				if (bb.hasRemaining()) {
+					buffer.addAll(bb.getAllArray());
+					buffer.notifyAll();
 				}
 			}
 		}
@@ -46,14 +43,13 @@ public class OkDataCallback implements DataCallback {
 			is.close();
 		}
 		synchronized (buffer) {
-			buffer.close();
-			((Object) buffer).notifyAll();
+			buffer.recycle();
+			buffer.notifyAll();
 		}
 	}
 
 	public InputStream getInputStream() {
 		if (null == is) {
-			final InputStream bufferInputStream = buffer.inputStream();
 			is = new InputStream() {
 				@Override
 				public int read(byte[] buf, int byteOffset, int byteCount) throws IOException {
@@ -61,13 +57,19 @@ public class OkDataCallback implements DataCallback {
 					synchronized (buffer) {
 						if (buffer.size() == 0)
 							try {
-								((Object) buffer).wait(timeout);
+								buffer.wait(timeout);
 								//throw new SocketTimeoutException();
 							} catch (InterruptedException ignored) {
 							}
 					}
 					if (closed.get()) throw new EOFException();
-					return bufferInputStream.read(buf, byteOffset, byteCount);
+
+					if (!buffer.hasRemaining())
+						return -1;
+
+					byteCount = Math.min(byteCount, buffer.remaining());
+					buffer.get(buf, byteOffset, byteCount);
+					return byteCount;
 				}
 
 				@Override
@@ -76,30 +78,33 @@ public class OkDataCallback implements DataCallback {
 					synchronized (buffer) {
 						if (buffer.size() == 0)
 							try {
-								((Object) buffer).wait(timeout);
+								buffer.wait(timeout);
 								//throw new SocketTimeoutException();
 							} catch (InterruptedException ignored) {
 							}
 					}
 					if (closed.get()) throw new EOFException();
-					return bufferInputStream.read();
+
+					if (!buffer.hasRemaining())
+						return -1;
+
+					return buffer.get();
 				}
 
 				@Override
 				public int available() throws IOException {
-					return bufferInputStream.available();
+					return buffer.remaining();
 				}
 
 				@Override
 				public void close() throws IOException {
 					synchronized (buffer) {
 						closed.set(true);
-						if (asyncserver!=null)
+						if (asyncserver != null)
 							asyncserver.stop();
-						((Object) buffer).notifyAll();
+						buffer.notifyAll();
 					}
-					bufferInputStream.close();
-					buffer.close();
+					buffer.recycle();
 				}
 			};
 		}
