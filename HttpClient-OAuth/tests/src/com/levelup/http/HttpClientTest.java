@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
 
@@ -251,23 +253,55 @@ public class HttpClientTest extends AndroidTestCase {
 				build();
 
 		HttpStream stream = HttpClient.parseRequest(request);
-		try {
-			InputStream streamIn = stream.getInputStream();
-			byte[] buffer = new byte[1];
-			int read = streamIn.read(buffer);
-			if (read == -1) throw new EOFException("could not read more");
-			assertEquals('*', buffer[0]);
-		} finally {
-			stream.disconnect();
+		InputStream streamIn = stream.getInputStream();
+		byte[] buffer = new byte[1];
+		int read = streamIn.read(buffer);
+		if (read == -1) throw new EOFException("could not read more");
+		assertEquals('*', buffer[0]);
 
-			try {
-				stream.getInputStream().read(new byte[1]);
-				fail("we shouldn't be able to read after disconnection");
-			} catch (EOFException ok) {
-				// all good
-			} catch (IOException ok) {
-				assertTrue(ok.getMessage().contains("closed"));
+		stream.disconnect();
+
+		try {
+			stream.getInputStream().read(new byte[1]);
+			fail("we shouldn't be able to read after disconnection");
+		} catch (EOFException ok) {
+			// all good
+		} catch (IOException ok) {
+			assertTrue(ok.getMessage().contains("closed"));
+		}
+	}
+
+	@MediumTest
+	public void testStreamingDisconnectAsync() throws Exception {
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
+				setStreaming().
+				build();
+
+		final HttpStream stream = HttpClient.parseRequest(request);
+		InputStream streamIn = stream.getInputStream();
+		byte[] buffer = new byte[1];
+		int read = streamIn.read(buffer);
+		if (read == -1) throw new EOFException("could not read more");
+		assertEquals('*', buffer[0]);
+
+		final CountDownLatch latch = new CountDownLatch(1);
+		new Thread() {
+			@Override
+			public void run() {
+				stream.disconnect();
+				latch.countDown();
 			}
+		}.start();
+		latch.await(40, TimeUnit.SECONDS);
+
+		try {
+			stream.getInputStream().read(new byte[1]);
+			fail("we shouldn't be able to read after disconnection");
+		} catch (EOFException ok) {
+			// all good
+		} catch (IOException ok) {
+			assertTrue(ok.getMessage().contains("closed"));
 		}
 	}
 }
