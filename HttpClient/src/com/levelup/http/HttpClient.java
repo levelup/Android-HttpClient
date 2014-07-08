@@ -446,14 +446,14 @@ public class HttpClient {
 								}
 
 								try {
-									ret.setComplete(new HttpStream(stream, request));
+									ret.setComplete(new HttpStream(stream));
 								} catch (Exception e) {
 									ret.setComplete(e);
 								}
 							}
 						});
 
-						ret.setComplete(new HttpStream(stream, request));
+						ret.setComplete(new HttpStream(stream));
 						return ret;
 					}
 
