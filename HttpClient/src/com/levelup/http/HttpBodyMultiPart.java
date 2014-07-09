@@ -13,6 +13,7 @@ import java.util.List;
 import android.text.TextUtils;
 
 import com.koushikdutta.async.http.body.FilePart;
+import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.body.Part;
 import com.koushikdutta.ion.builder.Builders;
 import com.levelup.http.internal.InputStreamPart;
@@ -333,6 +334,11 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	@Override
 	public void add(String name, long l) {
 		add(name, Long.toString(l));
+	}
+
+	@Override
+	public String getContentType() {
+		return MultipartFormDataBody.CONTENT_TYPE;
 	}
 
 	private static class HttpParam {

@@ -7,14 +7,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import oauth.signpost.http.HttpRequest;
-
-import org.apache.http.protocol.HTTP;
-
-import android.text.TextUtils;
-
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.Header;
+
+import oauth.signpost.http.HttpRequest;
 
 /**
  * Wrap a {@link HttpRequest HttpClient HttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
@@ -50,8 +46,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 	public InputStream getMessagePayload() throws IOException {
 		final String contentType = getContentType();  
 		if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
-			String contentLength = req.getHeader(HTTP.CONTENT_LEN);
-			ByteArrayOutputStream output = new ByteArrayOutputStream(TextUtils.isEmpty(contentLength) ? 32 : Integer.parseInt(contentLength));
+			ByteArrayOutputStream output = new ByteArrayOutputStream(32);
 			req.outputBody(output);
 			return new ByteArrayInputStream(output.toByteArray());
 		}
@@ -60,7 +55,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 
 	@Override
 	public String getContentType() {
-		return req.getHeader(HTTP.CONTENT_TYPE);
+		return req.getContentType();
 	}
 
 	@Override

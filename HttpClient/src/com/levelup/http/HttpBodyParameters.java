@@ -20,4 +20,6 @@ public interface HttpBodyParameters extends HttpParameters {
 	void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException;
 
 	void setOutputData(Builders.Any.B requestBuilder);
+
+	String getContentType();
 }

@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.koushikdutta.async.http.body.JSONObjectBody;
 import com.koushikdutta.ion.builder.Builders;
 
 
@@ -59,6 +60,11 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	@Override
 	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
 		throw new IllegalAccessError();
+	}
+
+	@Override
+	public String getContentType() {
+		return JSONObjectBody.CONTENT_TYPE;
 	}
 
 	private static JsonObject orgToGson(JSONObject value) {

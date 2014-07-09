@@ -409,6 +409,14 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return null;
 	}
 
+	@Override
+	public String getContentType() {
+		if (null!=bodyParams) {
+			return bodyParams.getContentType();
+		}
+		return null;
+	}
+
 	private static final String[] EMPTY_STRINGS = {};
 
 	public Header[] getAllHeaders() {

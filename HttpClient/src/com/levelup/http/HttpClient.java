@@ -72,37 +72,6 @@ public class HttpClient {
 	public static Header[] getDefaultHeaders() {
 		return defaultHeaders;
 	}
-	/*
-	public static HttpURLConnection openURL(HttpRequest request) throws IOException {
-		if (null != connectionFactory)
-			return connectionFactory.createConnection(request);
-
-		try {
-			URL url = request.getURL();
-			return (HttpURLConnection) url.openConnection();
-		} catch (MalformedURLException e) {
-			throw (IOException) new IOException("Malformed URL on:"+request).initCause(e);
-		}
-	}
-
-	public static HttpURLConnection openURL(URL url) throws IOException {
-		if (null != connectionFactory) {
-			HttpRequest request = new BaseHttpRequest<Void>(url.toExternalForm());
-			return connectionFactory.createConnection(request);
-		}
-
-		return (HttpURLConnection) url.openConnection();
-	}
-	 */
-	/**
-	 * Process the HTTP request on the network and return the HttpURLConnection
-	 * @param request
-	 * @return an {@link HttpURLConnection} with the network response
-	 * @throws HttpException
-	 * /
-	public static HttpURLConnection getQueryResponse(HttpRequest request) throws HttpException {
-		return getQueryResponse(request, false);
-	}*/
 
 	private static void prepareRequest(BaseHttpRequest<?> request) throws HttpException {
 		if (!TextUtils.isEmpty(userAgent))
@@ -117,7 +86,7 @@ public class HttpClient {
 		request.outputBody();
 		request.settleHttpHeaders();
 
-		final LoggerTagged logger = request.getLogger(); 
+		final LoggerTagged logger = request.getLogger();
 		if (null != logger) {
 			logger.v(request.getHttpMethod() + ' ' + request.getUri());
 			/** TODO for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
@@ -131,82 +100,6 @@ public class HttpClient {
 				request.requestBuilder.setTimeout(readTimeout);
 		}
 	}
-
-	/**
-	 * Process the HTTP request on the network and return the HttpURLConnection
-	 * @param request
-	 * @return an {@link HttpURLConnection} with the network response
-	 * @throws HttpException
-	 * /
-	private static HttpURLConnection getQueryResponse(HttpRequest request, boolean allowGzip) throws HttpException {
-		HttpURLConnection connection = null;
-		try {
-			connection = openURL(request);
-
-			if (null!=cookieManager) {
-				cookieManager.setCookieHeader(request);
-			}
-
-			request.setConnectionProperties(connection);
-
-			if (allowGzip && connection.getRequestProperty(ACCEPT_ENCODING)==null) {
-				connection.setRequestProperty(ACCEPT_ENCODING, "gzip,deflate");
-			}
-
-			final LoggerTagged logger = request.getLogger(); 
-			if (null != logger) {
-				logger.v(connection.getRequestMethod() + ' ' + request.getUri());
-				for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
-					logger.v(header.getKey()+": "+header.getValue());
-				}
-			}
-
-			if (null != logger) {
-				logger.v(connection.getResponseMessage());
-				for (Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
-					logger.v(header.getKey()+": "+header.getValue());
-				}
-			}
-
-		} catch (SecurityException e) {
-			LogManager.getLogger().w("security error for "+request+' '+e);
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Security error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			throw builder.build();
-
-		} catch (SocketTimeoutException e) {
-			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Timeout error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-			throw builder.build();
-
-		} catch (IOException e) {
-			LogManager.getLogger().d("i/o error for "+request+' '+e.getMessage());
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("IO error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			throw builder.build();
-
-		} finally {
-			try {
-				request.setResponse(new HttpResponseUrlConnection(connection));
-			} catch (IllegalStateException e) {
-				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-				HttpException.Builder builder = request.newException();
-				builder.setErrorMessage("Connection closed "+e.getMessage());
-				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_NETWORK);
-				throw builder.build();
-			}
-		}
-		return connection;
-	}*/
 
 	/**
 	 * Perform the query on the network and get the resulting body as an InputStream

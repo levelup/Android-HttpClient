@@ -8,6 +8,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.koushikdutta.async.http.body.UrlEncodedFormBody;
 import com.koushikdutta.ion.builder.Builders;
 
 /**
@@ -72,5 +73,10 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 	@Override
 	public void add(String name, long l) {
 		add(name, Long.toString(l));
+	}
+
+	@Override
+	public String getContentType() {
+		return UrlEncodedFormBody.CONTENT_TYPE;
 	}
 }

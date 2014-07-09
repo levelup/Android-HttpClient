@@ -20,6 +20,11 @@ public interface HttpRequest extends HttpExceptionCreator {
 	String getHttpMethod();
 
 	/**
+	 * Get the content type of the body, or {@code null} if there's no body in the request
+	 */
+	String getContentType();
+
+	/**
 	 * Add an extra HTTP header to this request
 	 * @param name Name of the header
 	 * @param value Value of the header
