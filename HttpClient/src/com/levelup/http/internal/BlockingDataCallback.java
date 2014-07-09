@@ -12,10 +12,13 @@ import com.koushikdutta.async.AsyncServer;
 import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.callback.DataCallback;
+import com.levelup.http.LogManager;
 
 public class BlockingDataCallback implements DataCallback {
 
+	//private static final int MAX_BUFFER_SIZE = Integer.MAX_VALUE;
 	private static final int MAX_BUFFER_SIZE = 16 * 1024;
+	private boolean DEBUG = true;
 
 	private final ReentrantLock bufferLock;
 	private final Condition notEmpty;
@@ -49,6 +52,7 @@ public class BlockingDataCallback implements DataCallback {
 
 	@Override
 	public void onDataAvailable(DataEmitter emitter, ByteBufferList bb) {
+		if (DEBUG) LogManager.getLogger().d(this + " new data arrived:"+bb.remaining());
 		bufferLock.lock();
 		try {
 			this.asyncServer = emitter.getServer();
@@ -64,8 +68,10 @@ public class BlockingDataCallback implements DataCallback {
 
 
 			while (bb.hasRemaining()) {
-				if (buffer.size() == MAX_BUFFER_SIZE)
+				if (buffer.size() >= MAX_BUFFER_SIZE) {
+					if (DEBUG) LogManager.getLogger().d(this + " waiting for space available");
 					notFull.await();
+				}
 
 				if (closed.get()) {
 					if (!asyncServerStopped) {
@@ -88,6 +94,7 @@ public class BlockingDataCallback implements DataCallback {
 	}
 
 	public void close() throws IOException {
+		if (DEBUG) LogManager.getLogger().d(this + " closing");
 		if (!closed.getAndSet(true)) {
 			if (null != is) {
 				is.close();
@@ -119,8 +126,10 @@ public class BlockingDataCallback implements DataCallback {
 
 					bufferLock.lock();
 					try {
-						if (!buffer.hasRemaining())
+						if (!buffer.hasRemaining()) {
+							if (DEBUG) LogManager.getLogger().d(BlockingDataCallback.this + " waiting for new data");
 							notEmpty.await(timeout, timeoutUnit);
+						}
 
 						if (!buffer.hasRemaining())
 							return -1;
@@ -144,8 +153,10 @@ public class BlockingDataCallback implements DataCallback {
 
 					bufferLock.lock();
 					try {
-						if (!buffer.hasRemaining())
+						if (!buffer.hasRemaining()) {
+							if (DEBUG) LogManager.getLogger().d(BlockingDataCallback.this + " waiting for new data");
 							notEmpty.await(timeout, timeoutUnit);
+						}
 
 						if (!buffer.hasRemaining())
 							return -1;
