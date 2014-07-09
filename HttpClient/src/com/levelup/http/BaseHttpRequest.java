@@ -28,6 +28,7 @@ import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
 import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
@@ -308,14 +309,14 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 						else
 							super.loge(message, e);
 					}
-					
+
 					@Override
 					public void setBody(AsyncHttpRequestBody body) {
 						if (body instanceof MultipartFormDataBody) {
 							MultipartFormDataBody multipartFormDataBody = (MultipartFormDataBody) body;
 							multipartFormDataBody.setBoundary(HttpBodyMultiPart.boundary);
 						}
-						
+
 						super.setBody(body);
 					}
 				};
@@ -325,7 +326,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.context);
 		requestBuilder = ionLoadBuilder.load(builder.httpMethod, builder.uri.toString());
-		
+
 		this.uri = builder.uri;
 		this.method = builder.httpMethod;
 		this.streamParser = builder.streamParser;
@@ -469,7 +470,16 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 	public final void outputBody() {
 		if (null != bodyParams) {
-			bodyParams.setOuputData(this.requestBuilder);
+			bodyParams.setOuputData(requestBuilder);
+
+			if (null!=mProgressListener) {
+				requestBuilder.progress(new ProgressCallback() {
+					@Override
+					public void onProgress(long downloaded, long total) {
+						mProgressListener.onParamUploadProgress(BaseHttpRequest.this, null, (int) ((100 * downloaded) / total));
+					}
+				});
+			}
 		}
 	}
 
@@ -482,13 +492,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	public void outputBody(OutputStream output) throws IOException {
-		final UploadProgressListener listener = mProgressListener;
-		if (null != listener)
-			listener.onParamUploadProgress(this, null, 0);
 		if (null != bodyParams)
-			bodyParams.writeBodyTo(output, this, listener);
-		if (null != listener)
-			listener.onParamUploadProgress(this, null, 100);
+			bodyParams.writeBodyTo(output, this, null);
 	}
 
 	@Override
