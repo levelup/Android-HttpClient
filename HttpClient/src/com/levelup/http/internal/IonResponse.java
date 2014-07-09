@@ -14,10 +14,10 @@ import com.levelup.http.HttpResponse;
 /**
  * Created by Steve Lhomme on 09/07/2014.
  */
-public class IonResponse implements HttpResponse {
-	private final Response<?> response;
+public class IonResponse<T> implements HttpResponse {
+	private final Response<T> response;
 
-	public IonResponse(Response<?> response) {
+	public IonResponse(Response<T> response) {
 		this.response = response;
 	}
 
@@ -69,7 +69,7 @@ public class IonResponse implements HttpResponse {
 		// TODO see if we can cancel a Ion response while it's processing
 	}
 
-	public Object getResult() {
+	public T getResult() {
 		return response.getResult();
 	}
 }
