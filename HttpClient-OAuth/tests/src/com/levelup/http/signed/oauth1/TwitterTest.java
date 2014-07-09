@@ -11,7 +11,7 @@ import com.levelup.http.UriParams;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
 
-public abstract class AbstractTwitterTest extends AndroidTestCase {
+public class TwitterTest extends AndroidTestCase {
 	protected static final OAuthClientApp twitterApp = new OAuthClientApp() {
 		@Override
 		public String getConsumerSecret() {
