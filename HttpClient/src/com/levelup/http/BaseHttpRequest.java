@@ -29,11 +29,11 @@ import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
-import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.gson.InputStreamGsonParser;
+import com.levelup.http.internal.IonResponse;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -49,7 +49,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	final Builders.Any.B requestBuilder;
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
-	private Response<?> httpResponse;
+	private HttpResponse httpResponse;
 	private final String method;
 	private final InputStreamParser<T> streamParser;
 	private final HttpBodyParameters bodyParams;
@@ -507,7 +507,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public void setResponse(Response<?> resp) {
+	public void setResponse(HttpResponse resp) {
 		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster!=null) {
@@ -519,7 +519,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public Response<?> getResponse() {
+	public HttpResponse getResponse() {
 		return httpResponse;
 	}
 
@@ -564,20 +564,20 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		InputStream errorStream = null;
 		HttpException.Builder builder = null;
 		try {
-			final Response<?> response = getResponse();
+			final HttpResponse response = getResponse();
 			builder = newException();
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			builder.setHTTPResponse(response);
 			builder.setCause(cause);
 
-			MediaType type = MediaType.parse(response.getHeaders().get(HTTP.CONTENT_TYPE));
+			MediaType type = MediaType.parse(response.getContentType());
 			if (Util.MediaTypeJSON.equalsType(type)) {
-				errorStream = getParseableErrorStream(response);
+				errorStream = getParseableErrorStream((IonResponse) response);
 				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
 				builder.setErrorMessage(jsonData.toString());
 				builder = handleJSONError(builder, jsonData);
 			} else if (null==type || "text".equals(type.type())) {
-				errorStream = getParseableErrorStream(response);
+				errorStream = getParseableErrorStream((IonResponse) response);
 				String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
 				builder.setErrorMessage(errorData);
 			}
@@ -596,7 +596,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return builder;
 	}
 
-	private static InputStream getParseableErrorStream(Response<?> response) throws IOException {
+	private static InputStream getParseableErrorStream(IonResponse response) throws IOException {
 		Object result = response.getResult();
 		if (result instanceof InputStream) {
 			return (InputStream) result;

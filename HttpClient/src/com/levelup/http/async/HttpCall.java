@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.TypedHttpRequest;
@@ -89,11 +90,9 @@ public class HttpCall<T> {
 			if (runningTask!=null)
 				runningTask.cancel(true);
 
-			/** TODO not working the same in Ion
-			Response<?> response = request.getResponse();
+			HttpResponse response = request.getResponse();
 			if (null!=response)
 				response.disconnect();
-				*/
 			
 			runningTask = null;
 		}

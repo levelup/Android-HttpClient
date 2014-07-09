@@ -26,6 +26,7 @@ import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
 import com.levelup.http.internal.BlockingDataCallback;
+import com.levelup.http.internal.IonResponse;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -199,7 +200,7 @@ public class HttpClient {
 
 		} finally {
 			try {
-				request.setResponse(connection);
+				request.setResponse(new HttpResponseUrlConnection(connection));
 			} catch (IllegalStateException e) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
@@ -228,7 +229,7 @@ public class HttpClient {
 				ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
 				Future<Response<InputStream>> withResponse = req.withResponse();
 				Response<InputStream> response = withResponse.get();
-				request.setResponse(response);
+				request.setResponse(new IonResponse(response));
 				throwResponseException(request, response);
 				return response.getResult();
 			} catch (InterruptedException e) {
@@ -493,7 +494,7 @@ public class HttpClient {
 					if (null!=req) {
 						Future<Response<T>> withResponse = req.withResponse();
 						Response<T> response = withResponse.get();
-						request.setResponse(response);
+						request.setResponse(new IonResponse(response));
 						throwResponseException(request, response);
 						return response.getResult();
 					}

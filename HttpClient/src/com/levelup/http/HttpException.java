@@ -1,6 +1,6 @@
 package com.levelup.http;
 
-import java.net.HttpURLConnection;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,9 +10,6 @@ import java.util.Map.Entry;
 
 import android.net.Uri;
 import android.text.TextUtils;
-
-import com.koushikdutta.async.http.libcore.RequestHeaders;
-import com.koushikdutta.ion.Response;
 
 /**
  * Exception that will occur by using {@link HttpClient}
@@ -182,13 +179,13 @@ public class HttpException extends Exception {
 				this.headers = new ArrayList<Header>(srcHeaders.length);
 				headers.addAll(Arrays.asList(srcHeaders));
 			}
-			Response<?> response = httpRequest.getResponse();
+			HttpResponse response = httpRequest.getResponse();
 			if (null==response) {
 				this.receivedHeaders = Collections.emptyList();
 			} else {
 				setHTTPResponse(response);
 				try {
-					final Map<String, List<String>> responseHeaders = response.getHeaders().toMultimap();
+					final Map<String, List<String>> responseHeaders = response.getHeaderFields();
 					if (null==responseHeaders)
 						this.receivedHeaders = Collections.emptyList();
 					else {
@@ -250,7 +247,7 @@ public class HttpException extends Exception {
 		}
 
 		/**
-		 * Alternative to {@link #setHTTPResponse(HttpURLConnection)} to simulate some issues
+		 * Alternative to {@link #setHTTPResponse(HttpResponse)} to simulate some issues
 		 * @param statusCode
 		 * @return The builder for easy chaining
 		 */
@@ -259,12 +256,11 @@ public class HttpException extends Exception {
 			return this;
 		}
 
-		public Builder setHTTPResponse(Response<?> response) {
+		public Builder setHTTPResponse(HttpResponse response) {
 			if (null!=response) {
 				try {
-					RequestHeaders reqProperties = response.getRequest().getHeaders();
 					headers.clear();
-					for (Entry<String, List<String>> props : reqProperties.getHeaders().toMultimap().entrySet()) {
+					for (Entry<String, List<String>> props : response.getHeaderFields().entrySet()) {
 						for (String prop : props.getValue()) {
 							headers.add(new Header(props.getKey(), prop));
 						}
@@ -274,12 +270,14 @@ public class HttpException extends Exception {
 				}
 
 				try {
-					this.statusCode = response.getHeaders().getResponseCode();
+					this.statusCode = response.getResponseCode();
 				} catch (IllegalStateException e) {
 					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 					this.statusCode = 200;
 				} catch (NullPointerException ignored) {
 					// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
+					this.statusCode = 200;
+				} catch (IOException e) {
 					this.statusCode = 200;
 				}
 			}
