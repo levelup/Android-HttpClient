@@ -1,8 +1,5 @@
 package com.levelup.http;
 
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-
 import android.net.Uri;
 
 /**

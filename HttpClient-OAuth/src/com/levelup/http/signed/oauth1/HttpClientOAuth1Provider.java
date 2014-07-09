@@ -2,7 +2,12 @@ package com.levelup.http.signed.oauth1;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+
+import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpClient;
+import com.levelup.http.HttpException;
+import com.levelup.http.signed.OAuthClientApp;
+import com.levelup.http.signed.oauth1.internal.ResponseAdapter;
 
 import oauth.signpost.OAuth;
 import oauth.signpost.basic.DefaultOAuthProvider;
@@ -10,12 +15,6 @@ import oauth.signpost.exception.OAuthException;
 import oauth.signpost.http.HttpParameters;
 import oauth.signpost.http.HttpRequest;
 import oauth.signpost.http.HttpResponse;
-
-import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.HttpClient;
-import com.levelup.http.HttpException;
-import com.levelup.http.signed.OAuthClientApp;
-import com.levelup.http.signed.oauth1.internal.ResponseAdapter;
 
 /**
  * Helper class to retrieve the <a

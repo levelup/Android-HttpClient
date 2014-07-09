@@ -3,13 +3,11 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.ion.builder.Builders;
-import com.koushikdutta.ion.gson.GsonBody;
 
 
 /**
@@ -51,11 +49,6 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	@Override
 	public void add(String name, long value) {
 		throw new IllegalAccessError();
-	}
-
-	@Override
-	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		request.setHeader(HTTP.CONTENT_TYPE, GsonBody.CONTENT_TYPE);
 	}
 
 	@Override

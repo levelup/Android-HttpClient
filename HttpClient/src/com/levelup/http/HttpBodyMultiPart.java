@@ -84,13 +84,6 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	}
 
 	@Override
-	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		//request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
-		//int contentLength = getContentLength();
-		//request.setHeader(HTTP.CONTENT_LEN, Integer.toString(contentLength));
-	}
-
-	@Override
 	public void setOutputData(Builders.Any.B requestBuilder) {
 		for (HttpParam param : mParams) {
 			if (param.value instanceof File) {

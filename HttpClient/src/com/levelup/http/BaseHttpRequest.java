@@ -367,9 +367,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 	@Override
 	public void settleHttpHeaders() throws HttpException {
-		if (null != bodyParams) {
-			bodyParams.settleHttpHeaders(this);
-		} else if (!isMethodWithBody(getHttpMethod())) {
+		if (!isMethodWithBody(getHttpMethod())) {
 			setHeader(HTTP.CONTENT_LEN, "0");
 		}
 		if (null!=signer)

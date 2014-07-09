@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
