@@ -7,17 +7,28 @@ import android.net.Uri;
  *
  * @author Steve Lhomme
  */
-public class HttpRequestGetNoRedirect extends HttpRequestGet<Void> {
+public class HttpRequestGetNoRedirect extends BaseHttpRequest<Void> {
 
+	public static class Builder extends BaseHttpRequest.Builder<Void> {
+		public HttpRequestGetNoRedirect build() {
+			return new HttpRequestGetNoRedirect(this);
+		}
+	}
+	
 	public HttpRequestGetNoRedirect(String baseUrl) {
-		super(baseUrl, null);
+		this((Builder) new Builder().setUrl(baseUrl));
 	}
 
 	public HttpRequestGetNoRedirect(String baseUrl, HttpUriParameters uriParams) {
-		super(baseUrl, uriParams);
+		this((Builder) new Builder().setUrl(baseUrl, uriParams));
 	}
 
-	public HttpRequestGetNoRedirect(Uri baseUrl, HttpUriParameters uriParams) {
-		super(baseUrl, uriParams);
+	public HttpRequestGetNoRedirect(Uri baseUri, HttpUriParameters uriParams) {
+		this((Builder) new Builder().setUrl(baseUri.toString(), uriParams));
+	}
+
+	public HttpRequestGetNoRedirect(Builder builder) {
+		super(builder);
+		requestBuilder.followRedirect(false);
 	}
 }
