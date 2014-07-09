@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.http.protocol.HTTP;
-
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.TextUtils;
@@ -39,7 +37,7 @@ public final class Util {
 	 */
 	public static Charset getInputCharset(HttpRequest request, Charset defaultCharset) {
 		Charset readCharset = defaultCharset;
-		String contentType = request.getResponse().getHeaders().get(HTTP.CONTENT_TYPE);
+		String contentType = request.getResponse().getContentType();
 		if (!TextUtils.isEmpty(contentType)) {
 			MediaType type = MediaType.parse(contentType);
 			if (null!=type && null!=type.charset())

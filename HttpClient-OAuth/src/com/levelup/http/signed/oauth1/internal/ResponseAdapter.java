@@ -3,7 +3,6 @@ package com.levelup.http.signed.oauth1.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.levelup.http.BaseHttpRequest;
 
 import oauth.signpost.http.HttpResponse;
@@ -11,11 +10,11 @@ import oauth.signpost.http.HttpResponse;
 public class ResponseAdapter implements HttpResponse {
 
 	private final InputStream inputStream;
-	private final RawHeaders headers;
+	private final com.levelup.http.HttpResponse headers;
 
 	public ResponseAdapter(BaseHttpRequest<?> request, InputStream inputStream) {
 		this.inputStream = inputStream;
-		this.headers = request.getResponse().getHeaders();
+		this.headers = request.getResponse();
 	}
 
 	@Override
@@ -25,7 +24,7 @@ public class ResponseAdapter implements HttpResponse {
 
 	@Override
 	public String getReasonPhrase() throws Exception {
-		return headers.getStatusLine();
+		return headers.getResponseMessage();
 	}
 
 	@Override

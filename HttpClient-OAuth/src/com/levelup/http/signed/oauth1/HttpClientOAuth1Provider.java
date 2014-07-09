@@ -44,7 +44,7 @@ public class HttpClientOAuth1Provider {
 
 	/**
 	 * Constructor to retrieve the tokens for the given client app with a custom {@link HttpClientOAuth1Consumer} and {@link ProviderHttpRequestFactory}
-	 * <p>The {@code requestFactory} can do special processing on the response via {@link HttpRequest#setResponse(HttpURLConnection) HttpRequest.setResponse}
+	 * <p>The {@code requestFactory} can do special processing on the response via {@link HttpRequest#setResponse(com.levelup.http.HttpResponse) HttpRequest.setResponse}
 	 * 
 	 * @param consumer The consumer used to retrieve the tokens
 	 * @param requestTokenUrl The URL of the service provider to get a Request token

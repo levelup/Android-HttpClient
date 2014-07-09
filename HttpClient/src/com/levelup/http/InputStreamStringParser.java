@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.apache.http.protocol.HTTP;
-
 import android.text.TextUtils;
 
 /**
@@ -26,9 +24,7 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 
 		int contentLength = -1;
 		if (null != request) {
-			String contentLengthString = request.getResponse().getHeaders().get(HTTP.CONTENT_LEN);
-			if (!TextUtils.isEmpty(contentLengthString))
-				contentLength = Integer.parseInt(contentLengthString);
+			contentLength = request.getResponse().getContentLength();
 			if (contentLength > 0) {
 				sb = new StringBuilder(contentLength);
 			} else {
