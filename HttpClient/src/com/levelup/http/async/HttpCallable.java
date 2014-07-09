@@ -2,11 +2,11 @@ package com.levelup.http.async;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.TypedHttpRequest;
 
@@ -39,7 +39,7 @@ public class HttpCallable<T> implements Callable<T>, Closeable {
 
 	@Override
 	public void close() throws IOException {
-		final HttpURLConnection connection = request.getResponse();
+		HttpResponse connection = request.getResponse();
 		if (null!=connection)
 			connection.disconnect();
 	}

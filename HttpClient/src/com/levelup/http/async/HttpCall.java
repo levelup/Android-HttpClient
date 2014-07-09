@@ -1,12 +1,12 @@
 package com.levelup.http.async;
 
-import java.net.HttpURLConnection;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.TypedHttpRequest;
@@ -90,7 +90,7 @@ public class HttpCall<T> {
 			if (runningTask!=null)
 				runningTask.cancel(true);
 
-			HttpURLConnection response = request.getResponse();
+			HttpResponse response = request.getResponse();
 			if (null!=response)
 				response.disconnect();
 			

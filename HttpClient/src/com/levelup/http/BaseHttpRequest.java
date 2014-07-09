@@ -24,6 +24,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.levelup.http.internal.HttpResponseUrlConnection;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -38,7 +39,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
-	private HttpURLConnection httpResponse;
+	private HttpResponse httpResponse;
 	private final String method;
 	private final InputStreamParser<T> streamParser;
 	private final HttpBodyParameters bodyParams;
@@ -398,7 +399,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public void setResponse(HttpURLConnection resp) {
+	public void setResponse(HttpResponse resp) {
 		httpResponse = resp;
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster!=null) {
@@ -410,7 +411,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public HttpURLConnection getResponse() {
+	public HttpResponse getResponse() {
 		return httpResponse;
 	}
 
@@ -455,7 +456,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		InputStream errorStream = null;
 		HttpException.Builder builder = null;
 		try {
-			final HttpURLConnection response = getResponse();
+			final HttpResponse response = getResponse();
 			builder = newException();
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			builder.setHTTPResponse(response);
@@ -463,12 +464,12 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 			MediaType type = MediaType.parse(response.getContentType());
 			if (Util.MediaTypeJSON.equalsType(type)) {
-				errorStream = getParseableErrorStream(response);
+				errorStream = getParseableErrorStream((HttpResponseUrlConnection) response);
 				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
 				builder.setErrorMessage(jsonData.toString());
 				builder = handleJSONError(builder, jsonData);
 			} else if (null==type || "text".equals(type.type())) {
-				errorStream = getParseableErrorStream(response);
+				errorStream = getParseableErrorStream((HttpResponseUrlConnection) response);
 				String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
 				builder.setErrorMessage(errorData);
 			}
@@ -487,7 +488,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return builder;
 	}
 
-	private static InputStream getParseableErrorStream(HttpURLConnection response) throws IOException {
+	private static InputStream getParseableErrorStream(HttpResponseUrlConnection response) throws IOException {
 		InputStream errorStream = response.getErrorStream();
 		if (null==errorStream)
 			errorStream = response.getInputStream();

@@ -20,6 +20,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
+import com.levelup.http.internal.HttpResponseUrlConnection;
+
 /**
  * HTTP client that handles {@link HttpRequest} 
  */
@@ -192,7 +194,7 @@ public class HttpClient {
 
 		} finally {
 			try {
-				request.setResponse(connection);
+				request.setResponse(new HttpResponseUrlConnection(connection));
 			} catch (IllegalStateException e) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 				LogManager.getLogger().d("connection closed ? for "+request+' '+e);

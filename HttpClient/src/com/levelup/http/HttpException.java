@@ -1,7 +1,6 @@
 package com.levelup.http;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -180,7 +179,7 @@ public class HttpException extends Exception {
 				this.headers = new ArrayList<Header>(srcHeaders.length);
 				headers.addAll(Arrays.asList(srcHeaders));
 			}
-			HttpURLConnection response = httpRequest.getResponse();
+			HttpResponse response = httpRequest.getResponse();
 			if (null==response) {
 				this.receivedHeaders = Collections.emptyList();
 			} else {
@@ -248,7 +247,7 @@ public class HttpException extends Exception {
 		}
 
 		/**
-		 * Alternative to {@link #setHTTPResponse(HttpURLConnection)} to simulate some issues
+		 * Alternative to {@link #setHTTPResponse(HttpResponse)} to simulate some issues
 		 * @param statusCode
 		 * @return The builder for easy chaining
 		 */
@@ -257,7 +256,7 @@ public class HttpException extends Exception {
 			return this;
 		}
 
-		public Builder setHTTPResponse(HttpURLConnection resp) {
+		public Builder setHTTPResponse(HttpResponse resp) {
 			if (null!=resp) {
 				try {
 					Map<String, List<String>> reqProperties = resp.getRequestProperties();

@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpRequestPost;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.signed.OAuthClientApp;
 
 
@@ -51,7 +52,7 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 		}
 
 		@Override
-		public void setResponse(HttpURLConnection resp) {
+		public void setResponse(HttpResponse resp) {
 			super.setResponse(resp);
 
 			if (null!=resp) {
