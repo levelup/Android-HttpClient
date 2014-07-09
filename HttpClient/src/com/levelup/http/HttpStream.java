@@ -3,13 +3,13 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.levelup.http.internal.OkDataCallback;
+import com.levelup.http.internal.BlockingDataCallback;
 
 public class HttpStream {
 
-	private final OkDataCallback dataBuffer;
+	private final BlockingDataCallback dataBuffer;
 
-	public HttpStream(OkDataCallback callback) {
+	public HttpStream(BlockingDataCallback callback) {
 		this.dataBuffer = callback;
 	}
 

@@ -25,7 +25,7 @@ import com.koushikdutta.async.parser.AsyncParser;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
-import com.levelup.http.internal.OkDataCallback;
+import com.levelup.http.internal.BlockingDataCallback;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -423,11 +423,11 @@ public class HttpClient {
 				ResponseFuture<HttpStream> req = httpRequest.requestBuilder.as(new AsyncParser<HttpStream>() {
 					@Override
 					public Future<HttpStream> parse(final DataEmitter emitter) {
-						final OkDataCallback stream;
+						final BlockingDataCallback stream;
 						if (readTimeout != -1)
-							stream = new OkDataCallback(readTimeout, TimeUnit.MILLISECONDS);
+							stream = new BlockingDataCallback(readTimeout, TimeUnit.MILLISECONDS);
 						else
-							stream = new OkDataCallback(90, TimeUnit.SECONDS);
+							stream = new BlockingDataCallback(90, TimeUnit.SECONDS);
 						final SimpleFuture<HttpStream> ret = new SimpleFuture<HttpStream>() {
 							@Override
 							protected void cancelCleanup() {
