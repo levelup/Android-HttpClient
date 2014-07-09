@@ -4,8 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -426,11 +424,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 			}
 		}
 		return headers.toArray(new Header[headers.size()]);
-	}
-
-	@Override
-	public URL getURL() throws MalformedURLException {
-		return new URL(getUri().toString());
 	}
 
 	@Override

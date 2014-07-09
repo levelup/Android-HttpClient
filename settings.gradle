@@ -5,6 +5,3 @@ project(':HttpClient').projectDir = new File('HttpClient')
 
 include 'HttpClient-OAuth'
 project(':HttpClient-OAuth').projectDir = new File('HttpClient-OAuth')
-
-include 'HttpClient-OkHttp'
-project(':HttpClient-OkHttp').projectDir = new File('HttpClient-OkHttp')

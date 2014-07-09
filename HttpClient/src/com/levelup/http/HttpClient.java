@@ -34,7 +34,6 @@ import com.levelup.http.internal.IonResponse;
 public class HttpClient {
 	public static final String ACCEPT_ENCODING = "Accept-Encoding";
 
-	private static HttpUrlConnectionFactory connectionFactory;
 	private static String userAgent;
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
@@ -57,10 +56,6 @@ public class HttpClient {
 			} catch (NameNotFoundException ignored) {
 			}
 		}
-	}
-
-	public static void setConnectionFactory(HttpUrlConnectionFactory factory) {
-		connectionFactory = factory;
 	}
 
 	public static void setCookieManager(CookieManager cookieManager) {

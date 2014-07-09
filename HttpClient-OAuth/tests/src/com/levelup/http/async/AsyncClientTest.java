@@ -34,12 +34,6 @@ public class AsyncClientTest extends AndroidTestCase {
 		HttpClient.setup(context);
 	}
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		HttpClient.setConnectionFactory(null); // make sure we don't use Okhttp
-	}
-
 	public void testAsyncSimpleQuery() {
 		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, null);
 	}

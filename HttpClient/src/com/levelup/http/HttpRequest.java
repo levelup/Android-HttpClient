@@ -1,8 +1,5 @@
 package com.levelup.http;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import android.net.Uri;
 
 
@@ -16,12 +13,6 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * Get the target URL in {@link android.net.Uri Uri} format
 	 */
 	Uri getUri();
-
-	/**
-	 * Get the target URL in {@link java.net.URL URL} format
-	 * @throws MalformedURLException
-	 */
-	URL getURL() throws MalformedURLException;
 
 	/**
 	 * Get the HTTP method used to process the request, like {@code "GET"} or {@code "POST"}
