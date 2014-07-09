@@ -4,9 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -388,16 +386,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public void setConnectionProperties(HttpURLConnection connection) throws ProtocolException {
-		if (null != bodyParams) {
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-
-			bodyParams.setConnectionProperties(connection);
-		}
-	}
-
-	@Override
 	public void addHeader(String key, String value) {
 		HashSet<String> values = mRequestAddHeaders.get(key);
 		if (null==values) {
@@ -448,24 +436,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 	@Override
 	public final Uri getUri() {
 		return uri;
-	}
-
-	/**
-	 * This is {@code final} as {@link #outputBody(OutputStream)} should be the one extended
-	 */
-	@Override
-	public final void outputBody(HttpURLConnection connection) throws IOException {
-		if (null != bodyParams) {
-			OutputStream output = null;
-			try {
-				output = connection.getOutputStream();
-				outputBody(output);
-			} finally {
-				if (null != output) {
-					output.close();
-				}
-			}
-		}
 	}
 
 	public final void outputBody() {

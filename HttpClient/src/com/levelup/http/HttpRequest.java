@@ -1,9 +1,6 @@
 package com.levelup.http;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 
 import android.net.Uri;
@@ -58,19 +55,8 @@ public interface HttpRequest extends HttpExceptionCreator {
 	void settleHttpHeaders() throws HttpException ;
 
 	/**
-	 * Set the HTTP headers on the {@link HttpURLConnection}
-	 * @param connection Set the HTTP headers and other settings on this {@link HttpURLConnection} before being processed
-	 * @throws ProtocolException
-	 */
-	void setConnectionProperties(HttpURLConnection connection) throws ProtocolException;
-
-	/**
 	 * Output the HTTP body on the connection
-	 * <p>Opening and closing the OutputStream should be done there</p>
-	 * @param connection
-	 * @throws IOException
 	 */
-	void outputBody(HttpURLConnection connection) throws IOException;
 	void outputBody();
 
 	/**
@@ -78,7 +64,7 @@ public interface HttpRequest extends HttpExceptionCreator {
 	 * @param resp Contains the received headers/data from the server
 	 */
 
-	void setResponse(HttpResponse response);
+	void setResponse(HttpResponse resp);
 
 	/**
 	 * @return the HTTP response if there was any
