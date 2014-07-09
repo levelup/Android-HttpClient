@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 
 import org.apache.http.protocol.HTTP;
 
@@ -66,10 +65,6 @@ public class HttpBodyString implements HttpBodyParameters {
 		request.setHeader(HTTP.CONTENT_TYPE, StringBody.CONTENT_TYPE);
 	}
 	
-	@Override
-	public void setConnectionProperties(HttpURLConnection connection) {
-	}
-
 	@Override
 	public void setOuputData(Builders.Any.B requestBuilder) {
 		requestBuilder.setStringBody(value);

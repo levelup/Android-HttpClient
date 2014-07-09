@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 
 import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
@@ -66,11 +65,6 @@ public class HttpBodyJSON implements HttpBodyParameters {
 
 	@Override
 	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
-		throw new IllegalAccessError();
-	}
-
-	@Override
-	public void setConnectionProperties(HttpURLConnection connection) {
 		throw new IllegalAccessError();
 	}
 

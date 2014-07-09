@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
@@ -48,11 +47,6 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 	public void settleHttpHeaders(BaseHttpRequest<?> request) {
 		request.setHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE);
 		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(getEncodedParams().length));
-	}
-	
-	@Override
-	public void setConnectionProperties(HttpURLConnection connection) {
-		connection.setFixedLengthStreamingMode(getEncodedParams().length);
 	}
 	
 	@Override

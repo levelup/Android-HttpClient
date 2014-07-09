@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,11 +88,6 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 		//request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
 		//int contentLength = getContentLength();
 		//request.setHeader(HTTP.CONTENT_LEN, Integer.toString(contentLength));
-	}
-
-	@Override
-	public void setConnectionProperties(HttpURLConnection connection) {
-		//connection.setChunkedStreamingMode(0); // use the default chunked size
 	}
 
 	@Override
