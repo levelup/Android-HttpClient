@@ -91,7 +91,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	}
 
 	@Override
-	public void setOuputData(Builders.Any.B requestBuilder) {
+	public void setOutputData(Builders.Any.B requestBuilder) {
 		for (HttpParam param : mParams) {
 			if (param.value instanceof File) {
 				FilePart part = new FilePart(param.name, (File) param.value);

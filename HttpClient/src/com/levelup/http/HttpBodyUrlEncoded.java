@@ -50,7 +50,7 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 	}
 	
 	@Override
-	public void setOuputData(Builders.Any.B requestBuilder) {
+	public void setOutputData(Builders.Any.B requestBuilder) {
 		for (NameValuePair param : mParams) {
 			requestBuilder.setBodyParameter(param.getName(), param.getValue());
 		}

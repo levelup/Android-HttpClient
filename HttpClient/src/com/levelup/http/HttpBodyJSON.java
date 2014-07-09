@@ -59,7 +59,7 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	}
 
 	@Override
-	public void setOuputData(Builders.Any.B requestBuilder) {
+	public void setOutputData(Builders.Any.B requestBuilder) {
 		requestBuilder.setJsonObjectBody(jsonObject);
 	}
 

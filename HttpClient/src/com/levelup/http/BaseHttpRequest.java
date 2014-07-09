@@ -433,7 +433,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 
 	public final void outputBody() {
 		if (null != bodyParams) {
-			bodyParams.setOuputData(requestBuilder);
+			bodyParams.setOutputData(requestBuilder);
 
 			if (null!=mProgressListener) {
 				requestBuilder.progress(new ProgressCallback() {

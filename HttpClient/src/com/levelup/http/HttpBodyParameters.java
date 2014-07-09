@@ -26,5 +26,5 @@ public interface HttpBodyParameters extends HttpParameters {
 	 */
 	void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException;
 
-	void setOuputData(Builders.Any.B requestBuilder);
+	void setOutputData(Builders.Any.B requestBuilder);
 }
