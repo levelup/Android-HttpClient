@@ -165,6 +165,44 @@ public class HttpClientTest extends AndroidTestCase {
 		}
 	}
 
+	private void testError(int errorCode) throws Exception {
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+				setUrl("http://httpbin.org/status/" + errorCode).
+				setStreamParser(InputStreamJSONObjectParser.instance).
+				build();
+
+		try {
+			JSONObject result = HttpClient.parseRequest(request);
+			fail("we should have an HTTP error "+errorCode);
+		} catch (HttpException e) {
+			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode()!=errorCode)
+				throw e;
+		}
+	}
+
+	private void testStreamingError(int errorCode) throws Exception {
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
+				setUrl("http://httpbin.org/status/" + errorCode).
+				setStreaming().
+				build();
+
+		try {
+			HttpStream result = HttpClient.parseRequest(request);
+			fail("we should have an HTTP error "+errorCode+", not a stream");
+		} catch (HttpException e) {
+			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode()!=errorCode)
+				throw e;
+		}
+	}
+
+	public void testError401() throws Exception {
+		testError(401);
+	}
+
+	public void testStreamingError401() throws Exception {
+		testStreamingError(401);
+	}
+
 	@MediumTest
 	public void testStreaming() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
