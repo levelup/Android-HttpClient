@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 
 import com.koushikdutta.async.http.body.UrlEncodedFormBody;
 import com.koushikdutta.ion.builder.Builders;
@@ -41,6 +42,12 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 			mParams.clear();
 		}
 		return encodedParams;
+	}
+	
+	@Override
+	public void settleHttpHeaders(BaseHttpRequest<?> request) {
+		request.setHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE);
+		request.setHeader(HTTP.CONTENT_LEN, Integer.toString(getEncodedParams().length));
 	}
 	
 	@Override
