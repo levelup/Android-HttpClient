@@ -256,11 +256,12 @@ public class HttpException extends Exception {
 			return this;
 		}
 
-		public Builder setHTTPResponse(HttpResponse response) {
-			if (null!=response) {
+		public Builder setHTTPResponse(HttpResponse resp) {
+			if (null!=resp) {
 				try {
+					Map<String, List<String>> reqProperties = resp.getRequestProperties();
 					headers.clear();
-					for (Entry<String, List<String>> props : response.getHeaderFields().entrySet()) {
+					for (Entry<String, List<String>> props : reqProperties.entrySet()) {
 						for (String prop : props.getValue()) {
 							headers.add(new Header(props.getKey(), prop));
 						}
@@ -270,7 +271,7 @@ public class HttpException extends Exception {
 				}
 
 				try {
-					this.statusCode = response.getResponseCode();
+					this.statusCode = resp.getResponseCode();
 				} catch (IllegalStateException e) {
 					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 					this.statusCode = 200;

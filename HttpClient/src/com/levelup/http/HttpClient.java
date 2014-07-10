@@ -3,29 +3,29 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import org.apache.http.protocol.HTTP;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
-import com.koushikdutta.async.DataEmitter;
-import com.koushikdutta.async.DataSink;
-import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.future.Future;
-import com.koushikdutta.async.future.SimpleFuture;
 import com.koushikdutta.async.http.libcore.RawHeaders;
-import com.koushikdutta.async.parser.AsyncParser;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
-import com.levelup.http.internal.BlockingDataCallback;
+import com.levelup.http.internal.HttpResponseUrlConnection;
 import com.levelup.http.internal.IonResponse;
 
 /**
@@ -74,16 +74,124 @@ public class HttpClient {
 		return defaultHeaders;
 	}
 
+	/**
+	 * Process the HTTP request on the network and return the HttpURLConnection
+	 * @param request
+	 * @return an {@link HttpURLConnection} with the network response
+	 * @throws HttpException
+	 */
+	private static HttpURLConnection getQueryResponse(BaseHttpRequest<?> request, boolean allowGzip) throws HttpException {
+		try {
+			prepareRequest(request);
+
+			if (request.hasBody()) {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+					request.urlConnection.setFixedLengthStreamingMode((int) request.getContentLength());
+				else
+					request.urlConnection.setFixedLengthStreamingMode(request.getContentLength());
+				request.urlConnection.setDoOutput(true);
+				request.urlConnection.setDoInput(true);
+				// TODO connection.setRequestProperty()
+			}
+
+			if (allowGzip && request.urlConnection.getRequestProperty(ACCEPT_ENCODING)==null) {
+				request.urlConnection.setRequestProperty(ACCEPT_ENCODING, "gzip,deflate");
+			}
+
+			final LoggerTagged logger = request.getLogger();
+			if (null != logger) {
+				logger.v(request.urlConnection.getRequestMethod() + ' ' + request.getUri());
+				for (Map.Entry<String, List<String>> header : request.urlConnection.getRequestProperties().entrySet()) {
+					logger.v(header.getKey()+": "+header.getValue());
+				}
+			}
+
+			if (null != request.getHttpConfig()) {
+				int readTimeout = request.getHttpConfig().getReadTimeout(request);
+				if (readTimeout>=0)
+					request.urlConnection.setReadTimeout(readTimeout);
+			}
+
+			request.urlConnection.connect();
+
+			request.outputBody(request.urlConnection);
+
+			if (null != logger) {
+				logger.v(request.urlConnection.getResponseMessage());
+				for (Map.Entry<String, List<String>> header : request.urlConnection.getHeaderFields().entrySet()) {
+					logger.v(header.getKey()+": "+header.getValue());
+				}
+			}
+
+			return request.urlConnection;
+
+		} catch (SecurityException e) {
+			LogManager.getLogger().w("security error for "+request+' '+e);
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("Security error "+e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_NETWORK);
+			throw builder.build();
+
+		} catch (SocketTimeoutException e) {
+			LogManager.getLogger().d("timeout for "+request);
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("Timeout error "+e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
+			throw builder.build();
+
+		} catch (IOException e) {
+			LogManager.getLogger().d("i/o error for "+request+' '+e.getMessage());
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("IO error "+e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_NETWORK);
+			throw builder.build();
+
+		} finally {
+			try {
+				request.setResponse(new HttpResponseUrlConnection(request.urlConnection));
+			} catch (IllegalStateException e) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
+				HttpException.Builder builder = request.newException();
+				builder.setErrorMessage("Connection closed "+e.getMessage());
+				builder.setCause(e);
+				builder.setErrorCode(HttpException.ERROR_NETWORK);
+				throw builder.build();
+			}
+		}
+	}
+
 	private static void prepareRequest(BaseHttpRequest<?> request) throws HttpException {
-		if (!TextUtils.isEmpty(userAgent))
+			/*
+			HttpResponse resp = null;
+			try {
+				HttpConnectionParams.setSoTimeout(client.getParams(), config.getReadTimeout(request));
+				HttpConnectionParams.setConnectionTimeout(client.getParams(), CONNECTION_TIMEOUT_IN_MS);
+			 */
+		if (!TextUtils.isEmpty(userAgent)) {
+			request.urlConnection.setRequestProperty(HTTP.USER_AGENT, userAgent);
 			request.requestBuilder.userAgent(userAgent);
+		}
 
 		if (null!=defaultHeaders) {
 			for (Header header : defaultHeaders) {
-				request.requestBuilder.setHeader(header.getName(), header.getValue());
+				request.setHeader(header.getName(), header.getValue());
 			}
 		}
 
+		if (null!=cookieManager) {
+			cookieManager.setCookieHeader(request);
+		}
+
+		try {
+			request.urlConnection.setRequestMethod(request.getHttpMethod());
+		} catch (ProtocolException e) {
+			forwardResponseException(request, e);
+
+		}
 		request.outputBody();
 		request.settleHttpHeaders();
 
@@ -246,6 +354,15 @@ public class HttpClient {
 			throw builder.build();
 		}
 
+		if (e instanceof ProtocolException) {
+			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("Method error " + e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_HTTP);
+			throw builder.build();
+		}
+
 		if (e instanceof IOException) {
 			LogManager.getLogger().d("i/o error for " + request + ' ' + e.getMessage());
 			HttpException.Builder builder = request.newException();
@@ -301,64 +418,12 @@ public class HttpClient {
 	public static <T> T parseRequest(final HttpRequest request, InputStreamParser<T> parser) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest<T> httpRequest = (BaseHttpRequest<T>) request;
-
 			if (request.isStreaming()) {
-				// we need to wait for the InputStream, with a timeout
-				//ResponseFuture<InputStream> req = httpRequest.requestBuilder.as(new com.koushikdutta.ion.InputStreamParser());
-				final int readTimeout = request.getHttpConfig().getReadTimeout(request);
-				if (readTimeout != -1) {
-					httpRequest.requestBuilder.setTimeout(readTimeout);
-				}
-				ResponseFuture<HttpStream> req = httpRequest.requestBuilder.as(new AsyncParser<HttpStream>() {
-					@Override
-					public Future<HttpStream> parse(final DataEmitter emitter) {
-						final BlockingDataCallback stream;
-						if (readTimeout != -1)
-							stream = new BlockingDataCallback(readTimeout, TimeUnit.MILLISECONDS);
-						else
-							stream = new BlockingDataCallback(90, TimeUnit.SECONDS);
-						final SimpleFuture<HttpStream> ret = new SimpleFuture<HttpStream>() {
-							@Override
-							protected void cancelCleanup() {
-								emitter.close();
-							}
-						};
-
-						emitter.setDataCallback(stream);
-
-						emitter.setEndCallback(new CompletedCallback() {
-							@Override
-							public void onCompleted(Exception ex) {
-								if (ex != null) {
-									ret.setComplete(ex);
-									return;
-								}
-
-								try {
-									ret.setComplete(new HttpStream(stream));
-								} catch (Exception e) {
-									ret.setComplete(e);
-								}
-							}
-						});
-
-						ret.setComplete(new HttpStream(stream));
-						return ret;
-					}
-
-					@Override
-					public void write(DataSink sink, HttpStream value, CompletedCallback completed) {
-						throw new IllegalStateException("not supported");
-					}
-				});
+				HttpURLConnection resp = getQueryResponse((BaseHttpRequest<HttpStream>) httpRequest, true);
 				try {
-					return (T) req.get();
-				} catch (InterruptedException e) {
+					return (T) new HttpStream(resp.getInputStream(), request);
+				} catch (IOException e) {
 					forwardResponseException(request, e);
-
-				} catch (ExecutionException e) {
-					forwardResponseException(request, e);
-
 				}
 			}
 

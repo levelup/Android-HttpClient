@@ -9,13 +9,13 @@ import com.koushikdutta.ion.builder.Builders;
  * HTTP parameters suitable to pass to {@link BaseHttpRequest} 
  */
 public interface HttpBodyParameters extends HttpParameters {
-	
+
 	/**
-	 * Set request properties on the request before it's established, like the content-type or content-length
-	 * @param request The POST request to set the parameters on
+	 * Set the body properties on the Ion request builder
+	 * @param requestBuilder Ion request builder to set the body on
 	 */
-	void settleHttpHeaders(BaseHttpRequest<?> request);
-	
+	void setOutputData(Builders.Any.B requestBuilder);
+
 	/**
 	 * Output stream to write the body of the POST query
 	 * @param output Stream to write into
@@ -25,7 +25,13 @@ public interface HttpBodyParameters extends HttpParameters {
 	 */
 	void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException;
 
-	void setOutputData(Builders.Any.B requestBuilder);
-
+	/**
+	 * Get the Content-Type of the body that will be written.
+	 */
 	String getContentType();
+
+	/**
+	 * Get the length in bytes of the body that will be written
+	 */
+	long getContentLength();
 }

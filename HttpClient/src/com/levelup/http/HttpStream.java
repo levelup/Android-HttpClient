@@ -3,24 +3,26 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.levelup.http.internal.BlockingDataCallback;
-
 public class HttpStream {
 
-	private final BlockingDataCallback dataBuffer;
+	private final InputStream inputStream;
+	private final HttpRequest request;
 
-	public HttpStream(BlockingDataCallback callback) {
-		this.dataBuffer = callback;
+	public HttpStream(InputStream inputStream, HttpRequest request) {
+		this.inputStream = inputStream;
+		this.request = request;
 	}
 
 	public InputStream getInputStream() {
-		return dataBuffer.getInputStream();
+		return inputStream;
 	}
 
 	public void disconnect() {
 		try {
-			dataBuffer.close();
+			inputStream.close();
 		} catch (IOException ignored) {
+		} finally {
+			request.getResponse().disconnect();
 		}
 	}
 

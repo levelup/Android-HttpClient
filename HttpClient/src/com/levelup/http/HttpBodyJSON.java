@@ -3,14 +3,12 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.http.body.JSONObjectBody;
 import com.koushikdutta.ion.builder.Builders;
-import com.koushikdutta.ion.gson.GsonBody;
 
 
 /**
@@ -55,23 +53,23 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	}
 
 	@Override
-	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		request.setHeader(HTTP.CONTENT_TYPE, GsonBody.CONTENT_TYPE);
-	}
-
-	@Override
 	public void setOutputData(Builders.Any.B requestBuilder) {
 		requestBuilder.setJsonObjectBody(jsonObject);
 	}
 
 	@Override
 	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
-		throw new IllegalAccessError();
+		output.write(jsonObject.toString().getBytes());
 	}
 
 	@Override
 	public String getContentType() {
 		return JSONObjectBody.CONTENT_TYPE;
+	}
+
+	@Override
+	public long getContentLength() {
+		return jsonObject.toString().getBytes().length;
 	}
 
 	private static JsonObject orgToGson(JSONObject value) {

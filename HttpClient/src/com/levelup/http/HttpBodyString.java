@@ -3,8 +3,6 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.protocol.HTTP;
-
 import com.koushikdutta.async.http.body.StringBody;
 import com.koushikdutta.ion.builder.Builders;
 
@@ -61,11 +59,6 @@ public class HttpBodyString implements HttpBodyParameters {
 	}
 
 	@Override
-	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		request.setHeader(HTTP.CONTENT_TYPE, StringBody.CONTENT_TYPE);
-	}
-	
-	@Override
 	public void setOutputData(Builders.Any.B requestBuilder) {
 		requestBuilder.setStringBody(value);
 	}
@@ -76,7 +69,12 @@ public class HttpBodyString implements HttpBodyParameters {
 	}
 
 	@Override
+	public long getContentLength() {
+		return value.getBytes().length;
+	}
+
+	@Override
 	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
-		throw new IllegalAccessError();
+		output.write(value.getBytes());
 	}
 }

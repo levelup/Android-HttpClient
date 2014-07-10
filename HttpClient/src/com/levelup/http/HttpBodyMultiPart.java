@@ -10,8 +10,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.protocol.HTTP;
-
 import android.text.TextUtils;
 
 import com.koushikdutta.async.http.body.FilePart;
@@ -84,15 +82,6 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 */
 	public void addFile(String name, File file, String contentType) {
 		mParams.add(new HttpParam(name, file, contentType));
-	}
-
-	@Override
-	public void settleHttpHeaders(BaseHttpRequest<?> request) {
-		if (request.isStreaming()) {
-			request.setHeader(HTTP.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
-			int contentLength = getContentLength();
-			request.setHeader(HTTP.CONTENT_LEN, Integer.toString(contentLength));
-		}
 	}
 
 	@Override
@@ -235,8 +224,9 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 		}
 	}
 
-	private int getContentLength() {
-		int contentLength = 0;
+	@Override
+	public long getContentLength() {
+		long contentLength = 0;
 		// everything but strings first in the multipart
 		for (HttpParam param : mParams)
 			if (param.value instanceof File) {
