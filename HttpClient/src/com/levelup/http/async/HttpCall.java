@@ -4,8 +4,8 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequestGet;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
@@ -23,11 +23,11 @@ public class HttpCall<T> {
 		NetworkTaskFactory<T> taskFactory = BaseNetworkTaskFactory.instance;
 		
 		public Builder(String url) {
-			this(new HttpRequestGet.Builder().setUrl(url).setStreamParser(InputStreamStringParser.instance).build());
+			this(new BaseHttpRequest.Builder().setUrl(url).setStreamParser(InputStreamStringParser.instance).build());
 		}
 		
 		public Builder(String url, InputStreamParser<T> parser) {
-			this(new HttpRequestGet.Builder<T>().setUrl(url).setStreamParser(parser).build());
+			this(new BaseHttpRequest.Builder<T>().setUrl(url).setStreamParser(parser).build());
 		}
 		
 		public Builder(TypedHttpRequest<T> request) {
