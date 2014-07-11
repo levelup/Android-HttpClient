@@ -14,10 +14,10 @@ import com.levelup.http.HttpResponse;
 /**
  * Created by Steve Lhomme on 09/07/2014.
  */
-public class IonResponse<T> implements HttpResponse {
+public class HttpResponseIon<T> implements HttpResponse {
 	private final Response<T> response;
 
-	public IonResponse(Response<T> response) {
+	public HttpResponseIon(Response<T> response) {
 		this.response = response;
 	}
 
