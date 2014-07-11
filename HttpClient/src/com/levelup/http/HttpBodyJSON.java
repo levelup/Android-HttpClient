@@ -58,7 +58,7 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output, BaseHttpRequest<?> request, UploadProgressListener progressListener) throws IOException {
+	public void writeBodyTo(OutputStream output, HttpRequest request, UploadProgressListener progressListener) throws IOException {
 		output.write(jsonObject.toString().getBytes());
 	}
 

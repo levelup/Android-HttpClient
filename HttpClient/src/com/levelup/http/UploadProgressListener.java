@@ -7,5 +7,5 @@ public interface UploadProgressListener {
 	 * @param name deprecated, always {@code null}
 	 * @param progress 0 when starting, 100 when finished
 	 */
-	void onParamUploadProgress(BaseHttpRequest<?> request, String name, int progress);
+	void onParamUploadProgress(HttpRequest request, String name, int progress);
 }
