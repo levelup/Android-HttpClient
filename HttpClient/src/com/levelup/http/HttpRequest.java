@@ -1,7 +1,7 @@
 package com.levelup.http;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.io.OutputStream;
 
 import android.net.Uri;
 
@@ -54,17 +54,21 @@ public interface HttpRequest extends HttpExceptionCreator {
 	void settleHttpHeaders() throws HttpException ;
 
 	/**
-	 * Output the HTTP body on the connection
-	 * <p>Opening and closing the OutputStream should be done there</p>
-	 * @param connection
+	 * Do the HTTP connection and send the request body if needed
 	 * @throws IOException
 	 */
-	void outputBody(HttpURLConnection connection) throws IOException;
+	void doConnection() throws IOException;
+
+	/**
+	 * Output the HTTP body on the OutputStream
+	 * @throws IOException
+	 */
+	void outputBody(OutputStream outputStream) throws IOException;
 
 	/**
 	 * Output the HTTP body on the connection
 	 */
-	void outputBody();
+	void setupBody();
 
 	/**
 	 * Called when the request has been performed on the server, even if the response is an error

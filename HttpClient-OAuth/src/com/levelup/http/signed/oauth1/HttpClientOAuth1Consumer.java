@@ -1,11 +1,11 @@
 package com.levelup.http.signed.oauth1;
 
 
+import com.levelup.http.TypedHttpRequest;
+import com.levelup.http.signed.OAuthClientApp;
+
 import oauth.signpost.AbstractOAuthConsumer;
 import oauth.signpost.http.HttpRequest;
-
-import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.signed.OAuthClientApp;
 
 public class HttpClientOAuth1Consumer extends AbstractOAuthConsumer {
 
@@ -17,6 +17,6 @@ public class HttpClientOAuth1Consumer extends AbstractOAuthConsumer {
 
 	@Override
 	protected HttpRequest wrap(Object request) {
-		return new OAuth1RequestAdapter((BaseHttpRequest<?>) request);
+		return new OAuth1RequestAdapter((TypedHttpRequest<?>) request);
 	}
 }

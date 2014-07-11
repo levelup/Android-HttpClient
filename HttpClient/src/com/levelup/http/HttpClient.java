@@ -5,19 +5,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
-import org.apache.http.protocol.HTTP;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
-import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
 import com.koushikdutta.async.future.Future;
@@ -25,8 +19,11 @@ import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
+import com.levelup.http.internal.BaseHttpRequestImpl;
+import com.levelup.http.internal.HttpRequestIon;
+import com.levelup.http.internal.HttpRequestUrlConnection;
+import com.levelup.http.internal.HttpResponseIon;
 import com.levelup.http.internal.HttpResponseUrlConnection;
-import com.levelup.http.internal.IonResponse;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -62,7 +59,7 @@ public class HttpClient {
 		HttpClient.cookieManager = cookieManager;
 	}
 
-	static CookieManager getCookieManager() {
+	public static CookieManager getCookieManager() {
 		return cookieManager;
 	}
 
@@ -80,78 +77,40 @@ public class HttpClient {
 	 * @return an {@link HttpURLConnection} with the network response
 	 * @throws HttpException
 	 */
-	private static HttpURLConnection getQueryResponse(BaseHttpRequest<?> request, boolean allowGzip) throws HttpException {
+	private static void getQueryResponse(HttpRequestUrlConnection request, boolean allowGzip) throws HttpException {
 		try {
-			prepareRequest(request);
-
-			if (request.hasBody()) {
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-					request.urlConnection.setFixedLengthStreamingMode((int) request.getContentLength());
-				else
-					request.urlConnection.setFixedLengthStreamingMode(request.getContentLength());
-				request.urlConnection.setDoOutput(true);
-				request.urlConnection.setDoInput(true);
-				// TODO connection.setRequestProperty()
+			if (allowGzip && request.getHeader(ACCEPT_ENCODING)==null) {
+				request.setHeader(ACCEPT_ENCODING, "gzip,deflate");
 			}
 
-			if (allowGzip && request.urlConnection.getRequestProperty(ACCEPT_ENCODING)==null) {
-				request.urlConnection.setRequestProperty(ACCEPT_ENCODING, "gzip,deflate");
-			}
+			request.prepareRequest(userAgent);
 
 			final LoggerTagged logger = request.getLogger();
 			if (null != logger) {
-				logger.v(request.urlConnection.getRequestMethod() + ' ' + request.getUri());
-				for (Map.Entry<String, List<String>> header : request.urlConnection.getRequestProperties().entrySet()) {
+				logger.v(request.getHttpMethod() + ' ' + request.getUri());
+				/* TODO for (Map.Entry<String, List<String>> header : request.urlConnection.getRequestProperties().entrySet()) {
 					logger.v(header.getKey()+": "+header.getValue());
-				}
+				}*/
 			}
 
-			if (null != request.getHttpConfig()) {
-				int readTimeout = request.getHttpConfig().getReadTimeout(request);
-				if (readTimeout>=0)
-					request.urlConnection.setReadTimeout(readTimeout);
-			}
-
-			request.urlConnection.connect();
-
-			request.outputBody(request.urlConnection);
+			request.doConnection();
 
 			if (null != logger) {
-				logger.v(request.urlConnection.getResponseMessage());
+				/* TODO logger.v(request.urlConnection.getResponseMessage());
 				for (Map.Entry<String, List<String>> header : request.urlConnection.getHeaderFields().entrySet()) {
 					logger.v(header.getKey()+": "+header.getValue());
-				}
+				}*/
 			}
 
-			return request.urlConnection;
-
 		} catch (SecurityException e) {
-			LogManager.getLogger().w("security error for "+request+' '+e);
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Security error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			throw builder.build();
-
-		} catch (SocketTimeoutException e) {
-			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Timeout error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-			throw builder.build();
+			forwardResponseException(request, e);
 
 		} catch (IOException e) {
-			LogManager.getLogger().d("i/o error for "+request+' '+e.getMessage());
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("IO error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			throw builder.build();
+			forwardResponseException(request, e);
 
 		} finally {
 			try {
-				request.setResponse(new HttpResponseUrlConnection(request.urlConnection));
+				request.setResponse(new HttpResponseUrlConnection(request));
 			} catch (IllegalStateException e) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
@@ -164,52 +123,6 @@ public class HttpClient {
 		}
 	}
 
-	private static void prepareRequest(BaseHttpRequest<?> request) throws HttpException {
-			/*
-			HttpResponse resp = null;
-			try {
-				HttpConnectionParams.setSoTimeout(client.getParams(), config.getReadTimeout(request));
-				HttpConnectionParams.setConnectionTimeout(client.getParams(), CONNECTION_TIMEOUT_IN_MS);
-			 */
-		if (!TextUtils.isEmpty(userAgent)) {
-			request.urlConnection.setRequestProperty(HTTP.USER_AGENT, userAgent);
-			request.requestBuilder.userAgent(userAgent);
-		}
-
-		if (null!=defaultHeaders) {
-			for (Header header : defaultHeaders) {
-				request.setHeader(header.getName(), header.getValue());
-			}
-		}
-
-		if (null!=cookieManager) {
-			cookieManager.setCookieHeader(request);
-		}
-
-		try {
-			request.urlConnection.setRequestMethod(request.getHttpMethod());
-		} catch (ProtocolException e) {
-			forwardResponseException(request, e);
-
-		}
-		request.outputBody();
-		request.settleHttpHeaders();
-
-		final LoggerTagged logger = request.getLogger();
-		if (null != logger) {
-			logger.v(request.getHttpMethod() + ' ' + request.getUri());
-			/** TODO for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
-				logger.v(header.getKey()+": "+header.getValue());
-			}*/
-		}
-
-		if (null != request.getHttpConfig()) {
-			int readTimeout = request.getHttpConfig().getReadTimeout(request);
-			if (readTimeout>=0)
-				request.requestBuilder.setTimeout(readTimeout);
-		}
-	}
-
 	/**
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
@@ -219,21 +132,37 @@ public class HttpClient {
 	 */
 	public static InputStream getInputStream(HttpRequest request) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
-			BaseHttpRequest httpRequest = (BaseHttpRequest) request;
-			prepareRequest(httpRequest);
-			try {
-				ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
-				Future<Response<InputStream>> withResponse = req.withResponse();
-				Response<InputStream> response = withResponse.get();
-				request.setResponse(new IonResponse(response));
-				throwResponseException(request, response);
-				return response.getResult();
-			} catch (InterruptedException e) {
-				forwardResponseException(request, e);
+			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
+			BaseHttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
 
-			} catch (ExecutionException e) {
-				forwardResponseException(request, e);
+			if (httpRequestImpl instanceof HttpRequestIon) {
+				HttpRequestIon httpRequest = (HttpRequestIon) httpRequestImpl;
+				httpRequest.prepareRequest(userAgent);
+				try {
+					ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
+					Future<Response<InputStream>> withResponse = req.withResponse();
+					Response<InputStream> response = withResponse.get();
+					request.setResponse(new HttpResponseIon(response));
+					throwResponseException(request, response);
+					return response.getResult();
+				} catch (InterruptedException e) {
+					forwardResponseException(request, e);
 
+				} catch (ExecutionException e) {
+					forwardResponseException(request, e);
+
+				}
+			}
+
+			if (httpRequestImpl instanceof HttpRequestUrlConnection) {
+				HttpRequestUrlConnection httpRequest = (HttpRequestUrlConnection) httpRequestImpl;
+				httpRequest.prepareRequest(userAgent);
+				getQueryResponse(httpRequest, true);
+				try {
+					return ((HttpResponseUrlConnection) httpRequest.getResponse()).getInputStream();
+				} catch (IOException e) {
+					forwardResponseException(request, e);
+				}
 			}
 		}
 
@@ -325,7 +254,7 @@ public class HttpClient {
 		return parseRequest(request, streamParser);
 	}
 
-	private static void forwardResponseException(HttpRequest request, Exception e) throws HttpException {
+	public static void forwardResponseException(HttpRequest request, Exception e) throws HttpException {
 		if (e instanceof InterruptedException) {
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("interrupted");
@@ -347,8 +276,9 @@ public class HttpClient {
 		}
 
 		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
+			LogManager.getLogger().d("timeout for "+request);
 			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("timeout");
+			builder.setErrorMessage("Timeout error "+e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
 			throw builder.build();
@@ -390,6 +320,15 @@ public class HttpClient {
 			builder.setErrorCode(HttpException.ERROR_PARSER);
 			throw builder.build();
 		}
+
+		if (e instanceof SecurityException) {
+			LogManager.getLogger().w("security error for "+request+' '+e);
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("Security error "+e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_NETWORK);
+			throw builder.build();
+		}
 	}
 
 	private static void throwResponseException(HttpRequest request, Response<?> response) throws HttpException {
@@ -417,50 +356,59 @@ public class HttpClient {
 	 */
 	public static <T> T parseRequest(final HttpRequest request, InputStreamParser<T> parser) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
-			BaseHttpRequest<T> httpRequest = (BaseHttpRequest<T>) request;
-			if (request.isStreaming()) {
-				HttpURLConnection resp = getQueryResponse((BaseHttpRequest<HttpStream>) httpRequest, true);
+			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
+			BaseHttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
+
+			if (httpRequestImpl instanceof HttpRequestUrlConnection && baseHttpRequest.isStreaming()) {
+				// special case: streaming with HttpRequestUrlConnection
+				HttpRequestUrlConnection httpRequest = (HttpRequestUrlConnection) httpRequestImpl;
+				getQueryResponse(httpRequest, true);
 				try {
-					return (T) new HttpStream(resp.getInputStream(), request);
+					return (T) new HttpStream(((HttpResponseUrlConnection) httpRequest.getResponse()).getInputStream(), request);
 				} catch (IOException e) {
 					forwardResponseException(request, e);
 				}
 			}
 
-			if (parser == null)
-				parser = httpRequest.getInputStreamParser();
+			if (httpRequestImpl instanceof HttpRequestIon) {
+				// special case: Gson data handling with HttpRequestIon
+				HttpRequestIon<T> httpRequest = (HttpRequestIon<T>) httpRequestImpl;
 
-			try {
-				if (parser instanceof InputStreamGsonParser) {
-					InputStreamGsonParser gsonParser = (InputStreamGsonParser) parser;
-					final ResponseFuture<T> req;
-					if (gsonParser.typeToken!=null) {
-						prepareRequest(httpRequest);
-						req = httpRequest.requestBuilder.as(gsonParser.typeToken);
-					} else if (gsonParser.type instanceof Class) {
-						Class<T> clazz = (Class<T>) gsonParser.type;
-						prepareRequest(httpRequest);
-						req = httpRequest.requestBuilder.as(clazz);
-					} else {
-						req = null;
+				if (parser == null)
+					parser = httpRequest.getInputStreamParser();
+
+				try {
+					if (parser instanceof InputStreamGsonParser) {
+						InputStreamGsonParser gsonParser = (InputStreamGsonParser) parser;
+						final ResponseFuture<T> req;
+						if (gsonParser.typeToken != null) {
+							httpRequest.prepareRequest(userAgent);
+							req = httpRequest.requestBuilder.as(gsonParser.typeToken);
+						} else if (gsonParser.type instanceof Class) {
+							Class<T> clazz = (Class<T>) gsonParser.type;
+							httpRequest.prepareRequest(userAgent);
+							req = httpRequest.requestBuilder.as(clazz);
+						} else {
+							req = null;
+						}
+						if (null != req) {
+							Future<Response<T>> withResponse = req.withResponse();
+							Response<T> response = withResponse.get();
+							request.setResponse(new HttpResponseIon(response));
+							throwResponseException(request, response);
+							return response.getResult();
+						}
 					}
-					if (null!=req) {
-						Future<Response<T>> withResponse = req.withResponse();
-						Response<T> response = withResponse.get();
-						request.setResponse(new IonResponse(response));
-						throwResponseException(request, response);
-						return response.getResult();
-					}
+
+				} catch (InterruptedException e) {
+					forwardResponseException(request, e);
+
+				} catch (ExecutionException e) {
+					forwardResponseException(request, e);
+
+				} catch (ParserException e) {
+					forwardResponseException(request, e);
 				}
-
-			} catch (InterruptedException e) {
-				forwardResponseException(request, e);
-
-			} catch (ExecutionException e) {
-				forwardResponseException(request, e);
-
-			} catch (ParserException e) {
-				forwardResponseException(request, e);
 			}
 		}
 
@@ -469,9 +417,6 @@ public class HttpClient {
 			try {
 				if (null != parser)
 					return parser.parseInputStream(is, request);
-
-			} catch (SocketTimeoutException e) {
-				forwardResponseException(request, e);
 
 			} catch (IOException e) {
 				forwardResponseException(request, e);

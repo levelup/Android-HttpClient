@@ -3,16 +3,18 @@ package com.levelup.http.signed.oauth1;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 
-import oauth.signpost.OAuth;
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.http.HttpParameters;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
+import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
+
+import oauth.signpost.OAuth;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.http.HttpParameters;
 
 /**
  * Helper class to Echo OAuth sign a {@link HttpRequest} using <a href="https://code.google.com/p/oauth-signpost/">oauth-signpost</a>
@@ -44,7 +46,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 		}
 		if (!TextUtils.isEmpty(verifyRealm))
 			realm.put("realm", verifyRealm);
-		BaseHttpRequest<Void> echoReq = new BaseHttpRequest.Builder<Void>().setUrl(verifyUrl).build();
+		TypedHttpRequest<Void> echoReq = new BaseHttpRequest.Builder<Void>().setUrl(verifyUrl).build();
 		super.sign(echoReq, realm);
 
 		String header = echoReq.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);

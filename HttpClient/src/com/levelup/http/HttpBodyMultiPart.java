@@ -27,7 +27,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 	private static final String charset = "UTF-8";
 	private static final String CRLF = "\r\n";
-	static final String boundary = "plUmeMultip4rt";
+	public static final String boundary = "plUmeMultip4rt";
 	private static final String boundarySplit = "--";
 
 	/**

@@ -3,7 +3,7 @@ package com.levelup.http.signed.oauth1.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.TypedHttpRequest;
 
 import oauth.signpost.http.HttpResponse;
 
@@ -12,7 +12,7 @@ public class ResponseAdapter implements HttpResponse {
 	private final InputStream inputStream;
 	private final com.levelup.http.HttpResponse response;
 
-	public ResponseAdapter(BaseHttpRequest<?> request, InputStream inputStream) {
+	public ResponseAdapter(TypedHttpRequest<?> request, InputStream inputStream) {
 		this.inputStream = inputStream;
 		this.response = request.getResponse();
 	}

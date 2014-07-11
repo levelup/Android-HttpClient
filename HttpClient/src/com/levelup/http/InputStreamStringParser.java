@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import android.text.TextUtils;
-
 /**
  * Singleton {@link InputStreamParser} class to get a {@link String} from an {@link InputStream}
  * @see #instance

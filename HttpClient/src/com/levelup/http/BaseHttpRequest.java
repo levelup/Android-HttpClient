@@ -1,41 +1,18 @@
 package com.levelup.http;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
-import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.koushikdutta.async.http.AsyncHttpRequest;
-import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
-import com.koushikdutta.async.http.body.MultipartFormDataBody;
-import com.koushikdutta.async.http.libcore.RawHeaders;
-import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.ProgressCallback;
-import com.koushikdutta.ion.builder.Builders;
-import com.koushikdutta.ion.builder.LoadBuilder;
-import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
-import com.levelup.http.gson.InputStreamGsonParser;
-import com.levelup.http.internal.HttpResponseUrlConnection;
-import com.levelup.http.internal.IonResponse;
+import com.levelup.http.internal.BaseHttpRequestImpl;
+import com.levelup.http.internal.HttpErrorHandler;
+import com.levelup.http.internal.HttpRequestIon;
+import com.levelup.http.internal.HttpRequestUrlConnection;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -44,23 +21,8 @@ import com.levelup.http.signed.AbstractRequestSigner;
  * @see HttpRequestPost for a more simple POST API
  * @param <T> type of the data read from the HTTP response
  */
-public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
-	private final Uri uri;
-	private final Map<String,String> mRequestSetHeaders = new HashMap<String, String>();
-	private final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
-	private LoggerTagged mLogger;
-	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
-	private HttpResponse httpResponse;
-	private final String method;
-	private final InputStreamParser<T> streamParser;
-	private final HttpBodyParameters bodyParams;
-	private final RequestSigner signer;
-	private UploadProgressListener mProgressListener;
-
-	final Builders.Any.B requestBuilder;
-	final HttpURLConnection urlConnection;
-
-	/**	Object to tell we are not outputting an object but using streaming data */
+public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements HttpErrorHandler {
+	/** Object to tell we are not outputting an object but using streaming data */
 	private static final InputStreamParser<HttpStream> streamingRequest = new InputStreamParser<HttpStream>() {
 		@Override
 		public HttpStream parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
@@ -82,6 +44,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		private InputStreamParser<T> streamParser;
 		private String httpMethod = "GET";
 		private RequestSigner signer;
+		private Boolean followRedirect;
 
 		/**
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
@@ -96,6 +59,10 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		public Builder(Context context) {
 			setContext(context);
 			setHttpMethod(DEFAULT_HTTP_METHOD);
+		}
+
+		public Context getContext() {
+			return context;
 		}
 
 		/**
@@ -217,10 +184,55 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		}
 
 		/**
+		 * Enable/Disable the HTTP redirection following, will follow redirections by default
+		 * @param followRedirect
+		 * @return Current Builder
+		 */
+		public Builder<T> setFollowRedirect(boolean followRedirect) {
+			this.followRedirect = followRedirect;
+			return this;
+		}
+
+		public Uri getUri() {
+			return uri;
+		}
+
+		public String getHttpMethod() {
+			return httpMethod;
+		}
+
+		public InputStreamParser<T> getInputStreamParser() {
+			return streamParser;
+		}
+
+		public RequestSigner getSigner() {
+			return signer;
+		}
+
+		public HttpBodyParameters getBodyParams() {
+			return bodyParams;
+		}
+
+		public Boolean getFollowRedirect() {
+			return followRedirect;
+		}
+
+		public BaseHttpRequest<T> build(BaseHttpRequestImpl<T> impl) {
+			return new BaseHttpRequest<T>(impl);
+		}
+
+		/**
 		 * Build the HTTP request to run through {@link HttpClient}
 		 */
 		public BaseHttpRequest<T> build() {
-			return new BaseHttpRequest<T>(this);
+			final BaseHttpRequestImpl<T> impl;
+			if (streamParser == streamingRequest)
+				impl = new HttpRequestUrlConnection<T>(this);
+			else
+				impl = new HttpRequestIon<T>(this);
+			BaseHttpRequest<T> result = build(impl);
+			impl.setErrorHandler(result);
+			return result;
 		}
 	}
 
@@ -228,344 +240,57 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	/**
-	 * Constructor with a string HTTP URL
-	 */
-	protected BaseHttpRequest(String url) {
-		this(new Builder<T>().setUrl(url));
-	}
-
-	/**
-	 * Constructor with a {@link Uri} constructor
-	 */
-	protected BaseHttpRequest(Uri uri) {
-		this(new Builder<T>().setUri(uri));
+	protected BaseHttpRequest(BaseHttpRequestImpl<T> delegate) {
+		super(delegate);
 	}
 
 	protected BaseHttpRequest(Builder<T> builder) {
-		if (builder.streamParser == streamingRequest) {
-			this.requestBuilder = null;
-			try {
-				this.urlConnection = (HttpURLConnection) new URL(builder.uri.toString()).openConnection();
-			} catch (MalformedURLException e) {
-				throw new IllegalArgumentException("Bad uri: "+builder.uri, e);
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
-		} else {
-			final Ion ion;
-			if (builder.streamParser instanceof InputStreamGsonParser) {
-				InputStreamGsonParser gsonParser = (InputStreamGsonParser) builder.streamParser;
-				ion = Ion.getInstance(builder.context, gsonParser.getClass().getName());
-				ion.configure().setGson(gsonParser.gson);
-			} else if (builder.streamParser == streamingRequest) {
-				ion = Ion.getInstance(builder.context, streamingRequest.getClass().getName());
-			} else {
-				ion = Ion.getDefault(builder.context);
-			}
-
-			ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
-				@Override
-				public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, RawHeaders headers) {
-					AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers) {
-						@Override
-						public void logd(String message) {
-							if (mLogger != null)
-								mLogger.d(message);
-							else
-								super.logd(message);
-						}
-
-						@Override
-						public void logd(String message, Exception e) {
-							if (mLogger != null)
-								mLogger.d(message, e);
-							else
-								super.logd(message, e);
-						}
-
-						@Override
-						public void logi(String message) {
-							if (mLogger != null)
-								mLogger.i(message);
-							else
-								super.logi(message);
-						}
-
-						@Override
-						public void logv(String message) {
-							if (mLogger != null)
-								mLogger.v(message);
-							else
-								super.logv(message);
-						}
-
-						@Override
-						public void logw(String message) {
-							if (mLogger != null)
-								mLogger.w(message);
-							else
-								super.logw(message);
-						}
-
-						@Override
-						public void loge(String message) {
-							if (mLogger != null)
-								mLogger.e(message);
-							else
-								super.loge(message);
-						}
-
-						@Override
-						public void loge(String message, Exception e) {
-							if (mLogger != null)
-								mLogger.e(message, e);
-							else
-								super.loge(message, e);
-						}
-
-						@Override
-						public void setBody(AsyncHttpRequestBody body) {
-							if (body instanceof MultipartFormDataBody) {
-								MultipartFormDataBody multipartFormDataBody = (MultipartFormDataBody) body;
-								multipartFormDataBody.setBoundary(HttpBodyMultiPart.boundary);
-							}
-
-							super.setBody(body);
-						}
-					};
-					return request;
-				}
-			});
-
-			final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.context);
-			this.requestBuilder = ionLoadBuilder.load(builder.httpMethod, builder.uri.toString());
-			this.urlConnection = null;
-		}
-
-		this.uri = builder.uri;
-		this.method = builder.httpMethod;
-		this.streamParser = builder.streamParser;
-		this.bodyParams = builder.bodyParams;
-		this.signer = builder.signer;
-	}
-
-	@Override
-	public final String getHttpMethod() {
-		return method;
-	}
-
-	@Override
-	public final InputStreamParser<T> getInputStreamParser() {
-		return streamParser;
-	}
-
-	/**
-	 * Set the {@link LoggerTagged} that will be used to send logs for this request. {@code null} is OK
-	 */
-	public void setLogger(LoggerTagged logger) {
-		mLogger = logger;
-	}
-
-	@Override
-	public LoggerTagged getLogger() {
-		return mLogger;
-	}
-
-	/**
-	 * Set a {@link HttpConfig}, by default {@link BasicHttpConfig} is used
-	 */
-	@Override
-	public void setHttpConfig(HttpConfig config) {
-		mHttpConfig = config;
-	}
-
-	@Override
-	public HttpConfig getHttpConfig() {
-		return mHttpConfig;
-	}
-
-	@Override
-	public void settleHttpHeaders() throws HttpException {
-		if (isStreaming()) {
-			if (null != bodyParams) {
-				setHeader(HTTP.CONTENT_TYPE, bodyParams.getContentType());
-				setHeader(HTTP.CONTENT_LEN, Long.toString(bodyParams.getContentLength()));
-			}
-		} else if (!isMethodWithBody(getHttpMethod())) {
-			setHeader(HTTP.CONTENT_LEN, "0");
-		}
-
-		if (null!=signer)
-			signer.sign(this);
-
-		for (Entry<String, String> entry : mRequestSetHeaders.entrySet()) {
-			if (null!=urlConnection)
-				urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
-			else
-				requestBuilder.setHeader(entry.getKey(), entry.getValue());
-		}
-		for (Entry<String, HashSet<String>> entry : mRequestAddHeaders.entrySet()) {
-			for (String value : entry.getValue()) {
-				if (null!=urlConnection)
-					urlConnection.addRequestProperty(entry.getKey(), value);
-				else
-					requestBuilder.addHeader(entry.getKey(), value);
-			}
-		}
-	}
-
-	@Override
-	public void addHeader(String key, String value) {
-		HashSet<String> values = mRequestAddHeaders.get(key);
-		if (null==values) {
-			values = new HashSet<String>();
-			mRequestAddHeaders.put(key, values);
-		}
-		values.add(value);
-	}
-
-	@Override
-	public void setHeader(String key, String value) {
-		mRequestAddHeaders.remove(key);
-		if (null==value)
-			mRequestSetHeaders.remove(key);
-		else
-			mRequestSetHeaders.put(key, value);
-	}
-
-	@Override
-	public String getHeader(String name) {
-		if (mRequestSetHeaders.containsKey(name))
-			return mRequestSetHeaders.get(name);
-		if (mRequestAddHeaders.containsKey(name) && !mRequestAddHeaders.get(name).isEmpty())
-			return mRequestAddHeaders.get(name).toArray(EMPTY_STRINGS)[0];
-		return null;
-	}
-
-	@Override
-	public String getContentType() {
-		if (null!=bodyParams) {
-			return bodyParams.getContentType();
-		}
-		return null;
-	}
-
-	long getContentLength() {
-		if (null!=bodyParams) {
-			return bodyParams.getContentLength();
-		}
-		return 0L;
-	}
-
-	private static final String[] EMPTY_STRINGS = {};
-
-	public Header[] getAllHeaders() {
-		List<Header> headers = null==HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
-		for (Entry<String, String> setHeader : mRequestSetHeaders.entrySet()) {
-			headers.add(new Header(setHeader.getKey(), setHeader.getValue()));
-		}
-		for (Entry<String, HashSet<String>> entries : mRequestAddHeaders.entrySet()) {
-			for (String entry : entries.getValue()) {
-				headers.add(new Header(entries.getKey(), entry));
-			}
-		}
-		return headers.toArray(new Header[headers.size()]);
-	}
-
-	@Override
-	public final Uri getUri() {
-		return uri;
-	}
-
-	/**
-	 * This is {@code final} as {@link #outputBody(OutputStream)} should be the one extended
-	 */
-	@Override
-	public final void outputBody(HttpURLConnection connection) throws IOException {
-		if (null != bodyParams) {
-			OutputStream output = null;
-			try {
-				output = connection.getOutputStream();
-				outputBody(output);
-			} finally {
-				if (null != output) {
-					output.close();
-				}
-			}
-		}
-	}
-
-	@Override
-	public final void outputBody() {
-		if (null==requestBuilder) throw new IllegalStateException("is this a streaming request?");
-		if (null != bodyParams) {
-			bodyParams.setOutputData(requestBuilder);
-
-			if (null!=mProgressListener) {
-				requestBuilder.progress(new ProgressCallback() {
-					@Override
-					public void onProgress(long downloaded, long total) {
-						mProgressListener.onParamUploadProgress(BaseHttpRequest.this, null, (int) ((100 * downloaded) / total));
-					}
-				});
-			}
-		}
-	}
-
-	public void setProgressListener(UploadProgressListener listener) {
-		this.mProgressListener = listener;
-	}
-
-	public UploadProgressListener getProgressListener() {
-		return mProgressListener;
-	}
-
-	public void outputBody(OutputStream output) throws IOException {
-		final UploadProgressListener listener = mProgressListener;
-		if (null != listener)
-			listener.onParamUploadProgress(this, null, 0);
-		if (null != bodyParams)
-			bodyParams.writeBodyTo(output, this, listener);
-		if (null != listener)
-			listener.onParamUploadProgress(this, null, 100);
-	}
-
-	@Override
-	public boolean hasBody() {
-		return null != bodyParams;
+		super(builder.build());
 	}
 
 	@Override
 	public boolean isStreaming() {
-		return streamParser == streamingRequest;
+		return delegate.getInputStreamParser() == streamingRequest;
 	}
 
-	@Override
-	public void setResponse(HttpResponse resp) {
-		httpResponse = resp;
-		CookieManager cookieMaster = HttpClient.getCookieManager();
-		if (cookieMaster!=null) {
-			try {
-				cookieMaster.setCookieResponse(this, resp);
-			} catch (IOException ignored) {
-			}
-		}
+	/**
+	 * Handle error data returned in JSON format
+	 * @param builder
+	 * @param jsonData
+	 * @return
+	 */
+	public HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
+		return builder;
 	}
 
-	@Override
-	public HttpResponse getResponse() {
-		return httpResponse;
+	BaseHttpRequestImpl<T> getHttpRequestImpl() {
+		if (delegate instanceof BaseHttpRequestImpl)
+			return (BaseHttpRequestImpl<T>) delegate;
+		if (delegate instanceof BaseHttpRequest)
+			return ((BaseHttpRequest) delegate).getHttpRequestImpl();
+		throw new IllegalStateException("invalid http request type");
+	}
+
+	public void setLogger(LoggerTagged loggerTagged) {
+		getHttpRequestImpl().setLogger(loggerTagged);
+	}
+
+	public void setProgressListener(UploadProgressListener listener) {
+		getHttpRequestImpl().setProgressListener(listener);
+	}
+
+	public UploadProgressListener getProgressListener() {
+		return getHttpRequestImpl().getProgressListener();
 	}
 
 	public RequestSigner getRequestSigner() {
-		return signer;
+		return getHttpRequestImpl().getRequestSigner();
 	}
 
 	protected String getToStringExtra() {
 		String result = getUri().toString();
-		if (signer instanceof AbstractRequestSigner)
-			result += " for " + ((AbstractRequestSigner) signer).getOAuthUser();
+		if (getRequestSigner() instanceof AbstractRequestSigner)
+			result += " for " + ((AbstractRequestSigner) getRequestSigner()).getOAuthUser();
 		return result;
 	}
 
@@ -589,93 +314,4 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T> {
 		return sb.toString();
 	}
 
-	@Override
-	public HttpException.Builder newException() {
-		return new HttpException.Builder(this);
-	}
-
-	@Override
-	public HttpException.Builder newExceptionFromResponse(Throwable cause) {
-		InputStream errorStream = null;
-		HttpException.Builder builder = null;
-		try {
-			final HttpResponse response = getResponse();
-			builder = newException();
-			builder.setErrorCode(HttpException.ERROR_HTTP);
-			builder.setHTTPResponse(response);
-			builder.setCause(cause);
-
-			MediaType type = MediaType.parse(response.getContentType());
-			if (Util.MediaTypeJSON.equalsType(type)) {
-				if (response instanceof IonResponse)
-					errorStream = getParseableErrorStream((IonResponse) response);
-				else if (response instanceof HttpResponseUrlConnection)
-					errorStream = getParseableErrorStream((HttpResponseUrlConnection) response);
-				if (errorStream != null) {
-					JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
-					builder.setErrorMessage(jsonData.toString());
-					builder = handleJSONError(builder, jsonData);
-				}
-			} else if (null==type || "text".equals(type.type())) {
-				if (response instanceof IonResponse)
-					errorStream = getParseableErrorStream((IonResponse) response);
-				else if (response instanceof HttpResponseUrlConnection)
-					errorStream = getParseableErrorStream((HttpResponseUrlConnection) response);
-				if (errorStream != null) {
-					String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
-					builder.setErrorMessage(errorData);
-				}
-			}
-		} catch (IOException ignored) {
-		} catch (ParserException ignored) {
-		} finally {
-			if (null!=errorStream) {
-				try {
-					errorStream.close();
-				} catch (NullPointerException ignored) {
-					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-				} catch (IOException ignored) {
-				}
-			}
-		}
-		return builder;
-	}
-
-	private static InputStream getParseableErrorStream(HttpResponseUrlConnection response) throws IOException {
-		InputStream errorStream = response.getErrorStream();
-		if (null==errorStream)
-			errorStream = response.getInputStream();
-
-		if (null==errorStream)
-			return null;
-
-		if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
-			errorStream = new InflaterInputStream(errorStream);
-		if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
-			errorStream = new GZIPInputStream(errorStream);
-
-		return errorStream;
-	}
-
-	private static InputStream getParseableErrorStream(IonResponse response) throws IOException {
-		Object result = response.getResult();
-		if (result instanceof InputStream) {
-			return (InputStream) result;
-		}
-		if (result==null)
-			throw new IOException("error stream not supported");
-
-		return new ByteArrayInputStream(result.toString().getBytes());
-	}
-
-	/**
-	 * Handle error data returned in JSON format
-	 * @param builder
-	 * @param jsonData
-	 * @return
-	 */
-	protected HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
-		// do nothing, we don't handle JSON errors
-		return builder;
-	}
 }

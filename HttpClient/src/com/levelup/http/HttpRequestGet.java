@@ -2,6 +2,8 @@ package com.levelup.http;
 
 import android.net.Uri;
 
+import com.levelup.http.internal.BaseHttpRequestImpl;
+
 /**
  * Basic HTTP GET request to use with {@link HttpClient}
  * 
@@ -10,8 +12,14 @@ import android.net.Uri;
  */
 public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 	public static class Builder<T> extends BaseHttpRequest.Builder<T> {
+		@Override
 		public HttpRequestGet<T> build() {
-			return new HttpRequestGet<T>(this);
+			return (HttpRequestGet<T>) super.build();
+		}
+
+		@Override
+		public HttpRequestGet<T> build(BaseHttpRequestImpl<T> impl) {
+			return new HttpRequestGet(impl);
 		}
 	}
 
@@ -25,6 +33,10 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 
 	public HttpRequestGet(String url) {
 		this((Builder<T>) new Builder<T>().setUrl(url));
+	}
+
+	protected HttpRequestGet(BaseHttpRequestImpl<T> impl) {
+		super(impl);
 	}
 
 	protected HttpRequestGet(Builder<T> builder) {

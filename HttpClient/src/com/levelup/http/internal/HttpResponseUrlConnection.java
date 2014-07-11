@@ -13,11 +13,14 @@ import com.levelup.http.HttpResponse;
  */
 public class HttpResponseUrlConnection implements HttpResponse {
 
+	private final HttpRequestUrlConnection request;
 	private final HttpURLConnection response;
 
-	public HttpResponseUrlConnection(HttpURLConnection response) {
-		if (null == response) throw new NullPointerException();
-		this.response = response;
+	public HttpResponseUrlConnection(HttpRequestUrlConnection request) {
+		if (null == request) throw new NullPointerException();
+		if (null == request.urlConnection) throw new NullPointerException();
+		this.response = request.urlConnection;
+		this.request = request;
 	}
 
 	@Override

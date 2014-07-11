@@ -6,6 +6,7 @@ import java.io.InputStream;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
+import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.oauth1.internal.ResponseAdapter;
 
@@ -43,7 +44,7 @@ public class HttpClientOAuth1Provider {
 
 	/**
 	 * Constructor to retrieve the tokens for the given client app with a custom {@link HttpClientOAuth1Consumer} and {@link ProviderHttpRequestFactory}
-	 * <p>The {@code requestFactory} can do special processing on the response via {@link HttpRequest#setResponse(com.levelup.http.HttpResponse) HttpRequest.setResponse}
+	 * <p>The {@code requestFactory} can do special processing on the response via {@link BaseHttpRequest#setResponse(com.levelup.http.HttpResponse) HttpRequest.setResponse}
 	 * 
 	 * @param consumer The consumer used to retrieve the tokens
 	 * @param requestTokenUrl The URL of the service provider to get a Request token
@@ -57,7 +58,7 @@ public class HttpClientOAuth1Provider {
 
 			@Override
 			protected HttpRequest createRequest(String endpointUrl) throws IOException {
-				final BaseHttpRequest<?> request;
+				final TypedHttpRequest<?> request;
 				if (HttpClientOAuth1Provider.this.consumer instanceof OAuth1ConsumerClocked) {
 					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
 					request = cons.createRequest(endpointUrl);
@@ -69,7 +70,7 @@ public class HttpClientOAuth1Provider {
 
 			@Override
 			protected HttpResponse sendRequest(HttpRequest request) throws IOException {
-				BaseHttpRequest<?> req = (BaseHttpRequest<?>) request.unwrap();
+				TypedHttpRequest<?> req = (TypedHttpRequest<?>) request.unwrap();
 				try {
 					InputStream inputStream = HttpClient.getInputStream(req);
 					return new ResponseAdapter(req, inputStream);

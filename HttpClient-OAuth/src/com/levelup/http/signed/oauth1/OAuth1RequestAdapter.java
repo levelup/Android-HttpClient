@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.Header;
+import com.levelup.http.TypedHttpRequest;
 
 import oauth.signpost.http.HttpRequest;
 
@@ -16,9 +16,9 @@ import oauth.signpost.http.HttpRequest;
  * Wrap a {@link HttpRequest HttpClient HttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
  */
 public class OAuth1RequestAdapter implements HttpRequest {
-	private final BaseHttpRequest<?> req;
+	private final TypedHttpRequest<?> req;
 
-	public OAuth1RequestAdapter(BaseHttpRequest<?> request) {
+	public OAuth1RequestAdapter(TypedHttpRequest<?> request) {
 		this.req = request;
 	}
 	
