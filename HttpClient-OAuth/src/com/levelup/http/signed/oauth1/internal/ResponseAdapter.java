@@ -10,21 +10,21 @@ import oauth.signpost.http.HttpResponse;
 public class ResponseAdapter implements HttpResponse {
 
 	private final InputStream inputStream;
-	private final com.levelup.http.HttpResponse headers;
+	private final com.levelup.http.HttpResponse response;
 
 	public ResponseAdapter(BaseHttpRequest<?> request, InputStream inputStream) {
 		this.inputStream = inputStream;
-		this.headers = request.getResponse();
+		this.response = request.getResponse();
 	}
 
 	@Override
 	public int getStatusCode() throws IOException {
-		return headers.getResponseCode();
+		return response.getResponseCode();
 	}
 
 	@Override
 	public String getReasonPhrase() throws Exception {
-		return headers.getResponseMessage();
+		return response.getResponseMessage();
 	}
 
 	@Override
