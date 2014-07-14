@@ -30,10 +30,6 @@ public interface HttpEngine<T> extends HttpRequestInfo {
 
 	UploadProgressListener getProgressListener();
 
-	void setResponse(HttpResponse resp);
-
-	HttpResponse getHttpResponse();
-
 	HttpException.Builder newException();
 
 	HttpException.Builder newExceptionFromResponse(Throwable cause);

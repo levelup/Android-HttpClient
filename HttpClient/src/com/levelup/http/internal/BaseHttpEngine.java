@@ -46,13 +46,13 @@ import com.levelup.http.signed.AbstractRequestSigner;
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpEngine<T> implements HttpEngine<T>, ImmutableHttpRequest {
+public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, ImmutableHttpRequest {
 	private final Uri uri;
 	protected final Map<String, String> mRequestSetHeaders = new HashMap<String, String>();
 	protected final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
 	private LoggerTagged mLogger;
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
-	private HttpResponse httpResponse;
+	private R httpResponse;
 	private final String method;
 	private final InputStreamParser<T> streamParser;
 	private final RequestSigner signer;
@@ -264,9 +264,10 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T>, ImmutableHttpR
 		return null;
 	}
 
-	@Override
-	public void setResponse(HttpResponse resp) {
-		httpResponse = resp;
+	protected void setRequestResponse(HttpRequest request, R httpResponse) {
+		this.httpResponse = httpResponse;
+		request.setResponse(httpResponse);
+
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster != null) {
 			try {
@@ -277,7 +278,7 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T>, ImmutableHttpR
 	}
 
 	@Override
-	public HttpResponse getHttpResponse() {
+	public R getHttpResponse() {
 		return httpResponse;
 	}
 

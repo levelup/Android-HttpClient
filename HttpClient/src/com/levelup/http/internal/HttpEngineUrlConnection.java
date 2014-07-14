@@ -33,7 +33,7 @@ import com.levelup.http.LoggerTagged;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
+public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrlConnection> {
 	final HttpURLConnection urlConnection;
 
 	public HttpEngineUrlConnection(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
@@ -87,7 +87,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 
 		} finally {
 			try {
-				request.setResponse(new HttpResponseUrlConnection(this));
+				setRequestResponse(request, new HttpResponseUrlConnection(this));
 			} catch (IllegalStateException e) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
@@ -176,7 +176,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 		prepareRequest(request);
 		getQueryResponse(request, true);
 		try {
-			return ((HttpResponseUrlConnection) getHttpResponse()).getInputStream();
+			return getHttpResponse().getInputStream();
 		} catch (IOException e) {
 			HttpClient.forwardResponseException(request, e);
 			return null;
@@ -189,7 +189,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 			// special case: streaming with HttpRequestUrlConnection
 			getQueryResponse(request, true);
 			try {
-				return (P) new HttpStream(((HttpResponseUrlConnection) getHttpResponse()).getInputStream(), request);
+				return (P) new HttpStream(getHttpResponse().getInputStream(), request);
 			} catch (IOException e) {
 				HttpClient.forwardResponseException(request, e);
 			}
@@ -200,7 +200,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 
 	@Override
 	protected InputStream getParseableErrorStream() throws IOException {
-		HttpResponseUrlConnection response = (HttpResponseUrlConnection) getHttpResponse();
+		HttpResponseUrlConnection response = getHttpResponse();
 		InputStream errorStream = response.getErrorStream();
 		if (null == errorStream)
 			errorStream = response.getInputStream();

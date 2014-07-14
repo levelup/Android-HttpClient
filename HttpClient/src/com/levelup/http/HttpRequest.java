@@ -50,8 +50,7 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionCreator {
 	 * Called when the request has been performed on the server, even if the response is an error
 	 * @param resp Contains the received headers/data from the server
 	 */
-
-	void setResponse(HttpResponse resp);
+	public <R extends HttpResponse> void setResponse(R resp);
 
 	/**
 	 * @return the HTTP response if there was any

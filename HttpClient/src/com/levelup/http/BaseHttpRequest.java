@@ -10,6 +10,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.levelup.http.internal.BaseHttpEngine;
 import com.levelup.http.internal.HttpEngineIon;
 import com.levelup.http.internal.HttpEngineUrlConnection;
 import com.levelup.http.internal.HttpErrorHandler;
@@ -17,7 +18,7 @@ import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
- * @see HttpRequestGet for a more simple API 
+ * @see HttpRequestGet for a more simple API
  * @see HttpRequestPost for a more simple POST API
  * @param <T> type of the data read from the HTTP response
  */
@@ -180,7 +181,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		}
 
 		/**
-		 * Indicate that this query will be used as a continuous stream rather than outputting an Object 
+		 * Indicate that this query will be used as a continuous stream rather than outputting an Object
 		 * @return Current Builder
 		 */
 		@SuppressWarnings("unchecked")
@@ -270,10 +271,10 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	private final HttpEngine<T> engine;
+	private final BaseHttpEngine<T,?> engine;
 
 	protected BaseHttpRequest(HttpEngine<T> httpEngine) {
-		this.engine = httpEngine;
+		this.engine = (BaseHttpEngine<T, ?>) httpEngine;
 		engine.setErrorHandler(this);
 	}
 
@@ -334,7 +335,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 
 	@Override
 	public void setResponse(HttpResponse resp) {
-		engine.setResponse(resp);
+		// do nothing
 	}
 
 	@Override

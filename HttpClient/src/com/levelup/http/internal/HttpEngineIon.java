@@ -39,7 +39,7 @@ import com.levelup.http.gson.InputStreamGsonParser;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineIon<T> extends BaseHttpEngine<T> {
+public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 
 	public HttpEngineIon(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
@@ -214,7 +214,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
 			Future<Response<InputStream>> withResponse = req.withResponse();
 			Response<InputStream> response = withResponse.get();
-			request.setResponse(new HttpResponseIon(response));
+			setRequestResponse(request, new HttpResponseIon(response));
 			throwResponseException(request, response);
 			return response.getResult();
 		} catch (InterruptedException e) {
@@ -254,7 +254,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 					HttpClient.forwardResponseException(request, e);
 
 				}
-				request.setResponse(new HttpResponseIon(response));
+				setRequestResponse(request, new HttpResponseIon(response));
 				throwResponseException(request, response);
 				return (P) response.getResult();
 			}
@@ -265,8 +265,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 
 	@Override
 	protected InputStream getParseableErrorStream() throws IOException {
-		@SuppressWarnings("unchecked")
-		Object result = ((HttpResponseIon<T>) getHttpResponse()).getResult();
+		Object result = getHttpResponse().getResult();
 		if (result instanceof InputStream) {
 			return (InputStream) result;
 		}
