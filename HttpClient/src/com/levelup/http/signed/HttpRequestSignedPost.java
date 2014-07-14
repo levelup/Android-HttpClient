@@ -24,13 +24,6 @@ public class HttpRequestSignedPost<T> extends HttpRequestPost<T> {
 	}
 
 	/**
-	 * @deprecated use {@link BaseHttpRequest} 
-	 */
-	protected HttpRequestSignedPost(Builder<T> builder) {
-		super(builder);
-	}
-
-	/**
 	 * @deprecated use {@link BaseHttpRequest}
 	 */
 	protected HttpRequestSignedPost(HttpRequestImpl<T> impl) {

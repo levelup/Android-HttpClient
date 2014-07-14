@@ -24,13 +24,6 @@ public class HttpRequestSignedGet<T> extends HttpRequestGet<T> {
 	}
 
 	/**
-	 * @deprecated use {@link BaseHttpRequest} 
-	 */
-	protected HttpRequestSignedGet(Builder<T> builder) {
-		super(builder);
-	}
-
-	/**
 	 * @deprecated use {@link BaseHttpRequest}
 	 */
 	protected HttpRequestSignedGet(HttpRequestImpl<T> impl) {
