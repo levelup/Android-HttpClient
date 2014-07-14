@@ -59,14 +59,14 @@ public class HttpClientOAuth1Provider {
 
 			@Override
 			protected HttpRequest createRequest(String endpointUrl) throws IOException {
-				final TypedHttpRequest<?> request;
+				final BaseHttpRequest<?> request;
 				if (HttpClientOAuth1Provider.this.consumer instanceof OAuth1ConsumerClocked) {
 					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
 					request = cons.createRequest(endpointUrl);
 				} else {
 					request = new HttpRequestPost<Void>(endpointUrl, null);
 				}
-				return new OAuth1RequestAdapter(request);
+				return new OAuth1RequestAdapter(request.getHttpEngine());
 			}
 
 			@Override

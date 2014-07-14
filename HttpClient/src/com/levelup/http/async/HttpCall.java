@@ -6,10 +6,10 @@ import java.util.concurrent.ExecutorService;
 
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
+import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamParser;
-import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.TypedHttpRequest;
 
 public class HttpCall<T> {
@@ -31,7 +31,7 @@ public class HttpCall<T> {
 			this(new BaseHttpRequest.Builder<T>(HttpClient.defaultContext)
 					.setUrl(url)
 					.setStreamParser(parser)
-					.buildImpl());
+					.build());
 		}
 		
 		public Builder(TypedHttpRequest<T> request) {

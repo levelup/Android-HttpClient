@@ -1,14 +1,14 @@
 package com.levelup.http.signed.oauth1;
 
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.exception.OAuthException;
-import oauth.signpost.http.HttpParameters;
-
+import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequest;
 import com.levelup.http.signed.AbstractRequestSigner;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
+
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.exception.OAuthException;
+import oauth.signpost.http.HttpParameters;
 
 /**
  * Helper class to add a {@link com.levelup.http.BaseHttpRequest BaseHttpRequest} OAuth1 signature
@@ -43,11 +43,11 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 	}
 
 	@Override
-	public void sign(HttpRequest req) throws HttpException {
+	public void sign(HttpEngine<?> req) throws HttpException {
 		sign(req, null);
 	}
 	
-	public void sign(HttpRequest req, HttpParameters oauthParams) throws HttpException {
+	public void sign(HttpEngine<?> req, HttpParameters oauthParams) throws HttpException {
 		synchronized (mOAuthConsumer) {
 			if (null!=getOAuthUser()) {
 				mOAuthConsumer.setTokenWithSecret(getOAuthUser().getToken(), getOAuthUser().getTokenSecret());

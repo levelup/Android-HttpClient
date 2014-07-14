@@ -2,6 +2,7 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.json.JSONObject;
 
@@ -10,8 +11,8 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.levelup.http.internal.HttpEngineIon;
-import com.levelup.http.internal.HttpErrorHandler;
 import com.levelup.http.internal.HttpEngineUrlConnection;
+import com.levelup.http.internal.HttpErrorHandler;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -20,11 +21,11 @@ import com.levelup.http.signed.AbstractRequestSigner;
  * @see HttpRequestPost for a more simple POST API
  * @param <T> type of the data read from the HTTP response
  */
-public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements HttpErrorHandler {
+public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler {
 	/** Object to tell we are not outputting an object but using streaming data */
 	private static final InputStreamParser<HttpStream> streamingRequest = new InputStreamParser<HttpStream>() {
 		@Override
-		public HttpStream parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
+		public HttpStream parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 			throw new IllegalAccessError("this parser should not be used");
 		}
 	};
@@ -269,14 +270,111 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	protected BaseHttpRequest(HttpEngine<T> impl) {
-		super(impl);
-		impl.setErrorHandler(this);
+	private final HttpEngine<T> engine;
+
+	protected BaseHttpRequest(HttpEngine<T> httpEngine) {
+		this.engine = httpEngine;
+		engine.setErrorHandler(this);
+	}
+
+	@Override
+	public Uri getUri() {
+		return engine.getUri();
+	}
+
+	@Override
+	public String getHttpMethod() {
+		return engine.getHttpMethod();
+	}
+
+	@Override
+	public String getContentType() {
+		return engine.getContentType();
+	}
+
+	@Override
+	public void addHeader(String name, String value) {
+		engine.addHeader(name, value);
+	}
+
+	@Override
+	public void setHeader(String name, String value) {
+		engine.setHeader(name, value);
+	}
+
+	@Override
+	public String getHeader(String name) {
+		return engine.getHeader(name);
+	}
+
+	@Override
+	public InputStreamParser<T> getInputStreamParser() {
+		return engine.getInputStreamParser();
+	}
+
+	@Override
+	public void settleHttpHeaders() throws HttpException {
+		engine.settleHttpHeaders(this);
+	}
+
+	@Override
+	public void doConnection() throws IOException {
+		engine.doConnection();
+	}
+
+	@Override
+	public void outputBody(OutputStream outputStream) throws IOException {
+		engine.outputBody(outputStream, this);
+	}
+
+	@Override
+	public void setupBody() {
+		engine.setupBody();
+	}
+
+	@Override
+	public void setResponse(HttpResponse resp) {
+		engine.setResponse(resp);
+	}
+
+	@Override
+	public HttpResponse getResponse() {
+		return engine.getHttpResponse();
+	}
+
+	@Override
+	public LoggerTagged getLogger() {
+		return engine.getLogger();
+	}
+
+	@Override
+	public HttpConfig getHttpConfig() {
+		return engine.getHttpConfig();
+	}
+
+	@Override
+	public void setHttpConfig(HttpConfig config) {
+		engine.setHttpConfig(config);
+	}
+
+	@Override
+	public Header[] getAllHeaders() {
+		return engine.getAllHeaders();
+	}
+
+	@Override
+	public boolean hasBody() {
+		return engine.hasBody();
 	}
 
 	@Override
 	public boolean isStreaming() {
-		return delegate.getInputStreamParser() == streamingRequest;
+		return engine.getInputStreamParser() == streamingRequest;
+	}
+
+	@Override
+	public HttpException.Builder newExceptionFromResponse(Throwable cause) {
+		return engine.newExceptionFromResponse(cause);
 	}
 
 	@Override
@@ -294,28 +392,25 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return builder;
 	}
 
-	final HttpEngine<T> getHttpEngine() {
-		if (delegate instanceof HttpEngine)
-			return (HttpEngine<T>) delegate;
-		if (delegate instanceof BaseHttpRequest)
-			return ((BaseHttpRequest) delegate).getHttpEngine();
-		throw new IllegalStateException("invalid http request type");
+	public final HttpEngine<T> getHttpEngine() {
+		return engine;
 	}
 
 	public void setLogger(LoggerTagged loggerTagged) {
-		getHttpEngine().setLogger(loggerTagged);
+		engine.setLogger(loggerTagged);
 	}
 
 	public void setProgressListener(UploadProgressListener listener) {
-		getHttpEngine().setProgressListener(listener);
+		engine.setProgressListener(listener);
 	}
 
 	public UploadProgressListener getProgressListener() {
-		return getHttpEngine().getProgressListener();
+		return engine.getProgressListener();
 	}
 
+	@Override
 	public RequestSigner getRequestSigner() {
-		return getHttpEngine().getRequestSigner();
+		return engine.getRequestSigner();
 	}
 
 	protected String getToStringExtra() {

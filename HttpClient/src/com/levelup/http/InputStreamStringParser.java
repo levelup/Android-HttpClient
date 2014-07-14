@@ -17,12 +17,12 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 	}
 
 	@Override
-	public String parseInputStream(InputStream is, HttpRequest request) throws IOException {
+	public String parseInputStream(InputStream is, ImmutableHttpRequest request) throws IOException {
 		final StringBuilder sb;
 
 		int contentLength = -1;
-		if (null != request) {
-			contentLength = request.getResponse().getContentLength();
+		if (null != request && request.getHttpResponse()!=null) {
+			contentLength = request.getHttpResponse().getContentLength();
 			if (contentLength > 0) {
 				sb = new StringBuilder(contentLength);
 			} else {
@@ -35,7 +35,7 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 		if (contentLength != 0) {
 			BufferedReader reader = null;
 			try {
-				reader = new BufferedReader(new InputStreamReader(is, Util.getInputCharsetOrUtf8(request)), 1250);
+				reader = new BufferedReader(new InputStreamReader(is, Util.getInputCharsetOrUtf8(request.getHttpResponse())), 1250);
 				for (String line = reader.readLine(); line!=null; line = reader.readLine()) {
 					if (sb.length()>0)
 						sb.append('\n');
@@ -47,9 +47,9 @@ public class InputStreamStringParser implements InputStreamParser<String> {
 			}
 		}
 
-		if (null != request && null != request.getLogger()) {
-			request.getLogger().d(request.toString() + '>' + sb.toString());
-		}
+		//if (null != httpResponse && null != httpResponse.getLogger()) {
+		//	httpResponse.getLogger().d(httpResponse.toString() + '>' + sb.toString());
+		//}
 
 		return sb.toString();
 	}

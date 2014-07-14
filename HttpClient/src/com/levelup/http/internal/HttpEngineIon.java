@@ -136,7 +136,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
 	}
 
-	public static void throwResponseException(HttpRequest request, Response<?> response) throws HttpException {
+	public void throwResponseException(HttpRequest request, Response<?> response) throws HttpException {
 		RawHeaders headers = response.getHeaders();
 		if (null!=headers) {
 			if (headers.getResponseCode() < 200 || headers.getResponseCode() >= 300) {
@@ -178,7 +178,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 		}
 
 		if (null != getHttpConfig()) {
-			int readTimeout = getHttpConfig().getReadTimeout(this);
+			int readTimeout = getHttpConfig().getReadTimeout(request);
 			if (readTimeout >= 0)
 				requestBuilder.setTimeout(readTimeout);
 		}
@@ -266,7 +266,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 	@Override
 	protected InputStream getParseableErrorStream() throws IOException {
 		@SuppressWarnings("unchecked")
-		Object result = ((HttpResponseIon<T>) getResponse()).getResult();
+		Object result = ((HttpResponseIon<T>) getHttpResponse()).getResult();
 		if (result instanceof InputStream) {
 			return (InputStream) result;
 		}

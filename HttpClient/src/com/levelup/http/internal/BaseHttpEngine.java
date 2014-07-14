@@ -24,10 +24,12 @@ import com.levelup.http.Header;
 import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
-import com.levelup.http.HttpException;
 import com.levelup.http.HttpEngine;
+import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
+import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpResponse;
+import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.InputStreamJSONObjectParser;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
@@ -44,7 +46,7 @@ import com.levelup.http.signed.AbstractRequestSigner;
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
+public abstract class BaseHttpEngine<T> implements HttpEngine<T>, ImmutableHttpRequest {
 	private final Uri uri;
 	protected final Map<String, String> mRequestSetHeaders = new HashMap<String, String>();
 	protected final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -108,8 +110,7 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 		return mHttpConfig;
 	}
 
-	@Override
-	public final void prepareRequest(HttpRequest request) throws HttpException {
+	protected final void prepareRequest(HttpRequest request) throws HttpException {
 			/*
 			HttpResponse resp = null;
 			try {
@@ -127,7 +128,7 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 		}
 
 		if (null != HttpClient.getCookieManager()) {
-			HttpClient.getCookieManager().setCookieHeader(this);
+			HttpClient.getCookieManager().setCookieHeader(request);
 		}
 
 		setupBody();
@@ -213,14 +214,14 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 	}
 
 	@Override
-	public void outputBody(OutputStream outputStream) throws IOException {
+	public void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException {
 		final UploadProgressListener listener = getProgressListener();
 		if (null != listener)
-			listener.onParamUploadProgress(this, null, 0);
+			listener.onParamUploadProgress(requestInfo, null, 0);
 		if (null != bodyParams)
-			bodyParams.writeBodyTo(outputStream, this, listener);
+			bodyParams.writeBodyTo(outputStream, requestInfo, listener);
 		if (null != listener)
-			listener.onParamUploadProgress(this, null, 100);
+			listener.onParamUploadProgress(requestInfo, null, 100);
 	}
 
 	@Override
@@ -244,7 +245,10 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 		if (null != is)
 			try {
 				if (null != parser)
-					return parser.parseInputStream(is, request);
+					return parser.parseInputStream(is, this);
+			} catch (ParserException e) {
+				HttpClient.forwardResponseException(request, e);
+
 			} catch (IOException e) {
 				HttpClient.forwardResponseException(request, e);
 
@@ -266,14 +270,14 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster != null) {
 			try {
-				cookieMaster.setCookieResponse(this, resp);
+				cookieMaster.setCookieResponse(this);
 			} catch (IOException ignored) {
 			}
 		}
 	}
 
 	@Override
-	public HttpResponse getResponse() {
+	public HttpResponse getHttpResponse() {
 		return httpResponse;
 	}
 
@@ -308,7 +312,7 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 	public HttpException.Builder newException() {
 		if (null!=errorHandler)
 			return errorHandler.newException();
-		return new HttpException.Builder(this);
+		throw new IllegalAccessError("missing errorHandler");
 	}
 
 	@Override
@@ -316,7 +320,7 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 		InputStream errorStream = null;
 		HttpException.Builder builder = null;
 		try {
-			final HttpResponse response = getResponse();
+			final HttpResponse response = getHttpResponse();
 			builder = newException();
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			builder.setHTTPResponse(response);
@@ -347,6 +351,11 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 			}
 		}
 		return builder;
+	}
+
+	@Override
+	public HttpRequestInfo getHttpRequestInfo() {
+		return this;
 	}
 
 	protected abstract InputStream getParseableErrorStream() throws IOException;

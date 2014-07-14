@@ -74,7 +74,7 @@ public class HttpBodyString implements HttpBodyParameters {
 	}
 
 	@Override
-	public void writeBodyTo(OutputStream output, HttpRequest request, UploadProgressListener progressListener) throws IOException {
+	public void writeBodyTo(OutputStream output, HttpRequestInfo request, UploadProgressListener progressListener) throws IOException {
 		output.write(value.getBytes());
 	}
 }

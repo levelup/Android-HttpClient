@@ -45,8 +45,13 @@ public class DelegateTypedHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public void settleHttpHeaders(HttpRequest request) throws HttpException {
-		delegate.settleHttpHeaders(request);
+	public RequestSigner getRequestSigner() {
+		return delegate.getRequestSigner();
+	}
+
+	@Override
+	public void settleHttpHeaders() throws HttpException {
+		delegate.settleHttpHeaders();
 	}
 
 	@Override

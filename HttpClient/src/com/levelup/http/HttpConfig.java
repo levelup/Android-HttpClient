@@ -8,7 +8,8 @@ public interface HttpConfig {
 
 	/**
 	 * Get the read timeout for the request (may be null)
+	 * @param request
 	 * @return read timeout in milliseconds, -1 for no read timeout
 	 */
-	int getReadTimeout(HttpRequest request);
+	int getReadTimeout(HttpRequestInfo request);
 }

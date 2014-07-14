@@ -260,37 +260,8 @@ public class HttpClient {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
 			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
-			try {
-				return (T) httpEngine.parseRequest(parser, request);
-
-			} catch (HttpException forward) {
-				throw forward;
-
-			} catch (Exception e) {
-				forwardResponseException(request, e);
-			}
+			return (T) httpEngine.parseRequest(parser, request);
 		}
-
-		InputStream is = getInputStream(request);
-		if (null != is)
-			try {
-				if (null != parser)
-					return parser.parseInputStream(is, request);
-
-			} catch (IOException e) {
-				forwardResponseException(request, e);
-
-			} catch (ParserException e) {
-				forwardResponseException(request, e);
-
-			} finally {
-				try {
-					is.close();
-				} catch (NullPointerException ignored) {
-					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-				} catch (IOException ignored) {
-				}
-			}
 
 		return null;
 	}

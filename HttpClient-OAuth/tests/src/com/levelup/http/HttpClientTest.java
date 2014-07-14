@@ -151,7 +151,7 @@ public class HttpClientTest extends AndroidTestCase {
 				build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override
-			public int getReadTimeout(HttpRequest request) {
+			public int getReadTimeout(HttpRequestInfo request) {
 				return 3000; // 3s
 			}
 		});
@@ -277,7 +277,7 @@ public class HttpClientTest extends AndroidTestCase {
 				build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override
-			public int getReadTimeout(HttpRequest request) {
+			public int getReadTimeout(HttpRequestInfo request) {
 				return 5000; // 5s
 			}
 		});

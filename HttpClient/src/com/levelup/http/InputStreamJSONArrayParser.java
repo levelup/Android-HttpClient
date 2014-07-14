@@ -14,7 +14,7 @@ public class InputStreamJSONArrayParser implements InputStreamParser<JSONArray> 
 	}
 
 	@Override
-	public JSONArray parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
+	public JSONArray parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		String srcData = InputStreamStringParser.instance.parseInputStream(inputStream, request);
 		try {
 			return new JSONArray(srcData);

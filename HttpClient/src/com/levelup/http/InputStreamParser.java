@@ -14,11 +14,11 @@ public interface InputStreamParser<T> {
 	/**
 	 * Parse the data read from the {@code inputStream} and turn them into an object of type {@code T}
 	 * @param inputStream The input stream to read the data from
-	 * @param request The HTTP request that was used to establish the connection
+	 * @param request
 	 * @return The object corresponding to the parsed data
 	 * @throws ParserException When the data parsing fails for some reason
 	 * @throws IOException
 	 */
-	T parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException;
-	
+	T parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException;
+
 }

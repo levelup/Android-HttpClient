@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.levelup.http.HttpRequest;
+import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.ParserException;
@@ -58,12 +58,12 @@ public class InputStreamGsonParser<T> implements InputStreamParser<T> {
 	}
 
 	@Override
-	public T parseInputStream(InputStream inputStream, HttpRequest request) throws IOException, ParserException {
+	public T parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		final Charset readCharset;
 		if ("UTF-8".equals(charset))
-			readCharset = Util.getInputCharsetOrUtf8(request);
+			readCharset = Util.getInputCharsetOrUtf8(request.getHttpResponse());
 		else
-			readCharset = Util.getInputCharset(request, Charset.forName(charset));
+			readCharset = Util.getInputCharset(request.getHttpResponse(), Charset.forName(charset));
 
 		String fullData = null;
 		if (debugData) {

@@ -16,7 +16,7 @@ public class BasicHttpConfig implements HttpConfig {
 	protected BasicHttpConfig() {}
 
 	@Override
-	public int getReadTimeout(HttpRequest request) {
+	public int getReadTimeout(HttpRequestInfo request) {
 		if (null!=request) {
 			final String postType = request.getHeader("Content-Type");
 			if (null!=postType && postType.startsWith("multipart/form-data"))

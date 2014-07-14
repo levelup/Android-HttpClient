@@ -146,7 +146,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 		}
 
 		if (null != getHttpConfig()) {
-			int readTimeout = getHttpConfig().getReadTimeout(this);
+			int readTimeout = getHttpConfig().getReadTimeout(request);
 			if (readTimeout >= 0)
 				urlConnection.setReadTimeout(readTimeout);
 		}
@@ -164,7 +164,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 		if (null != bodyParams) {
 			OutputStream output = urlConnection.getOutputStream();
 			try {
-				outputBody(output);
+				outputBody(output, this);
 			} finally {
 				output.close();
 			}
@@ -174,9 +174,9 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 	@Override
 	public InputStream getInputStream(HttpRequest request) throws HttpException {
 		prepareRequest(request);
-		getQueryResponse(this, true);
+		getQueryResponse(request, true);
 		try {
-			return ((HttpResponseUrlConnection) getResponse()).getInputStream();
+			return ((HttpResponseUrlConnection) getHttpResponse()).getInputStream();
 		} catch (IOException e) {
 			HttpClient.forwardResponseException(request, e);
 			return null;
@@ -187,9 +187,9 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
 		if (request.isStreaming()) {
 			// special case: streaming with HttpRequestUrlConnection
-			getQueryResponse(this, true);
+			getQueryResponse(request, true);
 			try {
-				return (P) new HttpStream(((HttpResponseUrlConnection) getResponse()).getInputStream(), request);
+				return (P) new HttpStream(((HttpResponseUrlConnection) getHttpResponse()).getInputStream(), request);
 			} catch (IOException e) {
 				HttpClient.forwardResponseException(request, e);
 			}
@@ -200,7 +200,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 
 	@Override
 	protected InputStream getParseableErrorStream() throws IOException {
-		HttpResponseUrlConnection response = (HttpResponseUrlConnection) getResponse();
+		HttpResponseUrlConnection response = (HttpResponseUrlConnection) getHttpResponse();
 		InputStream errorStream = response.getErrorStream();
 		if (null == errorStream)
 			errorStream = response.getInputStream();

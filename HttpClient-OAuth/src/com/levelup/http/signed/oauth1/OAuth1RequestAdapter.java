@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.levelup.http.Header;
-import com.levelup.http.TypedHttpRequest;
+import com.levelup.http.HttpEngine;
 
 import oauth.signpost.http.HttpRequest;
 
@@ -16,9 +16,9 @@ import oauth.signpost.http.HttpRequest;
  * Wrap a {@link HttpRequest HttpClient HttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
  */
 public class OAuth1RequestAdapter implements HttpRequest {
-	private final TypedHttpRequest<?> req;
+	private final HttpEngine<?> req;
 
-	public OAuth1RequestAdapter(TypedHttpRequest<?> request) {
+	public OAuth1RequestAdapter(HttpEngine<?> request) {
 		this.req = request;
 	}
 	
@@ -47,7 +47,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 		final String contentType = getContentType();  
 		if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
 			ByteArrayOutputStream output = new ByteArrayOutputStream(32);
-			req.outputBody(output);
+			req.outputBody(output, req);
 			return new ByteArrayInputStream(output.toByteArray());
 		}
 		return null;
