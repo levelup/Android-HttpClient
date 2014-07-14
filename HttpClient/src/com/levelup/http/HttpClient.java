@@ -33,7 +33,7 @@ public class HttpClient {
 	private static String userAgent;
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
-	static Context defaultContext;
+	public static Context defaultContext;
 
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}

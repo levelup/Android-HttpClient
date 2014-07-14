@@ -16,6 +16,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
@@ -66,7 +67,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 */
 	public static void getString(String url, String tag, NetworkCallback<String> callback) {
-		BaseHttpRequest.Builder<Void> reqBuilder = new BaseHttpRequest.Builder<Void>();
+		BaseHttpRequest.Builder<Void> reqBuilder = new BaseHttpRequest.Builder<Void>(HttpClient.defaultContext);
 		reqBuilder.setUrl(url);
 		BaseHttpRequest<?> req = reqBuilder.build();
 		getString(req, tag, callback);

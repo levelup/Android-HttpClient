@@ -173,9 +173,9 @@ public class HttpClientTest extends AndroidTestCase {
 
 		try {
 			JSONObject result = HttpClient.parseRequest(request);
-			fail("we should have an HTTP error "+errorCode);
+			fail("we should have an HTTP error " + errorCode);
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode()!=errorCode)
+			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode() != errorCode)
 				throw e;
 		}
 	}
@@ -188,9 +188,9 @@ public class HttpClientTest extends AndroidTestCase {
 
 		try {
 			HttpStream result = HttpClient.parseRequest(request);
-			fail("we should have an HTTP error "+errorCode+", not a stream");
+			fail("we should have an HTTP error " + errorCode + ", not a stream");
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode()!=errorCode)
+			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode() != errorCode)
 				throw e;
 		}
 	}
@@ -234,7 +234,7 @@ public class HttpClientTest extends AndroidTestCase {
 			if (read == -1) throw new EOFException("could not read more");
 			assertEquals('*', buffer[0]);
 
-			assertEquals(-1 ,streamIn.read(buffer));
+			assertEquals(-1, streamIn.read(buffer));
 		} finally {
 			stream.disconnect();
 		}
@@ -358,5 +358,33 @@ public class HttpClientTest extends AndroidTestCase {
 		} catch (IOException ok) {
 			assertTrue(ok.getMessage().contains("closed"));
 		}
+	}
+
+	public void testNullContext() throws Exception {
+		try {
+			HttpClient.setup(null);
+			BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>().
+					setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
+					build();
+			//when not using Ion, we don't need a Context fail("A query with no context is invalid");
+		} catch (NullPointerException e) {
+			// all good
+		}
+	}
+
+	public void testNullContextStreaming() throws Exception {
+		HttpClient.setup(null);
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>().
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
+				setStreaming().
+				build();
+	}
+
+	public void testSetupContext() throws Exception {
+		HttpClient.setup(getContext());
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>().
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
+				build();
+		HttpClient.setup(null);
 	}
 }

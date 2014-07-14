@@ -38,6 +38,10 @@ public class HttpRequestIon<T> extends BaseHttpRequestImpl<T> {
 	public HttpRequestIon(BaseHttpRequest.AbstractBuilder<T,?> builder) {
 		super(builder);
 
+		if (builder.getContext() == null) {
+			throw new NullPointerException("Ion HTTP request with no Context, try calling HttpClient.setup() first or a constructor with a Context");
+		}
+
 		final Ion ion;
 		if (getInputStreamParser() instanceof InputStreamGsonParser) {
 			InputStreamGsonParser gsonParser = (InputStreamGsonParser) getInputStreamParser();

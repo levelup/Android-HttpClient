@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamParser;
@@ -27,7 +28,7 @@ public class HttpCall<T> {
 		}
 		
 		public Builder(String url, InputStreamParser<T> parser) {
-			this(new BaseHttpRequest.Builder<T>()
+			this(new BaseHttpRequest.Builder<T>(HttpClient.defaultContext)
 					.setUrl(url)
 					.setStreamParser(parser)
 					.buildImpl());

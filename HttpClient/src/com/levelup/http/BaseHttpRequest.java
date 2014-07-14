@@ -35,6 +35,20 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 	 * @param <T> type of the data read from the HTTP response
 	 */
 	public final static class Builder<T> extends AbstractBuilder<T,BaseHttpRequest<T>> {
+		/**
+		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
+		 */
+		public Builder(Context context) {
+			super(context);
+		}
+
+		/**
+		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
+		 */
+		public Builder() {
+			super();
+		}
+
 		@Override
 		protected final BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
 			return new BaseHttpRequest<T>(impl);
