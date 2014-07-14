@@ -45,8 +45,8 @@ public class DelegateTypedHttpRequest<T> implements TypedHttpRequest<T> {
 	}
 
 	@Override
-	public void settleHttpHeaders() throws HttpException {
-		delegate.settleHttpHeaders();
+	public void settleHttpHeaders(HttpRequest request) throws HttpException {
+		delegate.settleHttpHeaders(request);
 	}
 
 	@Override

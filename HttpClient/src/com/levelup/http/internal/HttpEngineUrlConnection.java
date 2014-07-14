@@ -20,6 +20,11 @@ import android.os.Build;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpRequest;
+import com.levelup.http.HttpStream;
+import com.levelup.http.InputStreamParser;
+import com.levelup.http.LogManager;
+import com.levelup.http.LoggerTagged;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -43,6 +48,58 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 		}
 	}
 
+	/**
+	 * Process the HTTP request on the network and return the HttpURLConnection
+	 * @param request
+	 * @return an {@link java.net.HttpURLConnection} with the network response
+	 * @throws com.levelup.http.HttpException
+	 */
+	private void getQueryResponse(HttpRequest request, boolean allowGzip) throws HttpException {
+		try {
+			if (allowGzip && request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
+				request.setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
+			}
+
+			prepareRequest(request);
+
+			final LoggerTagged logger = request.getLogger();
+			if (null != logger) {
+				logger.v(request.getHttpMethod() + ' ' + request.getUri());
+				/* TODO for (Map.Entry<String, List<String>> header : request.urlConnection.getRequestProperties().entrySet()) {
+					logger.v(header.getKey()+": "+header.getValue());
+				}*/
+			}
+
+			request.doConnection();
+
+			if (null != logger) {
+				/* TODO logger.v(request.urlConnection.getResponseMessage());
+				for (Map.Entry<String, List<String>> header : request.urlConnection.getHeaderFields().entrySet()) {
+					logger.v(header.getKey()+": "+header.getValue());
+				}*/
+			}
+
+		} catch (SecurityException e) {
+			HttpClient.forwardResponseException(request, e);
+
+		} catch (IOException e) {
+			HttpClient.forwardResponseException(request, e);
+
+		} finally {
+			try {
+				request.setResponse(new HttpResponseUrlConnection(this));
+			} catch (IllegalStateException e) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
+				HttpException.Builder builder = request.newException();
+				builder.setErrorMessage("Connection closed "+e.getMessage());
+				builder.setCause(e);
+				builder.setErrorCode(HttpException.ERROR_NETWORK);
+				throw builder.build();
+			}
+		}
+	}
+
 	@Override
 	public boolean isStreaming() {
 		return true;
@@ -50,11 +107,11 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 
 	@SuppressLint("NewApi")
 	@Override
-	public void settleHttpHeaders() throws HttpException {
+	public void settleHttpHeaders(HttpRequest request) throws HttpException {
 		try {
 			urlConnection.setRequestMethod(getHttpMethod());
 		} catch (ProtocolException e) {
-			HttpClient.forwardResponseException(this, e);
+			HttpClient.forwardResponseException(request, e);
 		}
 
 		final long contentLength;
@@ -73,7 +130,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 		else
 			urlConnection.setFixedLengthStreamingMode(contentLength);
 
-		super.settleHttpHeaders();
+		super.settleHttpHeaders(request);
 
 		for (Entry<String, String> entry : mRequestSetHeaders.entrySet()) {
 			urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
@@ -84,13 +141,13 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 			}
 		}
 
-		if (null!=followRedirect) {
+		if (null != followRedirect) {
 			urlConnection.setInstanceFollowRedirects(followRedirect);
 		}
 
 		if (null != getHttpConfig()) {
 			int readTimeout = getHttpConfig().getReadTimeout(this);
-			if (readTimeout>=0)
+			if (readTimeout >= 0)
 				urlConnection.setReadTimeout(readTimeout);
 		}
 	}
@@ -112,6 +169,33 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 				output.close();
 			}
 		}
+	}
+
+	@Override
+	public InputStream getInputStream(HttpRequest request) throws HttpException {
+		prepareRequest(request);
+		getQueryResponse(this, true);
+		try {
+			return ((HttpResponseUrlConnection) getResponse()).getInputStream();
+		} catch (IOException e) {
+			HttpClient.forwardResponseException(request, e);
+			return null;
+		}
+	}
+
+	@Override
+	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
+		if (request.isStreaming()) {
+			// special case: streaming with HttpRequestUrlConnection
+			getQueryResponse(this, true);
+			try {
+				return (P) new HttpStream(((HttpResponseUrlConnection) getResponse()).getInputStream(), request);
+			} catch (IOException e) {
+				HttpClient.forwardResponseException(request, e);
+			}
+		}
+
+		return super.parseRequest(parser, request);
 	}
 
 	@Override

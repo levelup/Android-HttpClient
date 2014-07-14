@@ -26,6 +26,7 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpEngine;
+import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamJSONObjectParser;
 import com.levelup.http.InputStreamParser;
@@ -108,15 +109,15 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 	}
 
 	@Override
-	public final void prepareRequest(String userAgent) throws HttpException {
+	public final void prepareRequest(HttpRequest request) throws HttpException {
 			/*
 			HttpResponse resp = null;
 			try {
 				HttpConnectionParams.setSoTimeout(client.getParams(), config.getReadTimeout(request));
 				HttpConnectionParams.setConnectionTimeout(client.getParams(), CONNECTION_TIMEOUT_IN_MS);
 			 */
-		if (!TextUtils.isEmpty(userAgent)) {
-			setHeader(HTTP.USER_AGENT, userAgent);
+		if (!TextUtils.isEmpty(HttpClient.getUserAgent())) {
+			setHeader(HTTP.USER_AGENT, HttpClient.getUserAgent());
 		}
 
 		if (null != HttpClient.getDefaultHeaders()) {
@@ -130,7 +131,7 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 		}
 
 		setupBody();
-		settleHttpHeaders();
+		settleHttpHeaders(request);
 
 		final LoggerTagged logger = getLogger();
 		if (null != logger) {
@@ -142,7 +143,7 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 	}
 
 	@Override
-	public void settleHttpHeaders() throws HttpException {
+	public void settleHttpHeaders(HttpRequest request) throws HttpException {
 		if (null != signer)
 			signer.sign(this);
 	}
@@ -235,6 +236,28 @@ public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 	@Override
 	public boolean hasBody() {
 		return null != bodyParams;
+	}
+
+	@Override
+	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
+		InputStream is = getInputStream(request);
+		if (null != is)
+			try {
+				if (null != parser)
+					return parser.parseInputStream(is, request);
+			} catch (IOException e) {
+				HttpClient.forwardResponseException(request, e);
+
+			} finally {
+				try {
+					is.close();
+				} catch (NullPointerException ignored) {
+					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
+				} catch (IOException ignored) {
+				}
+			}
+
+		return null;
 	}
 
 	@Override

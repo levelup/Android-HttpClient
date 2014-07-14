@@ -1,6 +1,7 @@
 package com.levelup.http;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.net.Uri;
@@ -28,10 +29,10 @@ public interface HttpEngine<T> extends TypedHttpRequest<T> {
 	@Override
 	HttpConfig getHttpConfig();
 
-	void prepareRequest(String userAgent) throws HttpException;
+	void prepareRequest(HttpRequest request) throws HttpException;
 
 	@Override
-	void settleHttpHeaders() throws HttpException;
+	void settleHttpHeaders(HttpRequest request) throws HttpException;
 
 	@Override
 	void addHeader(String key, String value);
@@ -75,4 +76,8 @@ public interface HttpEngine<T> extends TypedHttpRequest<T> {
 	HttpException.Builder newExceptionFromResponse(Throwable cause);
 
 	void setErrorHandler(HttpErrorHandler errorHandler);
+
+	<P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws Exception;
+
+	InputStream getInputStream(HttpRequest request) throws HttpException;
 }

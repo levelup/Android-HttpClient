@@ -50,8 +50,9 @@ public interface HttpRequest extends HttpExceptionCreator {
 
 	/**
 	 * Settle the HTTP headers for the lifetime of this request, useful to sign the query
+	 * @param request
 	 */
-	void settleHttpHeaders() throws HttpException ;
+	void settleHttpHeaders(HttpRequest request) throws HttpException;
 
 	/**
 	 * Do the HTTP connection and send the request body if needed

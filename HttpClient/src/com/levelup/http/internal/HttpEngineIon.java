@@ -5,23 +5,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.protocol.HTTP;
 
 import android.net.Uri;
 
+import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
 import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
+import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
+import com.koushikdutta.ion.future.ResponseFuture;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpBodyMultiPart;
+import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpRequest;
+import com.levelup.http.InputStreamParser;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.gson.InputStreamGsonParser;
 
@@ -129,18 +136,33 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
 	}
 
+	public static void throwResponseException(HttpRequest request, Response<?> response) throws HttpException {
+		RawHeaders headers = response.getHeaders();
+		if (null!=headers) {
+			if (headers.getResponseCode() < 200 || headers.getResponseCode() >= 300) {
+				HttpException.Builder builder = request.newExceptionFromResponse(null);
+				throw builder.build();
+			}
+		}
+
+		Exception e = response.getException();
+		if (null!=e) {
+			HttpClient.forwardResponseException(request, e);
+		}
+	}
+
 	@Override
 	public boolean isStreaming() {
 		return false;
 	}
 
 	@Override
-	public void settleHttpHeaders() throws HttpException {
+	public void settleHttpHeaders(HttpRequest request) throws HttpException {
 		if (!isMethodWithBody(getHttpMethod())) {
 			setHeader(HTTP.CONTENT_LEN, "0");
 		}
 
-		super.settleHttpHeaders();
+		super.settleHttpHeaders(request);
 
 		for (Entry<String, String> entry : mRequestSetHeaders.entrySet()) {
 			requestBuilder.setHeader(entry.getKey(), entry.getValue());
@@ -183,6 +205,62 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 	@Override
 	public final void doConnection() throws IOException {
 		// do nothing
+	}
+
+	@Override
+	public InputStream getInputStream(HttpRequest request) throws HttpException {
+		prepareRequest(request);
+		try {
+			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
+			Future<Response<InputStream>> withResponse = req.withResponse();
+			Response<InputStream> response = withResponse.get();
+			request.setResponse(new HttpResponseIon(response));
+			throwResponseException(request, response);
+			return response.getResult();
+		} catch (InterruptedException e) {
+			HttpClient.forwardResponseException(request, e);
+			return null;
+		} catch (ExecutionException e) {
+			HttpClient.forwardResponseException(request, e);
+			return null;
+		}
+	}
+
+	@Override
+	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
+		// special case: Gson data handling with HttpRequestIon
+		if (parser instanceof InputStreamGsonParser) {
+			InputStreamGsonParser gsonParser = (InputStreamGsonParser) parser;
+			final ResponseFuture<T> req;
+			if (gsonParser.typeToken != null) {
+				prepareRequest(request);
+				req = requestBuilder.as(gsonParser.typeToken);
+			} else if (gsonParser.type instanceof Class) {
+				Class<T> clazz = (Class<T>) gsonParser.type;
+				prepareRequest(request);
+				req = requestBuilder.as(clazz);
+			} else {
+				req = null;
+			}
+			if (null != req) {
+				Future<Response<T>> withResponse = req.withResponse();
+				Response<T> response = null;
+				try {
+					response = withResponse.get();
+				} catch (InterruptedException e) {
+					HttpClient.forwardResponseException(request, e);
+
+				} catch (ExecutionException e) {
+					HttpClient.forwardResponseException(request, e);
+
+				}
+				request.setResponse(new HttpResponseIon(response));
+				throwResponseException(request, response);
+				return (P) response.getResult();
+			}
+		}
+
+		return super.parseRequest(parser, request);
 	}
 
 	@Override

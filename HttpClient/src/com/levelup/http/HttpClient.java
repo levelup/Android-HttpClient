@@ -2,7 +2,6 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
@@ -14,15 +13,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 import com.google.gson.JsonParseException;
-import com.koushikdutta.async.future.Future;
-import com.koushikdutta.async.http.libcore.RawHeaders;
-import com.koushikdutta.ion.Response;
-import com.koushikdutta.ion.future.ResponseFuture;
-import com.levelup.http.gson.InputStreamGsonParser;
-import com.levelup.http.internal.HttpEngineIon;
-import com.levelup.http.internal.HttpEngineUrlConnection;
-import com.levelup.http.internal.HttpResponseIon;
-import com.levelup.http.internal.HttpResponseUrlConnection;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -41,17 +31,20 @@ public class HttpClient {
 	 * @param context Used to get a proper User Agent for your app, may be {@code null}
 	 */
 	public static void setup(Context context) {
-		userAgent = "LevelUp-HttpClient/00000";
 		if (null!=context) {
 			defaultContext = context;
-			PackageManager pM = context.getPackageManager();
+			PackageManager pM = defaultContext.getPackageManager();
 			try {
-				PackageInfo pI = pM.getPackageInfo(context.getPackageName(), 0);
+				PackageInfo pI = pM.getPackageInfo(defaultContext.getPackageName(), 0);
 				if (pI != null)
 					userAgent = pI.applicationInfo.nonLocalizedLabel + "/" + pI.versionCode;
 			} catch (NameNotFoundException ignored) {
 			}
 		}
+	}
+
+	public static String getUserAgent() {
+		return userAgent;
 	}
 
 	public static void setCookieManager(CookieManager cookieManager) {
@@ -71,58 +64,6 @@ public class HttpClient {
 	}
 
 	/**
-	 * Process the HTTP request on the network and return the HttpURLConnection
-	 * @param request
-	 * @return an {@link HttpURLConnection} with the network response
-	 * @throws HttpException
-	 */
-	private static void getQueryResponse(HttpEngineUrlConnection request, boolean allowGzip) throws HttpException {
-		try {
-			if (allowGzip && request.getHeader(ACCEPT_ENCODING)==null) {
-				request.setHeader(ACCEPT_ENCODING, "gzip,deflate");
-			}
-
-			request.prepareRequest(userAgent);
-
-			final LoggerTagged logger = request.getLogger();
-			if (null != logger) {
-				logger.v(request.getHttpMethod() + ' ' + request.getUri());
-				/* TODO for (Map.Entry<String, List<String>> header : request.urlConnection.getRequestProperties().entrySet()) {
-					logger.v(header.getKey()+": "+header.getValue());
-				}*/
-			}
-
-			request.doConnection();
-
-			if (null != logger) {
-				/* TODO logger.v(request.urlConnection.getResponseMessage());
-				for (Map.Entry<String, List<String>> header : request.urlConnection.getHeaderFields().entrySet()) {
-					logger.v(header.getKey()+": "+header.getValue());
-				}*/
-			}
-
-		} catch (SecurityException e) {
-			forwardResponseException(request, e);
-
-		} catch (IOException e) {
-			forwardResponseException(request, e);
-
-		} finally {
-			try {
-				request.setResponse(new HttpResponseUrlConnection(request));
-			} catch (IllegalStateException e) {
-				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-				HttpException.Builder builder = request.newException();
-				builder.setErrorMessage("Connection closed "+e.getMessage());
-				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_NETWORK);
-				throw builder.build();
-			}
-		}
-	}
-
-	/**
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
 	 * @param request The HTTP request to process
@@ -133,36 +74,7 @@ public class HttpClient {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
 			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
-
-			if (httpEngine instanceof HttpEngineIon) {
-				HttpEngineIon httpRequest = (HttpEngineIon) httpEngine;
-				httpRequest.prepareRequest(userAgent);
-				try {
-					ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
-					Future<Response<InputStream>> withResponse = req.withResponse();
-					Response<InputStream> response = withResponse.get();
-					request.setResponse(new HttpResponseIon(response));
-					throwResponseException(request, response);
-					return response.getResult();
-				} catch (InterruptedException e) {
-					forwardResponseException(request, e);
-
-				} catch (ExecutionException e) {
-					forwardResponseException(request, e);
-
-				}
-			}
-
-			if (httpEngine instanceof HttpEngineUrlConnection) {
-				HttpEngineUrlConnection httpRequest = (HttpEngineUrlConnection) httpEngine;
-				httpRequest.prepareRequest(userAgent);
-				getQueryResponse(httpRequest, true);
-				try {
-					return ((HttpResponseUrlConnection) httpRequest.getResponse()).getInputStream();
-				} catch (IOException e) {
-					forwardResponseException(request, e);
-				}
-			}
+			return httpEngine.getInputStream(request);
 		}
 
 		return null;
@@ -328,21 +240,12 @@ public class HttpClient {
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
 			throw builder.build();
 		}
-	}
 
-	private static void throwResponseException(HttpRequest request, Response<?> response) throws HttpException {
-		RawHeaders headers = response.getHeaders();
-		if (null!=headers) {
-			if (headers.getResponseCode() < 200 || headers.getResponseCode() >= 300) {
-				HttpException.Builder builder = request.newExceptionFromResponse(null);
-				throw builder.build();
-			}
-		}
-
-		Exception e = response.getException();
-		if (null!=e) {
-			forwardResponseException(request, e);
-		}
+		LogManager.getLogger().w("unknown error for " + request + ' ' + e);
+		HttpException.Builder builder = request.newException();
+		builder.setCause(e);
+		builder.setErrorCode(HttpException.ERROR_HTTP);
+		throw builder.build();
 	}
 
 	/**
@@ -357,57 +260,14 @@ public class HttpClient {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
 			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
+			try {
+				return (T) httpEngine.parseRequest(parser, request);
 
-			if (httpEngine instanceof HttpEngineUrlConnection && baseHttpRequest.isStreaming()) {
-				// special case: streaming with HttpRequestUrlConnection
-				HttpEngineUrlConnection httpRequest = (HttpEngineUrlConnection) httpEngine;
-				getQueryResponse(httpRequest, true);
-				try {
-					return (T) new HttpStream(((HttpResponseUrlConnection) httpRequest.getResponse()).getInputStream(), request);
-				} catch (IOException e) {
-					forwardResponseException(request, e);
-				}
-			}
+			} catch (HttpException forward) {
+				throw forward;
 
-			if (httpEngine instanceof HttpEngineIon) {
-				// special case: Gson data handling with HttpRequestIon
-				HttpEngineIon<T> httpRequest = (HttpEngineIon<T>) httpEngine;
-
-				if (parser == null)
-					parser = httpRequest.getInputStreamParser();
-
-				try {
-					if (parser instanceof InputStreamGsonParser) {
-						InputStreamGsonParser gsonParser = (InputStreamGsonParser) parser;
-						final ResponseFuture<T> req;
-						if (gsonParser.typeToken != null) {
-							httpRequest.prepareRequest(userAgent);
-							req = httpRequest.requestBuilder.as(gsonParser.typeToken);
-						} else if (gsonParser.type instanceof Class) {
-							Class<T> clazz = (Class<T>) gsonParser.type;
-							httpRequest.prepareRequest(userAgent);
-							req = httpRequest.requestBuilder.as(clazz);
-						} else {
-							req = null;
-						}
-						if (null != req) {
-							Future<Response<T>> withResponse = req.withResponse();
-							Response<T> response = withResponse.get();
-							request.setResponse(new HttpResponseIon(response));
-							throwResponseException(request, response);
-							return response.getResult();
-						}
-					}
-
-				} catch (InterruptedException e) {
-					forwardResponseException(request, e);
-
-				} catch (ExecutionException e) {
-					forwardResponseException(request, e);
-
-				} catch (ParserException e) {
-					forwardResponseException(request, e);
-				}
+			} catch (Exception e) {
+				forwardResponseException(request, e);
 			}
 		}
 
