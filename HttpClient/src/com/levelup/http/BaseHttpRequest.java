@@ -9,6 +9,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.levelup.http.internal.BaseHttpRequestImpl;
 import com.levelup.http.internal.HttpErrorHandler;
 import com.levelup.http.internal.HttpRequestIon;
 import com.levelup.http.internal.HttpRequestUrlConnection;
@@ -263,6 +264,16 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 	@Override
 	public boolean isStreaming() {
 		return delegate.getInputStreamParser() == streamingRequest;
+	}
+
+	@Override
+	public HttpException.Builder newException() {
+		return new HttpException.Builder(this);
+	}
+
+	@Override
+	public final HttpException.Builder newException(BaseHttpRequestImpl httpRequest) {
+		return newException();
 	}
 
 	/**

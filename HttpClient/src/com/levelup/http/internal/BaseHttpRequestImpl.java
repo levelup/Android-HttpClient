@@ -283,6 +283,8 @@ public abstract class BaseHttpRequestImpl<T> implements HttpRequestImpl<T> {
 
 	@Override
 	public HttpException.Builder newException() {
+		if (null!=errorHandler)
+			return errorHandler.newException(this);
 		return new HttpException.Builder(this);
 	}
 
