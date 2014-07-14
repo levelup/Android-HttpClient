@@ -19,8 +19,8 @@ import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
-import com.levelup.http.internal.HttpRequestIon;
-import com.levelup.http.internal.HttpRequestUrlConnection;
+import com.levelup.http.internal.HttpEngineIon;
+import com.levelup.http.internal.HttpEngineUrlConnection;
 import com.levelup.http.internal.HttpResponseIon;
 import com.levelup.http.internal.HttpResponseUrlConnection;
 
@@ -76,7 +76,7 @@ public class HttpClient {
 	 * @return an {@link HttpURLConnection} with the network response
 	 * @throws HttpException
 	 */
-	private static void getQueryResponse(HttpRequestUrlConnection request, boolean allowGzip) throws HttpException {
+	private static void getQueryResponse(HttpEngineUrlConnection request, boolean allowGzip) throws HttpException {
 		try {
 			if (allowGzip && request.getHeader(ACCEPT_ENCODING)==null) {
 				request.setHeader(ACCEPT_ENCODING, "gzip,deflate");
@@ -132,10 +132,10 @@ public class HttpClient {
 	public static InputStream getInputStream(HttpRequest request) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
-			HttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
+			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
 
-			if (httpRequestImpl instanceof HttpRequestIon) {
-				HttpRequestIon httpRequest = (HttpRequestIon) httpRequestImpl;
+			if (httpEngine instanceof HttpEngineIon) {
+				HttpEngineIon httpRequest = (HttpEngineIon) httpEngine;
 				httpRequest.prepareRequest(userAgent);
 				try {
 					ResponseFuture<InputStream> req = httpRequest.requestBuilder.asInputStream();
@@ -153,8 +153,8 @@ public class HttpClient {
 				}
 			}
 
-			if (httpRequestImpl instanceof HttpRequestUrlConnection) {
-				HttpRequestUrlConnection httpRequest = (HttpRequestUrlConnection) httpRequestImpl;
+			if (httpEngine instanceof HttpEngineUrlConnection) {
+				HttpEngineUrlConnection httpRequest = (HttpEngineUrlConnection) httpEngine;
 				httpRequest.prepareRequest(userAgent);
 				getQueryResponse(httpRequest, true);
 				try {
@@ -321,7 +321,7 @@ public class HttpClient {
 		}
 
 		if (e instanceof SecurityException) {
-			LogManager.getLogger().w("security error for "+request+' '+e);
+			LogManager.getLogger().w("security error for " + request + ' ' + e);
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("Security error "+e.getMessage());
 			builder.setCause(e);
@@ -356,11 +356,11 @@ public class HttpClient {
 	public static <T> T parseRequest(final HttpRequest request, InputStreamParser<T> parser) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
-			HttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
+			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
 
-			if (httpRequestImpl instanceof HttpRequestUrlConnection && baseHttpRequest.isStreaming()) {
+			if (httpEngine instanceof HttpEngineUrlConnection && baseHttpRequest.isStreaming()) {
 				// special case: streaming with HttpRequestUrlConnection
-				HttpRequestUrlConnection httpRequest = (HttpRequestUrlConnection) httpRequestImpl;
+				HttpEngineUrlConnection httpRequest = (HttpEngineUrlConnection) httpEngine;
 				getQueryResponse(httpRequest, true);
 				try {
 					return (T) new HttpStream(((HttpResponseUrlConnection) httpRequest.getResponse()).getInputStream(), request);
@@ -369,9 +369,9 @@ public class HttpClient {
 				}
 			}
 
-			if (httpRequestImpl instanceof HttpRequestIon) {
+			if (httpEngine instanceof HttpEngineIon) {
 				// special case: Gson data handling with HttpRequestIon
-				HttpRequestIon<T> httpRequest = (HttpRequestIon<T>) httpRequestImpl;
+				HttpEngineIon<T> httpRequest = (HttpEngineIon<T>) httpEngine;
 
 				if (parser == null)
 					parser = httpRequest.getInputStreamParser();

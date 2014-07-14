@@ -25,7 +25,7 @@ import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequestImpl;
+import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamJSONObjectParser;
 import com.levelup.http.InputStreamParser;
@@ -43,7 +43,7 @@ import com.levelup.http.signed.AbstractRequestSigner;
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpRequestImpl<T> implements HttpRequestImpl<T> {
+public abstract class BaseHttpEngine<T> implements HttpEngine<T> {
 	private final Uri uri;
 	protected final Map<String, String> mRequestSetHeaders = new HashMap<String, String>();
 	protected final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -62,7 +62,7 @@ public abstract class BaseHttpRequestImpl<T> implements HttpRequestImpl<T> {
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	protected BaseHttpRequestImpl(BaseHttpRequest.AbstractBuilder<T,?> builder) {
+	protected BaseHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		this.uri = builder.getUri();
 		this.method = builder.getHttpMethod();
 		this.streamParser = builder.getInputStreamParser();
@@ -284,7 +284,7 @@ public abstract class BaseHttpRequestImpl<T> implements HttpRequestImpl<T> {
 	@Override
 	public HttpException.Builder newException() {
 		if (null!=errorHandler)
-			return errorHandler.newException(this);
+			return errorHandler.newException();
 		return new HttpException.Builder(this);
 	}
 

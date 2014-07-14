@@ -10,7 +10,7 @@ import com.levelup.http.internal.HttpErrorHandler;
 /**
  * Created by Dell990MT on 14/07/2014.
  */
-public interface HttpRequestImpl<T> extends TypedHttpRequest<T> {
+public interface HttpEngine<T> extends TypedHttpRequest<T> {
 	@Override
 	String getHttpMethod();
 

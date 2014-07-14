@@ -32,10 +32,10 @@ import com.levelup.http.gson.InputStreamGsonParser;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpRequestIon<T> extends BaseHttpRequestImpl<T> {
+public class HttpEngineIon<T> extends BaseHttpEngine<T> {
 	public final Builders.Any.B requestBuilder;
 
-	public HttpRequestIon(BaseHttpRequest.AbstractBuilder<T,?> builder) {
+	public HttpEngineIon(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		super(builder);
 
 		if (builder.getContext() == null) {
@@ -173,7 +173,7 @@ public class HttpRequestIon<T> extends BaseHttpRequestImpl<T> {
 				requestBuilder.progress(new ProgressCallback() {
 					@Override
 					public void onProgress(long downloaded, long total) {
-						progressListener.onParamUploadProgress(HttpRequestIon.this, null, (int) ((100 * downloaded) / total));
+						progressListener.onParamUploadProgress(HttpEngineIon.this, null, (int) ((100 * downloaded) / total));
 					}
 				});
 			}

@@ -9,10 +9,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.levelup.http.internal.BaseHttpRequestImpl;
+import com.levelup.http.internal.HttpEngineIon;
 import com.levelup.http.internal.HttpErrorHandler;
-import com.levelup.http.internal.HttpRequestIon;
-import com.levelup.http.internal.HttpRequestUrlConnection;
+import com.levelup.http.internal.HttpEngineUrlConnection;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -50,7 +49,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		}
 
 		@Override
-		protected final BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
+		protected final BaseHttpRequest<T> build(HttpEngine<T> impl) {
 			return new BaseHttpRequest<T>(impl);
 		}
 	}
@@ -249,13 +248,13 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param impl Internal HTTP Implementation
 		 * @return
 		 */
-		protected abstract R build(HttpRequestImpl<T> impl);
+		protected abstract R build(HttpEngine<T> impl);
 
-		public HttpRequestImpl<T> buildImpl() {
+		public final HttpEngine<T> buildImpl() {
 			if (streamParser == streamingRequest)
-				return new HttpRequestUrlConnection<T>(this);
+				return new HttpEngineUrlConnection<T>(this);
 			else
-				return new HttpRequestIon<T>(this);
+				return new HttpEngineIon<T>(this);
 		}
 
 		/**
@@ -270,7 +269,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	protected BaseHttpRequest(HttpRequestImpl<T> impl) {
+	protected BaseHttpRequest(HttpEngine<T> impl) {
 		super(impl);
 		impl.setErrorHandler(this);
 	}
@@ -285,11 +284,6 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return new HttpException.Builder(this);
 	}
 
-	@Override
-	public final HttpException.Builder newException(BaseHttpRequestImpl httpRequest) {
-		return newException();
-	}
-
 	/**
 	 * Handle error data returned in JSON format
 	 * @param builder
@@ -300,28 +294,28 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return builder;
 	}
 
-	HttpRequestImpl<T> getHttpRequestImpl() {
-		if (delegate instanceof HttpRequestImpl)
-			return (HttpRequestImpl<T>) delegate;
+	final HttpEngine<T> getHttpEngine() {
+		if (delegate instanceof HttpEngine)
+			return (HttpEngine<T>) delegate;
 		if (delegate instanceof BaseHttpRequest)
-			return ((BaseHttpRequest) delegate).getHttpRequestImpl();
+			return ((BaseHttpRequest) delegate).getHttpEngine();
 		throw new IllegalStateException("invalid http request type");
 	}
 
 	public void setLogger(LoggerTagged loggerTagged) {
-		getHttpRequestImpl().setLogger(loggerTagged);
+		getHttpEngine().setLogger(loggerTagged);
 	}
 
 	public void setProgressListener(UploadProgressListener listener) {
-		getHttpRequestImpl().setProgressListener(listener);
+		getHttpEngine().setProgressListener(listener);
 	}
 
 	public UploadProgressListener getProgressListener() {
-		return getHttpRequestImpl().getProgressListener();
+		return getHttpEngine().getProgressListener();
 	}
 
 	public RequestSigner getRequestSigner() {
-		return getHttpRequestImpl().getRequestSigner();
+		return getHttpEngine().getRequestSigner();
 	}
 
 	protected String getToStringExtra() {

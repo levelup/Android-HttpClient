@@ -17,5 +17,5 @@ public interface HttpErrorHandler {
 	 */
 	HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData);
 
-	HttpException.Builder newException(BaseHttpRequestImpl httpRequest);
+	HttpException.Builder newException();
 }

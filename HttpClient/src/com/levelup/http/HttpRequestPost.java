@@ -17,7 +17,7 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 
 	public final static class Builder<T> extends AbstractBuilder<T,HttpRequestPost<T>> {
 		@Override
-		protected final HttpRequestPost<T> build(HttpRequestImpl<T> impl) {
+		protected final HttpRequestPost<T> build(HttpEngine<T> impl) {
 			return new HttpRequestPost<T>(impl);
 		}
 	}
@@ -30,7 +30,7 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		this(new Builder<T>().setBody(bodyParams).setUri(uri).buildImpl());
 	}
 
-	protected HttpRequestPost(HttpRequestImpl<T> impl) {
+	protected HttpRequestPost(HttpEngine<T> impl) {
 		super(impl);
 	}
 }

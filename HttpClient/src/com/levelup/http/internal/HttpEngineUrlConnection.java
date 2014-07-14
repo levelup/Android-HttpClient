@@ -28,10 +28,10 @@ import com.levelup.http.HttpException;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpRequestUrlConnection<T> extends BaseHttpRequestImpl<T> {
+public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T> {
 	final HttpURLConnection urlConnection;
 
-	public HttpRequestUrlConnection(BaseHttpRequest.AbstractBuilder<T,?> builder) {
+	public HttpEngineUrlConnection(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		super(builder);
 
 		try {
