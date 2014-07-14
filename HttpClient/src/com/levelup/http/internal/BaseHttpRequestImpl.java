@@ -25,6 +25,7 @@ import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpRequestImpl;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.InputStreamJSONObjectParser;
 import com.levelup.http.InputStreamParser;
@@ -39,11 +40,11 @@ import com.levelup.http.Util;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
- * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
+ * Base HTTP request handler used internally by {@link com.levelup.http.BaseHttpRequest BaseHttpRequest}
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpRequestImpl<T> implements TypedHttpRequest<T> {
+public abstract class BaseHttpRequestImpl<T> implements HttpRequestImpl<T> {
 	private final Uri uri;
 	protected final Map<String, String> mRequestSetHeaders = new HashMap<String, String>();
 	protected final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -84,6 +85,7 @@ public abstract class BaseHttpRequestImpl<T> implements TypedHttpRequest<T> {
 	/**
 	 * Set the {@link com.levelup.http.LoggerTagged} that will be used to send logs for this request. {@code null} is OK
 	 */
+	@Override
 	public void setLogger(LoggerTagged logger) {
 		mLogger = logger;
 	}
@@ -106,6 +108,7 @@ public abstract class BaseHttpRequestImpl<T> implements TypedHttpRequest<T> {
 		return mHttpConfig;
 	}
 
+	@Override
 	public final void prepareRequest(String userAgent) throws HttpException {
 			/*
 			HttpResponse resp = null;
@@ -190,6 +193,7 @@ public abstract class BaseHttpRequestImpl<T> implements TypedHttpRequest<T> {
 
 	private static final String[] EMPTY_STRINGS = {};
 
+	@Override
 	public Header[] getAllHeaders() {
 		List<Header> headers = null == HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
 		for (Entry<String, String> setHeader : mRequestSetHeaders.entrySet()) {
@@ -219,10 +223,12 @@ public abstract class BaseHttpRequestImpl<T> implements TypedHttpRequest<T> {
 			listener.onParamUploadProgress(this, null, 100);
 	}
 
+	@Override
 	public void setProgressListener(UploadProgressListener listener) {
 		this.mProgressListener = listener;
 	}
 
+	@Override
 	public UploadProgressListener getProgressListener() {
 		return mProgressListener;
 	}
@@ -249,6 +255,7 @@ public abstract class BaseHttpRequestImpl<T> implements TypedHttpRequest<T> {
 		return httpResponse;
 	}
 
+	@Override
 	public RequestSigner getRequestSigner() {
 		return signer;
 	}
@@ -320,6 +327,7 @@ public abstract class BaseHttpRequestImpl<T> implements TypedHttpRequest<T> {
 
 	protected abstract InputStream getParseableErrorStream() throws IOException;
 
+	@Override
 	public void setErrorHandler(HttpErrorHandler errorHandler) {
 		this.errorHandler = errorHandler;
 	}

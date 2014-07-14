@@ -1,8 +1,8 @@
 package com.levelup.http.signed;
 
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpRequestImpl;
 import com.levelup.http.HttpRequestPost;
-import com.levelup.http.internal.BaseHttpRequestImpl;
 
 
 /**
@@ -18,7 +18,7 @@ public class HttpRequestSignedPost<T> extends HttpRequestPost<T> {
 		}
 
 		@Override
-		public BaseHttpRequest<T> build(BaseHttpRequestImpl<T> impl) {
+		public BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
 			return new HttpRequestSignedPost(impl);
 		}
 	}
@@ -33,7 +33,7 @@ public class HttpRequestSignedPost<T> extends HttpRequestPost<T> {
 	/**
 	 * @deprecated use {@link BaseHttpRequest}
 	 */
-	protected HttpRequestSignedPost(BaseHttpRequestImpl<T> impl) {
+	protected HttpRequestSignedPost(HttpRequestImpl<T> impl) {
 		super(impl);
 	}
 }

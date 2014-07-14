@@ -2,8 +2,6 @@ package com.levelup.http;
 
 import android.net.Uri;
 
-import com.levelup.http.internal.BaseHttpRequestImpl;
-
 /**
  * An Http GET request that doesn't follow redirections
  *
@@ -22,7 +20,7 @@ public class HttpRequestGetNoRedirect extends BaseHttpRequest<Void> {
 		}
 
 		@Override
-		public BaseHttpRequest<Void> build(BaseHttpRequestImpl<Void> impl) {
+		public BaseHttpRequest<Void> build(HttpRequestImpl<Void> impl) {
 			return new HttpRequestGetNoRedirect(impl);
 		}
 	}
@@ -43,7 +41,7 @@ public class HttpRequestGetNoRedirect extends BaseHttpRequest<Void> {
 		super(builder);
 	}
 
-	protected HttpRequestGetNoRedirect(BaseHttpRequestImpl<Void> impl) {
+	protected HttpRequestGetNoRedirect(HttpRequestImpl<Void> impl) {
 		super(impl);
 	}
 }

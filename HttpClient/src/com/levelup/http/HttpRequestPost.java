@@ -2,8 +2,6 @@ package com.levelup.http;
 
 import android.net.Uri;
 
-import com.levelup.http.internal.BaseHttpRequestImpl;
-
 /**
  * Basic HTTP POST request to use with {@link HttpClient}
  * 
@@ -22,7 +20,7 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		}
 
 		@Override
-		public BaseHttpRequest<T> build(BaseHttpRequestImpl<T> impl) {
+		public BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
 			return new HttpRequestPost(impl);
 		}
 	}
@@ -35,7 +33,7 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		this((Builder<T>) new Builder<T>().setBody(bodyParams).setUri(uri));
 	}
 
-	protected HttpRequestPost(BaseHttpRequestImpl<T> impl) {
+	protected HttpRequestPost(HttpRequestImpl<T> impl) {
 		super(impl);
 	}
 

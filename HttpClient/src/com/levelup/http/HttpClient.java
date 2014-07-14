@@ -19,7 +19,6 @@ import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.gson.InputStreamGsonParser;
-import com.levelup.http.internal.BaseHttpRequestImpl;
 import com.levelup.http.internal.HttpRequestIon;
 import com.levelup.http.internal.HttpRequestUrlConnection;
 import com.levelup.http.internal.HttpResponseIon;
@@ -133,7 +132,7 @@ public class HttpClient {
 	public static InputStream getInputStream(HttpRequest request) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
-			BaseHttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
+			HttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
 
 			if (httpRequestImpl instanceof HttpRequestIon) {
 				HttpRequestIon httpRequest = (HttpRequestIon) httpRequestImpl;
@@ -357,7 +356,7 @@ public class HttpClient {
 	public static <T> T parseRequest(final HttpRequest request, InputStreamParser<T> parser) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
-			BaseHttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
+			HttpRequestImpl httpRequestImpl = baseHttpRequest.getHttpRequestImpl();
 
 			if (httpRequestImpl instanceof HttpRequestUrlConnection && baseHttpRequest.isStreaming()) {
 				// special case: streaming with HttpRequestUrlConnection

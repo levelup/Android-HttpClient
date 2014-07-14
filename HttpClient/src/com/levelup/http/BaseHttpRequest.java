@@ -9,7 +9,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.levelup.http.internal.BaseHttpRequestImpl;
 import com.levelup.http.internal.HttpErrorHandler;
 import com.levelup.http.internal.HttpRequestIon;
 import com.levelup.http.internal.HttpRequestUrlConnection;
@@ -217,7 +216,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 			return followRedirect;
 		}
 
-		public BaseHttpRequest<T> build(BaseHttpRequestImpl<T> impl) {
+		public BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
 			return new BaseHttpRequest<T>(impl);
 		}
 
@@ -225,7 +224,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * Build the HTTP request to run through {@link HttpClient}
 		 */
 		public BaseHttpRequest<T> build() {
-			final BaseHttpRequestImpl<T> impl;
+			final HttpRequestImpl<T> impl;
 			if (streamParser == streamingRequest)
 				impl = new HttpRequestUrlConnection<T>(this);
 			else
@@ -240,7 +239,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	protected BaseHttpRequest(BaseHttpRequestImpl<T> delegate) {
+	protected BaseHttpRequest(HttpRequestImpl<T> delegate) {
 		super(delegate);
 	}
 
@@ -263,9 +262,9 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return builder;
 	}
 
-	BaseHttpRequestImpl<T> getHttpRequestImpl() {
-		if (delegate instanceof BaseHttpRequestImpl)
-			return (BaseHttpRequestImpl<T>) delegate;
+	HttpRequestImpl<T> getHttpRequestImpl() {
+		if (delegate instanceof HttpRequestImpl)
+			return (HttpRequestImpl<T>) delegate;
 		if (delegate instanceof BaseHttpRequest)
 			return ((BaseHttpRequest) delegate).getHttpRequestImpl();
 		throw new IllegalStateException("invalid http request type");
