@@ -271,10 +271,10 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	private final BaseHttpEngine<T,?> engine;
+	private final HttpEngine<T> engine;
 
 	protected BaseHttpRequest(HttpEngine<T> httpEngine) {
-		this.engine = (BaseHttpEngine<T, ?>) httpEngine;
+		this.engine = httpEngine;
 		engine.setErrorHandler(this);
 	}
 
@@ -340,7 +340,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 
 	@Override
 	public HttpResponse getResponse() {
-		return engine.getHttpResponse();
+		return engine.getResponse();
 	}
 
 	@Override

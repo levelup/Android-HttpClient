@@ -283,6 +283,11 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
+	public HttpResponse getResponse() {
+		return httpResponse;
+	}
+
+	@Override
 	public RequestSigner getRequestSigner() {
 		return signer;
 	}

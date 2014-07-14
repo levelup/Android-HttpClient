@@ -47,4 +47,6 @@ public interface HttpEngine<T> extends HttpRequestInfo {
 	void settleHttpHeaders(HttpRequest request) throws HttpException;
 
 	void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException;
+
+	HttpResponse getResponse();
 }
