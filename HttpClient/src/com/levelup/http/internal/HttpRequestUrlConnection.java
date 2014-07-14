@@ -31,7 +31,7 @@ import com.levelup.http.HttpException;
 public class HttpRequestUrlConnection<T> extends BaseHttpRequestImpl<T> {
 	final HttpURLConnection urlConnection;
 
-	public HttpRequestUrlConnection(BaseHttpRequest.Builder<T> builder) {
+	public HttpRequestUrlConnection(BaseHttpRequest.AbstractBuilder<T,?> builder) {
 		super(builder);
 
 		try {

@@ -9,35 +9,28 @@ import android.net.Uri;
  * @see BaseHttpRequest for a more complete API
  */
 public class HttpRequestPost<T> extends BaseHttpRequest<T> {
-	public static class Builder<T> extends BaseHttpRequest.Builder<T> {
-		public Builder() {
+	public static abstract class AbstractBuilder<T, R extends HttpRequestPost<T>> extends BaseHttpRequest.AbstractBuilder<T,R> {
+		public AbstractBuilder() {
 			setHttpMethod("POST");
 		}
+	}
 
+	public final static class Builder<T> extends AbstractBuilder<T,HttpRequestPost<T>> {
 		@Override
-		public HttpRequestPost<T> build() {
-			return (HttpRequestPost<T>) super.build();
-		}
-
-		@Override
-		public BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
-			return new HttpRequestPost(impl);
+		protected final HttpRequestPost<T> build(HttpRequestImpl<T> impl) {
+			return new HttpRequestPost<T>(impl);
 		}
 	}
 
 	public HttpRequestPost(String url, HttpBodyParameters bodyParams) {
-		this((Builder<T>) new Builder<T>().setBody(bodyParams).setUrl(url));
+		this(new Builder<T>().setBody(bodyParams).setUrl(url).buildImpl());
 	}
 
 	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams) {
-		this((Builder<T>) new Builder<T>().setBody(bodyParams).setUri(uri));
+		this(new Builder<T>().setBody(bodyParams).setUri(uri).buildImpl());
 	}
 
 	protected HttpRequestPost(HttpRequestImpl<T> impl) {
 		super(impl);
-	}
-
-	protected HttpRequestPost(Builder<T> builder) {
-		super(builder);
 	}
 }

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpRequestPost;
 import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.oauth1.internal.ResponseAdapter;
@@ -63,7 +64,7 @@ public class HttpClientOAuth1Provider {
 					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
 					request = cons.createRequest(endpointUrl);
 				} else {
-					request = new BaseHttpRequest.Builder<Void>().setHttpMethod("POST").setUrl(endpointUrl).build();
+					request = new HttpRequestPost<Void>(endpointUrl, null);
 				}
 				return new OAuth1RequestAdapter(request);
 			}

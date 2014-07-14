@@ -30,10 +30,22 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 	};
 
 	/**
-	 * Builder for 
+	 * Builder for a {@link com.levelup.http.BaseHttpRequest BaseHttpRequest}
 	 * @param <T> type of the data read from the HTTP response
 	 */
-	public static class Builder<T> {
+	public final static class Builder<T> extends AbstractBuilder<T,BaseHttpRequest<T>> {
+		@Override
+		protected final BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
+			return new BaseHttpRequest<T>(impl);
+		}
+	}
+
+	/**
+	 * Abstract Builder for a {@link com.levelup.http.BaseHttpRequest BaseHttpRequest} derivative instance
+	 * @param <T> type of the data read from the HTTP response
+	 * @param <R> type of the HTTP request class returned by {@link #build()}
+	 */
+	public static abstract class AbstractBuilder<T, R extends BaseHttpRequest<T>> {
 		private static final String DEFAULT_HTTP_METHOD = "GET";
 		private static final String DEFAULT_POST_METHOD = "POST";
 
@@ -48,14 +60,14 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		/**
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
 		 */
-		public Builder() {
+		public AbstractBuilder() {
 			this(HttpClient.defaultContext);
 		}
 
 		/**
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
 		 */
-		public Builder(Context context) {
+		public AbstractBuilder(Context context) {
 			setContext(context);
 			setHttpMethod(DEFAULT_HTTP_METHOD);
 		}
@@ -70,7 +82,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param bodyParams the object that will write the HTTP body to the remote server
 		 * @return Current Builder
 		 */
-		public Builder<T> setBody(HttpBodyParameters bodyParams) {
+		public AbstractBuilder<T,R> setBody(HttpBodyParameters bodyParams) {
 			return setBody(DEFAULT_POST_METHOD, bodyParams);
 		}
 
@@ -81,7 +93,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @return Current Builder
 		 * @see {@link #setHttpMethod(String)}
 		 */
-		public Builder<T> setBody(String postMethod, HttpBodyParameters bodyParams) {
+		public AbstractBuilder<T,R> setBody(String postMethod, HttpBodyParameters bodyParams) {
 			setHttpMethod(postMethod);
 			if (null!=bodyParams && httpMethod!=null && !isMethodWithBody(httpMethod))
 				throw new IllegalArgumentException("invalid body for HTTP method:"+httpMethod);
@@ -94,7 +106,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param httpMethod HTTP method to use with this request
 		 * @return Current Builder
 		 */
-		public Builder<T> setHttpMethod(String httpMethod) {
+		public AbstractBuilder<T,R> setHttpMethod(String httpMethod) {
 			if (TextUtils.isEmpty(httpMethod))
 				throw new IllegalArgumentException("invalid null HTTP method");
 			if (null!=bodyParams && !isMethodWithBody(httpMethod))
@@ -108,7 +120,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param url requested on the server
 		 * @return Current Builder
 		 */
-		public Builder<T> setUrl(String url) {
+		public AbstractBuilder<T,R> setUrl(String url) {
 			return setUrl(url, null);
 		}
 
@@ -118,7 +130,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param uriParams parameters to add to the URL
 		 * @return Current Builder
 		 */
-		public Builder<T> setUrl(String url, HttpUriParameters uriParams) {
+		public AbstractBuilder<T,R> setUrl(String url, HttpUriParameters uriParams) {
 			Uri uri = Uri.parse(url);
 			if (null==uriParams) {
 				this.uri = uri;
@@ -135,7 +147,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param uri requested on the server
 		 * @return Current Builder
 		 */
-		public Builder<T> setUri(Uri uri) {
+		public AbstractBuilder<T,R> setUri(Uri uri) {
 			this.uri = uri;
 			return this;
 		}
@@ -145,7 +157,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param streamParser HTTP response body parser
 		 * @return Current Builder
 		 */
-		public Builder<T> setStreamParser(InputStreamParser<T> streamParser) {
+		public AbstractBuilder<T,R> setStreamParser(InputStreamParser<T> streamParser) {
 			if (streamParser==streamingRequest)
 				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.streamParser = streamParser;
@@ -157,11 +169,11 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @return Current Builder
 		 */
 		@SuppressWarnings("unchecked")
-		public Builder<HttpStream> setStreaming() {
+		public AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>> setStreaming() {
 			if (streamParser!=null && streamParser!=streamingRequest)
 				throw new IllegalArgumentException("Trying to set a streaming request that has a streaming parser");
 			this.streamParser = (InputStreamParser<T>) streamingRequest;
-			return (Builder<HttpStream>) this;
+			return (AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>>) this;
 		}
 
 		/**
@@ -169,7 +181,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param signer object that will sign the {@link HttpRequest}
 		 * @return Current Builder
 		 */
-		public Builder<T> setSigner(RequestSigner signer) {
+		public AbstractBuilder<T,R> setSigner(RequestSigner signer) {
 			if (null==signer) {
 				throw new IllegalArgumentException();
 			}
@@ -177,7 +189,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 			return this;
 		}
 
-		public Builder<T> setContext(Context context) {
+		public AbstractBuilder<T,R> setContext(Context context) {
 			this.context = context;
 			return this;
 		}
@@ -187,7 +199,7 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		 * @param followRedirect
 		 * @return Current Builder
 		 */
-		public Builder<T> setFollowRedirect(boolean followRedirect) {
+		public AbstractBuilder<T,R> setFollowRedirect(boolean followRedirect) {
 			this.followRedirect = followRedirect;
 			return this;
 		}
@@ -216,22 +228,26 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 			return followRedirect;
 		}
 
-		public BaseHttpRequest<T> build(HttpRequestImpl<T> impl) {
-			return new BaseHttpRequest<T>(impl);
+		/**
+		 * Build the {@link R} instance
+		 * <p></p>ONLY IMPLEMENT IN A NON ABSTRACT Builder
+		 * @param impl Internal HTTP Implementation
+		 * @return
+		 */
+		protected abstract R build(HttpRequestImpl<T> impl);
+
+		public HttpRequestImpl<T> buildImpl() {
+			if (streamParser == streamingRequest)
+				return new HttpRequestUrlConnection<T>(this);
+			else
+				return new HttpRequestIon<T>(this);
 		}
 
 		/**
 		 * Build the HTTP request to run through {@link HttpClient}
 		 */
-		public BaseHttpRequest<T> build() {
-			final HttpRequestImpl<T> impl;
-			if (streamParser == streamingRequest)
-				impl = new HttpRequestUrlConnection<T>(this);
-			else
-				impl = new HttpRequestIon<T>(this);
-			BaseHttpRequest<T> result = build(impl);
-			impl.setErrorHandler(result);
-			return result;
+		public R build() {
+			return build(buildImpl());
 		}
 	}
 
@@ -239,12 +255,9 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	protected BaseHttpRequest(HttpRequestImpl<T> delegate) {
-		super(delegate);
-	}
-
-	protected BaseHttpRequest(Builder<T> builder) {
-		super(builder.build());
+	protected BaseHttpRequest(HttpRequestImpl<T> impl) {
+		super(impl);
+		impl.setErrorHandler(this);
 	}
 
 	@Override
@@ -312,5 +325,4 @@ public class BaseHttpRequest<T> extends DelegateTypedHttpRequest<T> implements H
 		sb.append('}');
 		return sb.toString();
 	}
-
 }

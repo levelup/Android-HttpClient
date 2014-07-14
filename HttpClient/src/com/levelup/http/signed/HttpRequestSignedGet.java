@@ -11,14 +11,12 @@ import com.levelup.http.HttpRequestImpl;
 @Deprecated
 public class HttpRequestSignedGet<T> extends HttpRequestGet<T> {
 
-	public static class Builder<T> extends HttpRequestGet.Builder<T> {
-		@Override
-		public HttpRequestSignedGet<T> build() {
-			return (HttpRequestSignedGet<T>) super.build();
-		}
+	public static abstract class AbstractBuilder<T,R extends HttpRequestSignedGet<T>> extends HttpRequestGet.AbstractBuilder<T,R> {
+	}
 
+	public final static class Builder<T> extends AbstractBuilder<T,HttpRequestSignedGet<T>> {
 		@Override
-		public HttpRequestGet<T> build(HttpRequestImpl<T> impl) {
+		public final HttpRequestSignedGet<T> build(HttpRequestImpl<T> impl) {
 			return new HttpRequestSignedGet(impl);
 		}
 	}

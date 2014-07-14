@@ -35,7 +35,7 @@ import com.levelup.http.gson.InputStreamGsonParser;
 public class HttpRequestIon<T> extends BaseHttpRequestImpl<T> {
 	public final Builders.Any.B requestBuilder;
 
-	public HttpRequestIon(BaseHttpRequest.Builder<T> builder) {
+	public HttpRequestIon(BaseHttpRequest.AbstractBuilder<T,?> builder) {
 		super(builder);
 
 		final Ion ion;

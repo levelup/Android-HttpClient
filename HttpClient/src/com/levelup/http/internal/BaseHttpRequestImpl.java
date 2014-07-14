@@ -34,7 +34,6 @@ import com.levelup.http.LoggerTagged;
 import com.levelup.http.MediaType;
 import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
-import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.Util;
 import com.levelup.http.signed.AbstractRequestSigner;
@@ -63,7 +62,7 @@ public abstract class BaseHttpRequestImpl<T> implements HttpRequestImpl<T> {
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	protected BaseHttpRequestImpl(BaseHttpRequest.Builder<T> builder) {
+	protected BaseHttpRequestImpl(BaseHttpRequest.AbstractBuilder<T,?> builder) {
 		this.uri = builder.getUri();
 		this.method = builder.getHttpMethod();
 		this.streamParser = builder.getInputStreamParser();

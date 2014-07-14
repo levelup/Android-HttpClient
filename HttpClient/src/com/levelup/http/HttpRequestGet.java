@@ -9,35 +9,29 @@ import android.net.Uri;
  * @see BaseHttpRequest for a more complete API
  */
 public class HttpRequestGet<T> extends BaseHttpRequest<T> {
-	public static class Builder<T> extends BaseHttpRequest.Builder<T> {
-		@Override
-		public HttpRequestGet<T> build() {
-			return (HttpRequestGet<T>) super.build();
-		}
+	public static abstract class AbstractBuilder<T,R extends HttpRequestGet<T>> extends BaseHttpRequest.AbstractBuilder<T,R> {
+	}
 
+	public final static class Builder<T> extends AbstractBuilder<T,HttpRequestGet<T>> {
 		@Override
-		public HttpRequestGet<T> build(HttpRequestImpl<T> impl) {
-			return new HttpRequestGet(impl);
+		protected final HttpRequestGet<T> build(HttpRequestImpl<T> impl) {
+			return new HttpRequestGet<T>(impl);
 		}
 	}
 
 	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams) {
-		this((Builder<T>) new Builder<T>().setUrl(baseUrl, uriParams));
+		this(new Builder<T>().setUrl(baseUrl, uriParams).buildImpl());
 	}
 
 	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams) {
-		this((Builder<T>) new Builder<T>().setUrl(baseUri.toString(), uriParams));
+		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).buildImpl());
 	}
 
 	public HttpRequestGet(String url) {
-		this((Builder<T>) new Builder<T>().setUrl(url));
+		this(new Builder<T>().setUrl(url).buildImpl());
 	}
 
 	protected HttpRequestGet(HttpRequestImpl<T> impl) {
 		super(impl);
-	}
-
-	protected HttpRequestGet(Builder<T> builder) {
-		super(builder);
 	}
 }

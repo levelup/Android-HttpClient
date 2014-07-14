@@ -9,36 +9,29 @@ import android.net.Uri;
  */
 public class HttpRequestGetNoRedirect extends BaseHttpRequest<Void> {
 
-	public static class Builder extends BaseHttpRequest.Builder<Void> {
-		public Builder() {
+	public static abstract class AbstractBuilder<R extends HttpRequestGetNoRedirect> extends BaseHttpRequest.AbstractBuilder<Void,R> {
+		public AbstractBuilder() {
 			setFollowRedirect(false);
 		}
+	}
 
+	public final static class Builder extends AbstractBuilder<HttpRequestGetNoRedirect> {
 		@Override
-		public HttpRequestGetNoRedirect build() {
-			return (HttpRequestGetNoRedirect) super.build();
-		}
-
-		@Override
-		public BaseHttpRequest<Void> build(HttpRequestImpl<Void> impl) {
+		protected final HttpRequestGetNoRedirect build(HttpRequestImpl<Void> impl) {
 			return new HttpRequestGetNoRedirect(impl);
 		}
 	}
-	
+
 	public HttpRequestGetNoRedirect(String baseUrl) {
-		this((Builder) new Builder().setUrl(baseUrl));
+		this(new Builder().setUrl(baseUrl).buildImpl());
 	}
 
 	public HttpRequestGetNoRedirect(String baseUrl, HttpUriParameters uriParams) {
-		this((Builder) new Builder().setUrl(baseUrl, uriParams));
+		this(new Builder().setUrl(baseUrl, uriParams).buildImpl());
 	}
 
 	public HttpRequestGetNoRedirect(Uri baseUri, HttpUriParameters uriParams) {
-		this((Builder) new Builder().setUrl(baseUri.toString(), uriParams));
-	}
-
-	protected HttpRequestGetNoRedirect(Builder builder) {
-		super(builder);
+		this(new Builder().setUrl(baseUri.toString(), uriParams).buildImpl());
 	}
 
 	protected HttpRequestGetNoRedirect(HttpRequestImpl<Void> impl) {

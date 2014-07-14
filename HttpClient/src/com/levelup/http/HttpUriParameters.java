@@ -3,7 +3,7 @@ package com.levelup.http;
 import android.net.Uri;
 
 /**
- * HTTP parameters suitable to pass to {@link BaseHttpRequest.Builder#setUrl(String, HttpUriParameters) BaseHttpRequest.Builder.setUrl()} 
+ * HTTP parameters suitable to pass to {@link com.levelup.http.BaseHttpRequest.AbstractBuilder#setUrl(String, HttpUriParameters) BaseHttpRequest.Builder.setUrl()}
  */
 public interface HttpUriParameters extends HttpParameters {
 
