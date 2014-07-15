@@ -25,7 +25,6 @@ import com.koushikdutta.ion.future.ResponseFuture;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpBodyMultiPart;
-import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
@@ -147,7 +146,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 		Exception e = response.getException();
 		if (null!=e) {
-			HttpClient.forwardResponseException(request, e);
+			forwardResponseException(request, e);
 		}
 	}
 
@@ -218,10 +217,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			throwResponseException(request, response);
 			return response.getResult();
 		} catch (InterruptedException e) {
-			HttpClient.forwardResponseException(request, e);
+			forwardResponseException(request, e);
 			return null;
 		} catch (ExecutionException e) {
-			HttpClient.forwardResponseException(request, e);
+			forwardResponseException(request, e);
 			return null;
 		}
 	}
@@ -248,10 +247,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				try {
 					response = withResponse.get();
 				} catch (InterruptedException e) {
-					HttpClient.forwardResponseException(request, e);
+					forwardResponseException(request, e);
 
 				} catch (ExecutionException e) {
-					HttpClient.forwardResponseException(request, e);
+					forwardResponseException(request, e);
 
 				}
 				setRequestResponse(request, new HttpResponseIon(response));

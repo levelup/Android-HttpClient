@@ -1,18 +1,11 @@
 package com.levelup.http;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.ProtocolException;
-import java.net.SocketTimeoutException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-
-import com.google.gson.JsonParseException;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -78,78 +71,6 @@ public class HttpClient {
 		}
 
 		return null;
-		/*
-		HttpURLConnection resp = getQueryResponse(request, true);
-
-		InputStream is = null;
-		if (resp!=null) {
-			try {
-				final int contentLength = resp.getContentLength();
-				if (contentLength != 0) {
-					is = resp.getInputStream();
-					if ("deflate".equals(resp.getContentEncoding()) && !(is instanceof InflaterInputStream))
-						is = new InflaterInputStream(is);
-					if ("gzip".equals(resp.getContentEncoding()) && !(is instanceof GZIPInputStream))
-						is = new GZIPInputStream(is);
-				}
-
-				if (resp.getResponseMessage()==null && null!=is) {
-					String body = InputStreamStringParser.instance.parseInputStream(is, request);
-
-					HttpException.Builder builder = request.newException();
-					builder.setErrorMessage(TextUtils.isEmpty(body) ? "empty response" : body);
-					builder.setErrorCode(HttpException.ERROR_HTTP);
-					throw builder.build();
-				}
-
-				if (resp.getResponseCode() < 200 || resp.getResponseCode() >= 300) {
-					HttpException.Builder builder = request.newExceptionFromResponse(null);
-					builder.setErrorCode(HttpException.ERROR_HTTP);
-					throw builder.build();
-				}
-
-				final String expectedMimeType = resp.getRequestProperty("Accept");
-				if (!TextUtils.isEmpty(expectedMimeType)) {
-					// test if it's the right MIME type or throw an exception that can be caught to use the bad data
-					MediaType expectedType = MediaType.parse(expectedMimeType);
-					if (null!=expectedType && !expectedType.equalsType(MediaType.parse(resp.getContentType()))) {
-						String body = InputStreamStringParser.instance.parseInputStream(is, request);
-
-						HttpException.Builder builder = request.newException();
-						builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+resp.getContentType()+"' - "+body);
-						builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
-						throw builder.build();
-					}
-				}
-
-			} catch (FileNotFoundException e) {
-				HttpException.Builder builder = request.newExceptionFromResponse(e);
-				HttpException exception = builder.build();
-				if (null==exception.getCause())
-					LogManager.getLogger().d("http error "+exception.getMessage());
-				else
-					LogManager.getLogger().d("http error for "+request, e);
-				throw exception;
-
-			} catch (SocketTimeoutException e) {
-				LogManager.getLogger().d("timeout for "+request);
-				HttpException.Builder builder = request.newException();
-				builder.setErrorMessage("timeout");
-				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-				throw builder.build();
-
-			} catch (IOException e) {
-				LogManager.getLogger().d("i/o error for "+request+' '+e.getMessage());
-				HttpException.Builder builder = request.newException();
-				builder.setErrorMessage("IO error "+e.getMessage());
-				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_NETWORK);
-				throw builder.build();
-			}
-		}
-
-		return is;*/
 	}
 
 	/**
@@ -163,89 +84,6 @@ public class HttpClient {
 		InputStreamParser<T> streamParser = request.getInputStreamParser();
 		if (null==streamParser) throw new NullPointerException("typed request without a stream parser:"+request);
 		return parseRequest(request, streamParser);
-	}
-
-	public static void forwardResponseException(HttpRequest request, Exception e) throws HttpException {
-		if (e instanceof InterruptedException) {
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("interrupted");
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_HTTP);
-			throw builder.build();
-		}
-
-		if (e instanceof ExecutionException) {
-			if (e.getCause() instanceof Exception)
-				forwardResponseException(request, (Exception) e.getCause());
-			else {
-				HttpException.Builder builder = request.newException();
-				builder.setErrorMessage("execution error");
-				builder.setCause(e.getCause());
-				builder.setErrorCode(HttpException.ERROR_HTTP);
-				throw builder.build();
-			}
-		}
-
-		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
-			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Timeout error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-			throw builder.build();
-		}
-
-		if (e instanceof ProtocolException) {
-			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Method error " + e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_HTTP);
-			throw builder.build();
-		}
-
-		if (e instanceof IOException) {
-			LogManager.getLogger().d("i/o error for " + request + ' ' + e.getMessage());
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("IO error " + e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			throw builder.build();
-		}
-
-		if (e instanceof ParserException) {
-			LogManager.getLogger().i("incorrect data for " + request);
-			if (e.getCause() instanceof HttpException)
-				throw (HttpException) e.getCause();
-
-			HttpException.Builder builder = request.newException();
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_PARSER);
-			throw builder.build();
-		}
-
-		if (e instanceof JsonParseException) {
-			LogManager.getLogger().i("incorrect data for " + request);
-			HttpException.Builder builder = request.newException();
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_PARSER);
-			throw builder.build();
-		}
-
-		if (e instanceof SecurityException) {
-			LogManager.getLogger().w("security error for " + request + ' ' + e);
-			HttpException.Builder builder = request.newException();
-			builder.setErrorMessage("Security error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			throw builder.build();
-		}
-
-		LogManager.getLogger().w("unknown error for " + request + ' ' + e);
-		HttpException.Builder builder = request.newException();
-		builder.setCause(e);
-		builder.setErrorCode(HttpException.ERROR_HTTP);
-		throw builder.build();
 	}
 
 	/**
