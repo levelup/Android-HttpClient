@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.protocol.HTTP;
@@ -63,18 +65,18 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			final LoggerTagged logger = request.getLogger();
 			if (null != logger) {
 				logger.v(request.getHttpMethod() + ' ' + request.getUri());
-				/* TODO for (Map.Entry<String, List<String>> header : request.urlConnection.getRequestProperties().entrySet()) {
+				for (Map.Entry<String, List<String>> header : urlConnection.getRequestProperties().entrySet()) {
 					logger.v(header.getKey()+": "+header.getValue());
-				}*/
+				}
 			}
 
-			request.doConnection();
+			doConnection();
 
 			if (null != logger) {
-				/* TODO logger.v(request.urlConnection.getResponseMessage());
-				for (Map.Entry<String, List<String>> header : request.urlConnection.getHeaderFields().entrySet()) {
+				logger.v(urlConnection.getResponseMessage());
+				for (Map.Entry<String, List<String>> header : urlConnection.getHeaderFields().entrySet()) {
 					logger.v(header.getKey()+": "+header.getValue());
-				}*/
+				}
 			}
 
 		} catch (SecurityException e) {

@@ -140,14 +140,6 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 		setupBody();
 		settleHttpHeaders(request);
-
-		final LoggerTagged logger = getLogger();
-		if (null != logger) {
-			logger.v(getHttpMethod() + ' ' + getUri());
-			/** TODO for (Entry<String, List<String>> header : connection.getRequestProperties().entrySet()) {
-			 logger.v(header.getKey()+": "+header.getValue());
-			 }*/
-		}
 	}
 
 	@Override
