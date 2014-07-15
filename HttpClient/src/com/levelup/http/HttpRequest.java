@@ -30,23 +30,6 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionCreator {
 	void settleHttpHeaders() throws HttpException;
 
 	/**
-	 * Do the HTTP connection and send the request body if needed
-	 * @throws IOException
-	 */
-	void doConnection() throws IOException;
-
-	/**
-	 * Output the HTTP body on the OutputStream
-	 * @throws IOException
-	 */
-	void outputBody(OutputStream outputStream) throws IOException;
-
-	/**
-	 * Output the HTTP body on the connection
-	 */
-	void setupBody();
-
-	/**
 	 * Called when the request has been performed on the server, even if the response is an error
 	 * @param resp Contains the received headers/data from the server
 	 */

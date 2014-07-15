@@ -316,19 +316,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		engine.settleHttpHeaders(this);
 	}
 
-	@Override
-	public void doConnection() throws IOException {
-		engine.doConnection();
-	}
-
-	@Override
 	public void outputBody(OutputStream outputStream) throws IOException {
 		engine.outputBody(outputStream, this);
-	}
-
-	@Override
-	public void setupBody() {
-		engine.setupBody();
 	}
 
 	@Override
