@@ -1,5 +1,10 @@
 apply plugin: 'android-library'
 
+dependencies {
+    compile 'com.google.code.gson:gson:2.2.+'
+    androidTestCompile 'com.squareup.okio:okio:1.0.+'
+}
+
 android {
     compileSdkVersion 19
     buildToolsVersion '20.0.0'
@@ -22,6 +27,11 @@ android {
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
+
+        androidTest {
+            manifest.srcFile 'tests/AndroidManifest.xml'
+            java.srcDirs = ['tests/src']
+        }
     }
 
     buildTypes {
@@ -29,8 +39,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
         }
     }
-}
-
-dependencies {
-    compile 'com.google.code.gson:gson:2.2.+'
 }
