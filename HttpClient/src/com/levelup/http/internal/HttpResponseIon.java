@@ -27,7 +27,7 @@ public class HttpResponseIon<T> implements HttpResponse {
 	}
 
 	@Override
-	public int getResponseCode() throws IOException {
+	public int getResponseCode() {
 		return response.getHeaders().getResponseCode();
 	}
 
@@ -55,7 +55,7 @@ public class HttpResponseIon<T> implements HttpResponse {
 	}
 
 	@Override
-	public String getResponseMessage() throws IOException {
+	public String getResponseMessage() {
 		return response.getHeaders().getResponseMessage();
 	}
 
@@ -69,7 +69,11 @@ public class HttpResponseIon<T> implements HttpResponse {
 		// TODO see if we can cancel a Ion response while it's processing
 	}
 
-	public T getResult() {
+	T getResult() {
 		return response.getResult();
+	}
+
+	Exception getException() {
+		return response.getException();
 	}
 }

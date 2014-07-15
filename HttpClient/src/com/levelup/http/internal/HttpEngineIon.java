@@ -26,6 +26,7 @@ import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpBodyMultiPart;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.UploadProgressListener;
@@ -135,16 +136,13 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
 	}
 
-	public void throwResponseException(HttpRequest request, Response<?> response) throws HttpException {
-		RawHeaders headers = response.getHeaders();
-		if (null!=headers) {
-			if (headers.getResponseCode() < 200 || headers.getResponseCode() >= 300) {
-				HttpException.Builder builder = request.newExceptionFromResponse(null);
-				throw builder.build();
-			}
+	private void throwHttpExceptionOnError(HttpExceptionCreator request) throws HttpException {
+		if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 300) {
+			HttpException.Builder builder = request.newExceptionFromResponse(null);
+			throw builder.build();
 		}
 
-		Exception e = response.getException();
+		Exception e = getHttpResponse().getException();
 		if (null!=e) {
 			throw exceptionToHttpException(request, e).build();
 		}
@@ -214,7 +212,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			Future<Response<InputStream>> withResponse = req.withResponse();
 			Response<InputStream> response = withResponse.get();
 			setRequestResponse(request, new HttpResponseIon(response));
-			throwResponseException(request, response);
+			throwHttpExceptionOnError(request);
 			return response.getResult();
 
 		} catch (InterruptedException e) {
@@ -255,7 +253,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 				}
 				setRequestResponse(request, new HttpResponseIon(response));
-				throwResponseException(request, response);
+				throwHttpExceptionOnError(request);
 				return (P) response.getResult();
 			}
 		}
