@@ -44,4 +44,5 @@ dependencies {
     }
 
     compile project(':HttpClient')
+    androidTestCompile 'com.squareup.okio:okio:1.0.+'
 }
