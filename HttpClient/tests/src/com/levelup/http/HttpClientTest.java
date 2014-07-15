@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -18,6 +19,12 @@ import okio.BufferedSource;
 import okio.Okio;
 
 public class HttpClientTest extends AndroidTestCase {
+
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
+	}
 
 	@MediumTest
 	public void testUploadInputStream() throws Exception {

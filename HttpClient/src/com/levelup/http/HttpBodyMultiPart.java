@@ -308,7 +308,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 	@Override
 	public String getContentType() {
-		return "multipart/form-data";
+		return "multipart/form-data; boundary="+boundary;
 	}
 
 	protected static class HttpParam {
