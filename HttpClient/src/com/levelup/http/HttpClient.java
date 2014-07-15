@@ -3,9 +3,11 @@ package com.levelup.http;
 import java.io.InputStream;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.TextUtils;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -27,12 +29,21 @@ public class HttpClient {
 	public static void setup(Context context) {
 		if (null!=context) {
 			defaultContext = context;
+
+			ApplicationInfo applicationInfo = context.getApplicationInfo();
+			int versionCode = -1;
 			PackageManager pM = defaultContext.getPackageManager();
 			try {
 				PackageInfo pI = pM.getPackageInfo(defaultContext.getPackageName(), 0);
-				if (pI != null)
-					userAgent = pI.applicationInfo.nonLocalizedLabel + "/" + pI.versionCode;
+				if (pI != null) {
+					versionCode = pI.versionCode;
+				}
 			} catch (NameNotFoundException ignored) {
+			} finally {
+				if (TextUtils.isEmpty(applicationInfo.nonLocalizedLabel))
+					userAgent = applicationInfo.packageName + "/" + versionCode;
+				else
+					userAgent = applicationInfo.nonLocalizedLabel + "/" + versionCode;
 			}
 		}
 	}
