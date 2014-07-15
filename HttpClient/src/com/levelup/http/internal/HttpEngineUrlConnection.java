@@ -9,8 +9,6 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
 import org.apache.http.protocol.HTTP;
 
@@ -208,14 +206,6 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		InputStream errorStream = response.getErrorStream();
 		if (null == errorStream)
 			errorStream = response.getInputStream();
-
-		if (null == errorStream)
-			return null;
-
-		if ("deflate".equals(response.getContentEncoding()) && !(errorStream instanceof InflaterInputStream))
-			errorStream = new InflaterInputStream(errorStream);
-		if ("gzip".equals(response.getContentEncoding()) && !(errorStream instanceof GZIPInputStream))
-			errorStream = new GZIPInputStream(errorStream);
 
 		return errorStream;
 	}

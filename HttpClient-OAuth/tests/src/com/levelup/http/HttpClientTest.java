@@ -241,6 +241,44 @@ public class HttpClientTest extends AndroidTestCase {
 	}
 
 	@MediumTest
+	public void testStreamingCompressed() throws Exception {
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
+				setUrl("http://httpbin.org/drip?numbytes=5&duration=5").
+				setStreaming().
+				build();
+		request.setHeader("Accept","gzip,deflate");
+
+		HttpStream stream = HttpClient.parseRequest(request);
+		try {
+			InputStream streamIn = stream.getInputStream();
+			byte[] buffer = new byte[1];
+			int read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			read = streamIn.read(buffer);
+			if (read == -1) throw new EOFException("could not read more");
+			assertEquals('*', buffer[0]);
+
+			assertEquals(-1, streamIn.read(buffer));
+		} finally {
+			stream.disconnect();
+		}
+	}
+
+	@MediumTest
 	public void testStreamingLine() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
 				setUrl("http://httpbin.org/stream/2").

@@ -8,7 +8,8 @@ public class HttpStream {
 	private final InputStream inputStream;
 	private final HttpRequest request;
 
-	public HttpStream(InputStream inputStream, HttpRequest request) {
+	public HttpStream(InputStream inputStream, HttpRequest request) throws IOException {
+		if (null==inputStream) throw new IOException("we need an InputStream for the stream");
 		this.inputStream = inputStream;
 		this.request = request;
 	}

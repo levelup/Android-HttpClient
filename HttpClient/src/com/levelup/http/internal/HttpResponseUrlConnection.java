@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import com.levelup.http.HttpResponse;
 
@@ -15,6 +17,8 @@ public class HttpResponseUrlConnection implements HttpResponse {
 
 	private final HttpEngineUrlConnection request;
 	private final HttpURLConnection response;
+	private InputStream inputStream;
+	private InputStream errorStream;
 
 	public HttpResponseUrlConnection(HttpEngineUrlConnection request) {
 		if (null == request) throw new NullPointerException();
@@ -68,11 +72,27 @@ public class HttpResponseUrlConnection implements HttpResponse {
 		response.disconnect();
 	}
 
-	public InputStream getErrorStream() {
-		return response.getErrorStream();
+	private InputStream getDecompressedStream(InputStream stream) throws IOException {
+		if (null != stream) {
+			if ("deflate".equals(getContentEncoding()) && !(stream instanceof InflaterInputStream))
+				stream = new InflaterInputStream(stream);
+			if ("gzip".equals(getContentEncoding()) && !(stream instanceof GZIPInputStream))
+				stream = new GZIPInputStream(stream);
+		}
+		return stream;
+	}
+
+	public InputStream getErrorStream() throws IOException {
+		if (null == errorStream) {
+			errorStream = getDecompressedStream(response.getErrorStream());
+		}
+		return errorStream;
 	}
 
 	public InputStream getInputStream() throws IOException {
-		return response.getInputStream();
+		if (null == inputStream) {
+			inputStream = getDecompressedStream(response.getInputStream());
+		}
+		return inputStream;
 	}
 }
