@@ -22,6 +22,7 @@ import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
+import com.koushikdutta.ion.gson.GsonSerializer;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpBodyJSON;
@@ -230,20 +231,20 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		// special case: Gson data handling with HttpRequestIon
 		if (parser instanceof InputStreamGsonParser) {
 			InputStreamGsonParser gsonParser = (InputStreamGsonParser) parser;
-			final ResponseFuture<T> req;
+			final GsonSerializer<P> gsonSerializer;
 			if (gsonParser.typeToken != null) {
-				prepareRequest(request);
-				req = requestBuilder.as(gsonParser.typeToken);
+				gsonSerializer = new GsonSerializer<P>(gsonParser.gson, gsonParser.typeToken);
 			} else if (gsonParser.type instanceof Class) {
-				Class<T> clazz = (Class<T>) gsonParser.type;
-				prepareRequest(request);
-				req = requestBuilder.as(clazz);
+				Class<P> clazz = (Class<P>) gsonParser.type;
+				gsonSerializer = new GsonSerializer<P>(gsonParser.gson, clazz);
 			} else {
-				req = null;
+				gsonSerializer = null;
 			}
-			if (null != req) {
-				Future<Response<T>> withResponse = req.withResponse();
-				return (P) getServerResponse(withResponse, request);
+			if (null != gsonSerializer) {
+				prepareRequest(request);
+				ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
+				Future<Response<P>> withResponse = req.withResponse();
+				return getServerResponse(withResponse, request);
 			}
 		}
 
