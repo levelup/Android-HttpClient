@@ -144,6 +144,8 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 	@Override
 	public void settleHttpHeaders(HttpRequest request) throws HttpException {
+		request.settleHttpHeaders();
+
 		if (null != signer)
 			signer.sign(this);
 	}

@@ -313,7 +313,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 
 	@Override
 	public void settleHttpHeaders() throws HttpException {
-		engine.settleHttpHeaders(this);
+		// do nothing
 	}
 
 	public void outputBody(OutputStream outputStream) throws IOException {
