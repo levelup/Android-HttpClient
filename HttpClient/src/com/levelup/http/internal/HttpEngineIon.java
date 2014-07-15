@@ -26,7 +26,6 @@ import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpBodyMultiPart;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.UploadProgressListener;
@@ -136,18 +135,6 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
 	}
 
-	private void throwHttpExceptionOnError(HttpExceptionCreator request) throws HttpException {
-		if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 300) {
-			HttpException.Builder builder = request.newExceptionFromResponse(null);
-			throw builder.build();
-		}
-
-		Exception e = getHttpResponse().getException();
-		if (null!=e) {
-			throw exceptionToHttpException(request, e).build();
-		}
-	}
-
 	@Override
 	public boolean isStreaming() {
 		return false;
@@ -207,21 +194,9 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	@Override
 	public InputStream getInputStream(HttpRequest request) throws HttpException {
 		prepareRequest(request);
-		try {
-			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
-			Future<Response<InputStream>> withResponse = req.withResponse();
-			Response<InputStream> response = withResponse.get();
-			setRequestResponse(request, new HttpResponseIon(response));
-			throwHttpExceptionOnError(request);
-			return response.getResult();
-
-		} catch (InterruptedException e) {
-			throw exceptionToHttpException(request, e).build();
-
-		} catch (ExecutionException e) {
-			throw exceptionToHttpException(request, e).build();
-
-		}
+		ResponseFuture<InputStream> req = requestBuilder.asInputStream();
+		Future<Response<InputStream>> withResponse = req.withResponse();
+		return getServerResponse(withResponse, request);
 	}
 
 	@Override
@@ -242,23 +217,37 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			}
 			if (null != req) {
 				Future<Response<T>> withResponse = req.withResponse();
-				Response<T> response = null;
-				try {
-					response = withResponse.get();
-				} catch (InterruptedException e) {
-					throw exceptionToHttpException(request, e).build();
-
-				} catch (ExecutionException e) {
-					throw exceptionToHttpException(request, e).build();
-
-				}
-				setRequestResponse(request, new HttpResponseIon(response));
-				throwHttpExceptionOnError(request);
-				return (P) response.getResult();
+				return (P) getServerResponse(withResponse, request);
 			}
 		}
 
 		return super.parseRequest(parser, request);
+	}
+
+	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request) throws HttpException {
+		try {
+			Response<P> response = req.get();
+			setRequestResponse(request, new HttpResponseIon(response));
+
+			if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 300) {
+				HttpException.Builder builder = request.newExceptionFromResponse(null);
+				throw builder.build();
+			}
+
+			Exception e = getHttpResponse().getException();
+			if (null!=e) {
+				throw exceptionToHttpException(request, e).build();
+			}
+
+			return (P) response.getResult();
+
+		} catch (InterruptedException e) {
+			throw exceptionToHttpException(request, e).build();
+
+		} catch (ExecutionException e) {
+			throw exceptionToHttpException(request, e).build();
+
+		}
 	}
 
 	@Override
