@@ -50,7 +50,7 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 
 	@Override
 	public String getContentType() {
-		return "application/x-www-form-urlencoded";
+		return CONTENT_TYPE;
 	}
 
 	@Override

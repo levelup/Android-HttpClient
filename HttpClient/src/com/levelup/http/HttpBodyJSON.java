@@ -65,7 +65,7 @@ public class HttpBodyJSON implements HttpBodyParameters {
 
 	@Override
 	public String getContentType() {
-		return "application/json";
+		return "application/json; charset=UTF-8";
 	}
 
 	@Override

@@ -60,11 +60,11 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		}
 
 		final Ion ion;
-		if (getInputStreamParser() instanceof InputStreamGsonParser) {
+		/*if (getInputStreamParser() instanceof InputStreamGsonParser) {
 			InputStreamGsonParser gsonParser = (InputStreamGsonParser) getInputStreamParser();
 			ion = Ion.getInstance(builder.getContext(), gsonParser.getClass().getName());
 			ion.configure().setGson(gsonParser.gson);
-		} else {
+		} else*/ {
 			ion = Ion.getDefault(builder.getContext());
 		}
 

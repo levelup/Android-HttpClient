@@ -22,4 +22,12 @@ public class IonHttpBodyString extends HttpBodyString implements IonBody {
 	public void setOutputData(Builders.Any.B requestBuilder) {
 		requestBuilder.setStringBody(value);
 	}
+
+	private class TypedStringBody extends StringBody {
+		// TODO use this body to use our own Content-Type and get rid of the getContentType() overriding
+		@Override
+		public String getContentType() {
+			return IonHttpBodyString.this.getContentType();
+		}
+	}
 }

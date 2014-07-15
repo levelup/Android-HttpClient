@@ -10,13 +10,15 @@ import java.io.OutputStream;
 public class HttpBodyString implements HttpBodyParameters {
 
 	protected final String value;
+	private final String contentType;
 
-	public HttpBodyString(String value) {
+	public HttpBodyString(String value, String contentType) {
 		this.value = value;
+		this.contentType = contentType;
 	}
 
 	public HttpBodyString(HttpBodyString copy) {
-		this(copy.value);
+		this(copy.value, copy.contentType);
 	}
 
 	/**
@@ -61,7 +63,7 @@ public class HttpBodyString implements HttpBodyParameters {
 
 	@Override
 	public String getContentType() {
-		return "text/plain";
+		return contentType;
 	}
 
 	@Override
