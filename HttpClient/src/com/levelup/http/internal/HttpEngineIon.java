@@ -146,7 +146,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 		Exception e = response.getException();
 		if (null!=e) {
-			forwardResponseException(request, e);
+			throw exceptionToHttpException(request, e).build();
 		}
 	}
 
@@ -216,12 +216,13 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			setRequestResponse(request, new HttpResponseIon(response));
 			throwResponseException(request, response);
 			return response.getResult();
+
 		} catch (InterruptedException e) {
-			forwardResponseException(request, e);
-			return null;
+			throw exceptionToHttpException(request, e).build();
+
 		} catch (ExecutionException e) {
-			forwardResponseException(request, e);
-			return null;
+			throw exceptionToHttpException(request, e).build();
+
 		}
 	}
 
@@ -247,10 +248,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				try {
 					response = withResponse.get();
 				} catch (InterruptedException e) {
-					forwardResponseException(request, e);
+					throw exceptionToHttpException(request, e).build();
 
 				} catch (ExecutionException e) {
-					forwardResponseException(request, e);
+					throw exceptionToHttpException(request, e).build();
 
 				}
 				setRequestResponse(request, new HttpResponseIon(response));

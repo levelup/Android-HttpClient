@@ -80,10 +80,10 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			}
 
 		} catch (SecurityException e) {
-			forwardResponseException(request, e);
+			throw exceptionToHttpException(request, e).build();
 
 		} catch (IOException e) {
-			forwardResponseException(request, e);
+			throw exceptionToHttpException(request, e).build();
 
 		} finally {
 			try {
@@ -110,8 +110,9 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	public void settleHttpHeaders(HttpRequest request) throws HttpException {
 		try {
 			urlConnection.setRequestMethod(getHttpMethod());
+
 		} catch (ProtocolException e) {
-			forwardResponseException(request, e);
+			throw exceptionToHttpException(request, e).build();
 		}
 
 		final long contentLength;
@@ -177,9 +178,10 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		getQueryResponse(request, true);
 		try {
 			return getHttpResponse().getInputStream();
+
 		} catch (IOException e) {
-			forwardResponseException(request, e);
-			return null;
+			throw exceptionToHttpException(request, e).build();
+
 		}
 	}
 
@@ -190,8 +192,10 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			getQueryResponse(request, true);
 			try {
 				return (P) new HttpStream(getHttpResponse().getInputStream(), request);
+
 			} catch (IOException e) {
-				forwardResponseException(request, e);
+				throw exceptionToHttpException(request, e).build();
+
 			}
 		}
 
