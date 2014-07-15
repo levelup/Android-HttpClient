@@ -30,17 +30,15 @@ dependencies {
         }
     }
 
+    def IonVer = '1.3.+'
+
     if (useLocalV4) {
         compile project(':support-v4')
-        compile ('com.koushikdutta.async:androidasync:1.2.6') {
-            exclude group: 'com.android.support', module:'support-v4'
-        }
-        compile ('com.koushikdutta.ion:ion:1.2.7') {
+        compile ('com.koushikdutta.ion:ion:' + IonVer) {
             exclude group: 'com.android.support', module:'support-v4'
         }
     } else {
-        compile 'com.koushikdutta.async:androidasync:1.2.6'
-        compile 'com.koushikdutta.ion:ion:1.2.7'
+        compile 'com.koushikdutta.ion:ion:' + IonVer
     }
 
     compile project(':HttpClient')
