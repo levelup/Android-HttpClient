@@ -1,4 +1,4 @@
-package com.levelup.http.internal;
+package com.levelup.http.ion.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +13,7 @@ public class InputStreamPart extends StreamPart {
 
 	private final InputStream inputStream;
 
-	public InputStreamPart(String streamName, InputStream value, long length) {
+	InputStreamPart(String streamName, InputStream value, long length) {
 		super(streamName, (int) length, new ArrayList<NameValuePair>() {
 			{
 				add(new BasicNameValuePair("filename", "rawstream"));

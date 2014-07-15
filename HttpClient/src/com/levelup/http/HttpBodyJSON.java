@@ -7,8 +7,6 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.koushikdutta.async.http.body.JSONObjectBody;
-import com.koushikdutta.ion.builder.Builders;
 
 
 /**
@@ -16,7 +14,7 @@ import com.koushikdutta.ion.builder.Builders;
  */
 public class HttpBodyJSON implements HttpBodyParameters {
 
-	private final JsonObject jsonObject;
+	protected final JsonObject jsonObject;
 
 	/**
 	 * Constructor with the JSON data to set in the POST body, the {@code org.json} way
@@ -31,7 +29,15 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	public HttpBodyJSON(JsonObject value) {
 		this.jsonObject = value;
 	}
-	
+
+	/**
+	 * Copy constructor, the internal JsonObject is not cloned, so any change to the original object will change this instance too
+	 * @param copy body to copy parameters from
+	 */
+	public HttpBodyJSON(HttpBodyJSON copy) {
+		this(copy.jsonObject);
+	}
+
 	@Override
 	public void add(String name, String value) {
 		throw new IllegalAccessError();
@@ -53,23 +59,22 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	}
 
 	@Override
-	public void setOutputData(Builders.Any.B requestBuilder) {
-		requestBuilder.setJsonObjectBody(jsonObject);
-	}
-
-	@Override
 	public void writeBodyTo(OutputStream output, HttpRequestInfo request, UploadProgressListener progressListener) throws IOException {
 		output.write(jsonObject.toString().getBytes());
 	}
 
 	@Override
 	public String getContentType() {
-		return JSONObjectBody.CONTENT_TYPE;
+		return "application/json";
 	}
 
 	@Override
 	public long getContentLength() {
 		return jsonObject.toString().getBytes().length;
+	}
+
+	public final JsonObject getJsonObject() {
+		return jsonObject;
 	}
 
 	private static JsonObject orgToGson(JSONObject value) {

@@ -1,4 +1,4 @@
-package com.levelup.http.internal;
+package com.levelup.http.ion;
 
 import java.io.IOException;
 import java.util.List;

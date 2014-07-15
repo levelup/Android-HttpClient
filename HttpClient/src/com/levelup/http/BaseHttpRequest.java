@@ -10,9 +10,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.levelup.http.internal.BaseHttpEngine;
-import com.levelup.http.internal.HttpEngineIon;
-import com.levelup.http.internal.HttpEngineUrlConnection;
 import com.levelup.http.internal.HttpErrorHandler;
 import com.levelup.http.signed.AbstractRequestSigner;
 
@@ -244,6 +241,10 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 			return followRedirect;
 		}
 
+		public boolean isStreaming() {
+			return getInputStreamParser() == streamingRequest;
+		}
+
 		/**
 		 * Build the {@link R} instance
 		 * <p></p>ONLY IMPLEMENT IN A NON ABSTRACT Builder
@@ -253,10 +254,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		protected abstract R build(HttpEngine<T> impl);
 
 		public final HttpEngine<T> buildImpl() {
-			if (streamParser == streamingRequest)
-				return new HttpEngineUrlConnection<T>(this);
-			else
-				return new HttpEngineIon<T>(this);
+			return HttpClient.getHttpEngineFactory().createHttpEngine(this);
 		}
 
 		/**

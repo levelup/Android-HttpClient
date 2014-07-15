@@ -8,15 +8,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.koushikdutta.async.http.body.UrlEncodedFormBody;
-import com.koushikdutta.ion.builder.Builders;
-
 /**
  * HTTP body class with data sent as {@code form-urlencoded}
  */
 public class HttpBodyUrlEncoded implements HttpBodyParameters {
 
-	private final ArrayList<NameValuePair> mParams;
+	protected final ArrayList<NameValuePair> mParams;
 	private byte[] encodedParams;
 	private static final String CONTENT_TYPE = URLEncodedUtils.CONTENT_TYPE + "; charset=utf-8";
 
@@ -35,6 +32,14 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 		mParams = new ArrayList<NameValuePair>(capacity);
 	}
 
+	/**
+	 * Copy constructor
+	 * @param copy body to copy parameters from
+	 */
+	public HttpBodyUrlEncoded(HttpBodyUrlEncoded copy) {
+		this.mParams = new ArrayList<NameValuePair>(copy.mParams);
+	}
+
 	private byte[] getEncodedParams() {
 		if (null==encodedParams) {
 			encodedParams = URLEncodedUtils.format(mParams, "UTF-8").replace("*", "%2A").getBytes();
@@ -45,7 +50,7 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 
 	@Override
 	public String getContentType() {
-		return UrlEncodedFormBody.CONTENT_TYPE;
+		return "application/x-www-form-urlencoded";
 	}
 
 	@Override
@@ -53,13 +58,6 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 		return getEncodedParams().length;
 	}
 
-	@Override
-	public void setOutputData(Builders.Any.B requestBuilder) {
-		for (NameValuePair param : mParams) {
-			requestBuilder.setBodyParameter(param.getName(), param.getValue());
-		}
-	}
-	
 	@Override
 	public void writeBodyTo(OutputStream output, HttpRequestInfo request, UploadProgressListener progressListener) throws IOException {
 		output.write(getEncodedParams());

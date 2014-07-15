@@ -3,5 +3,8 @@
 include 'HttpClient'
 project(':HttpClient').projectDir = new File('HttpClient')
 
+include 'HttpClient-Ion'
+project(':HttpClient-Ion').projectDir = new File('HttpClient-Ion')
+
 include 'HttpClient-OAuth'
 project(':HttpClient-OAuth').projectDir = new File('HttpClient-OAuth')

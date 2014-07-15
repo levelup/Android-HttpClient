@@ -3,19 +3,20 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.koushikdutta.async.http.body.StringBody;
-import com.koushikdutta.ion.builder.Builders;
-
 
 /**
  * HTTP body class that consists of a String data and its Content-Type 
  */
 public class HttpBodyString implements HttpBodyParameters {
 
-	private final String value;
+	protected final String value;
 
 	public HttpBodyString(String value) {
 		this.value = value;
+	}
+
+	public HttpBodyString(HttpBodyString copy) {
+		this(copy.value);
 	}
 
 	/**
@@ -59,13 +60,8 @@ public class HttpBodyString implements HttpBodyParameters {
 	}
 
 	@Override
-	public void setOutputData(Builders.Any.B requestBuilder) {
-		requestBuilder.setStringBody(value);
-	}
-
-	@Override
 	public String getContentType() {
-		return StringBody.CONTENT_TYPE;
+		return "text/plain";
 	}
 
 	@Override

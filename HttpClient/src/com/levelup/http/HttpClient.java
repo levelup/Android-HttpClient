@@ -16,6 +16,7 @@ public class HttpClient {
 	private static String userAgent;
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
+	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.instance;
 	public static Context defaultContext;
 
 	/**
@@ -113,5 +114,13 @@ public class HttpClient {
 	 */
 	public static String getStringResponse(HttpRequest request) throws HttpException {
 		return parseRequest(request, InputStreamStringParser.instance);
+	}
+
+	public static HttpEngineFactory getHttpEngineFactory() {
+		return httpEngineFactory;
+	}
+
+	public static void setHttpEngineFactory(HttpEngineFactory httpEngineFactory) {
+		HttpClient.httpEngineFactory = httpEngineFactory;
 	}
 }

@@ -1,4 +1,4 @@
-package com.levelup.http.internal;
+package com.levelup.http.ion;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,12 +24,22 @@ import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpBodyJSON;
 import com.levelup.http.HttpBodyMultiPart;
+import com.levelup.http.HttpBodyParameters;
+import com.levelup.http.HttpBodyString;
+import com.levelup.http.HttpBodyUrlEncoded;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.gson.InputStreamGsonParser;
+import com.levelup.http.internal.BaseHttpEngine;
+import com.levelup.http.ion.internal.IonBody;
+import com.levelup.http.ion.internal.IonHttpBodyJSON;
+import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
+import com.levelup.http.ion.internal.IonHttpBodyString;
+import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -42,7 +52,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 
 	public HttpEngineIon(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
-		super(builder);
+		super(wrapBuilderBodyParams(builder));
 
 		if (builder.getContext() == null) {
 			throw new NullPointerException("Ion HTTP request with no Context, try calling HttpClient.setup() first or a constructor with a Context");
@@ -135,6 +145,22 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
 	}
 
+	private static <T> BaseHttpRequest.AbstractBuilder<T, ?> wrapBuilderBodyParams(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
+		final HttpBodyParameters sourceBody = builder.getBodyParams();
+		if (sourceBody instanceof HttpBodyMultiPart)
+			builder.setBody(builder.getHttpMethod(), new IonHttpBodyMultiPart((HttpBodyMultiPart) sourceBody));
+		else if (sourceBody instanceof HttpBodyJSON)
+			builder.setBody(builder.getHttpMethod(), new IonHttpBodyJSON((HttpBodyJSON) sourceBody));
+		else if (sourceBody instanceof HttpBodyUrlEncoded)
+			builder.setBody(builder.getHttpMethod(), new IonHttpBodyUrlEncoded((HttpBodyUrlEncoded) sourceBody));
+		else if (sourceBody instanceof HttpBodyString)
+			builder.setBody(builder.getHttpMethod(), new IonHttpBodyString((HttpBodyString) sourceBody));
+		else if (sourceBody != null)
+			throw new IllegalStateException("Unknown body type "+sourceBody);
+
+		return builder;
+	}
+
 	@Override
 	public boolean isStreaming() {
 		return false;
@@ -172,7 +198,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public final void setupBody() {
 		if (null == requestBuilder) throw new IllegalStateException("is this a streaming request?");
 		if (null != bodyParams) {
-			bodyParams.setOutputData(requestBuilder);
+			((IonBody) bodyParams).setOutputData(requestBuilder);
 
 			final UploadProgressListener progressListener = getProgressListener();
 			if (null != progressListener) {

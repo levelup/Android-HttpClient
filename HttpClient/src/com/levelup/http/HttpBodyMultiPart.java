@@ -8,22 +8,15 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 import android.text.TextUtils;
-
-import com.koushikdutta.async.http.body.FilePart;
-import com.koushikdutta.async.http.body.MultipartFormDataBody;
-import com.koushikdutta.async.http.body.Part;
-import com.koushikdutta.ion.builder.Builders;
-import com.levelup.http.internal.InputStreamPart;
 
 /**
  * HTTP POST parameters encoded as {@code multipart/form-data}
  * <p>Useful to send {@link File} or {@link InputStream}</p>
  */
 public class HttpBodyMultiPart implements HttpBodyParameters {
-	private final ArrayList<HttpParam> mParams;
+	protected final ArrayList<HttpParam> mParams;
 
 	private static final String charset = "UTF-8";
 	private static final String CRLF = "\r\n";
@@ -43,6 +36,14 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 */
 	public HttpBodyMultiPart() {
 		mParams = new ArrayList<HttpParam>();
+	}
+
+	/**
+	 * Basic copy constructor
+	 * @param copy body to copy parameters from
+	 */
+	public HttpBodyMultiPart(HttpBodyMultiPart copy) {
+		this.mParams = new ArrayList<HttpParam>(copy.mParams);
 	}
 
 	/**
@@ -82,38 +83,6 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 */
 	public void addFile(String name, File file, String contentType) {
 		mParams.add(new HttpParam(name, file, contentType));
-	}
-
-	@Override
-	public void setOutputData(Builders.Any.B requestBuilder) {
-		for (HttpParam param : mParams) {
-			if (param.value instanceof File) {
-				FilePart part = new FilePart(param.name, (File) param.value);
-				if (!TextUtils.isEmpty(param.contentType))
-					part.setContentType(param.contentType);
-				part.getRawHeaders().add("Content-Transfer-Encoding", "binary");
-				List<Part> partList = new ArrayList<Part>(1);
-				partList.add(part);
-				requestBuilder.addMultipartParts(partList);
-				/*if (!TextUtils.isEmpty(param.contentType))
-					requestBuilder.setMultipartFile(param.name, param.contentType, (File) param.value);
-				else
-					requestBuilder.setMultipartFile(param.name, (File) param.value);*/
-			} else if (param.value instanceof InputStream) {
-				InputStreamPart part = new InputStreamPart(param.name, (InputStream) param.value, param.length);
-				if (!TextUtils.isEmpty(param.contentType))
-					part.setContentType(param.contentType);
-				part.getRawHeaders().add("Content-Transfer-Encoding", "binary");
-				List<Part> partList = new ArrayList<Part>(1);
-				partList.add(part);
-				requestBuilder.addMultipartParts(partList);
-			}
-		}
-		for (HttpParam param : mParams) {
-			if (param.value instanceof String) {
-				requestBuilder.setMultipartParameter(param.name, (String) param.value);
-			}
-		}
 	}
 
 	@Override
@@ -339,16 +308,16 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 
 	@Override
 	public String getContentType() {
-		return MultipartFormDataBody.CONTENT_TYPE;
+		return "multipart/form-data";
 	}
 
-	private static class HttpParam {
+	protected static class HttpParam {
 		private static final String TEXT_PLAIN = "text/plain; charset=UTF-8";
 
-		private final String name;
-		private final Object value;
-		private final long length;
-		private final String contentType;
+		public final String name;
+		public final Object value;
+		public final long length;
+		public final String contentType;
 
 		HttpParam(String name, String value) {
 			this(name, value, TEXT_PLAIN);
