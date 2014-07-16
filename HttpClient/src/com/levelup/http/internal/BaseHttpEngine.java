@@ -117,7 +117,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return mHttpConfig;
 	}
 
-	protected final void prepareRequest(HttpRequest request) throws HttpException {
+	public final void prepareRequest(HttpRequest request) throws HttpException {
 			/*
 			HttpResponse resp = null;
 			try {
