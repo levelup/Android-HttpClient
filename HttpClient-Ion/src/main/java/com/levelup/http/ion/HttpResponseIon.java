@@ -31,11 +31,6 @@ public class HttpResponseIon<T> implements HttpResponse {
 	}
 
 	@Override
-	public Map<String, List<String>> getRequestProperties() {
-		return response.getRequest().getHeaders().getHeaders().toMultimap();
-	}
-
-	@Override
 	public Map<String, List<String>> getHeaderFields() {
 		return response.getHeaders().toMultimap();
 	}

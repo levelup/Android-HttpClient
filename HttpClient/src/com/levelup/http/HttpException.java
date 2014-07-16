@@ -259,18 +259,6 @@ public class HttpException extends Exception {
 		public Builder setHTTPResponse(HttpResponse resp) {
 			if (null!=resp) {
 				try {
-					Map<String, List<String>> reqProperties = resp.getRequestProperties();
-					headers.clear();
-					for (Entry<String, List<String>> props : reqProperties.entrySet()) {
-						for (String prop : props.getValue()) {
-							headers.add(new Header(props.getKey(), prop));
-						}
-					}
-				} catch (IllegalStateException ignored) {
-					// we can't read the headers once connected
-				}
-
-				try {
 					this.statusCode = resp.getResponseCode();
 				} catch (IllegalStateException e) {
 					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689

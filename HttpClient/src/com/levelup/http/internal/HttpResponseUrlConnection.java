@@ -43,11 +43,6 @@ public class HttpResponseUrlConnection implements HttpResponse {
 	}
 
 	@Override
-	public Map<String, List<String>> getRequestProperties() {
-		return response.getRequestProperties();
-	}
-
-	@Override
 	public String getHeaderField(String name) {
 		return response.getHeaderField(name);
 	}
