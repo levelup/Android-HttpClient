@@ -13,6 +13,7 @@ import android.net.Uri;
 
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.http.AsyncHttpRequest;
+import com.koushikdutta.async.http.ConnectionClosedException;
 import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
 import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
@@ -31,6 +32,7 @@ import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpBodyString;
 import com.levelup.http.HttpBodyUrlEncoded;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.UploadProgressListener;
@@ -287,5 +289,14 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			throw new IOException("error stream not supported");
 
 		return new ByteArrayInputStream(result.toString().getBytes());
+	}
+
+	@Override
+	protected HttpException.Builder exceptionToHttpException(HttpExceptionCreator request, Exception e) throws HttpException {
+		if (e instanceof ConnectionClosedException && e.getCause() instanceof Exception) {
+			return exceptionToHttpException(request, (Exception) e.getCause());
+		}
+
+		return super.exceptionToHttpException(request, e);
 	}
 }
