@@ -174,7 +174,6 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 
 	@Override
 	public InputStream getInputStream(HttpRequest request) throws HttpException {
-		prepareRequest(request);
 		getQueryResponse(request, true);
 		try {
 			return getHttpResponse().getInputStream();
