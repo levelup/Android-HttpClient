@@ -352,7 +352,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		}
 		return builder;
 	}
-	protected static HttpException.Builder exceptionToHttpException(HttpExceptionCreator request, Exception e) throws HttpException {
+	protected HttpException.Builder exceptionToHttpException(HttpExceptionCreator request, Exception e) throws HttpException {
 		if (e instanceof InterruptedException) {
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("interrupted");
