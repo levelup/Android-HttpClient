@@ -5,6 +5,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
@@ -43,9 +44,11 @@ public class AsyncClientTest extends AndroidTestCase {
 	private static class TestAsyncCallback extends BaseNetworkCallback<String> {
 		@Override
 		public void onNetworkFailed(Throwable t) {
-			if (t instanceof IOException) {
+			if (t instanceof IOException || t instanceof TimeoutException) {
 				// shit happens
 			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
+				// shit happens
+			} else if (t instanceof HttpException && ((HttpException) t).getErrorCode()==HttpException.ERROR_TIMEOUT) {
 				// shit happens
 			} else {
 				fail(t.getMessage());
