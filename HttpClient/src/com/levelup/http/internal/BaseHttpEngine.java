@@ -147,7 +147,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		request.settleHttpHeaders();
 
 		if (null != signer)
-			signer.sign(this);
+			signer.sign(request);
 	}
 
 	@Override

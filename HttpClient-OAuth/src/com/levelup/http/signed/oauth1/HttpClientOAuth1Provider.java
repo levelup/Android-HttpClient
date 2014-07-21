@@ -7,9 +7,9 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestPost;
-import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.signed.OAuthClientApp;
-import com.levelup.http.signed.oauth1.internal.ResponseAdapter;
+import com.levelup.http.signed.oauth1.internal.OAuth1RequestAdapter;
+import com.levelup.http.signed.oauth1.internal.OAuth1ResponseAdapter;
 
 import oauth.signpost.OAuth;
 import oauth.signpost.basic.DefaultOAuthProvider;
@@ -66,15 +66,16 @@ public class HttpClientOAuth1Provider {
 				} else {
 					request = new HttpRequestPost<Void>(endpointUrl, null);
 				}
-				return new OAuth1RequestAdapter(request.getHttpEngine());
+				return new OAuth1RequestAdapter(request);
 			}
 
 			@Override
 			protected HttpResponse sendRequest(HttpRequest request) throws IOException {
-				TypedHttpRequest<?> req = (TypedHttpRequest<?>) request.unwrap();
+                OAuth1RequestAdapter requestAdapter = (OAuth1RequestAdapter) request;
+                BaseHttpRequest<?> req = requestAdapter.unwrap();
 				try {
 					InputStream inputStream = HttpClient.getInputStream(req);
-					return new ResponseAdapter(req, inputStream);
+					return new OAuth1ResponseAdapter(req, inputStream);
 				} catch (HttpException e) {
 					IOException ex = new IOException("failed to query data "+e.getMessage());
 					ex.initCause(e);
@@ -84,7 +85,8 @@ public class HttpClientOAuth1Provider {
 
 			@Override
 			protected void closeConnection(HttpRequest request, HttpResponse response) {
-				InputStream inputStream = (InputStream) response.unwrap();
+                OAuth1ResponseAdapter responseAdapter = (OAuth1ResponseAdapter) response;
+				InputStream inputStream = responseAdapter.getContent();
 				if (inputStream != null) {
 					try {
 						inputStream.close();
