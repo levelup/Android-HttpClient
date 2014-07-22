@@ -61,14 +61,9 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			throw new NullPointerException("Ion HTTP request with no Context, try calling HttpClient.setup() first or a constructor with a Context");
 		}
 
-		final Ion ion;
-		/*if (getInputStreamParser() instanceof InputStreamGsonParser) {
-			InputStreamGsonParser gsonParser = (InputStreamGsonParser) getInputStreamParser();
-			ion = Ion.getInstance(builder.getContext(), gsonParser.getClass().getName());
-			ion.configure().setGson(gsonParser.gson);
-		} else*/ {
-			ion = Ion.getDefault(builder.getContext());
-		}
+		final Ion ion = Ion.getDefault(builder.getContext());
+		// until https://github.com/koush/AndroidAsync/issues/210 is fixed
+		ion.getConscryptMiddleware().enable(false);
 
 		ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
 			@Override
