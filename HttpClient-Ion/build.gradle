@@ -28,22 +28,22 @@ dependencies {
     allprojects {
         rootProject.allprojects.project.each {
             if (it.path == ionProject) {
-                println 'Using local Ion library in ' + project.path
                 useLocalIon = true
             }
             if (it.path == supportv4Project) {
-                println 'Using local support-v4 library in ' + project.path
                 useLocalV4 = true
             }
         }
     }
 
     if (useLocalIon) {
+        println 'Using local Ion library in ' + project.path
         compile project(ionProject)
     } else {
         def IonVer = 'com.koushikdutta.ion:ion:1.3.+'
 
         if (useLocalV4) {
+            println 'Using local support-v4 library in ' + project.path
             compile project(supportv4Project)
             compile (IonVer) {
                 exclude group: 'com.android.support', module:'support-v4'
