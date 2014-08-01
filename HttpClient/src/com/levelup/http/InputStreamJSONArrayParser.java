@@ -6,7 +6,7 @@ import java.io.InputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-public class InputStreamJSONArrayParser implements InputStreamParser<JSONArray> {
+public class InputStreamJSONArrayParser extends BaseInputStreamParser<JSONArray> {
 
 	public static final InputStreamJSONArrayParser instance = new InputStreamJSONArrayParser();
 	

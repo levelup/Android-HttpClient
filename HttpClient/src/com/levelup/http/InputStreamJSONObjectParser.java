@@ -6,7 +6,7 @@ import java.io.InputStream;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class InputStreamJSONObjectParser implements InputStreamParser<JSONObject> {
+public class InputStreamJSONObjectParser extends BaseInputStreamParser<JSONObject> {
 
 	public static final InputStreamJSONObjectParser instance = new InputStreamJSONObjectParser();
 	

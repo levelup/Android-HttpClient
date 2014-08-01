@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
  * Singleton {@link InputStreamParser} class to get a {@link String} from an {@link InputStream}
  * @see #instance
  */
-public class InputStreamStringParser implements InputStreamParser<String> {
+public class InputStreamStringParser extends BaseInputStreamParser<String> {
 
 	public static final InputStreamStringParser instance = new InputStreamStringParser();
 

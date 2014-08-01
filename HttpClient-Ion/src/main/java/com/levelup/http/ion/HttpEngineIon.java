@@ -11,12 +11,18 @@ import org.apache.http.protocol.HTTP;
 
 import android.net.Uri;
 
+import com.google.gson.reflect.TypeToken;
+import com.koushikdutta.async.DataEmitter;
+import com.koushikdutta.async.DataSink;
+import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.future.Future;
+import com.koushikdutta.async.future.TransformFuture;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.ConnectionClosedException;
 import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
 import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
+import com.koushikdutta.async.parser.AsyncParser;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
@@ -26,6 +32,7 @@ import com.koushikdutta.ion.future.ResponseFuture;
 import com.koushikdutta.ion.gson.GsonSerializer;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.GsonStreamParser;
 import com.levelup.http.HttpBodyJSON;
 import com.levelup.http.HttpBodyMultiPart;
 import com.levelup.http.HttpBodyParameters;
@@ -36,7 +43,6 @@ import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.UploadProgressListener;
-import com.levelup.http.gson.InputStreamGsonParser;
 import com.levelup.http.internal.BaseHttpEngine;
 import com.levelup.http.ion.internal.IonBody;
 import com.levelup.http.ion.internal.IonHttpBodyJSON;
@@ -223,26 +229,51 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		return getServerResponse(withResponse, request);
 	}
 
+	private static class AsyncGsonParser<P> implements AsyncParser<P> {
+		private final GsonSerializer gsonSerializer;
+		private final GsonStreamParser<P> postParser;
+
+		AsyncGsonParser(GsonStreamParser<P> gsonParser) {
+			this.postParser = gsonParser;
+			if (gsonParser.getGsonOutputType() instanceof Class) {
+				Class<?> clazz = (Class<?>) gsonParser.getGsonOutputType();
+				this.gsonSerializer = new GsonSerializer(gsonParser.getGsonHandler(), clazz);
+			} else if (gsonParser.getGsonOutputType() instanceof TypeToken) {
+				TypeToken<?> typeToken = (TypeToken<?>) gsonParser.getGsonOutputType();
+				this.gsonSerializer = new GsonSerializer(gsonParser.getGsonHandler(), typeToken);
+			} else {
+				throw new IllegalArgumentException("Impossible to use "+gsonParser);
+			}
+		}
+
+		@Override
+		public Future<P> parse(DataEmitter emitter) {
+			Future<Object> r = gsonSerializer.parse(emitter);
+			return r.then(new TransformFuture<P, Object>() {
+				@Override
+				protected void transform(Object gsonResult) throws Exception {
+					P result = postParser.transformResult(gsonResult);
+					setComplete(result);
+				}
+			});
+		}
+
+		@Override
+		public void write(DataSink sink, P value, CompletedCallback completed) {
+			throw new IllegalAccessError("not supported");
+		}
+	}
+
 	@Override
 	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
 		// special case: Gson data handling with HttpRequestIon
-		if (parser instanceof InputStreamGsonParser) {
-			InputStreamGsonParser gsonParser = (InputStreamGsonParser) parser;
-			final GsonSerializer<P> gsonSerializer;
-			if (gsonParser.typeToken != null) {
-				gsonSerializer = new GsonSerializer<P>(gsonParser.gson, gsonParser.typeToken);
-			} else if (gsonParser.type instanceof Class) {
-				Class<P> clazz = (Class<P>) gsonParser.type;
-				gsonSerializer = new GsonSerializer<P>(gsonParser.gson, clazz);
-			} else {
-				gsonSerializer = null;
-			}
-			if (null != gsonSerializer) {
-				prepareRequest(request);
-				ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
-				Future<Response<P>> withResponse = req.withResponse();
-				return getServerResponse(withResponse, request);
-			}
+		GsonStreamParser<P> gsonParser = parser.getGsonParser();
+		if (null != gsonParser) {
+			final AsyncParser<P> gsonSerializer = new AsyncGsonParser(gsonParser);
+			prepareRequest(request);
+			ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
+			Future<Response<P>> withResponse = req.withResponse();
+			return getServerResponse(withResponse, request);
 		}
 
 		return super.parseRequest(parser, request);

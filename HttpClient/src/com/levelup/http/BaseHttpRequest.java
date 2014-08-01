@@ -21,7 +21,7 @@ import com.levelup.http.signed.AbstractRequestSigner;
  */
 public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler {
 	/** Object to tell we are not outputting an object but using streaming data */
-	private static final InputStreamParser<HttpStream> streamingRequest = new InputStreamParser<HttpStream>() {
+	private static final InputStreamParser<HttpStream> streamingRequest = new BaseInputStreamParser<HttpStream>() {
 		@Override
 		public HttpStream parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 			throw new IllegalAccessError("this parser should not be used");

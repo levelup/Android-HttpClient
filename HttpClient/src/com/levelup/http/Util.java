@@ -22,7 +22,7 @@ public final class Util {
 	 * @throws IOException
 	 */
 	@SuppressLint("NewApi")
-	public static Charset getInputCharsetOrUtf8(HttpResponse httpResponse) throws IOException {
+	public static Charset getInputCharsetOrUtf8(HttpResponse httpResponse) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
 			return getInputCharset(httpResponse, StandardCharsets.UTF_8);
 		
