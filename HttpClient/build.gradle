@@ -1,7 +1,7 @@
 apply plugin: 'android-library'
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.2.+'
+    compile 'com.google.code.gson:gson:2.+'
     androidTestCompile 'com.squareup.okio:okio:1.0.+'
 }
 
