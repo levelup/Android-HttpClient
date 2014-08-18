@@ -1,5 +1,6 @@
 package com.levelup.http.internal;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -177,6 +178,12 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		getQueryResponse(request, true);
 		try {
 			return getHttpResponse().getInputStream();
+
+		} catch (FileNotFoundException e) {
+			HttpException.Builder exceptionBuilder = newExceptionFromResponse(e);
+			if (null == exceptionBuilder)
+				exceptionBuilder = exceptionToHttpException(request, e);
+			throw exceptionBuilder.build();
 
 		} catch (IOException e) {
 			throw exceptionToHttpException(request, e).build();
