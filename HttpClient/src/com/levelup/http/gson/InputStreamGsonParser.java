@@ -18,7 +18,7 @@ public class InputStreamGsonParser<T> extends InputStreamGsonTransform<T,T> {
 	}
 
 	public InputStreamGsonParser(Gson gson, TypeToken<T> typeToken) {
-		super(gson, typeToken.getType());
+		super(gson, typeToken);
 	}
 
 	public InputStreamGsonParser(Type type) {

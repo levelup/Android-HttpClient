@@ -235,14 +235,14 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 		AsyncGsonParser(GsonStreamParser<P> gsonParser) {
 			this.postParser = gsonParser;
-			if (gsonParser.getGsonOutputType() instanceof Class) {
+			if (gsonParser.getGsonOutputTypeToken() instanceof TypeToken) {
+				TypeToken<?> typeToken = gsonParser.getGsonOutputTypeToken();
+				this.gsonSerializer = new GsonSerializer(gsonParser.getGsonHandler(), typeToken);
+			} else if (gsonParser.getGsonOutputType() instanceof Class) {
 				Class<?> clazz = (Class<?>) gsonParser.getGsonOutputType();
 				this.gsonSerializer = new GsonSerializer(gsonParser.getGsonHandler(), clazz);
-			} else if (gsonParser.getGsonOutputType() instanceof TypeToken) {
-				TypeToken<?> typeToken = (TypeToken<?>) gsonParser.getGsonOutputType();
-				this.gsonSerializer = new GsonSerializer(gsonParser.getGsonHandler(), typeToken);
 			} else {
-				throw new IllegalArgumentException("Impossible to use "+gsonParser);
+				throw new IllegalArgumentException("Impossible to use " + gsonParser + " with output+" + gsonParser.getGsonOutputType() +" typeToken:" +gsonParser.getGsonOutputTypeToken());
 			}
 		}
 

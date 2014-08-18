@@ -24,14 +24,14 @@ public abstract class InputStreamGsonTransform<T, G> implements InputStreamParse
 
 	final Gson gson;
 	final Type type;
+	final TypeToken typeToken;
 
 	public InputStreamGsonTransform(Type type) {
 		this(defaultGsonParser, type);
 	}
 
 	public InputStreamGsonTransform(Gson gson, Type type) {
-		this.gson = gson;
-		this.type = type;
+		this(gson, type, null);
 	}
 
 	public InputStreamGsonTransform(TypeToken<G> typeToken) {
@@ -39,12 +39,17 @@ public abstract class InputStreamGsonTransform<T, G> implements InputStreamParse
 	}
 
 	public InputStreamGsonTransform(Gson gson, TypeToken<G> typeToken) {
+		this(gson, typeToken.getType(), typeToken);
+	}
+
+	private InputStreamGsonTransform(Gson gson, Type type, TypeToken<G> typeToken) {
 		this.gson = gson;
-		this.type = typeToken.getType();
+		this.type = type;
+		this.typeToken = typeToken;
 	}
 
 	public InputStreamGsonTransform(final InputStreamGsonParser<G> gsonParser) {
-		this(gsonParser.gson, gsonParser.type);
+		this(gsonParser.gson, gsonParser.type, gsonParser.typeToken);
 	}
 
 	/**
@@ -75,6 +80,11 @@ public abstract class InputStreamGsonTransform<T, G> implements InputStreamParse
 	@Override
 	public Type getGsonOutputType() {
 		return type;
+	}
+
+	@Override
+	public TypeToken getGsonOutputTypeToken() {
+		return typeToken;
 	}
 
 	@Override
