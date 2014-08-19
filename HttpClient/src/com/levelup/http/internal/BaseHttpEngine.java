@@ -27,6 +27,7 @@ import com.google.gson.JsonParseException;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.BasicHttpConfig;
 import com.levelup.http.CookieManager;
+import com.levelup.http.DataErrorException;
 import com.levelup.http.GsonStreamParser;
 import com.levelup.http.Header;
 import com.levelup.http.HttpBodyParameters;
@@ -263,6 +264,9 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 					throw exceptionToHttpException(request, e).build();
 
 				} catch (IOException e) {
+					throw exceptionToHttpException(request, e).build();
+
+				} catch (DataErrorException e) {
 					throw exceptionToHttpException(request, e).build();
 
 				} finally {

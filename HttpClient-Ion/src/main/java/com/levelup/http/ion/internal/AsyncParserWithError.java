@@ -8,6 +8,7 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.async.future.SimpleFuture;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.async.parser.AsyncParser;
+import com.levelup.http.DataErrorException;
 import com.levelup.http.ion.HttpEngineIon;
 
 /**
@@ -46,7 +47,7 @@ public class AsyncParserWithError<T, ERROR> implements AsyncParser<T> {
 							if (e!=null)
 								futureResult.setComplete(e);
 							else
-								futureResult.setComplete(new ErrorDataException(result));
+								futureResult.setComplete(new DataErrorException(result));
 						}
 					});
 				}

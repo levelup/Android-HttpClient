@@ -18,7 +18,7 @@ public abstract class ParserTransform<INPUT, OUTPUT> implements InputStreamParse
 	protected abstract OUTPUT transform(INPUT input) throws IOException, ParserException;
 
 	@Override
-	public final OUTPUT parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public final OUTPUT parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
 		INPUT input = inputParser.parseInputStream(inputStream, request);
 		return transform(input);
 	}
