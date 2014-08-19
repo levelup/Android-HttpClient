@@ -87,7 +87,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.getContext());
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
-		requestBuilder.setHttpRequestCookie(this);
+		requestBuilder.setHttpRequestCookie(HttpEngineIon.this);
 	}
 
 	private static <T> BaseHttpRequest.AbstractBuilder<T, ?> wrapBuilderBodyParams(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
