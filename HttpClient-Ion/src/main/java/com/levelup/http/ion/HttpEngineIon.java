@@ -19,10 +19,7 @@ import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.TransformFuture;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.ConnectionClosedException;
-import com.koushikdutta.async.http.body.AsyncHttpRequestBody;
-import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.libcore.RawHeaders;
-import com.koushikdutta.async.parser.AsyncParser;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
@@ -44,6 +41,10 @@ import com.levelup.http.HttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.internal.BaseHttpEngine;
+import com.levelup.http.ion.internal.AsyncParserWithErrorStream;
+import com.levelup.http.ion.internal.ErrorDataException;
+import com.levelup.http.ion.internal.HttpLoaderWithError;
+import com.levelup.http.ion.internal.IonAsyncHttpRequest;
 import com.levelup.http.ion.internal.IonBody;
 import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
@@ -59,6 +60,8 @@ import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
  */
 public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
+	private static Ion ion;
+	private RawHeaders headers;
 
 	public HttpEngineIon(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		super(wrapBuilderBodyParams(builder));
@@ -67,81 +70,19 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			throw new NullPointerException("Ion HTTP request with no Context, try calling HttpClient.setup() first or a constructor with a Context");
 		}
 
-		final Ion ion = Ion.getDefault(builder.getContext());
-		// until https://github.com/koush/AndroidAsync/issues/210 is fixed
-		ion.getConscryptMiddleware().enable(false);
+		synchronized (HttpEngineIon.class) {
+			if (ion == null) {
+				ion = Ion.getDefault(builder.getContext());
+				// until https://github.com/koush/AndroidAsync/issues/210 is fixed
+				ion.getConscryptMiddleware().enable(false);
+				ion.configure().addLoader(0, new HttpLoaderWithError());
+			}
+		}
 
 		ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
 			@Override
 			public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, RawHeaders headers) {
-				AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers) {
-					@Override
-					public void logd(String message) {
-						if (getLogger() != null)
-							getLogger().d(message);
-						else
-							super.logd(message);
-					}
-
-					@Override
-					public void logd(String message, Exception e) {
-						if (getLogger() != null)
-							getLogger().d(message, e);
-						else
-							super.logd(message, e);
-					}
-
-					@Override
-					public void logi(String message) {
-						if (getLogger() != null)
-							getLogger().i(message);
-						else
-							super.logi(message);
-					}
-
-					@Override
-					public void logv(String message) {
-						if (getLogger() != null)
-							getLogger().v(message);
-						else
-							super.logv(message);
-					}
-
-					@Override
-					public void logw(String message) {
-						if (getLogger() != null)
-							getLogger().w(message);
-						else
-							super.logw(message);
-					}
-
-					@Override
-					public void loge(String message) {
-						if (getLogger() != null)
-							getLogger().e(message);
-						else
-							super.loge(message);
-					}
-
-					@Override
-					public void loge(String message, Exception e) {
-						if (getLogger() != null)
-							getLogger().e(message, e);
-						else
-							super.loge(message, e);
-					}
-
-					@Override
-					public void setBody(AsyncHttpRequestBody body) {
-						if (body instanceof MultipartFormDataBody) {
-							MultipartFormDataBody multipartFormDataBody = (MultipartFormDataBody) body;
-							multipartFormDataBody.setBoundary(HttpBodyMultiPart.boundary);
-						}
-
-						super.setBody(body);
-					}
-				};
-				return request;
+				return new IonAsyncHttpRequest(uri, method, headers, HttpEngineIon.this);
 			}
 		});
 
@@ -229,26 +170,37 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		return getServerResponse(withResponse, request);
 	}
 
-	private static class AsyncGsonParser<P> implements AsyncParser<P> {
-		private final GsonSerializer gsonSerializer;
+	public RawHeaders getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(RawHeaders headers) {
+		this.headers = headers;
+	}
+
+	private static class AsyncGsonParser<P> extends AsyncParserWithErrorStream<P> {
 		private final GsonStreamParser<P> postParser;
 
-		AsyncGsonParser(GsonStreamParser<P> gsonParser) {
-			this.postParser = gsonParser;
+		private static GsonSerializer getGsonSerializer(GsonStreamParser<?> gsonParser) {
 			if (gsonParser.getGsonOutputTypeToken() instanceof TypeToken) {
 				TypeToken<?> typeToken = gsonParser.getGsonOutputTypeToken();
-				this.gsonSerializer = new GsonSerializer(gsonParser.getGsonHandler(), typeToken);
+				return new GsonSerializer(gsonParser.getGsonHandler(), typeToken);
 			} else if (gsonParser.getGsonOutputType() instanceof Class) {
 				Class<?> clazz = (Class<?>) gsonParser.getGsonOutputType();
-				this.gsonSerializer = new GsonSerializer(gsonParser.getGsonHandler(), clazz);
+				return new GsonSerializer(gsonParser.getGsonHandler(), clazz);
 			} else {
 				throw new IllegalArgumentException("Impossible to use " + gsonParser + " with output+" + gsonParser.getGsonOutputType() +" typeToken:" +gsonParser.getGsonOutputTypeToken());
 			}
 		}
 
+		AsyncGsonParser(GsonStreamParser<P> gsonParser, HttpEngineIon engineIon) {
+			super(getGsonSerializer(gsonParser), engineIon);
+			this.postParser = gsonParser;
+		}
+
 		@Override
 		public Future<P> parse(DataEmitter emitter) {
-			Future<Object> r = gsonSerializer.parse(emitter);
+			Future<Object> r = (Future<Object>) super.parse(emitter);
 			return r.then(new TransformFuture<P, Object>() {
 				@Override
 				protected void transform(Object gsonResult) throws Exception {
@@ -269,7 +221,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		// special case: Gson data handling with HttpRequestIon
 		GsonStreamParser<P> gsonParser = parser.getGsonParser();
 		if (null != gsonParser) {
-			final AsyncParser<P> gsonSerializer = new AsyncGsonParser(gsonParser);
+			final AsyncParserWithErrorStream<P> gsonSerializer = new AsyncGsonParser(gsonParser, this);
 			prepareRequest(request);
 			ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
 			Future<Response<P>> withResponse = req.withResponse();
@@ -284,8 +236,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			Response<P> response = req.get();
 			setRequestResponse(request, new HttpResponseIon(response));
 
-			if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 300) {
-				HttpException.Builder builder = request.newExceptionFromResponse(null);
+			if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
+				HttpException.Builder builder = request.newExceptionFromResponse(getHttpResponse().getException());
+				if (null == builder)
+					builder = exceptionToHttpException(request, getHttpResponse().getException());
 				throw builder.build();
 			}
 
@@ -306,13 +260,23 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	protected InputStream getParseableErrorStream() throws IOException {
-		Object result = getHttpResponse().getResult();
+	protected InputStream getParseableErrorStream() throws Exception {
+		Object result;
+		HttpResponseIon<T> response = getHttpResponse();
+		if (response.getException() instanceof ErrorDataException) {
+			ErrorDataException errorSource = (ErrorDataException) response.getException();
+			result = errorSource.errorResult;
+		} else {
+			result = response.getResult();
+		}
 		if (result instanceof InputStream) {
 			return (InputStream) result;
 		}
-		if (result == null)
+		if (result == null) {
+			if (response.getException()!=null)
+				throw response.getException();
 			throw new IOException("error stream not supported");
+		}
 
 		return new ByteArrayInputStream(result.toString().getBytes());
 	}

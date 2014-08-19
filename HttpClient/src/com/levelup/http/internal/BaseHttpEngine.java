@@ -360,6 +360,8 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			}
 		} catch (IOException ignored) {
 		} catch (ParserException ignored) {
+		} catch (Exception e) {
+			LogManager.getLogger().w("unknown HTTP error",e);
 		} finally {
 			if (null != errorStream) {
 				try {
@@ -461,7 +463,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return this;
 	}
 
-	protected abstract InputStream getParseableErrorStream() throws IOException;
+	protected abstract InputStream getParseableErrorStream() throws Exception;
 
 	@Override
 	public void setErrorHandler(HttpErrorHandler errorHandler) {
