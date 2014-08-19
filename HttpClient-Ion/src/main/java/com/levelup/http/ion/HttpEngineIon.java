@@ -76,18 +76,18 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				// until https://github.com/koush/AndroidAsync/issues/210 is fixed
 				ion.getConscryptMiddleware().enable(false);
 				ion.configure().addLoader(0, new HttpLoaderWithError());
+				ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
+					@Override
+					public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, RawHeaders headers, Object cookie) {
+						return new IonAsyncHttpRequest(uri, method, headers, (HttpEngineIon) cookie);
+					}
+				});
 			}
 		}
 
-		ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
-			@Override
-			public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, RawHeaders headers) {
-				return new IonAsyncHttpRequest(uri, method, headers, HttpEngineIon.this);
-			}
-		});
-
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.getContext());
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
+		requestBuilder.setHttpRequestCookie(this);
 	}
 
 	private static <T> BaseHttpRequest.AbstractBuilder<T, ?> wrapBuilderBodyParams(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
