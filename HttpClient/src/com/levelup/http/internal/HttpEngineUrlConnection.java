@@ -36,9 +36,11 @@ import com.levelup.http.LoggerTagged;
  */
 public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrlConnection> {
 	final HttpURLConnection urlConnection;
+	private final boolean isStreaming;
 
 	public HttpEngineUrlConnection(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		super(builder);
+		this.isStreaming = builder.isStreaming();
 
 		try {
 			this.urlConnection = (HttpURLConnection) new URL(getUri().toString()).openConnection();
@@ -103,7 +105,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 
 	@Override
 	public boolean isStreaming() {
-		return true;
+		return isStreaming;
 	}
 
 	@SuppressLint("NewApi")

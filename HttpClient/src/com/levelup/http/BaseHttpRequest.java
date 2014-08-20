@@ -20,14 +20,6 @@ import com.levelup.http.signed.AbstractRequestSigner;
  * @param <T> type of the data read from the HTTP response
  */
 public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler {
-	/** Object to tell we are not outputting an object but using streaming data */
-	private static final InputStreamParser<HttpStream> streamingRequest = new BaseInputStreamParser<HttpStream>() {
-		@Override
-		public HttpStream parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
-			throw new IllegalAccessError("this parser should not be used");
-		}
-	};
-
 	/**
 	 * Builder for a {@link com.levelup.http.BaseHttpRequest BaseHttpRequest}
 	 * @param <T> type of the data read from the HTTP response
@@ -69,6 +61,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		private String httpMethod = "GET";
 		private RequestSigner signer;
 		private Boolean followRedirect;
+		private boolean isStreaming;
 
 		/**
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
@@ -171,7 +164,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * @return Current Builder
 		 */
 		public AbstractBuilder<T,R> setStreamParser(InputStreamParser<T> streamParser) {
-			if (streamParser==streamingRequest)
+			if (isStreaming)
 				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.streamParser = streamParser;
 			return this;
@@ -183,9 +176,9 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 */
 		@SuppressWarnings("unchecked")
 		public AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>> setStreaming() {
-			if (streamParser!=null && streamParser!=streamingRequest)
+			if (streamParser!=null)
 				throw new IllegalArgumentException("Trying to set a streaming request that has a streaming parser");
-			this.streamParser = (InputStreamParser<T>) streamingRequest;
+			this.isStreaming = true;
 			return (AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>>) this;
 		}
 
@@ -242,7 +235,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		}
 
 		public boolean isStreaming() {
-			return getInputStreamParser() == streamingRequest;
+			return isStreaming;
 		}
 
 		/**
@@ -357,7 +350,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 
 	@Override
 	public boolean isStreaming() {
-		return engine.getInputStreamParser() == streamingRequest;
+		return engine.isStreaming();
 	}
 
 	@Override
