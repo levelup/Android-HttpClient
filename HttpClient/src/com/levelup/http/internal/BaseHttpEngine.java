@@ -41,7 +41,6 @@ import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.InputStreamJSONObjectParser;
-import com.levelup.http.InputStreamParser;
 import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
@@ -50,6 +49,7 @@ import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.Util;
+import com.levelup.http.parser.ResponseParser;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -65,7 +65,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
 	private R httpResponse;
 	private final String method;
-	private final InputStreamParser<T> streamParser;
+	private final ResponseParser<T,?> streamParser;
 	private final RequestSigner signer;
 	private UploadProgressListener mProgressListener;
 	protected final HttpBodyParameters bodyParams;
@@ -91,7 +91,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public final InputStreamParser<T> getInputStreamParser() {
+	public final ResponseParser<T,?> getResponseParser() {
 		return streamParser;
 	}
 
@@ -238,10 +238,10 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
 		InputStream is = getInputStream(request);
 		if (null != parser) {
-			GsonStreamParser<P> gsonParser = parser.getGsonParser();
+			GsonStreamParser<P> gsonParser = null; // TODO parser.getGsonParser();
 			if (null != gsonParser) {
 				Charset readCharset = Util.getInputCharsetOrUtf8(request.getResponse());
 				InputStreamReader ir = new InputStreamReader(is, readCharset);
@@ -259,7 +259,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 			if (null != is)
 				try {
-					return parser.parseInputStream(is, this);
+					return parser.parseResponse(this);
 				} catch (ParserException e) {
 					throw exceptionToHttpException(request, e).build();
 

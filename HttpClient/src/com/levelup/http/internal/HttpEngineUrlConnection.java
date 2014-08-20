@@ -26,6 +26,7 @@ import com.levelup.http.HttpStream;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
+import com.levelup.http.parser.ResponseParser;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -194,7 +195,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
 		if (request.isStreaming()) {
 			// special case: streaming with HttpRequestUrlConnection
 			getQueryResponse(request, true);

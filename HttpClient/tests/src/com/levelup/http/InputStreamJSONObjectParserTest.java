@@ -5,6 +5,9 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
+import com.levelup.http.parser.DataTransformResponseJSONObject;
+import com.levelup.http.parser.ResponseParser;
+
 public class InputStreamJSONObjectParserTest extends AndroidTestCase {
 
 	@Override
@@ -16,7 +19,7 @@ public class InputStreamJSONObjectParserTest extends AndroidTestCase {
 	public void testBogusData() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://android.com/").
-				setStreamParser(InputStreamJSONObjectParser.instance).
+				setDataParser(new ResponseParser<JSONObject, Object>(DataTransformResponseJSONObject.INSTANCE)).
 				build();
 
 		try {

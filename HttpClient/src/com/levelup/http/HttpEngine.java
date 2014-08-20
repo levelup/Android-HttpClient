@@ -5,12 +5,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.levelup.http.internal.HttpErrorHandler;
+import com.levelup.http.parser.ResponseParser;
 
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */
 public interface HttpEngine<T> extends HttpRequestInfo {
-	InputStreamParser<T> getInputStreamParser();
+	ResponseParser<T,?> getResponseParser();
 
 	void setLogger(LoggerTagged logger);
 
@@ -38,7 +39,7 @@ public interface HttpEngine<T> extends HttpRequestInfo {
 
 	void setupBody();
 
-	<P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException;
+	<P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException;
 
 	InputStream getInputStream(HttpRequest request) throws HttpException;
 

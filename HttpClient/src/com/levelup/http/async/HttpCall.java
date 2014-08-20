@@ -6,11 +6,10 @@ import java.util.concurrent.ExecutorService;
 
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
-import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.InputStreamParser;
 import com.levelup.http.TypedHttpRequest;
+import com.levelup.http.parser.ResponseParser;
 
 public class HttpCall<T> {
 	
@@ -27,10 +26,10 @@ public class HttpCall<T> {
 			this(url, null);
 		}
 		
-		public Builder(String url, InputStreamParser<T> parser) {
+		public Builder(String url, ResponseParser<T,?> parser) {
 			this(new BaseHttpRequest.Builder<T>(HttpClient.defaultContext)
 					.setUrl(url)
-					.setStreamParser(parser)
+					.setDataParser(parser)
 					.build());
 		}
 		

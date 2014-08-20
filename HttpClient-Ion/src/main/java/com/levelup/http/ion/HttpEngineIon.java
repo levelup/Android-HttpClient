@@ -43,8 +43,6 @@ import com.levelup.http.HttpBodyUrlEncoded;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
-import com.levelup.http.InputStreamParser;
-import com.levelup.http.InputStreamParserWithError;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.internal.BaseHttpEngine;
 import com.levelup.http.ion.internal.AsyncParserWithError;
@@ -55,6 +53,7 @@ import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
+import com.levelup.http.parser.ResponseParser;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -198,7 +197,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			}
 		}
 
-		private static <ERROR> AsyncParser<ERROR> getErrorAsyncParser(final InputStreamParserWithError<?, ERROR> parser) {
+		private static <ERROR> AsyncParser<ERROR> getErrorAsyncParser(final ResponseParser<?, ERROR> parser) {
 			if (parser.errorParser instanceof GsonStreamParser) {
 				return getGsonSerializer((GsonStreamParser<ERROR>) parser.errorParser);
 			}
@@ -215,7 +214,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 							}).then(new TransformFuture<ERROR, InputStream>() {
 								@Override
 								protected void transform(InputStream result) throws Exception {
-									setComplete(parser.errorParser.parseInputStream(result, null));
+									setComplete(parser.errorParser.transform(null, null)); // TODO
 								}
 							});
 					return streamParser;
@@ -228,7 +227,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			};
 		}
 
-		BaseAsyncGsonParser(GsonStreamParser<P> gsonParser, final InputStreamParserWithError<P, ERROR> parser, HttpEngineIon engineIon) {
+		BaseAsyncGsonParser(GsonStreamParser<P> gsonParser, final ResponseParser<P, ERROR> parser, HttpEngineIon engineIon) {
 			super(getGsonSerializer(gsonParser), getErrorAsyncParser(parser), engineIon);
 			this.postParser = gsonParser;
 		}
@@ -290,15 +289,11 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public <P> P parseRequest(InputStreamParser<P> parser, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
 		// special case: Gson data handling with HttpRequestIon
-		GsonStreamParser<P> gsonParser = parser.getGsonParser();
+		GsonStreamParser<P> gsonParser = null; // TODO parser.getGsonParser();
 		if (null != gsonParser) {
-			final AsyncParserWithError<P, ?> gsonSerializer;
-			if (parser instanceof InputStreamParserWithError)
-				gsonSerializer = new BaseAsyncGsonParser(gsonParser, (InputStreamParserWithError<P, ?>) parser, this);
-			else
-				gsonSerializer = new AsyncGsonParser(gsonParser, this);
+			AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, parser, this);
 			prepareRequest(request);
 			ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
 			Future<Response<P>> withResponse = req.withResponse();

@@ -22,7 +22,7 @@ public class InputStreamGsonParserTest extends AndroidTestCase {
 		testParser.enableDebugData(true);
 		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().
 				setUrl("http://android.com/").
-				setStreamParser(testParser).
+				setDataParser(testParser).
 				build();
 
 		try {

@@ -2,22 +2,27 @@ package com.levelup.http.gson;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.levelup.http.DataErrorException;
 import com.levelup.http.GsonStreamParser;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.InputStreamParser;
 import com.levelup.http.ParserException;
+import com.levelup.http.parser.DataTransform;
+import com.levelup.http.parser.DataTransformResponseInputStream;
 
 /**
  * Parse the network data using Gson and then transform them from type {@link G} to {@link T}
  * <p/>
  * Created by robUx4 on 8/1/2014.
  */
-public abstract class InputStreamGsonTransform<T, G> implements InputStreamParser<T>, GsonStreamParser<T> {
+public abstract class InputStreamGsonTransform<T, G> implements DataTransform<HttpResponse,T>, GsonStreamParser<T> {
 	private static Gson defaultGsonParser = new GsonBuilder().create();
 
 	private boolean debugData;
@@ -61,13 +66,21 @@ public abstract class InputStreamGsonTransform<T, G> implements InputStreamParse
 		return this;
 	}
 
+	/* TODO
 	public GsonStreamParser<T> getGsonParser() {
 		return this;
-	}
+	}*/
 
 	protected abstract T transformGsonResult(G gsonResult);
 
 	@Override
+	public T transform(HttpResponse response, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
+		InputStream inputStream = DataTransformResponseInputStream.INSTANCE.transform(response, request);
+		JsonReader reader = new JsonReader(new InputStreamReader(inputStream));
+		G gsonResult = gson.fromJson(reader, type);
+		return transformGsonResult(gsonResult);
+	}
+
 	public T parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		throw new IllegalAccessError("parse the Gson internally");
 	}

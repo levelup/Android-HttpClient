@@ -7,11 +7,11 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import com.levelup.http.HttpRequest;
-import com.levelup.http.InputStreamParser;
-
 import android.os.Handler;
 import android.os.Looper;
+
+import com.levelup.http.HttpRequest;
+import com.levelup.http.parser.ResponseParser;
 
 /**
  * Future task that will be used to do the network download in the background, the result/error will be sent to the {@code AsyncHttpCallback} in the UI thread
@@ -24,7 +24,7 @@ public class NetworkTask<T> extends FutureTask<T> {
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public NetworkTask(final HttpRequest request, final InputStreamParser<T> parser, NetworkCallback<T> callback) {
+	public NetworkTask(final HttpRequest request, final ResponseParser<T,?> parser, NetworkCallback<T> callback) {
 		this(new HttpCallable<T>(request, parser), callback);
 	}
 

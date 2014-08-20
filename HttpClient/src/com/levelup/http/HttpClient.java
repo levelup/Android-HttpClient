@@ -9,6 +9,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
+import com.levelup.http.parser.DataTransformResponseInputStream;
+import com.levelup.http.parser.DataTransformResponseString;
+import com.levelup.http.parser.ResponseParser;
+
 /**
  * HTTP client that handles {@link HttpRequest} 
  */
@@ -93,7 +97,7 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
-		InputStreamParser<T> streamParser = request.getInputStreamParser();
+		ResponseParser<T, ?> streamParser = request.getResponseParser();
 		if (null==streamParser) throw new NullPointerException("typed request without a stream parser:"+request);
 		return parseRequest(request, streamParser);
 	}
@@ -102,11 +106,11 @@ public class HttpClient {
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
 	 * @param request The HTTP request to process
-	 * @param parser The {@link InputStreamParser parser} used to transform the input stream into the desired type. May be {@code null}
+	 * @param parser The {@link ResponseParser parser} used to transform the input stream into the desired type. May be {@code null}
 	 * @return The parsed object or null
 	 * @throws HttpException
 	 */
-	public static <T> T parseRequest(final HttpRequest request, InputStreamParser<T> parser) throws HttpException {
+	public static <T> T parseRequest(final HttpRequest request, ResponseParser<T,?> parser) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
 			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
@@ -124,7 +128,9 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static String getStringResponse(HttpRequest request) throws HttpException {
-		return parseRequest(request, InputStreamStringParser.instance);
+		return parseRequest(request, new ResponseParser<String, InputStream>(
+				DataTransformResponseString.INSTANCE, DataTransformResponseInputStream.INSTANCE)
+		);
 	}
 
 	public static HttpEngineFactory getHttpEngineFactory() {

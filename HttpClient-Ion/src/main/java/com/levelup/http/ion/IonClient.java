@@ -14,6 +14,6 @@ public class IonClient {
 
 	public static void setup(Context context) {
 		HttpClient.setup(context);
-		HttpClient.setHttpEngineFactory(new IonHttpEngineFactory(HttpClient.getHttpEngineFactory()));
+		if (false) HttpClient.setHttpEngineFactory(new IonHttpEngineFactory(HttpClient.getHttpEngineFactory()));
 	}
 }

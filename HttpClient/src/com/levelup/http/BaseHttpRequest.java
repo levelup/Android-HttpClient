@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.levelup.http.internal.HttpErrorHandler;
+import com.levelup.http.parser.ResponseParser;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -57,7 +58,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		private Context context;
 		private HttpBodyParameters bodyParams;
 		private Uri uri;
-		private InputStreamParser<T> streamParser;
+		private ResponseParser<T,?> streamParser;
 		private String httpMethod = "GET";
 		private RequestSigner signer;
 		private Boolean followRedirect;
@@ -163,7 +164,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * @param streamParser HTTP response body parser
 		 * @return Current Builder
 		 */
-		public AbstractBuilder<T,R> setStreamParser(InputStreamParser<T> streamParser) {
+		public AbstractBuilder<T,R> setDataParser(ResponseParser<T, ?> streamParser) {
 			if (isStreaming)
 				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.streamParser = streamParser;
@@ -218,7 +219,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 			return httpMethod;
 		}
 
-		public InputStreamParser<T> getInputStreamParser() {
+		public ResponseParser<T,?> getInputStreamParser() {
 			return streamParser;
 		}
 
@@ -300,8 +301,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 	}
 
 	@Override
-	public InputStreamParser<T> getInputStreamParser() {
-		return engine.getInputStreamParser();
+	public ResponseParser<T,?> getResponseParser() {
+		return engine.getResponseParser();
 	}
 
 	@Override
