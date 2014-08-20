@@ -379,6 +379,16 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return builder;
 	}
 	protected HttpException.Builder exceptionToHttpException(HttpExceptionCreator request, Exception e) throws HttpException {
+		if (e instanceof DataErrorException) {
+			DataErrorException cause = (DataErrorException) e;
+			if (cause.errorContent instanceof Exception)
+				throw exceptionToHttpException(request, (Exception) cause.errorContent).build();
+
+			if (cause.errorContent instanceof InputStream) {
+				return newExceptionFromResponse(e.getCause());
+			}
+		}
+
 		if (e instanceof InterruptedException) {
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("interrupted");

@@ -294,9 +294,9 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		// special case: Gson data handling with HttpRequestIon
 		GsonStreamParser<P> gsonParser = parser.getGsonParser();
 		if (null != gsonParser) {
-			final AsyncParserWithError<P,?> gsonSerializer;
+			final AsyncParserWithError<P, ?> gsonSerializer;
 			if (parser instanceof InputStreamParserWithError)
-				gsonSerializer = new BaseAsyncGsonParser(gsonParser, (InputStreamParserWithError<P,?>) parser, this);
+				gsonSerializer = new BaseAsyncGsonParser(gsonParser, (InputStreamParserWithError<P, ?>) parser, this);
 			else
 				gsonSerializer = new AsyncGsonParser(gsonParser, this);
 			prepareRequest(request);
@@ -313,16 +313,16 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			Response<P> response = req.get();
 			setRequestResponse(request, new HttpResponseIon(response));
 
+			Exception e = getHttpResponse().getException();
+			if (null!=e) {
+				throw exceptionToHttpException(request, e).build();
+			}
+
 			if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
 				HttpException.Builder builder = request.newExceptionFromResponse(getHttpResponse().getException());
 				if (null == builder)
 					builder = exceptionToHttpException(request, getHttpResponse().getException());
 				throw builder.build();
-			}
-
-			Exception e = getHttpResponse().getException();
-			if (null!=e) {
-				throw exceptionToHttpException(request, e).build();
 			}
 
 			return (P) response.getResult();
