@@ -9,33 +9,33 @@ import com.levelup.http.parser.DataTransformChain;
 import com.levelup.http.parser.DataTransformResponseInputStream;
 
 /**
- * An {@link DataTransformGson} class that has debug enabled for alpha/beta builds
+ * An {@link DataTransformViaGson} class that has debug enabled for alpha/beta builds
  *
  * Created by Steve Lhomme on 26/06/2014.
  */
-public class ResponseToGson<T> extends DataTransformChain<HttpResponse,T> {
-	public ResponseToGson(TypeToken<T> typeToken) {
+public class ResponseViaGson<T> extends DataTransformChain<HttpResponse,T> {
+	public ResponseViaGson(TypeToken<T> typeToken) {
 		super(new Builder<HttpResponse, T>(DataTransformResponseInputStream.INSTANCE),
-				new DataTransformGson<T>(typeToken));
+				new DataTransformViaGson<T>(typeToken));
 	}
 
-	public ResponseToGson(Type type) {
+	public ResponseViaGson(Type type) {
 		super(new Builder<HttpResponse, T>(DataTransformResponseInputStream.INSTANCE),
-				new DataTransformGson<T>(type));
+				new DataTransformViaGson<T>(type));
 	}
 
-	public ResponseToGson(Gson gson, TypeToken<T> typeToken) {
+	public ResponseViaGson(Gson gson, TypeToken<T> typeToken) {
 		super(new Builder<HttpResponse, T>(DataTransformResponseInputStream.INSTANCE),
-				new DataTransformGson<T>(gson, typeToken));
+				new DataTransformViaGson<T>(gson, typeToken));
 	}
 
-	public ResponseToGson(Gson gson, Type type) {
+	public ResponseViaGson(Gson gson, Type type) {
 		super(new Builder<HttpResponse, T>(DataTransformResponseInputStream.INSTANCE),
-				new DataTransformGson<T>(gson, type));
+				new DataTransformViaGson<T>(gson, type));
 	}
 
-	public ResponseToGson<T> enableDebugData(boolean enable) {
-		((DataTransformGson) transforms[1]).enableDebugData(enable);
+	public ResponseViaGson<T> enableDebugData(boolean enable) {
+		((DataTransformViaGson) transforms[1]).enableDebugData(enable);
 		return this;
 	}
 }

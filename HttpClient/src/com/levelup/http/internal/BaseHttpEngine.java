@@ -2,11 +2,9 @@ package com.levelup.http.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,9 +46,6 @@ import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.Util;
-import com.levelup.http.gson.DataTransformGson;
-import com.levelup.http.parser.DataTransformChain;
-import com.levelup.http.parser.DataTransformResponseInputStream;
 import com.levelup.http.parser.ResponseParser;
 import com.levelup.http.signed.AbstractRequestSigner;
 

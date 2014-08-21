@@ -10,7 +10,7 @@ import com.levelup.http.HttpException;
 import com.levelup.http.ParserException;
 import com.levelup.http.parser.ResponseParser;
 
-public class ResponseToGsonTest extends AndroidTestCase {
+public class ResponseViaGsonTest extends AndroidTestCase {
 
 	@Override
 	public void setContext(Context context) {
@@ -19,7 +19,7 @@ public class ResponseToGsonTest extends AndroidTestCase {
 	}
 	
 	public void testSetDebugData() throws Exception {
-		ResponseToGson<Void> testParser = new ResponseToGson<Void>(new GsonBuilder().create(), Void.class);
+		ResponseViaGson<Void> testParser = new ResponseViaGson<Void>(new GsonBuilder().create(), Void.class);
 		testParser.enableDebugData(true);
 		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().
 				setUrl("http://android.com/").
