@@ -10,8 +10,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
 import com.levelup.http.parser.DataTransformResponseInputStream;
-import com.levelup.http.parser.ResponseToString;
 import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.parser.ResponseToString;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -98,7 +98,7 @@ public class HttpClient {
 	 */
 	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
 		ResponseParser<T, ?> streamParser = request.getResponseParser();
-		if (null==streamParser) throw new NullPointerException("typed request without a stream parser:"+request);
+		if (!request.isStreaming() && null==streamParser) throw new NullPointerException("typed request without a stream parser:"+request);
 		return parseRequest(request, streamParser);
 	}
 

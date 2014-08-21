@@ -10,12 +10,18 @@ import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
+import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.InputStreamParser;
 import com.levelup.http.ParserException;
+import com.levelup.http.parser.DataTransform;
+import com.levelup.http.parser.DataTransformChain;
+import com.levelup.http.parser.DataTransformResponseInputStream;
+import com.levelup.http.parser.ResponseParser;
 
 public class testParser extends AndroidTestCase {
 
@@ -30,18 +36,20 @@ public class testParser extends AndroidTestCase {
 		HttpRequestGet apiGet = new HttpRequestGet("http://social.appxoid.com/json/get_apps_by_pages2");
 
 		try {
-			Void parsed = HttpClient.parseRequest(apiGet, new InputStreamParser<Void>() {
-				@Override
-				public Void parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
-					// Process your InputStream
-					JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
-					try {
-						return readMessagesArray(reader);
-					} finally {
-						reader.close();
-					}
-				}
-			});
+			Void parsed = HttpClient.parseRequest(apiGet, new ResponseParser<Void, Object>(new DataTransformChain.Builder<HttpResponse, Void>(DataTransformResponseInputStream.INSTANCE)
+					.buildChain(new DataTransform<InputStream, Void>() {
+						@Override
+						public Void transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
+							// Process your InputStream
+							JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
+							try {
+								return readMessagesArray(reader);
+							} finally {
+								reader.close();
+							}
+						}
+					})
+			));
 		} catch (HttpException e) {
 			// shit happens
 		}

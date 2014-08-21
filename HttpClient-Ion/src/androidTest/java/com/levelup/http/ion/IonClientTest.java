@@ -25,7 +25,8 @@ import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpStream;
-import com.levelup.http.InputStreamJSONObjectParser;
+import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.parser.ResponseToJSONObject;
 
 import okio.BufferedSource;
 import okio.Okio;
@@ -48,7 +49,7 @@ public class IonClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
-				setResponseParser(ResponseToJSONObject.instance).
+				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -75,7 +76,7 @@ public class IonClientTest extends AndroidTestCase {
 			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
-					setResponseParser(ResponseToJSONObject.instance).
+					setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
 					build();
 
 			JSONObject result = HttpClient.parseRequest(request);
@@ -102,7 +103,7 @@ public class IonClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
-				setResponseParser(ResponseToJSONObject.instance).
+				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -125,7 +126,7 @@ public class IonClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
-				setResponseParser(ResponseToJSONObject.instance).
+				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -150,7 +151,7 @@ public class IonClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=jsonBody").
 				setBody(body).
-				setResponseParser(ResponseToJSONObject.instance).
+				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -166,7 +167,7 @@ public class IonClientTest extends AndroidTestCase {
 	public void testTimeout() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/delay/10").
-				setResponseParser(ResponseToJSONObject.instance).
+				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
 				build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override
@@ -187,7 +188,7 @@ public class IonClientTest extends AndroidTestCase {
 	private void testError(int errorCode) throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/status/" + errorCode).
-				setResponseParser(ResponseToJSONObject.instance).
+				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		try {
