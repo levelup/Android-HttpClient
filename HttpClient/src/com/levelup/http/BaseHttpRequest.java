@@ -164,7 +164,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * @param streamParser HTTP response body parser
 		 * @return Current Builder
 		 */
-		public AbstractBuilder<T,R> setDataParser(ResponseParser<T, ?> streamParser) {
+		public AbstractBuilder<T,R> setResponseParser(ResponseParser<T, ?> streamParser) {
 			if (isStreaming)
 				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.streamParser = streamParser;

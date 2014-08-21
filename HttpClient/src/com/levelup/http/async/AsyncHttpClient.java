@@ -18,9 +18,8 @@ import android.text.TextUtils;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
-import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.TypedHttpRequest;
-import com.levelup.http.parser.DataTransformResponseString;
+import com.levelup.http.parser.ResponseToString;
 import com.levelup.http.parser.ResponseParser;
 
 /**
@@ -152,7 +151,7 @@ public class AsyncHttpClient {
 	 * @see #getString(String, String, NetworkCallback)
 	 */
 	public static void getString(HttpRequest request, String tag, NetworkCallback<String> callback) {
-		doRequest(request, tag, new ResponseParser<String, Object>(DataTransformResponseString.INSTANCE), callback);
+		doRequest(request, tag, new ResponseParser<String, Object>(ResponseToString.INSTANCE), callback);
 	}
 
 	/**

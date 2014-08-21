@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.levelup.http.DataErrorException;
 import com.levelup.http.ImmutableHttpRequest;

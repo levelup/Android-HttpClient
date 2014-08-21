@@ -29,7 +29,7 @@ public class HttpCall<T> {
 		public Builder(String url, ResponseParser<T,?> parser) {
 			this(new BaseHttpRequest.Builder<T>(HttpClient.defaultContext)
 					.setUrl(url)
-					.setDataParser(parser)
+					.setResponseParser(parser)
 					.build());
 		}
 		

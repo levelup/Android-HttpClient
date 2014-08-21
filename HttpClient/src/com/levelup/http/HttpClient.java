@@ -10,7 +10,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
 import com.levelup.http.parser.DataTransformResponseInputStream;
-import com.levelup.http.parser.DataTransformResponseString;
+import com.levelup.http.parser.ResponseToString;
 import com.levelup.http.parser.ResponseParser;
 
 /**
@@ -129,7 +129,7 @@ public class HttpClient {
 	 */
 	public static String getStringResponse(HttpRequest request) throws HttpException {
 		return parseRequest(request, new ResponseParser<String, InputStream>(
-				DataTransformResponseString.INSTANCE, DataTransformResponseInputStream.INSTANCE)
+				ResponseToString.INSTANCE, DataTransformResponseInputStream.INSTANCE)
 		);
 	}
 

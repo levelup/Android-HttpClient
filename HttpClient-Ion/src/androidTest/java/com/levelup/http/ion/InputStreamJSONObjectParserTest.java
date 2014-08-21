@@ -22,7 +22,7 @@ public class InputStreamJSONObjectParserTest extends AndroidTestCase {
 	public void testBogusData() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://android.com/").
-				setDataParser(InputStreamJSONObjectParser.instance).
+				setResponseParser(ResponseToJSONObject.instance).
 				build();
 
 		try {
