@@ -7,6 +7,7 @@ import com.levelup.http.HttpResponse;
  */
 public class ResponseToString extends DataTransformChain<HttpResponse, String> {
 	public static final ResponseToString INSTANCE = new Builder().build();
+	public static final ResponseParser<String,Object> RESPONSE_PARSER = new ResponseParser<String, Object>(INSTANCE);
 
 	private static class Builder extends DataTransformChain.Builder<HttpResponse, String> {
 		public Builder() {
