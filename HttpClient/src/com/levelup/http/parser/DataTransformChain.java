@@ -33,7 +33,7 @@ public class DataTransformChain<INPUT, OUTPUT> implements DataTransform<INPUT, O
 			return this;
 		}
 
-		public final DataTransformChain<INPUT, OUTPUT> buildChain(DataTransform<?,OUTPUT> lastTransform) {
+		public DataTransformChain<INPUT, OUTPUT> buildChain(DataTransform<?,OUTPUT> lastTransform) {
 			addDataTransform(lastTransform);
 			return createChain(transforms.toArray(new DataTransform[transforms.size()]));
 		}

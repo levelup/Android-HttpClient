@@ -11,9 +11,9 @@ import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
 import com.levelup.http.parser.DataTransform;
-import com.levelup.http.parser.DataTransformChain;
 import com.levelup.http.parser.DataTransformResponseInputStream;
 import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.parser.ResponseTransformChain;
 
 public class testParser extends AndroidTestCase {
 
@@ -28,7 +28,7 @@ public class testParser extends AndroidTestCase {
 		HttpRequestGet apiGet = new HttpRequestGet("http://social.appxoid.com/json/get_apps_by_pages2");
 
 		try {
-			Void parsed = HttpClient.parseRequest(apiGet, new ResponseParser<Void, Object>(new DataTransformChain.Builder<HttpResponse, Void>(DataTransformResponseInputStream.INSTANCE)
+			Void parsed = HttpClient.parseRequest(apiGet, new ResponseParser<Void, Object>(new ResponseTransformChain.Builder<Void>()
 					.buildChain(new DataTransform<InputStream, Void>() {
 						@Override
 						public Void transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {

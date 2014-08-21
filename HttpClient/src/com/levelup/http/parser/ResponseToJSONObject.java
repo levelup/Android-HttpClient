@@ -7,17 +7,16 @@ import com.levelup.http.HttpResponse;
 /**
  * Created by robUx4 on 20/08/2014.
  */
-public final class ResponseToJSONObject extends DataTransformChain<HttpResponse, JSONObject> {
+public final class ResponseToJSONObject extends ResponseTransformChain<JSONObject> {
 	public static final ResponseToJSONObject INSTANCE = new Builder().build();
 
-	private static class Builder extends DataTransformChain.Builder<HttpResponse, JSONObject> {
+	private static class Builder extends ResponseTransformChain.Builder<JSONObject> {
 		public Builder() {
-			super(DataTransformResponseInputStream.INSTANCE);
 			addDataTransform(DataTransformInputStreamString.INSTANCE);
 		}
 
 		@Override
-		protected DataTransformChain<HttpResponse, JSONObject> createChain(DataTransform[] transforms) {
+		protected ResponseTransformChain<JSONObject> createChain(DataTransform[] transforms) {
 			return new ResponseToJSONObject(transforms);
 		}
 
