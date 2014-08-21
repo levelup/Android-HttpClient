@@ -20,6 +20,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequestGet;
+import com.levelup.http.parser.ResponseParser;
 
 public class AsyncGsonParse extends AndroidTestCase {
 
@@ -50,9 +51,9 @@ public class AsyncGsonParse extends AndroidTestCase {
 
 		Type listType = new TypeToken<ArrayList<AppXoid>>() {}.getType();
 
-		InputStreamGsonParser<ArrayList<AppXoid>> parser = new InputStreamGsonParser<ArrayList<AppXoid>>(gson, listType);
+		ResponseToGson<ArrayList<AppXoid>> parser = new ResponseToGson<ArrayList<AppXoid>>(gson, listType);
 		HttpRequestGet request = new HttpRequestGet(JSON_URL);
-		ArrayList<AppXoid> items = HttpClient.parseRequest(request, parser);
+		ArrayList<AppXoid> items = HttpClient.parseRequest(request, new ResponseParser<ArrayList<AppXoid>, Object>(parser));
 		assertNotNull(items);
 	}
 
@@ -132,11 +133,9 @@ public class AsyncGsonParse extends AndroidTestCase {
 		.setDateFormat(JSON_DATE_FORMAT)
 		.create();
 
-		Type listType = new TypeToken<ArrayList<AppXoidReader>>() {}.getType();
-
-		InputStreamGsonParser<ArrayList<AppXoidReader>> parser = new InputStreamGsonParser<ArrayList<AppXoidReader>>(gson, new TypeToken<ArrayList<AppXoidReader>>(){});
+		ResponseToGson<ArrayList<AppXoidReader>> parser = new ResponseToGson<ArrayList<AppXoidReader>>(gson, new TypeToken<ArrayList<AppXoidReader>>(){});
 		HttpRequestGet request = new HttpRequestGet(JSON_URL);
-		ArrayList<AppXoidReader> items = HttpClient.parseRequest(request, parser);
+		ArrayList<AppXoidReader> items = HttpClient.parseRequest(request, new ResponseParser<ArrayList<AppXoidReader>, Object>(parser));
 		assertNotNull(items);
 	}
 }

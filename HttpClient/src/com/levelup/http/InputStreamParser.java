@@ -20,6 +20,4 @@ public interface InputStreamParser<T> {
 	 * @throws IOException
 	 */
 	T parseInputStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException;
-
-	GsonStreamParser<T> getGsonParser();
 }

@@ -28,7 +28,6 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.BasicHttpConfig;
 import com.levelup.http.CookieManager;
 import com.levelup.http.DataErrorException;
-import com.levelup.http.GsonStreamParser;
 import com.levelup.http.Header;
 import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpClient;
@@ -49,6 +48,9 @@ import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.Util;
+import com.levelup.http.gson.DataTransformGson;
+import com.levelup.http.parser.DataTransformChain;
+import com.levelup.http.parser.DataTransformResponseInputStream;
 import com.levelup.http.parser.ResponseParser;
 import com.levelup.http.signed.AbstractRequestSigner;
 
@@ -238,46 +240,28 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(ResponseParser<P, ?> parser, HttpRequest request) throws HttpException {
 		InputStream is = getInputStream(request);
-		if (null != parser) {
-			GsonStreamParser<P> gsonParser = null; // TODO parser.getGsonParser();
-			if (null != gsonParser) {
-				Charset readCharset = Util.getInputCharsetOrUtf8(request.getResponse());
-				InputStreamReader ir = new InputStreamReader(is, readCharset);
+		if (null != is)
+			try {
+				return parser.parseResponse(this);
+			} catch (ParserException e) {
+				throw exceptionToHttpException(request, e).build();
 
+			} catch (DataErrorException e) {
+				throw exceptionToHttpException(request, e).build();
+
+			} catch (IOException e) {
+				throw exceptionToHttpException(request, e).build();
+
+			} finally {
 				try {
-					Object gsonResult = gsonParser.getGsonHandler().fromJson(ir, gsonParser.getGsonOutputType());
-					return gsonParser.transformResult(gsonResult);
-				} finally {
-					try {
-						ir.close();
-					} catch (IOException ignored) {
-					}
+					is.close();
+				} catch (NullPointerException ignored) {
+					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
+				} catch (IOException ignored) {
 				}
 			}
-
-			if (null != is)
-				try {
-					return parser.parseResponse(this);
-				} catch (ParserException e) {
-					throw exceptionToHttpException(request, e).build();
-
-				} catch (IOException e) {
-					throw exceptionToHttpException(request, e).build();
-
-				} catch (DataErrorException e) {
-					throw exceptionToHttpException(request, e).build();
-
-				} finally {
-					try {
-						is.close();
-					} catch (NullPointerException ignored) {
-						// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-					} catch (IOException ignored) {
-					}
-				}
-		}
 
 		return null;
 	}

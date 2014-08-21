@@ -43,12 +43,13 @@ public class DataTransformChain<INPUT, OUTPUT> implements DataTransform<INPUT, O
 		}
 	}
 
-	protected DataTransformChain(Builder<INPUT, OUTPUT> builder, DataTransform<?, OUTPUT> lastTransform) {
+	public DataTransformChain(Builder<INPUT, OUTPUT> builder, DataTransform<?, OUTPUT> lastTransform) {
 		builder.addDataTransform(lastTransform);
 		this.transforms = builder.transforms.toArray(new DataTransform[builder.transforms.size()]);
 	}
 
 	protected DataTransformChain(DataTransform[] transforms) {
+		if (null==transforms) throw new NullPointerException();
 		this.transforms = transforms;
 	}
 
@@ -64,4 +65,9 @@ public class DataTransformChain<INPUT, OUTPUT> implements DataTransform<INPUT, O
 		}
 		return (OUTPUT) intermediate;
 	}
+
+	public DataTransformChain<?,OUTPUT> skipFirstTransform() {
+		return new DataTransformChain<Object, OUTPUT>(Arrays.copyOfRange(transforms, 1, transforms.length));
+	}
+
 }

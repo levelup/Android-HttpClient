@@ -34,7 +34,6 @@ import com.koushikdutta.ion.gson.GsonSerializer;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.DataErrorException;
-import com.levelup.http.GsonStreamParser;
 import com.levelup.http.HttpBodyJSON;
 import com.levelup.http.HttpBodyMultiPart;
 import com.levelup.http.HttpBodyParameters;
@@ -44,6 +43,7 @@ import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.UploadProgressListener;
+import com.levelup.http.gson.DataTransformGson;
 import com.levelup.http.internal.BaseHttpEngine;
 import com.levelup.http.ion.internal.AsyncParserWithError;
 import com.levelup.http.ion.internal.HttpLoaderWithError;
@@ -53,6 +53,9 @@ import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
+import com.levelup.http.parser.DataTransform;
+import com.levelup.http.parser.DataTransformChain;
+import com.levelup.http.parser.DataTransformResponseInputStream;
 import com.levelup.http.parser.ResponseParser;
 
 /**
@@ -183,23 +186,67 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	private static class BaseAsyncGsonParser<P, ERROR> extends AsyncParserWithError<P, ERROR> {
-		private final GsonStreamParser<P> postParser;
+		private final DataTransformGson<P> postParser;
 
-		private static GsonSerializer getGsonSerializer(GsonStreamParser<?> gsonParser) {
-			if (gsonParser.getGsonOutputTypeToken() instanceof TypeToken) {
+		private static GsonSerializer getGsonSerializer(DataTransformGson<?> gsonParser, final DataTransformChain remainingTransforms) {
+			if (gsonParser.getGsonOutputTypeToken() != null) {
 				TypeToken<?> typeToken = gsonParser.getGsonOutputTypeToken();
-				return new GsonSerializer(gsonParser.getGsonHandler(), typeToken);
+				return new GsonSerializer(gsonParser.getGsonHandler(), typeToken) {
+					@Override
+					public Future parse(DataEmitter emitter) {
+						Future<Object> r = (Future<Object>) super.parse(emitter);
+						return r.then(new TransformFuture<Object, Object>() {
+							@Override
+							protected void transform(Object gsonResult) throws Exception {
+								setComplete(remainingTransforms.transform(gsonResult, null));
+							}
+						});
+					}
+				};
 			} else if (gsonParser.getGsonOutputType() instanceof Class) {
 				Class<?> clazz = (Class<?>) gsonParser.getGsonOutputType();
-				return new GsonSerializer(gsonParser.getGsonHandler(), clazz);
+				return new GsonSerializer(gsonParser.getGsonHandler(), clazz) {
+					@Override
+					public Future parse(DataEmitter emitter) {
+						Future<Object> r = (Future<Object>) super.parse(emitter);
+						return r.then(new TransformFuture<Object, Object>() {
+							@Override
+							protected void transform(Object gsonResult) throws Exception {
+								setComplete(remainingTransforms.transform(gsonResult, null));
+							}
+						});
+					}
+				};
 			} else {
 				throw new IllegalArgumentException("Impossible to use " + gsonParser + " with output+" + gsonParser.getGsonOutputType() + " typeToken:" + gsonParser.getGsonOutputTypeToken());
 			}
 		}
 
 		private static <ERROR> AsyncParser<ERROR> getErrorAsyncParser(final ResponseParser<?, ERROR> parser) {
-			if (parser.errorParser instanceof GsonStreamParser) {
-				return getGsonSerializer((GsonStreamParser<ERROR>) parser.errorParser);
+			DataTransform firstTransform;
+			if (parser.errorParser instanceof DataTransformChain) {
+				DataTransformChain transformChain = (DataTransformChain) parser.errorParser;
+				if (transformChain.transforms.length > 1 && transformChain.transforms[0] == DataTransformResponseInputStream.INSTANCE && transformChain.transforms[1] instanceof DataTransformGson) {
+					DataTransformGson gsonParser = (DataTransformGson) transformChain.transforms[1];
+					return getGsonSerializer(gsonParser, transformChain.skipFirstTransform().skipFirstTransform());
+				}
+				firstTransform = transformChain.transforms[0];
+			} else {
+				firstTransform = parser.errorParser;
+			}
+
+			if (firstTransform != DataTransformResponseInputStream.INSTANCE)
+				throw new IllegalStateException("error parsing with "+firstTransform+" not supported by HttpEngineIon");
+
+			final DataTransform<InputStream,ERROR> followingTransforms;
+			if (parser.errorParser instanceof DataTransformChain) {
+				DataTransformChain transformChain = (DataTransformChain) parser.errorParser;
+				if (transformChain.transforms.length > 0)
+					followingTransforms = transformChain.skipFirstTransform();
+				else
+					followingTransforms = null;
+			} else {
+				followingTransforms = null;
 			}
 
 			return new AsyncParser<ERROR>() {
@@ -214,7 +261,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 							}).then(new TransformFuture<ERROR, InputStream>() {
 								@Override
 								protected void transform(InputStream result) throws Exception {
-									setComplete(parser.errorParser.transform(null, null)); // TODO
+									if (null == followingTransforms)
+										setComplete((ERROR) result); // TODO: this whole then() could be skipped
+									else
+										setComplete(followingTransforms.transform(result, null));
 								}
 							});
 					return streamParser;
@@ -227,77 +277,25 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			};
 		}
 
-		BaseAsyncGsonParser(GsonStreamParser<P> gsonParser, final ResponseParser<P, ERROR> parser, HttpEngineIon engineIon) {
-			super(getGsonSerializer(gsonParser), getErrorAsyncParser(parser), engineIon);
+		BaseAsyncGsonParser(DataTransformGson<P> gsonParser, final ResponseParser<P, ERROR> parser, HttpEngineIon engineIon) {
+			super(getGsonSerializer(gsonParser, ((DataTransformChain) parser.contentParser).skipFirstTransform().skipFirstTransform()), getErrorAsyncParser(parser), engineIon);
 			this.postParser = gsonParser;
-		}
-
-		@Override
-		public Future<P> parse(DataEmitter emitter) {
-			Future<Object> r = (Future<Object>) super.parse(emitter);
-			return r.then(new TransformFuture<P, Object>() {
-				@Override
-				protected void transform(Object gsonResult) throws Exception {
-					P result = postParser.transformResult(gsonResult);
-					setComplete(result);
-				}
-			});
-		}
-
-		@Override
-		public void write(DataSink sink, P value, CompletedCallback completed) {
-			throw new IllegalAccessError("not supported");
-		}
-	}
-
-	private static class AsyncGsonParser<P> extends AsyncParserWithError<P, InputStream> {
-		private final GsonStreamParser<P> postParser;
-
-		private static GsonSerializer getGsonSerializer(GsonStreamParser<?> gsonParser) {
-			if (gsonParser.getGsonOutputTypeToken() instanceof TypeToken) {
-				TypeToken<?> typeToken = gsonParser.getGsonOutputTypeToken();
-				return new GsonSerializer(gsonParser.getGsonHandler(), typeToken);
-			} else if (gsonParser.getGsonOutputType() instanceof Class) {
-				Class<?> clazz = (Class<?>) gsonParser.getGsonOutputType();
-				return new GsonSerializer(gsonParser.getGsonHandler(), clazz);
-			} else {
-				throw new IllegalArgumentException("Impossible to use " + gsonParser + " with output+" + gsonParser.getGsonOutputType() +" typeToken:" +gsonParser.getGsonOutputTypeToken());
-			}
-		}
-
-		AsyncGsonParser(GsonStreamParser<P> gsonParser, HttpEngineIon engineIon) {
-			super(getGsonSerializer(gsonParser), new com.koushikdutta.ion.InputStreamParser(), engineIon);
-			this.postParser = gsonParser;
-		}
-
-		@Override
-		public Future<P> parse(DataEmitter emitter) {
-			Future<Object> r = (Future<Object>) super.parse(emitter);
-			return r.then(new TransformFuture<P, Object>() {
-				@Override
-				protected void transform(Object gsonResult) throws Exception {
-					P result = postParser.transformResult(gsonResult);
-					setComplete(result);
-				}
-			});
-		}
-
-		@Override
-		public void write(DataSink sink, P value, CompletedCallback completed) {
-			throw new IllegalAccessError("not supported");
 		}
 	}
 
 	@Override
 	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
 		// special case: Gson data handling with HttpRequestIon
-		GsonStreamParser<P> gsonParser = null; // TODO parser.getGsonParser();
-		if (null != gsonParser) {
-			AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, parser, this);
-			prepareRequest(request);
-			ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
-			Future<Response<P>> withResponse = req.withResponse();
-			return getServerResponse(withResponse, request);
+		if (null != parser && parser.contentParser instanceof DataTransformChain) {
+			DataTransformChain contentParser = (DataTransformChain) parser.contentParser;
+			if (contentParser.transforms.length > 1 && contentParser.transforms[0] == DataTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof DataTransformGson) {
+				DataTransformGson gsonParser = (DataTransformGson) contentParser.transforms[1];
+				AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, parser, this);
+				prepareRequest(request);
+				ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
+				Future<Response<P>> withResponse = req.withResponse();
+				return getServerResponse(withResponse, request);
+			}
 		}
 
 		return super.parseRequest(parser, request);

@@ -26,6 +26,6 @@ public final class DataTransformResponseInputStream implements DataTransform<Htt
 			HttpResponseUrlConnection httpResponseUrlConnection = (HttpResponseUrlConnection) response;
 			return httpResponseUrlConnection.getInputStream(); // TODO: use getErrorStream() if we received an error
 		}
-		throw new IllegalStateException("We need a engine to get the InputStream");
+		throw new IllegalStateException("We need an engine to get the InputStream");
 	}
 }

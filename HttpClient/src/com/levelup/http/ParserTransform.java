@@ -22,10 +22,4 @@ public abstract class ParserTransform<INPUT, OUTPUT> implements InputStreamParse
 		INPUT input = inputParser.parseInputStream(inputStream, request);
 		return transform(input, request);
 	}
-
-	@Override
-	public GsonStreamParser<OUTPUT> getGsonParser() {
-		// TODO: shortcut for GSON handling is not supported for now as it will not run the transform
-		return null;
-	}
 }
