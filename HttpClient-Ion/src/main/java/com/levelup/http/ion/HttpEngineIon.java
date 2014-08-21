@@ -69,6 +69,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 	private static Ion ion;
 	private RawHeaders headers;
+	private InputStream inputStream;
 
 	public HttpEngineIon(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		super(wrapBuilderBodyParams(builder));
@@ -171,10 +172,13 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 	@Override
 	public InputStream getInputStream(HttpRequest request) throws HttpException {
-		prepareRequest(request);
-		ResponseFuture<InputStream> req = requestBuilder.asInputStream();
-		Future<Response<InputStream>> withResponse = req.withResponse();
-		return getServerResponse(withResponse, request);
+		if (inputStream == null) {
+			prepareRequest(request);
+			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
+			Future<Response<InputStream>> withResponse = req.withResponse();
+			inputStream = getServerResponse(withResponse, request);
+		}
+		return inputStream;
 	}
 
 	public RawHeaders getHeaders() {

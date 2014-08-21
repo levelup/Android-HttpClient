@@ -1,6 +1,7 @@
 package com.levelup.http;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -14,4 +15,5 @@ public interface HttpResponse {
 	String getResponseMessage() throws IOException;
 	String getContentEncoding();
 	void disconnect();
+	InputStream getContentStream() throws IOException;
 }

@@ -90,4 +90,16 @@ public class HttpResponseUrlConnection implements HttpResponse {
 		}
 		return inputStream;
 	}
+
+	public InputStream getContentStream() throws IOException {
+		if (null != inputStream)
+			return inputStream;
+		if (null != errorStream)
+			return errorStream;
+
+		InputStream result = getInputStream();
+		if (null == result)
+			result = getErrorStream();
+		return result;
+	}
 }

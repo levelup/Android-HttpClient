@@ -1,5 +1,7 @@
 package com.levelup.http.ion;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ import org.apache.http.protocol.HTTP;
 import android.text.TextUtils;
 
 import com.koushikdutta.ion.Response;
+import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpResponse;
 
 /**
@@ -61,6 +64,20 @@ public class HttpResponseIon<T> implements HttpResponse {
 	@Override
 	public void disconnect() {
 		// TODO see if we can cancel a Ion response while it's processing
+	}
+
+	@Override
+	public InputStream getContentStream() throws IOException {
+		if (response.getResult() instanceof InputStream)
+			return (InputStream) response.getResult();
+
+		if (response.getException() instanceof DataErrorException) {
+			DataErrorException exception = (DataErrorException) response.getException();
+			if (exception.errorContent instanceof InputStream)
+				return (InputStream) exception.errorContent;
+		}
+
+		throw new IOException("trying to read an InputStream from Ion result "+response.getResult()+" error:"+response.getException());
 	}
 
 	T getResult() {

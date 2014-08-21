@@ -23,7 +23,6 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpStream;
-import com.levelup.http.InputStreamParser;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
 import com.levelup.http.parser.ResponseParser;
