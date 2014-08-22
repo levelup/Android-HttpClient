@@ -1,5 +1,6 @@
 package com.levelup.http.gson;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,6 +16,7 @@ import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ParserException;
 import com.levelup.http.Util;
 import com.levelup.http.parser.DataTransform;
+import com.levelup.http.parser.DataTransformInputStreamString;
 
 /**
  * Parse the network data using Gson to type {@link T}
@@ -61,9 +63,20 @@ public class DataTransformViaGson<T> implements DataTransform<InputStream,T> {
 		return this;
 	}
 
+	public boolean debugEnabled() {
+		return debugData;
+	}
+
 	@Override
 	public T transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
 		Charset readCharset = Util.getInputCharsetOrUtf8(request.getHttpResponse());
+
+		String dataString = null;
+		if (debugData) {
+			dataString = DataTransformInputStreamString.INSTANCE.transform(inputStream, request);
+			inputStream = new ByteArrayInputStream(dataString.getBytes());
+		}
+
 		InputStreamReader ir = new InputStreamReader(inputStream, readCharset);
 		try {
 			JsonReader reader = new JsonReader(ir);

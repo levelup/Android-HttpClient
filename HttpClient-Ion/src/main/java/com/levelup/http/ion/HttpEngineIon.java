@@ -232,7 +232,8 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				DataTransformChain transformChain = (DataTransformChain) parser.errorParser;
 				if (transformChain.transforms.length > 1 && transformChain.transforms[0] == DataTransformResponseInputStream.INSTANCE && transformChain.transforms[1] instanceof DataTransformViaGson) {
 					DataTransformViaGson gsonParser = (DataTransformViaGson) transformChain.transforms[1];
-					return getGsonSerializer(gsonParser, transformChain.skipFirstTransform().skipFirstTransform());
+					if (!gsonParser.debugEnabled())
+						return getGsonSerializer(gsonParser, transformChain.skipFirstTransform().skipFirstTransform());
 				}
 				firstTransform = transformChain.transforms[0];
 			} else {
@@ -294,11 +295,13 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			DataTransformChain contentParser = (DataTransformChain) parser.contentParser;
 			if (contentParser.transforms.length > 1 && contentParser.transforms[0] == DataTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof DataTransformViaGson) {
 				DataTransformViaGson gsonParser = (DataTransformViaGson) contentParser.transforms[1];
-				AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, parser, this);
-				prepareRequest(request);
-				ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
-				Future<Response<P>> withResponse = req.withResponse();
-				return getServerResponse(withResponse, request);
+				if (!gsonParser.debugEnabled()) {
+					AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, parser, this);
+					prepareRequest(request);
+					ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
+					Future<Response<P>> withResponse = req.withResponse();
+					return getServerResponse(withResponse, request);
+				}
 			}
 		}
 
