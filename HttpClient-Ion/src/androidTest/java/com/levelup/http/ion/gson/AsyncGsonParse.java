@@ -17,9 +17,9 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequestGet;
+import com.levelup.http.gson.ReadOnlyTypeAdapter;
 import com.levelup.http.gson.ResponseViaGson;
 import com.levelup.http.ion.IonClient;
 import com.levelup.http.parser.ResponseParser;
@@ -91,14 +91,8 @@ public class AsyncGsonParse extends AndroidTestCase {
 	}
 
 	public void testGsonDeserialize() throws Exception {
-		TypeAdapter<AppXoidInfoReader> infoAdapter = new TypeAdapter<AppXoidInfoReader>() {
+		TypeAdapter<AppXoidInfoReader> infoAdapter = new ReadOnlyTypeAdapter<AppXoidInfoReader>() {
 			private final SimpleDateFormat format = new SimpleDateFormat(JSON_DATE_FORMAT);
-
-			@Override
-			public void write(JsonWriter out, AppXoidInfoReader value) throws IOException {
-				throw new IllegalAccessError();
-			}
-
 			@Override
 			public AppXoidInfoReader read(JsonReader reader) throws IOException {
 				// the first token is the start object
