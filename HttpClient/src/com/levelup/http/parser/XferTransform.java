@@ -15,7 +15,7 @@ public interface XferTransform<INPUT, OUTPUT> {
 	/**
 	 * Transform the network data from {@link INPUT} to {@link OUTPUT}
 	 * @param input Input data
-	 * @param request The network request it corresponds to
+	 * @param request HTTP request that generated the {@code input}
 	 * @return Transformed data
 	 * @throws IOException
 	 * @throws ParserException
