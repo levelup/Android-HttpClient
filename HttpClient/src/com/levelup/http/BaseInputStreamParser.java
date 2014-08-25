@@ -12,7 +12,7 @@ import com.levelup.http.parser.XferTransform;
  */
 public abstract class BaseInputStreamParser<T> implements XferTransform<InputStream,T> {
 	@Override
-	public final T transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public final T transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		return parseInputStream(inputStream, request);
 	}
 

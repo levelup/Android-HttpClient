@@ -55,11 +55,11 @@ public class XferTransformChain<INPUT, OUTPUT> implements XferTransform<INPUT, O
 	}
 
 	@Override
-	public OUTPUT transform(INPUT input, ImmutableHttpRequest request) throws IOException, ParserException {
+	public OUTPUT transformData(INPUT input, ImmutableHttpRequest request) throws IOException, ParserException {
 		Object intermediate = input;
 		for (XferTransform transform : transforms) {
 			try {
-				intermediate = transform.transform(intermediate, request);
+				intermediate = transform.transformData(intermediate, request);
 			} catch (ClassCastException e) {
 				throw new ParserException("Can't cast "+intermediate+" using "+transform+" in "+this, e, null);
 			}

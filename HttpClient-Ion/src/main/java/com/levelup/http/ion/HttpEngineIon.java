@@ -202,7 +202,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 						return r.then(new TransformFuture<Object, Object>() {
 							@Override
 							protected void transform(Object gsonResult) throws Exception {
-								setComplete(remainingTransforms.transform(gsonResult, null));
+								setComplete(remainingTransforms.transformData(gsonResult, null));
 							}
 						});
 					}
@@ -216,7 +216,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 						return r.then(new TransformFuture<Object, Object>() {
 							@Override
 							protected void transform(Object gsonResult) throws Exception {
-								setComplete(remainingTransforms.transform(gsonResult, null));
+								setComplete(remainingTransforms.transformData(gsonResult, null));
 							}
 						});
 					}
@@ -269,7 +269,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 									if (null == followingTransforms)
 										setComplete((ERROR) result); // TODO: this whole then() could be skipped
 									else
-										setComplete(followingTransforms.transform(result, null));
+										setComplete(followingTransforms.transformData(result, null));
 								}
 							});
 					return streamParser;

@@ -21,5 +21,5 @@ public interface XferTransform<INPUT, OUTPUT> {
 	 * @throws ParserException
 	 * @throws DataErrorException
 	 */
-	OUTPUT transform(INPUT input, ImmutableHttpRequest request) throws IOException, ParserException;
+	OUTPUT transformData(INPUT input, ImmutableHttpRequest request) throws IOException, ParserException;
 }

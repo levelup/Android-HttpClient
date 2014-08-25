@@ -24,7 +24,7 @@ public final class XferTransformInputStreamString implements XferTransform<Input
 	}
 
 	@Override
-	public String transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public String transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		final StringBuilder sb;
 
 		int contentLength = -1;

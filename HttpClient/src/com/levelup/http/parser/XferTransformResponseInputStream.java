@@ -19,7 +19,7 @@ public final class XferTransformResponseInputStream implements XferTransform<Htt
 	}
 
 	@Override
-	public InputStream transform(HttpResponse response, ImmutableHttpRequest request) throws IOException, ParserException {
+	public InputStream transformData(HttpResponse response, ImmutableHttpRequest request) throws IOException, ParserException {
 		return response.getContentStream();
 	}
 }

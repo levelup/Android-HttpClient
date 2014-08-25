@@ -23,7 +23,7 @@ public final class XferTransformStringJSONArray implements XferTransform<String,
 	}
 
 	@Override
-	public JSONArray transform(String srcData, ImmutableHttpRequest request) throws IOException, ParserException {
+	public JSONArray transformData(String srcData, ImmutableHttpRequest request) throws IOException, ParserException {
 		try {
 			return new JSONArray(srcData);
 		} catch (JSONException e) {

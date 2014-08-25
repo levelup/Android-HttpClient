@@ -27,10 +27,10 @@ public class ResponseParser<OUTPUT, ERROR> {
 
 	public OUTPUT parseResponse(ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
 		if (null != errorParser && request.getHttpResponse().getResponseCode() < 200 || request.getHttpResponse().getResponseCode() >= 400) {
-			ERROR errorContent = errorParser.transform(request.getHttpResponse(), request);
+			ERROR errorContent = errorParser.transformData(request.getHttpResponse(), request);
 			throw new DataErrorException(errorContent);
 		}
-		return contentParser.transform(request.getHttpResponse(), request);
+		return contentParser.transformData(request.getHttpResponse(), request);
 	}
 
 }

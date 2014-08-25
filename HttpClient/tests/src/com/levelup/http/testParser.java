@@ -30,7 +30,7 @@ public class testParser extends AndroidTestCase {
 			Void parsed = HttpClient.parseRequest(apiGet, new ResponseParser<Void, Object>(new ResponseTransformChain.Builder<Void>()
 					.buildChain(new XferTransform<InputStream, Void>() {
 						@Override
-						public Void transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
+						public Void transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 							// Process your InputStream
 							JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
 							try {

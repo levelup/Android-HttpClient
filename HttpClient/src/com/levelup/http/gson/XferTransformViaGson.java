@@ -68,12 +68,12 @@ public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
 	}
 
 	@Override
-	public T transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public T transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		Charset readCharset = Util.getInputCharsetOrUtf8(request.getHttpResponse());
 
 		String dataString = null;
 		if (debugData) {
-			dataString = XferTransformInputStreamString.INSTANCE.transform(inputStream, request);
+			dataString = XferTransformInputStreamString.INSTANCE.transformData(inputStream, request);
 			inputStream = new ByteArrayInputStream(dataString.getBytes());
 		}
 
