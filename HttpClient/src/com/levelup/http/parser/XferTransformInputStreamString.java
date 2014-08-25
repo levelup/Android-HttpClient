@@ -5,22 +5,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.levelup.http.DataErrorException;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ParserException;
 import com.levelup.http.Util;
 
 /**
- * Created by robUx4 on 20/08/2014.
+ * <p>A {@link com.levelup.http.parser.XferTransform} to turn an {@code InputStream} into a {@code String}, using the charset from the HTTP reply</p>
+ *
+ * <p>Use the {@link #INSTANCE}</p>
+ *
+ * @see com.levelup.http.parser.ResponseToString
+ * @author Created by robUx4 on 20/08/2014.
  */
-public final class DataTransformInputStreamString implements DataTransform<InputStream,String> {
-	public static final DataTransformInputStreamString INSTANCE = new DataTransformInputStreamString();
+public final class XferTransformInputStreamString implements XferTransform<InputStream,String> {
+	public static final XferTransformInputStreamString INSTANCE = new XferTransformInputStreamString();
 
-	private DataTransformInputStreamString() {
+	private XferTransformInputStreamString() {
 	}
 
 	@Override
-	public String transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
+	public String transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		final StringBuilder sb;
 
 		int contentLength = -1;

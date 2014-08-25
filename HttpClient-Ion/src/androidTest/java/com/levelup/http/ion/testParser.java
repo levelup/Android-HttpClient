@@ -10,17 +10,12 @@ import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
-import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
-import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.InputStreamParser;
 import com.levelup.http.ParserException;
-import com.levelup.http.parser.DataTransform;
-import com.levelup.http.parser.DataTransformChain;
-import com.levelup.http.parser.DataTransformResponseInputStream;
+import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.ResponseParser;
 import com.levelup.http.parser.ResponseTransformChain;
 
@@ -38,9 +33,9 @@ public class testParser extends AndroidTestCase {
 
 		try {
 			Void parsed = HttpClient.parseRequest(apiGet, new ResponseParser<Void, Object>(new ResponseTransformChain.Builder<Void>()
-					.buildChain(new DataTransform<InputStream, Void>() {
+					.buildChain(new XferTransform<InputStream, Void>() {
 						@Override
-						public Void transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
+						public Void transform(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
 							// Process your InputStream
 							JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
 							try {

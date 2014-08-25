@@ -5,33 +5,33 @@ import com.levelup.http.HttpResponse;
 /**
  * Created by robUx4 on 21/08/2014.
  */
-public class ResponseTransformChain<T> extends DataTransformChain<HttpResponse, T> {
+public class ResponseTransformChain<T> extends XferTransformChain<HttpResponse, T> {
 
-	public static class Builder<T> extends DataTransformChain.Builder<HttpResponse, T> {
+	public static class Builder<T> extends XferTransformChain.Builder<HttpResponse, T> {
 		public Builder() {
-			super(DataTransformResponseInputStream.INSTANCE);
+			super(XferTransformResponseInputStream.INSTANCE);
 		}
 
-		public Builder(DataTransform<HttpResponse,?> firstTransform) {
+		public Builder(XferTransform<HttpResponse,?> firstTransform) {
 			super(firstTransform);
 		}
 
 		@Override
-		protected DataTransformChain<HttpResponse, T> createChain(DataTransform[] transforms) {
+		protected XferTransformChain<HttpResponse, T> createChain(XferTransform[] transforms) {
 			return new ResponseTransformChain(transforms);
 		}
 
 		@Override
-		public ResponseTransformChain<T> buildChain(DataTransform<?, T> lastTransform) {
+		public ResponseTransformChain<T> buildChain(XferTransform<?, T> lastTransform) {
 			return (ResponseTransformChain<T>) super.buildChain(lastTransform);
 		}
 	}
 
-	public ResponseTransformChain(Builder<T> builder, DataTransform<?, T> lastTransform) {
+	public ResponseTransformChain(Builder<T> builder, XferTransform<?, T> lastTransform) {
 		super(builder, lastTransform);
 	}
 
-	protected ResponseTransformChain(DataTransform[] transforms) {
+	protected ResponseTransformChain(XferTransform[] transforms) {
 		super(transforms);
 	}
 }

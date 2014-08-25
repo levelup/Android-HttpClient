@@ -12,16 +12,16 @@ import com.levelup.http.ParserException;
  */
 public class ResponseParser<OUTPUT, ERROR> {
 
-	public final DataTransform<HttpResponse, OUTPUT> contentParser;
-	public final DataTransform<HttpResponse, ERROR> errorParser;
+	public final XferTransform<HttpResponse, OUTPUT> contentParser;
+	public final XferTransform<HttpResponse, ERROR> errorParser;
 
-	public ResponseParser(DataTransform<HttpResponse, OUTPUT> contentParser, DataTransform<HttpResponse, ERROR> errorParser) {
+	public ResponseParser(XferTransform<HttpResponse, OUTPUT> contentParser, XferTransform<HttpResponse, ERROR> errorParser) {
 		if (null == contentParser) throw new NullPointerException("we need a parser for the content");
 		this.contentParser = contentParser;
 		this.errorParser = errorParser;
 	}
 
-	public ResponseParser(DataTransform<HttpResponse, OUTPUT> contentParser) {
+	public ResponseParser(XferTransform<HttpResponse, OUTPUT> contentParser) {
 		this(contentParser, null);
 	}
 

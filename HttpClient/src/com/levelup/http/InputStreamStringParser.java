@@ -17,7 +17,7 @@ public class InputStreamStringParser extends BaseInputStreamParser<String> {
 	}
 
 	@Override
-	public String parseInputStream(InputStream is, ImmutableHttpRequest request) throws IOException {
+	public String parseInputStream(InputStream is, ImmutableHttpRequest request) throws IOException, ParserException {
 		final StringBuilder sb;
 
 		int contentLength = -1;

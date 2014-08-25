@@ -1,7 +1,5 @@
 package com.levelup.http.parser;
 
-import com.levelup.http.HttpResponse;
-
 /**
  * Created by robUx4 on 20/08/2014.
  */
@@ -14,16 +12,16 @@ public class ResponseToString extends ResponseTransformChain<String> {
 		}
 
 		@Override
-		protected ResponseTransformChain<String> createChain(DataTransform[] transforms) {
+		protected ResponseTransformChain<String> createChain(XferTransform[] transforms) {
 			return new ResponseToString(transforms);
 		}
 
 		private ResponseToString build() {
-			return (ResponseToString) buildChain(DataTransformInputStreamString.INSTANCE);
+			return (ResponseToString) buildChain(XferTransformInputStreamString.INSTANCE);
 		}
 	}
 
-	private ResponseToString(DataTransform[] dataTransforms) {
-		super(dataTransforms);
+	private ResponseToString(XferTransform[] xferTransforms) {
+		super(xferTransforms);
 	}
 }

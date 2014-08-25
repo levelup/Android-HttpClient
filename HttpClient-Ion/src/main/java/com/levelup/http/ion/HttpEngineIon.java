@@ -43,7 +43,7 @@ import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.UploadProgressListener;
-import com.levelup.http.gson.DataTransformViaGson;
+import com.levelup.http.gson.XferTransformViaGson;
 import com.levelup.http.internal.BaseHttpEngine;
 import com.levelup.http.ion.internal.AsyncParserWithError;
 import com.levelup.http.ion.internal.HttpLoaderWithError;
@@ -53,9 +53,9 @@ import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
-import com.levelup.http.parser.DataTransform;
-import com.levelup.http.parser.DataTransformChain;
-import com.levelup.http.parser.DataTransformResponseInputStream;
+import com.levelup.http.parser.XferTransform;
+import com.levelup.http.parser.XferTransformChain;
+import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.parser.ResponseParser;
 
 /**
@@ -190,9 +190,9 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	private static class BaseAsyncGsonParser<P, ERROR> extends AsyncParserWithError<P, ERROR> {
-		private final DataTransformViaGson<P> postParser;
+		private final XferTransformViaGson<P> postParser;
 
-		private static GsonSerializer getGsonSerializer(DataTransformViaGson<?> gsonParser, final DataTransformChain remainingTransforms) {
+		private static GsonSerializer getGsonSerializer(XferTransformViaGson<?> gsonParser, final XferTransformChain remainingTransforms) {
 			if (gsonParser.getGsonOutputTypeToken() != null) {
 				TypeToken<?> typeToken = gsonParser.getGsonOutputTypeToken();
 				return new GsonSerializer(gsonParser.getGsonHandler(), typeToken) {
@@ -227,11 +227,11 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		}
 
 		private static <ERROR> AsyncParser<ERROR> getErrorAsyncParser(final ResponseParser<?, ERROR> parser) {
-			DataTransform firstTransform;
-			if (parser.errorParser instanceof DataTransformChain) {
-				DataTransformChain transformChain = (DataTransformChain) parser.errorParser;
-				if (transformChain.transforms.length > 1 && transformChain.transforms[0] == DataTransformResponseInputStream.INSTANCE && transformChain.transforms[1] instanceof DataTransformViaGson) {
-					DataTransformViaGson gsonParser = (DataTransformViaGson) transformChain.transforms[1];
+			XferTransform firstTransform;
+			if (parser.errorParser instanceof XferTransformChain) {
+				XferTransformChain transformChain = (XferTransformChain) parser.errorParser;
+				if (transformChain.transforms.length > 1 && transformChain.transforms[0] == XferTransformResponseInputStream.INSTANCE && transformChain.transforms[1] instanceof XferTransformViaGson) {
+					XferTransformViaGson gsonParser = (XferTransformViaGson) transformChain.transforms[1];
 					if (!gsonParser.debugEnabled())
 						return getGsonSerializer(gsonParser, transformChain.skipFirstTransform().skipFirstTransform());
 				}
@@ -240,12 +240,12 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				firstTransform = parser.errorParser;
 			}
 
-			if (firstTransform != DataTransformResponseInputStream.INSTANCE)
+			if (firstTransform != XferTransformResponseInputStream.INSTANCE)
 				throw new IllegalStateException("error parsing with "+firstTransform+" not supported by HttpEngineIon");
 
-			final DataTransform<InputStream,ERROR> followingTransforms;
-			if (parser.errorParser instanceof DataTransformChain) {
-				DataTransformChain transformChain = (DataTransformChain) parser.errorParser;
+			final XferTransform<InputStream,ERROR> followingTransforms;
+			if (parser.errorParser instanceof XferTransformChain) {
+				XferTransformChain transformChain = (XferTransformChain) parser.errorParser;
 				if (transformChain.transforms.length > 0)
 					followingTransforms = transformChain.skipFirstTransform();
 				else
@@ -282,8 +282,8 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			};
 		}
 
-		BaseAsyncGsonParser(DataTransformViaGson<P> gsonParser, final ResponseParser<P, ERROR> parser, HttpEngineIon engineIon) {
-			super(getGsonSerializer(gsonParser, ((DataTransformChain) parser.contentParser).skipFirstTransform().skipFirstTransform()), getErrorAsyncParser(parser), engineIon);
+		BaseAsyncGsonParser(XferTransformViaGson<P> gsonParser, final ResponseParser<P, ERROR> parser, HttpEngineIon engineIon) {
+			super(getGsonSerializer(gsonParser, ((XferTransformChain) parser.contentParser).skipFirstTransform().skipFirstTransform()), getErrorAsyncParser(parser), engineIon);
 			this.postParser = gsonParser;
 		}
 	}
@@ -291,10 +291,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	@Override
 	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
 		// special case: Gson data handling with HttpRequestIon
-		if (null != parser && parser.contentParser instanceof DataTransformChain) {
-			DataTransformChain contentParser = (DataTransformChain) parser.contentParser;
-			if (contentParser.transforms.length > 1 && contentParser.transforms[0] == DataTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof DataTransformViaGson) {
-				DataTransformViaGson gsonParser = (DataTransformViaGson) contentParser.transforms[1];
+		if (null != parser && parser.contentParser instanceof XferTransformChain) {
+			XferTransformChain contentParser = (XferTransformChain) parser.contentParser;
+			if (contentParser.transforms.length > 1 && contentParser.transforms[0] == XferTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof XferTransformViaGson) {
+				XferTransformViaGson gsonParser = (XferTransformViaGson) contentParser.transforms[1];
 				if (!gsonParser.debugEnabled()) {
 					AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, parser, this);
 					prepareRequest(request);

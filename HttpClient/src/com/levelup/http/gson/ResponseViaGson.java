@@ -7,29 +7,29 @@ import com.google.gson.reflect.TypeToken;
 import com.levelup.http.parser.ResponseTransformChain;
 
 /**
- * An {@link DataTransformViaGson} class that has debug enabled for alpha/beta builds
+ * An {@link XferTransformViaGson} class that has debug enabled for alpha/beta builds
  *
  * Created by Steve Lhomme on 26/06/2014.
  */
 public class ResponseViaGson<T> extends ResponseTransformChain<T> {
 	public ResponseViaGson(TypeToken<T> typeToken) {
-		super(new Builder<T>(), new DataTransformViaGson<T>(typeToken));
+		super(new Builder<T>(), new XferTransformViaGson<T>(typeToken));
 	}
 
 	public ResponseViaGson(Type type) {
-		super(new Builder<T>(), new DataTransformViaGson<T>(type));
+		super(new Builder<T>(), new XferTransformViaGson<T>(type));
 	}
 
 	public ResponseViaGson(Gson gson, TypeToken<T> typeToken) {
-		super(new Builder<T>(), new DataTransformViaGson<T>(gson, typeToken));
+		super(new Builder<T>(), new XferTransformViaGson<T>(gson, typeToken));
 	}
 
 	public ResponseViaGson(Gson gson, Type type) {
-		super(new Builder<T>(), new DataTransformViaGson<T>(gson, type));
+		super(new Builder<T>(), new XferTransformViaGson<T>(gson, type));
 	}
 
 	public ResponseViaGson<T> enableDebugData(boolean enable) {
-		((DataTransformViaGson) transforms[1]).enableDebugData(enable);
+		((XferTransformViaGson) transforms[1]).enableDebugData(enable);
 		return this;
 	}
 }
