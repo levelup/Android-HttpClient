@@ -236,7 +236,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 	@Override
 	public <P> P parseRequest(ResponseParser<P, ?> parser, HttpRequest request) throws HttpException {
-		InputStream is = getInputStream(request);
+		InputStream is = getInputStream(request, parser);
 		if (null != is)
 			try {
 				return parser.parseResponse(this);

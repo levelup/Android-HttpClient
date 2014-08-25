@@ -83,7 +83,7 @@ public class HttpClient {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
 			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
-			return httpEngine.getInputStream(request);
+			return httpEngine.getInputStream(request, null);
 		}
 
 		return null;

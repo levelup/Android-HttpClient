@@ -171,12 +171,12 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public InputStream getInputStream(HttpRequest request) throws HttpException {
+	public InputStream getInputStream(HttpRequest request, ResponseParser<?, ?> parser) throws HttpException {
 		if (inputStream == null) {
 			prepareRequest(request);
 			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
 			Future<Response<InputStream>> withResponse = req.withResponse();
-			inputStream = getServerResponse(withResponse, request);
+			inputStream = getServerResponse(withResponse, request, parser);
 		}
 		return inputStream;
 	}
@@ -300,7 +300,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 					prepareRequest(request);
 					ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
 					Future<Response<P>> withResponse = req.withResponse();
-					return getServerResponse(withResponse, request);
+					return getServerResponse(withResponse, request, parser);
 				}
 			}
 		}
@@ -308,7 +308,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		return super.parseRequest(parser, request);
 	}
 
-	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request) throws HttpException {
+	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request, ResponseParser<?, ?> responseParser) throws HttpException {
 		try {
 			Response<P> response = req.get();
 			setRequestResponse(request, new HttpResponseIon(response));
@@ -319,6 +319,18 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			}
 
 			if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
+				if (null != responseParser) {
+					try {
+						responseParser.parseResponse(this);
+
+					} catch (IOException e1) {
+						throw exceptionToHttpException(request, e1).build();
+
+					} catch (DataErrorException e1) {
+						throw exceptionToHttpException(request, e1).build();
+					}
+				}
+
 				HttpException.Builder builder = request.newExceptionFromResponse(getHttpResponse().getException());
 				if (null == builder)
 					builder = exceptionToHttpException(request, getHttpResponse().getException());
