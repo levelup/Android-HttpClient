@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.levelup.http.DataErrorException;
@@ -81,6 +82,8 @@ public class DataTransformViaGson<T> implements DataTransform<InputStream,T> {
 		try {
 			JsonReader reader = new JsonReader(ir);
 			return gson.fromJson(reader, type);
+		} catch (JsonParseException e) {
+			throw new ParserException("Bad data for GSON", e, dataString);
 		} finally {
 			try {
 				ir.close();
