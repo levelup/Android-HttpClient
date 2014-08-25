@@ -11,10 +11,10 @@ import com.levelup.http.ParserException;
  */
 public abstract class ResultTransform<INPUT, OUTPUT> implements DataTransform<INPUT, OUTPUT> {
 
-	protected abstract OUTPUT transformResult(INPUT result);
+	protected abstract OUTPUT transformResult(INPUT result, ImmutableHttpRequest request);
 
 	@Override
 	public final OUTPUT transform(INPUT input, ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
-		return transformResult(input);
+		return transformResult(input, request);
 	}
 }
