@@ -50,7 +50,7 @@ import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
-import com.levelup.http.parser.HttpResponseErrorHandlerParser;
+import com.levelup.http.parser.ErrorHandlerParser;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
 import com.levelup.http.parser.XferTransformResponseInputStream;
@@ -266,8 +266,8 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
 					DataErrorException exceptionWithData = null;
 
-					if (httpResponseHandler.errorHandler instanceof HttpResponseErrorHandlerParser) {
-						HttpResponseErrorHandlerParser errorHandler = (HttpResponseErrorHandlerParser) httpResponseHandler.errorHandler;
+					if (httpResponseHandler.errorHandler instanceof ErrorHandlerParser) {
+						ErrorHandlerParser errorHandler = (ErrorHandlerParser) httpResponseHandler.errorHandler;
 						GsonSerializer gsonSerializer = getGsonSerializer(errorHandler.errorDataParser);
 						if (null != gsonSerializer) {
 							ResponseFuture<Object> errorReq = requestBuilder.as(gsonSerializer);

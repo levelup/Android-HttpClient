@@ -10,7 +10,7 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.ParserException;
-import com.levelup.http.parser.HttpResponseErrorHandlerParser;
+import com.levelup.http.parser.ErrorHandlerParser;
 import com.levelup.http.parser.ResponseToString;
 
 public class ResponseViaGsonTest extends AndroidTestCase {
@@ -51,7 +51,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 				setUrl("http://graph.facebook.com/test").
 				setResponseParser(
 						new HttpResponseHandler<String>(ResponseToString.INSTANCE,
-								new HttpResponseErrorHandlerParser(
+								new ErrorHandlerParser(
 										new ResponseViaGson<FacebookErrorData>(FacebookErrorData.class)
 								)
 						)
@@ -80,7 +80,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 				setUrl("http://graph.facebook.com/test").
 				setResponseParser(
 						new HttpResponseHandler<String>(ResponseToString.INSTANCE,
-								new HttpResponseErrorHandlerParser(testParser)
+								new ErrorHandlerParser(testParser)
 						)
 				).
 				build();

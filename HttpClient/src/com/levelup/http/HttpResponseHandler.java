@@ -1,12 +1,5 @@
 package com.levelup.http;
 
-import java.io.IOException;
-
-import com.levelup.http.DataErrorException;
-import com.levelup.http.HttpResponse;
-import com.levelup.http.HttpResponseErrorHandler;
-import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 import com.levelup.http.parser.XferTransform;
 
 /**
@@ -15,15 +8,15 @@ import com.levelup.http.parser.XferTransform;
 public class HttpResponseHandler<OUTPUT> {
 
 	public final XferTransform<HttpResponse, OUTPUT> contentParser;
-	public final HttpResponseErrorHandler errorHandler;
+	public final ErrorHandler errorHandler;
 
-	public HttpResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser, HttpResponseErrorHandler errorHandler) {
+	public HttpResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser, ErrorHandler errorHandler) {
 		if (null == contentParser) throw new NullPointerException("we need a parser for the content");
 		this.contentParser = contentParser;
 		this.errorHandler = errorHandler;
 	}
 
 	public HttpResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser) {
-		this(contentParser, BaseHttpResponseErrorHandler.INSTANCE);
+		this(contentParser, BaseErrorHandler.INSTANCE);
 	}
 }
