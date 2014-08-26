@@ -3,12 +3,11 @@ package com.levelup.http.gson;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.ParserException;
 
 public class ResponseViaGsonTest extends AndroidTestCase {
@@ -23,24 +22,33 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		@SerializedName("url") String url;
 	}
 
-	public void testSetDebugData() throws Exception {
-		ResponseViaGson<HttpbinData> testParser = new ResponseViaGson<HttpbinData>(HttpbinData.class);
-		testParser.enableDebugData(true);
+	public void testGsonData() throws Exception {
 		BaseHttpRequest<HttpbinData> request = new BaseHttpRequest.Builder<HttpbinData>().
 				setUrl("http://httpbin.org/get").
-				setResponseParser(new HttpResponseHandler<HttpbinData>(testParser)).
+				setResponseParser(new HttpResponseHandler<HttpbinData>(new ResponseViaGson<HttpbinData>(HttpbinData.class))).
+				build();
+
+		HttpbinData data = HttpClient.parseRequest(request);
+		assertNotNull(data);
+		assertEquals(request.getUri().toString(), data.url);
+	}
+
+	public void testSetDebugData() throws Exception {
+		ResponseViaGson<Void> testParser = new ResponseViaGson<Void>(Void.class);
+		testParser.enableDebugData(true);
+		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().
+				setUrl("http://www.google.com/").
+				setResponseParser(new HttpResponseHandler<Void>(testParser)).
 				build();
 
 		try {
-			HttpbinData data = HttpClient.parseRequest(request);
-			assertNotNull(data);
-			assertEquals(request.getUri().toString(), data.url);
+			HttpClient.parseRequest(request);
 		} catch (HttpException e) {
 			if (e.getErrorCode()!=HttpException.ERROR_PARSER)
 				throw e; // forward
 			assertTrue(e.getCause() instanceof ParserException);
 			ParserException pe = (ParserException) e.getCause();
-			assertTrue(pe.getMessage().equals("Bad Json data"));
+			assertEquals("Bad data for GSON", pe.getMessage());
 			assertNotNull(pe.getSourceData());
 		}
 	}
