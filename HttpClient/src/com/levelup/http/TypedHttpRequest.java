@@ -7,9 +7,9 @@ package com.levelup.http;
 public interface TypedHttpRequest<T> extends HttpRequest {
 
 	/**
-	 * The {@link HttpResponseHandler} that will turn the response body into type {@code T}
+	 * The {@link ResponseHandler} that will turn the response body into type {@code T}
 	 * <p>MUST NOT BE {@code null} !
 	 */
-	HttpResponseHandler<T> getResponseHandler();
+	ResponseHandler<T> getResponseHandler();
 	
 }

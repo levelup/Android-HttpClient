@@ -8,7 +8,7 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpResponseHandler;
+import com.levelup.http.ResponseHandler;
 import com.levelup.http.ParserException;
 import com.levelup.http.gson.ResponseViaGson;
 import com.levelup.http.ion.IonClient;
@@ -30,7 +30,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 	public void testGsonData() throws Exception {
 		BaseHttpRequest<HttpbinData> request = new BaseHttpRequest.Builder<HttpbinData>().
 				setUrl("http://httpbin.org/get").
-				setResponseParser(new HttpResponseHandler<HttpbinData>(new ResponseViaGson<HttpbinData>(HttpbinData.class))).
+				setResponseParser(new ResponseHandler<HttpbinData>(new ResponseViaGson<HttpbinData>(HttpbinData.class))).
 				build();
 
 		HttpbinData data = HttpClient.parseRequest(request);
@@ -52,7 +52,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
 				setUrl("http://graph.facebook.com/test").
 				setResponseParser(
-						new HttpResponseHandler<String>(ResponseToString.INSTANCE,
+						new ResponseHandler<String>(ResponseToString.INSTANCE,
 								new ErrorHandlerParser(
 										new ResponseViaGson<FacebookErrorData>(FacebookErrorData.class)
 								)
@@ -81,7 +81,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
 				setUrl("http://graph.facebook.com/test").
 				setResponseParser(
-						new HttpResponseHandler<String>(ResponseToString.INSTANCE,
+						new ResponseHandler<String>(ResponseToString.INSTANCE,
 								new ErrorHandlerParser(testParser)
 						)
 				).
@@ -107,7 +107,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		testParser.enableDebugData(true);
 		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().
 				setUrl("http://www.google.com/").
-				setResponseParser(new HttpResponseHandler<Void>(testParser)).
+				setResponseParser(new ResponseHandler<Void>(testParser)).
 				build();
 
 		try {

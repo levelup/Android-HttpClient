@@ -56,7 +56,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		private Context context;
 		private HttpBodyParameters bodyParams;
 		private Uri uri;
-		private HttpResponseHandler<T> responseHandler;
+		private ResponseHandler<T> responseHandler;
 		private String httpMethod = "GET";
 		private RequestSigner signer;
 		private Boolean followRedirect;
@@ -162,7 +162,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * @param responseHandler HTTP response body parser
 		 * @return Current Builder
 		 */
-		public AbstractBuilder<T,R> setResponseParser(HttpResponseHandler<T> responseHandler) {
+		public AbstractBuilder<T,R> setResponseParser(ResponseHandler<T> responseHandler) {
 			if (isStreaming)
 				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.responseHandler = responseHandler;
@@ -217,7 +217,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 			return httpMethod;
 		}
 
-		public HttpResponseHandler<T> getResponseHandler() {
+		public ResponseHandler<T> getResponseHandler() {
 			return responseHandler;
 		}
 
@@ -299,7 +299,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 	}
 
 	@Override
-	public HttpResponseHandler<T> getResponseHandler() {
+	public ResponseHandler<T> getResponseHandler() {
 		return engine.getResponseHandler();
 	}
 

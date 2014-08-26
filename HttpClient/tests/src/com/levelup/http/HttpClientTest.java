@@ -39,7 +39,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
-				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -66,7 +66,7 @@ public class HttpClientTest extends AndroidTestCase {
 			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
-					setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+					setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 					build();
 
 			JSONObject result = HttpClient.parseRequest(request);
@@ -93,7 +93,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
-				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -116,7 +116,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
-				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -141,7 +141,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=jsonBody").
 				setBody(body).
-				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -157,7 +157,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testTimeout() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/delay/10").
-				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override

@@ -11,7 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.levelup.http.HttpRequest;
-import com.levelup.http.HttpResponseHandler;
+import com.levelup.http.ResponseHandler;
 
 /**
  * Future task that will be used to do the network download in the background, the result/error will be sent to the {@code AsyncHttpCallback} in the UI thread
@@ -24,7 +24,7 @@ public class NetworkTask<T> extends FutureTask<T> {
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public NetworkTask(final HttpRequest request, final HttpResponseHandler<T> parser, NetworkCallback<T> callback) {
+	public NetworkTask(final HttpRequest request, final ResponseHandler<T> parser, NetworkCallback<T> callback) {
 		this(new HttpCallable<T>(request, parser), callback);
 	}
 

@@ -37,7 +37,7 @@ import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.HttpResponseHandler;
+import com.levelup.http.ResponseHandler;
 import com.levelup.http.LogManager;
 import com.levelup.http.ParserException;
 import com.levelup.http.UploadProgressListener;
@@ -218,7 +218,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public InputStream getInputStream(HttpRequest request, HttpResponseHandler<?> responseHandler) throws HttpException {
+	public InputStream getInputStream(HttpRequest request, ResponseHandler<?> responseHandler) throws HttpException {
 		if (inputStream == null) {
 			prepareRequest(request);
 			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
@@ -237,7 +237,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public <P> P parseRequest(HttpResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(ResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
 		// special case: Gson data handling with HttpRequestIon
 		if (null != responseHandler && responseHandler.contentParser instanceof XferTransformChain) {
 			GsonSerializer gsonSerializer = getGsonSerializer(responseHandler.contentParser);
@@ -252,7 +252,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		return super.parseRequest(responseHandler, request);
 	}
 
-	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request, HttpResponseHandler<?> httpResponseHandler) throws HttpException {
+	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request, ResponseHandler<?> responseHandler) throws HttpException {
 		try {
 			Response<P> response = req.get();
 			setRequestResponse(request, new HttpResponseIon(response));
@@ -262,12 +262,12 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				throw exceptionToHttpException(request, e).build();
 			}
 
-			if (null != httpResponseHandler) {
+			if (null != responseHandler) {
 				if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
 					DataErrorException exceptionWithData = null;
 
-					if (httpResponseHandler.errorHandler instanceof ErrorHandlerParser) {
-						ErrorHandlerParser errorHandler = (ErrorHandlerParser) httpResponseHandler.errorHandler;
+					if (responseHandler.errorHandler instanceof ErrorHandlerParser) {
+						ErrorHandlerParser errorHandler = (ErrorHandlerParser) responseHandler.errorHandler;
 						GsonSerializer gsonSerializer = getGsonSerializer(errorHandler.errorDataParser);
 						if (null != gsonSerializer) {
 							ResponseFuture<Object> errorReq = requestBuilder.as(gsonSerializer);
@@ -278,7 +278,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 					}
 					if (null == exceptionWithData) {
 						try {
-							exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
+							exceptionWithData = responseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
 
 						} catch (ParserException ee) {
 							throw exceptionToHttpException(request, ee).build();

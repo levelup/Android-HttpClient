@@ -44,9 +44,9 @@ import com.levelup.http.LoggerTagged;
 import com.levelup.http.MediaType;
 import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
+import com.levelup.http.ResponseHandler;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.Util;
-import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -62,7 +62,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
 	private R httpResponse;
 	private final String method;
-	private final HttpResponseHandler<T> streamParser;
+	private final ResponseHandler<T> responseHandler;
 	private final RequestSigner signer;
 	private UploadProgressListener mProgressListener;
 	protected final HttpBodyParameters bodyParams;
@@ -76,7 +76,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	protected BaseHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		this.uri = builder.getUri();
 		this.method = builder.getHttpMethod();
-		this.streamParser = builder.getResponseHandler();
+		this.responseHandler = builder.getResponseHandler();
 		this.bodyParams = builder.getBodyParams();
 		this.signer = builder.getSigner();
 		this.followRedirect = builder.getFollowRedirect();
@@ -88,8 +88,8 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public final HttpResponseHandler<T> getResponseHandler() {
-		return streamParser;
+	public final ResponseHandler<T> getResponseHandler() {
+		return responseHandler;
 	}
 
 	/**
@@ -235,7 +235,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public <P> P parseRequest(HttpResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(ResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
 		InputStream is = getInputStream(request, responseHandler);
 		if (null != is)
 			try {

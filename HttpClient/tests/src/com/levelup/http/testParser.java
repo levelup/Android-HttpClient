@@ -26,7 +26,7 @@ public class testParser extends AndroidTestCase {
 		HttpRequestGet apiGet = new HttpRequestGet("http://social.appxoid.com/json/get_apps_by_pages2");
 
 		try {
-			Void parsed = HttpClient.parseRequest(apiGet, new HttpResponseHandler<Void>(new ResponseTransformChain.Builder<Void>()
+			Void parsed = HttpClient.parseRequest(apiGet, new ResponseHandler<Void>(new ResponseTransformChain.Builder<Void>()
 					.buildChain(new XferTransform<InputStream, Void>() {
 						@Override
 						public Void transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
