@@ -362,7 +362,12 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 			if (cause.errorContent instanceof InputStream) {
 				return newExceptionFromResponse(e.getCause());
-			}
+
+			HttpException.Builder builder = request.newException();
+			builder.setErrorMessage("interrupted");
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_DATA_MSG);
+			return builder;
 		}
 
 		if (e instanceof InterruptedException) {

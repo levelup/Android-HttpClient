@@ -316,9 +316,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				if (null != httpResponseHandler) {
 					DataErrorException exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
 
-					HttpException.Builder exceptionBuilder = newExceptionFromResponse(exceptionWithData);
-					if (null == exceptionBuilder)
-						exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
+					HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
 					throw exceptionBuilder.build();
 				}
 

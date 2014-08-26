@@ -185,9 +185,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		} catch (FileNotFoundException e) {
 			DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(getHttpResponse(), this, e);
 
-			HttpException.Builder exceptionBuilder = newExceptionFromResponse(exceptionWithData);
-			if (null == exceptionBuilder)
-				exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
+			HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
 			throw exceptionBuilder.build();
 
 		} catch (IOException e) {
