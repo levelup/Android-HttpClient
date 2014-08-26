@@ -1,36 +1,29 @@
-package com.levelup.http.parser;
+package com.levelup.http;
 
 import java.io.IOException;
 
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpResponse;
+import com.levelup.http.HttpResponseErrorHandler;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ParserException;
+import com.levelup.http.parser.XferTransform;
 
 /**
  * Created by robUx4 on 20/08/2014.
  */
-public class ResponseParser<OUTPUT, ERROR> {
+public class HttpResponseHandler<OUTPUT> {
 
 	public final XferTransform<HttpResponse, OUTPUT> contentParser;
-	public final XferTransform<HttpResponse, ERROR> errorParser;
+	public final HttpResponseErrorHandler errorHandler;
 
-	public ResponseParser(XferTransform<HttpResponse, OUTPUT> contentParser, XferTransform<HttpResponse, ERROR> errorParser) {
+	public HttpResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser, HttpResponseErrorHandler errorHandler) {
 		if (null == contentParser) throw new NullPointerException("we need a parser for the content");
 		this.contentParser = contentParser;
-		this.errorParser = errorParser;
+		this.errorHandler = errorHandler;
 	}
 
-	public ResponseParser(XferTransform<HttpResponse, OUTPUT> contentParser) {
-		this(contentParser, null);
+	public HttpResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser) {
+		this(contentParser, BaseHttpResponseErrorHandler.INSTANCE);
 	}
-
-	public OUTPUT parseResponse(ImmutableHttpRequest request) throws IOException, ParserException, DataErrorException {
-		if (null != errorParser && request.getHttpResponse().getResponseCode() < 200 || request.getHttpResponse().getResponseCode() >= 400) {
-			ERROR errorContent = errorParser.transformData(request.getHttpResponse(), request);
-			throw new DataErrorException(errorContent);
-		}
-		return contentParser.transformData(request.getHttpResponse(), request);
-	}
-
 }
