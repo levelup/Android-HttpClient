@@ -10,10 +10,10 @@ import com.levelup.http.parser.ResponseToString;
 /**
  * Created by robUx4 on 26/08/2014.
  */
-public class BaseHttpResponseErrorHandler implements HttpResponseErrorHandler {
-	public static final HttpResponseErrorHandler INSTANCE = new BaseHttpResponseErrorHandler();
+public class BaseErrorHandler implements ErrorHandler {
+	public static final ErrorHandler INSTANCE = new BaseErrorHandler();
 
-	public BaseHttpResponseErrorHandler() {
+	public BaseErrorHandler() {
 	}
 
 	@Override

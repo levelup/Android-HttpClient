@@ -4,18 +4,18 @@ import java.io.IOException;
 
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.HttpResponseErrorHandler;
+import com.levelup.http.ErrorHandler;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ParserException;
 
 /**
  * Created by robUx4 on 26/08/2014.
  */
-public class HttpResponseErrorHandlerParser implements HttpResponseErrorHandler {
+public class ErrorHandlerParser implements ErrorHandler {
 
 	public final XferTransform<HttpResponse, ?> errorDataParser;
 
-	public HttpResponseErrorHandlerParser(XferTransform<HttpResponse,?> errorDataParser) {
+	public ErrorHandlerParser(XferTransform<HttpResponse, ?> errorDataParser) {
 		this.errorDataParser = errorDataParser;
 	}
 
