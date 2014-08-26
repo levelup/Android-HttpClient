@@ -19,8 +19,8 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.TypedHttpRequest;
+import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.parser.ResponseToString;
-import com.levelup.http.parser.ResponseParser;
 
 /**
  * Basic HttpClient to run network queries outside of the UI thread
@@ -81,7 +81,7 @@ public class AsyncHttpClient {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback) {
-		return doRequest(request, request.getResponseParser(), callback, BaseNetworkTaskFactory.instance);
+		return doRequest(request, request.getResponseHandler(), callback, BaseNetworkTaskFactory.instance);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Future<T> doRequest(HttpRequest request, ResponseParser<T,?> parser, NetworkCallback<T> callback) {
+	public static <T> Future<T> doRequest(HttpRequest request, HttpResponseHandler<T> parser, NetworkCallback<T> callback) {
 		return doRequest(request, parser, callback, BaseNetworkTaskFactory.instance);
 	}
 
@@ -102,10 +102,10 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, ResponseParser, NetworkCallback)
+	 * @see #doRequest(HttpRequest, com.levelup.http.HttpResponseHandler, NetworkCallback)
 	 */
 	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
-		return doRequest(executor, request, request.getResponseParser(), callback, factory);
+		return doRequest(executor, request, request.getResponseHandler(), callback, factory);
 	}
 
 		/**
@@ -115,9 +115,9 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, ResponseParser, NetworkCallback)
+	 * @see #doRequest(HttpRequest, com.levelup.http.HttpResponseHandler, NetworkCallback)
 	 */
-	public static <T> Future<T> doRequest(HttpRequest request, ResponseParser<T,?> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(HttpRequest request, HttpResponseHandler<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		return doRequest(executor, request, parser, callback, factory);
 	}
 
@@ -129,9 +129,9 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, String, ResponseParser, NetworkCallback)
+	 * @see #doRequest(HttpRequest, String, com.levelup.http.HttpResponseHandler, NetworkCallback)
 	 */
-	public static <T> Future<T> doRequest(Executor executor, HttpRequest request, ResponseParser<T,?> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
+	public static <T> Future<T> doRequest(Executor executor, HttpRequest request, HttpResponseHandler<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		if (null==parser) throw new NullPointerException();
 
 		return doRequest(executor, factory, new HttpCallable<T>(request, parser), callback);
@@ -151,7 +151,7 @@ public class AsyncHttpClient {
 	 * @see #getString(String, String, NetworkCallback)
 	 */
 	public static void getString(HttpRequest request, String tag, NetworkCallback<String> callback) {
-		doRequest(request, tag, new ResponseParser<String, Object>(ResponseToString.INSTANCE), callback);
+		doRequest(request, tag, ResponseToString.RESPONSE_HANDLER, callback);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class AsyncHttpClient {
 	 * @see #getString(HttpRequest, String, NetworkCallback)
 	 */
 	public static <T> void doRequest(TypedHttpRequest<T> request, String tag, NetworkCallback<T> callback) {
-		doRequest(request, tag, request.getResponseParser(), callback);
+		doRequest(request, tag, request.getResponseHandler(), callback);
 	}
 	
 	/**
@@ -175,7 +175,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @see #getString(HttpRequest, String, NetworkCallback)
 	 */
-	public static <T> void doRequest(HttpRequest request, String tag, ResponseParser<T,?> parser, NetworkCallback<T> callback) {
+	public static <T> void doRequest(HttpRequest request, String tag, HttpResponseHandler<T> parser, NetworkCallback<T> callback) {
 		if (null==parser) throw new NullPointerException();
 
 		if (TextUtils.isEmpty(tag)) {

@@ -1,7 +1,6 @@
 package com.levelup.http;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.json.JSONObject;
@@ -11,7 +10,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.levelup.http.internal.HttpErrorHandler;
-import com.levelup.http.parser.ResponseParser;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -58,7 +56,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		private Context context;
 		private HttpBodyParameters bodyParams;
 		private Uri uri;
-		private ResponseParser<T,?> streamParser;
+		private HttpResponseHandler<T> responseHandler;
 		private String httpMethod = "GET";
 		private RequestSigner signer;
 		private Boolean followRedirect;
@@ -161,13 +159,13 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 
 		/**
 		 * Set the parser that will be responsible for transforming the response body from the server into object {@code T}
-		 * @param streamParser HTTP response body parser
+		 * @param responseHandler HTTP response body parser
 		 * @return Current Builder
 		 */
-		public AbstractBuilder<T,R> setResponseParser(ResponseParser<T, ?> streamParser) {
+		public AbstractBuilder<T,R> setResponseParser(HttpResponseHandler<T> responseHandler) {
 			if (isStreaming)
 				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
-			this.streamParser = streamParser;
+			this.responseHandler = responseHandler;
 			return this;
 		}
 
@@ -177,7 +175,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 */
 		@SuppressWarnings("unchecked")
 		public AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>> setStreaming() {
-			if (streamParser!=null)
+			if (responseHandler !=null)
 				throw new IllegalArgumentException("Trying to set a streaming request that has a streaming parser");
 			this.isStreaming = true;
 			return (AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>>) this;
@@ -219,8 +217,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 			return httpMethod;
 		}
 
-		public ResponseParser<T,?> getInputStreamParser() {
-			return streamParser;
+		public HttpResponseHandler<T> getResponseHandler() {
+			return responseHandler;
 		}
 
 		public RequestSigner getSigner() {
@@ -301,8 +299,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 	}
 
 	@Override
-	public ResponseParser<T,?> getResponseParser() {
-		return engine.getResponseParser();
+	public HttpResponseHandler<T> getResponseHandler() {
+		return engine.getResponseHandler();
 	}
 
 	@Override

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 
 import com.levelup.http.parser.ResponseToJSONObject;
-import com.levelup.http.parser.ResponseParser;
 
 public class InputStreamJSONObjectParserTest extends AndroidTestCase {
 
@@ -19,7 +18,7 @@ public class InputStreamJSONObjectParserTest extends AndroidTestCase {
 	public void testBogusData() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://android.com/").
-				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		try {

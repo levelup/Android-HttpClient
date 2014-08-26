@@ -9,7 +9,7 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.TypedHttpRequest;
-import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.HttpResponseHandler;
 
 public class HttpCall<T> {
 	
@@ -26,7 +26,7 @@ public class HttpCall<T> {
 			this(url, null);
 		}
 		
-		public Builder(String url, ResponseParser<T,?> parser) {
+		public Builder(String url, HttpResponseHandler<T> parser) {
 			this(new BaseHttpRequest.Builder<T>(HttpClient.defaultContext)
 					.setUrl(url)
 					.setResponseParser(parser)

@@ -10,14 +10,14 @@ import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
+import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ParserException;
-import com.levelup.http.parser.XferTransform;
-import com.levelup.http.parser.ResponseParser;
 import com.levelup.http.parser.ResponseTransformChain;
+import com.levelup.http.parser.XferTransform;
 
 public class testParser extends AndroidTestCase {
 
@@ -32,7 +32,7 @@ public class testParser extends AndroidTestCase {
 		HttpRequestGet apiGet = new HttpRequestGet("http://social.appxoid.com/json/get_apps_by_pages2");
 
 		try {
-			Void parsed = HttpClient.parseRequest(apiGet, new ResponseParser<Void, Object>(new ResponseTransformChain.Builder<Void>()
+			Void parsed = HttpClient.parseRequest(apiGet, new HttpResponseHandler<Void>(new ResponseTransformChain.Builder<Void>()
 					.buildChain(new XferTransform<InputStream, Void>() {
 						@Override
 						public Void transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {

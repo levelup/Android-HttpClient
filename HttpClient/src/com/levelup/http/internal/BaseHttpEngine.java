@@ -46,7 +46,7 @@ import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.Util;
-import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -62,7 +62,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
 	private R httpResponse;
 	private final String method;
-	private final ResponseParser<T,?> streamParser;
+	private final HttpResponseHandler<T> streamParser;
 	private final RequestSigner signer;
 	private UploadProgressListener mProgressListener;
 	protected final HttpBodyParameters bodyParams;
@@ -76,7 +76,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	protected BaseHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		this.uri = builder.getUri();
 		this.method = builder.getHttpMethod();
-		this.streamParser = builder.getInputStreamParser();
+		this.streamParser = builder.getResponseHandler();
 		this.bodyParams = builder.getBodyParams();
 		this.signer = builder.getSigner();
 		this.followRedirect = builder.getFollowRedirect();
@@ -88,7 +88,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public final ResponseParser<T,?> getResponseParser() {
+	public final HttpResponseHandler<T> getResponseHandler() {
 		return streamParser;
 	}
 
@@ -235,15 +235,12 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public <P> P parseRequest(ResponseParser<P, ?> parser, HttpRequest request) throws HttpException {
-		InputStream is = getInputStream(request, parser);
+	public <P> P parseRequest(HttpResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
+		InputStream is = getInputStream(request, responseHandler);
 		if (null != is)
 			try {
-				return parser.parseResponse(this);
+				return responseHandler.contentParser.transformData(httpResponse, this);
 			} catch (ParserException e) {
-				throw exceptionToHttpException(request, e).build();
-
-			} catch (DataErrorException e) {
 				throw exceptionToHttpException(request, e).build();
 
 			} catch (IOException e) {

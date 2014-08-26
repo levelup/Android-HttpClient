@@ -97,7 +97,11 @@ public class HttpResponseUrlConnection implements HttpResponse {
 		if (null != errorStream)
 			return errorStream;
 
-		InputStream result = getInputStream();
+		InputStream result = null;
+		try {
+			result = getInputStream();
+		} catch (IOException ignored) {
+		}
 		if (null == result)
 			result = getErrorStream();
 		return result;

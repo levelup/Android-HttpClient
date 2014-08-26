@@ -1,22 +1,23 @@
-package com.levelup.http.gson;
+package com.levelup.http.ion.gson;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.ParserException;
+import com.levelup.http.gson.ResponseViaGson;
+import com.levelup.http.ion.IonClient;
 
 public class ResponseViaGsonTest extends AndroidTestCase {
 
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		IonClient.setup(context);
 	}
 
 	private static class HttpbinData {

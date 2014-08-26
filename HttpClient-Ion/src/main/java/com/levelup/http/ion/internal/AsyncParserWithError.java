@@ -9,6 +9,7 @@ import com.koushikdutta.async.future.SimpleFuture;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.async.parser.AsyncParser;
 import com.levelup.http.DataErrorException;
+import com.levelup.http.HttpResponseErrorHandler;
 import com.levelup.http.ion.HttpEngineIon;
 
 /**
@@ -17,22 +18,24 @@ import com.levelup.http.ion.HttpEngineIon;
 public class AsyncParserWithError<T, ERROR> implements AsyncParser<T> {
 
 	private final AsyncParser<T> contentParser;
-	private final AsyncParser<ERROR> errorParser;
+	private final HttpResponseErrorHandler errorHandler;
 	private final HttpEngineIon engineIon;
 
-	public AsyncParserWithError(AsyncParser<T> contentParser, AsyncParser<ERROR> errorParser, HttpEngineIon engineIon) {
+	public AsyncParserWithError(AsyncParser<T> contentParser, HttpResponseErrorHandler errorHandler, HttpEngineIon engineIon) {
 		if (null==contentParser) throw new NullPointerException("we need a parser for the content");
+		if (null==errorHandler) throw new NullPointerException("we need a error handle for the content");
 		if (null==engineIon) throw new NullPointerException("we need a ion engine");
 		this.contentParser = contentParser;
-		this.errorParser = errorParser;
+		this.errorHandler = errorHandler;
 		this.engineIon = engineIon;
 	}
 
 	@Override
 	public Future<T> parse(DataEmitter emitter) {
-		if (null != errorParser && null != engineIon.getHeaders()) {
+		if (null != engineIon.getHeaders()) {
 			RawHeaders responseHeaders = engineIon.getHeaders();
 			if (responseHeaders.getResponseCode() < 200 || responseHeaders.getResponseCode() >= 400) {
+				/* TODO
 				// this is an error, parse with the errorParser
 				final SimpleFuture<T> futureResult = new SimpleFuture<T>();
 
@@ -51,7 +54,7 @@ public class AsyncParserWithError<T, ERROR> implements AsyncParser<T> {
 						}
 					});
 				}
-				return futureResult;
+				return futureResult;*/
 			}
 		}
 

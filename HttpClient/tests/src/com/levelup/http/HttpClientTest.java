@@ -16,7 +16,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.parser.ResponseToJSONObject;
-import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.parser.ResponseToString;
 
 import okio.BufferedSource;
 import okio.Okio;
@@ -39,7 +39,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
-				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -66,7 +66,7 @@ public class HttpClientTest extends AndroidTestCase {
 			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
-					setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+					setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 					build();
 
 			JSONObject result = HttpClient.parseRequest(request);
@@ -93,7 +93,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
-				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -116,7 +116,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
-				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -141,7 +141,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/post?test=jsonBody").
 				setBody(body).
-				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 
 		JSONObject result = HttpClient.parseRequest(request);
@@ -157,7 +157,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testTimeout() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
 				setUrl("http://httpbin.org/delay/10").
-				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(new HttpResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override
@@ -176,13 +176,13 @@ public class HttpClientTest extends AndroidTestCase {
 	}
 
 	private void testError(int errorCode) throws Exception {
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>(getContext()).
 				setUrl("http://httpbin.org/status/" + errorCode).
-				setResponseParser(new ResponseParser<JSONObject, Object>(ResponseToJSONObject.INSTANCE)).
+				setResponseParser(ResponseToString.RESPONSE_HANDLER).
 				build();
 
 		try {
-			JSONObject result = HttpClient.parseRequest(request);
+			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
 		} catch (HttpException e) {
 			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode() != errorCode)
@@ -207,6 +207,10 @@ public class HttpClientTest extends AndroidTestCase {
 
 	public void testError401() throws Exception {
 		testError(401);
+	}
+
+	public void testError500() throws Exception {
+		testError(500);
 	}
 
 	public void testStreamingError401() throws Exception {

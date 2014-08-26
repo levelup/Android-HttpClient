@@ -12,18 +12,12 @@ import org.apache.http.protocol.HTTP;
 import android.net.Uri;
 
 import com.google.gson.reflect.TypeToken;
-import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
-import com.koushikdutta.async.DataSink;
-import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.TransformFuture;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.ConnectionClosedException;
 import com.koushikdutta.async.http.libcore.RawHeaders;
-import com.koushikdutta.async.parser.AsyncParser;
-import com.koushikdutta.async.parser.ByteBufferListParser;
-import com.koushikdutta.async.stream.ByteBufferListInputStream;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
@@ -53,10 +47,9 @@ import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
-import com.levelup.http.parser.XferTransform;
+import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.parser.XferTransformChain;
 import com.levelup.http.parser.XferTransformResponseInputStream;
-import com.levelup.http.parser.ResponseParser;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -171,12 +164,12 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public InputStream getInputStream(HttpRequest request, ResponseParser<?, ?> parser) throws HttpException {
+	public InputStream getInputStream(HttpRequest request, HttpResponseHandler<?> responseHandler) throws HttpException {
 		if (inputStream == null) {
 			prepareRequest(request);
 			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
 			Future<Response<InputStream>> withResponse = req.withResponse();
-			inputStream = getServerResponse(withResponse, request, parser);
+			inputStream = getServerResponse(withResponse, request, responseHandler);
 		}
 		return inputStream;
 	}
@@ -226,7 +219,8 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			}
 		}
 
-		private static <ERROR> AsyncParser<ERROR> getErrorAsyncParser(final ResponseParser<?, ERROR> parser) {
+		/* TODO
+		private static <ERROR> AsyncParser<ERROR> getErrorAsyncParser(final HttpResponseErrorHandler parser) {
 			XferTransform firstTransform;
 			if (parser.errorParser instanceof XferTransformChain) {
 				XferTransformChain transformChain = (XferTransformChain) parser.errorParser;
@@ -280,35 +274,35 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 					throw new IllegalAccessError("not supported");
 				}
 			};
-		}
+		}*/
 
-		BaseAsyncGsonParser(XferTransformViaGson<P> gsonParser, final ResponseParser<P, ERROR> parser, HttpEngineIon engineIon) {
-			super(getGsonSerializer(gsonParser, ((XferTransformChain) parser.contentParser).skipFirstTransform().skipFirstTransform()), getErrorAsyncParser(parser), engineIon);
+		BaseAsyncGsonParser(XferTransformViaGson<P> gsonParser, final HttpResponseHandler<P> parser, HttpEngineIon engineIon) {
+			super(getGsonSerializer(gsonParser, ((XferTransformChain) parser.contentParser).skipFirstTransform().skipFirstTransform()), /*getErrorAsyncParser(*/parser.errorHandler/*)*/, engineIon);
 			this.postParser = gsonParser;
 		}
 	}
 
 	@Override
-	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(HttpResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
 		// special case: Gson data handling with HttpRequestIon
-		if (null != parser && parser.contentParser instanceof XferTransformChain) {
-			XferTransformChain contentParser = (XferTransformChain) parser.contentParser;
+		if (null != responseHandler && responseHandler.contentParser instanceof XferTransformChain) {
+			XferTransformChain contentParser = (XferTransformChain) responseHandler.contentParser;
 			if (contentParser.transforms.length > 1 && contentParser.transforms[0] == XferTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof XferTransformViaGson) {
 				XferTransformViaGson gsonParser = (XferTransformViaGson) contentParser.transforms[1];
 				if (!gsonParser.debugEnabled()) {
-					AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, parser, this);
+					AsyncParserWithError<P, ?> gsonSerializer = new BaseAsyncGsonParser(gsonParser, responseHandler, this);
 					prepareRequest(request);
 					ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
 					Future<Response<P>> withResponse = req.withResponse();
-					return getServerResponse(withResponse, request, parser);
+					return getServerResponse(withResponse, request, responseHandler);
 				}
 			}
 		}
 
-		return super.parseRequest(parser, request);
+		return super.parseRequest(responseHandler, request);
 	}
 
-	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request, ResponseParser<?, ?> responseParser) throws HttpException {
+	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request, HttpResponseHandler<?> httpResponseHandler) throws HttpException {
 		try {
 			Response<P> response = req.get();
 			setRequestResponse(request, new HttpResponseIon(response));
@@ -319,16 +313,13 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			}
 
 			if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
-				if (null != responseParser) {
-					try {
-						responseParser.parseResponse(this);
+				if (null != httpResponseHandler) {
+					DataErrorException exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
 
-					} catch (IOException e1) {
-						throw exceptionToHttpException(request, e1).build();
-
-					} catch (DataErrorException e1) {
-						throw exceptionToHttpException(request, e1).build();
-					}
+					HttpException.Builder exceptionBuilder = newExceptionFromResponse(exceptionWithData);
+					if (null == exceptionBuilder)
+						exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
+					throw exceptionBuilder.build();
 				}
 
 				HttpException.Builder builder = request.newExceptionFromResponse(getHttpResponse().getException());

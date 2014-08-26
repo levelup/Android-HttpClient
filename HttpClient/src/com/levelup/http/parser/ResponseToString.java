@@ -1,11 +1,13 @@
 package com.levelup.http.parser;
 
+import com.levelup.http.HttpResponseHandler;
+
 /**
  * Created by robUx4 on 20/08/2014.
  */
 public class ResponseToString extends ResponseTransformChain<String> {
 	public static final ResponseToString INSTANCE = new Builder().build();
-	public static final ResponseParser<String,Object> RESPONSE_PARSER = new ResponseParser<String, Object>(INSTANCE);
+	public static final HttpResponseHandler<String> RESPONSE_HANDLER = new HttpResponseHandler<String>(INSTANCE);
 
 	private static class Builder extends ResponseTransformChain.Builder<String> {
 		public Builder() {

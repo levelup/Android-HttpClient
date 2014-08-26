@@ -8,7 +8,7 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.TypedHttpRequest;
-import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.HttpResponseHandler;
 
 /**
  * Base class to execute an {@link HttpRequest} and parse the received data to return the result of type {@code <T>}
@@ -18,15 +18,15 @@ import com.levelup.http.parser.ResponseParser;
  */
 public class HttpCallable<T> implements Callable<T>, Closeable {
 	private final HttpRequest request;
-	private final ResponseParser<T, ?> parser;
+	private final HttpResponseHandler<T> parser;
 
 	public HttpCallable(TypedHttpRequest<T> request) {
 		if (null==request) throw new IllegalArgumentException();
 		this.request = request;
-		this.parser = request.getResponseParser();
+		this.parser = request.getResponseHandler();
 	}
 
-	public HttpCallable(HttpRequest request, ResponseParser<T,?> parser) {
+	public HttpCallable(HttpRequest request, HttpResponseHandler<T> parser) {
 		if (null==request) throw new IllegalArgumentException();
 		this.request = request;
 		this.parser = parser;

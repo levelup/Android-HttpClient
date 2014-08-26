@@ -19,13 +19,14 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpStream;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
-import com.levelup.http.parser.ResponseParser;
+import com.levelup.http.HttpResponseHandler;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -176,15 +177,17 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public InputStream getInputStream(HttpRequest request, ResponseParser<?, ?> parser) throws HttpException {
+	public InputStream getInputStream(HttpRequest request, HttpResponseHandler<?> responseHandler) throws HttpException {
 		getQueryResponse(request, true);
 		try {
 			return getHttpResponse().getInputStream();
 
 		} catch (FileNotFoundException e) {
-			HttpException.Builder exceptionBuilder = newExceptionFromResponse(e);
+			DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(getHttpResponse(), this, e);
+
+			HttpException.Builder exceptionBuilder = newExceptionFromResponse(exceptionWithData);
 			if (null == exceptionBuilder)
-				exceptionBuilder = exceptionToHttpException(request, e);
+				exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
 			throw exceptionBuilder.build();
 
 		} catch (IOException e) {
@@ -194,7 +197,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public <P> P parseRequest(ResponseParser<P,?> parser, HttpRequest request) throws HttpException {
+	public <P> P parseRequest(HttpResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
 		if (request.isStreaming()) {
 			// special case: streaming with HttpRequestUrlConnection
 			getQueryResponse(request, true);
@@ -207,7 +210,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			}
 		}
 
-		return super.parseRequest(parser, request);
+		return super.parseRequest(responseHandler, request);
 	}
 
 	@Override

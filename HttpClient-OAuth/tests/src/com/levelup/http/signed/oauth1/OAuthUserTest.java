@@ -38,7 +38,7 @@ public class OAuthUserTest extends AndroidTestCase {
 		BaseHttpRequest<String> get = new BaseHttpRequest.Builder<String>().
 				setSigner(signer).
 				setUrl("http://www.levelupstudio.com/", uriParams).
-				setResponseParser(ResponseToString.RESPONSE_PARSER).
+				setResponseParser(ResponseToString.RESPONSE_HANDLER).
 				build();
 		HttpClient.parseRequest(get);
 	}
@@ -63,7 +63,7 @@ public class OAuthUserTest extends AndroidTestCase {
 		BaseHttpRequest<String> get = new BaseHttpRequest.Builder<String>().
 				setSigner(signer).
 				setUrl("http://www.levelupstudio.com/", uriParams).
-				setResponseParser(ResponseToString.RESPONSE_PARSER).
+				setResponseParser(ResponseToString.RESPONSE_HANDLER).
 				build();
 		HttpClient.parseRequest(get);
 	}
