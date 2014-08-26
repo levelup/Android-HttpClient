@@ -75,6 +75,33 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		}
 	}
 
+	public void testGsonErrorDebugData() throws Exception {
+		ResponseViaGson<FacebookErrorData> testParser = new ResponseViaGson<FacebookErrorData>(FacebookErrorData.class);
+		testParser.enableDebugData(true);
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
+				setUrl("http://graph.facebook.com/test").
+				setResponseParser(
+						new HttpResponseHandler<String>(ResponseToString.INSTANCE,
+								new HttpResponseErrorHandlerParser(testParser)
+						)
+				).
+				build();
+
+		try {
+			String data = HttpClient.parseRequest(request);
+			fail("We should never have received data:"+data);
+		} catch (HttpException e) {
+			if (e.getErrorCode()!=HttpException.ERROR_DATA_MSG)
+				throw e; // forward
+			assertTrue(e.getCause() instanceof DataErrorException);
+			DataErrorException errorException = (DataErrorException) e.getCause();
+			assertTrue(errorException.errorContent instanceof FacebookErrorData);
+			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
+			assertNotNull(errorData.error);
+			assertEquals(803, errorData.error.code);
+		}
+	}
+
 	public void testSetDebugData() throws Exception {
 		ResponseViaGson<Void> testParser = new ResponseViaGson<Void>(Void.class);
 		testParser.enableDebugData(true);

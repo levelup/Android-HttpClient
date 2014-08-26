@@ -36,6 +36,7 @@ import com.levelup.http.HttpBodyUrlEncoded;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
+import com.levelup.http.HttpResponseErrorHandler;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.gson.XferTransformViaGson;
 import com.levelup.http.internal.BaseHttpEngine;
@@ -48,6 +49,7 @@ import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
 import com.levelup.http.HttpResponseHandler;
+import com.levelup.http.parser.HttpResponseErrorHandlerParser;
 import com.levelup.http.parser.XferTransformChain;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 
@@ -276,9 +278,13 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			};
 		}*/
 
-		BaseAsyncGsonParser(XferTransformViaGson<P> gsonParser, final HttpResponseHandler<P> parser, HttpEngineIon engineIon) {
-			super(getGsonSerializer(gsonParser, ((XferTransformChain) parser.contentParser).skipFirstTransform().skipFirstTransform()), /*getErrorAsyncParser(*/parser.errorHandler/*)*/, engineIon);
+		BaseAsyncGsonParser(XferTransformViaGson<P> gsonParser, final XferTransformChain dataParser, HttpResponseErrorHandler errorHandler, HttpEngineIon engineIon) {
+			super(getGsonSerializer(gsonParser, dataParser.skipFirstTransform().skipFirstTransform()), /*getErrorAsyncParser(*/errorHandler/*)*/, engineIon);
 			this.postParser = gsonParser;
+		}
+
+		BaseAsyncGsonParser(XferTransformViaGson<P> gsonParser, final HttpResponseHandler<P> parser, HttpEngineIon engineIon) {
+			this(gsonParser, (XferTransformChain) parser.contentParser, parser.errorHandler, engineIon);
 		}
 	}
 
@@ -312,18 +318,39 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				throw exceptionToHttpException(request, e).build();
 			}
 
-			if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
-				if (null != httpResponseHandler) {
+			if (null != httpResponseHandler) {
+				if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
+					if (httpResponseHandler.errorHandler instanceof HttpResponseErrorHandlerParser) {
+						HttpResponseErrorHandlerParser errorHandler = (HttpResponseErrorHandlerParser) httpResponseHandler.errorHandler;
+						if (errorHandler.errorDataParser instanceof XferTransformChain) {
+							XferTransformChain contentParser = (XferTransformChain) errorHandler.errorDataParser;
+							if (contentParser.transforms.length > 1 && contentParser.transforms[0] == XferTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof XferTransformViaGson) {
+								XferTransformViaGson gsonParser = (XferTransformViaGson) contentParser.transforms[1];
+								if (!gsonParser.debugEnabled()) {
+									GsonSerializer gsonSerializer = BaseAsyncGsonParser.getGsonSerializer(gsonParser, contentParser.skipFirstTransform().skipFirstTransform());
+									prepareRequest(request);
+									ResponseFuture<Object> errorReq = requestBuilder.as(gsonSerializer);
+									Future<Response<Object>> withResponse = errorReq.withResponse();
+									Object data = getServerResponse(withResponse, request, null);
+									DataErrorException exceptionWithData = new DataErrorException(data, null);
+									HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
+									throw exceptionBuilder.build();
+								}
+							}
+						}
+					}
+
 					DataErrorException exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
 
 					HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
 					throw exceptionBuilder.build();
 				}
-
+/*
 				HttpException.Builder builder = request.newExceptionFromResponse(getHttpResponse().getException());
 				if (null == builder)
 					builder = exceptionToHttpException(request, getHttpResponse().getException());
 				throw builder.build();
+				*/
 			}
 
 			return (P) response.getResult();

@@ -14,7 +14,7 @@ import com.levelup.http.parser.XferTransform;
  */
 public class HttpResponseErrorHandlerParser implements HttpResponseErrorHandler {
 
-	private final XferTransform<HttpResponse, ?> errorDataParser;
+	public final XferTransform<HttpResponse, ?> errorDataParser;
 
 	public HttpResponseErrorHandlerParser(XferTransform<HttpResponse,?> errorDataParser) {
 		this.errorDataParser = errorDataParser;
