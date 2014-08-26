@@ -36,7 +36,9 @@ import com.levelup.http.HttpBodyUrlEncoded;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.HttpResponseHandler;
+import com.levelup.http.LogManager;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.gson.XferTransformViaGson;
 import com.levelup.http.internal.BaseHttpEngine;
@@ -48,6 +50,7 @@ import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
 import com.levelup.http.parser.HttpResponseErrorHandlerParser;
+import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 
@@ -107,6 +110,19 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		return builder;
 	}
 
+	private static GsonSerializer getGsonSerializer(XferTransform<HttpResponse, ?> xferTransform) {
+		if (xferTransform instanceof XferTransformChain) {
+			XferTransformChain contentParser = (XferTransformChain) xferTransform;
+			if (contentParser.transforms.length > 1 && contentParser.transforms[0] == XferTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof XferTransformViaGson) {
+				XferTransformViaGson gsonParser = (XferTransformViaGson) contentParser.transforms[1];
+				if (!gsonParser.debugEnabled()) {
+					return getGsonSerializer(gsonParser, contentParser.skipFirstTransform().skipFirstTransform());
+				}
+			}
+		}
+		return null;
+	}
+
 	private static GsonSerializer getGsonSerializer(XferTransformViaGson<?> gsonParser, final XferTransformChain remainingTransforms) {
 		if (gsonParser.getGsonOutputTypeToken() != null) {
 			TypeToken<?> typeToken = gsonParser.getGsonOutputTypeToken();
@@ -122,7 +138,9 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 					});
 				}
 			};
-		} else if (gsonParser.getGsonOutputType() instanceof Class) {
+		}
+
+		if (gsonParser.getGsonOutputType() instanceof Class) {
 			Class<?> clazz = (Class<?>) gsonParser.getGsonOutputType();
 			return new GsonSerializer(gsonParser.getGsonHandler(), clazz) {
 				@Override
@@ -136,9 +154,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 					});
 				}
 			};
-		} else {
-			throw new IllegalArgumentException("Impossible to use " + gsonParser + " with output+" + gsonParser.getGsonOutputType() + " typeToken:" + gsonParser.getGsonOutputTypeToken());
 		}
+
+		LogManager.getLogger().e("Impossible to use " + gsonParser + " with output+" + gsonParser.getGsonOutputType() + " typeToken:" + gsonParser.getGsonOutputTypeToken());
+		return null;
 	}
 
 	@Override
@@ -220,16 +239,12 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public <P> P parseRequest(HttpResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
 		// special case: Gson data handling with HttpRequestIon
 		if (null != responseHandler && responseHandler.contentParser instanceof XferTransformChain) {
-			XferTransformChain contentParser = (XferTransformChain) responseHandler.contentParser;
-			if (contentParser.transforms.length > 1 && contentParser.transforms[0] == XferTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof XferTransformViaGson) {
-				XferTransformViaGson gsonParser = (XferTransformViaGson) contentParser.transforms[1];
-				if (!gsonParser.debugEnabled()) {
-					GsonSerializer gsonSerializer = getGsonSerializer(gsonParser, contentParser.skipFirstTransform().skipFirstTransform());
-					prepareRequest(request);
-					ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
-					Future<Response<P>> withResponse = req.withResponse();
-					return getServerResponse(withResponse, request, responseHandler);
-				}
+			GsonSerializer gsonSerializer = getGsonSerializer(responseHandler.contentParser);
+			if (null != gsonSerializer) {
+				prepareRequest(request);
+				ResponseFuture<P> req = requestBuilder.as(gsonSerializer);
+				Future<Response<P>> withResponse = req.withResponse();
+				return getServerResponse(withResponse, request, responseHandler);
 			}
 		}
 
@@ -248,37 +263,24 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 			if (null != httpResponseHandler) {
 				if (getHttpResponse().getResponseCode() < 200 || getHttpResponse().getResponseCode() >= 400) {
+					DataErrorException exceptionWithData = null;
+
 					if (httpResponseHandler.errorHandler instanceof HttpResponseErrorHandlerParser) {
 						HttpResponseErrorHandlerParser errorHandler = (HttpResponseErrorHandlerParser) httpResponseHandler.errorHandler;
-						if (errorHandler.errorDataParser instanceof XferTransformChain) {
-							XferTransformChain contentParser = (XferTransformChain) errorHandler.errorDataParser;
-							if (contentParser.transforms.length > 1 && contentParser.transforms[0] == XferTransformResponseInputStream.INSTANCE && contentParser.transforms[1] instanceof XferTransformViaGson) {
-								XferTransformViaGson gsonParser = (XferTransformViaGson) contentParser.transforms[1];
-								if (!gsonParser.debugEnabled()) {
-									GsonSerializer gsonSerializer = getGsonSerializer(gsonParser, contentParser.skipFirstTransform().skipFirstTransform());
-									prepareRequest(request);
-									ResponseFuture<Object> errorReq = requestBuilder.as(gsonSerializer);
-									Future<Response<Object>> withResponse = errorReq.withResponse();
-									Object data = getServerResponse(withResponse, request, null);
-									DataErrorException exceptionWithData = new DataErrorException(data, null);
-									HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
-									throw exceptionBuilder.build();
-								}
-							}
+						GsonSerializer gsonSerializer = getGsonSerializer(errorHandler.errorDataParser);
+						if (null != gsonSerializer) {
+							ResponseFuture<Object> errorReq = requestBuilder.as(gsonSerializer);
+							Future<Response<Object>> withResponse = errorReq.withResponse();
+							Object data = getServerResponse(withResponse, request, null);
+							exceptionWithData = new DataErrorException(data, null);
 						}
 					}
-
-					DataErrorException exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
+					if (null == exceptionWithData)
+						exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
 
 					HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
 					throw exceptionBuilder.build();
 				}
-/*
-				HttpException.Builder builder = request.newExceptionFromResponse(getHttpResponse().getException());
-				if (null == builder)
-					builder = exceptionToHttpException(request, getHttpResponse().getException());
-				throw builder.build();
-				*/
 			}
 
 			return (P) response.getResult();
