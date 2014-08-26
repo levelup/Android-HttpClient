@@ -353,11 +353,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 	}
 
 	@Override
-	public HttpException.Builder newExceptionFromResponse(Throwable cause) {
-		return engine.newExceptionFromResponse(cause);
-	}
-
-	@Override
 	public HttpException.Builder newException() {
 		return new HttpException.Builder(this);
 	}

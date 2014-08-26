@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.http.protocol.HTTP;
-import org.json.JSONObject;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -37,16 +36,12 @@ import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.InputStreamJSONObjectParser;
-import com.levelup.http.InputStreamStringParser;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
-import com.levelup.http.MediaType;
 import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.UploadProgressListener;
-import com.levelup.http.Util;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -315,53 +310,11 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		throw new IllegalAccessError("missing errorHandler");
 	}
 
-	@Override
-	public HttpException.Builder newExceptionFromResponse(Throwable cause) {
-		InputStream errorStream = null;
-		HttpException.Builder builder = null;
-		try {
-			final HttpResponse response = getHttpResponse();
-			builder = newException();
-			builder.setErrorCode(HttpException.ERROR_HTTP);
-			builder.setHTTPResponse(response);
-			builder.setCause(cause);
-
-			MediaType type = MediaType.parse(response.getContentType());
-			if (Util.MediaTypeJSON.equalsType(type)) {
-				errorStream = getParseableErrorStream();
-				JSONObject jsonData = InputStreamJSONObjectParser.instance.parseInputStream(errorStream, this);
-				builder.setErrorMessage(jsonData.toString());
-				if (null!=errorHandler)
-					builder = errorHandler.handleJSONError(builder, jsonData);
-			} else if (null == type || "text".equals(type.type())) {
-				errorStream = getParseableErrorStream();
-				String errorData = InputStreamStringParser.instance.parseInputStream(errorStream, this);
-				builder.setErrorMessage(errorData);
-			}
-		} catch (IOException ignored) {
-		} catch (ParserException ignored) {
-		} catch (Exception e) {
-			LogManager.getLogger().w("unknown HTTP error",e);
-		} finally {
-			if (null != errorStream) {
-				try {
-					errorStream.close();
-				} catch (NullPointerException ignored) {
-					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-				} catch (IOException ignored) {
-				}
-			}
-		}
-		return builder;
-	}
 	protected HttpException.Builder exceptionToHttpException(HttpExceptionCreator request, Exception e) throws HttpException {
 		if (e instanceof DataErrorException) {
 			DataErrorException cause = (DataErrorException) e;
 			if (cause.errorContent instanceof Exception)
 				throw exceptionToHttpException(request, (Exception) cause.errorContent).build();
-
-			if (cause.errorContent instanceof InputStream) {
-				return newExceptionFromResponse(e.getCause());
 
 			HttpException.Builder builder = request.newException();
 			builder.setErrorMessage("interrupted");

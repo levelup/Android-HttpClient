@@ -30,8 +30,6 @@ public interface HttpEngine<T> extends HttpRequestInfo {
 
 	HttpException.Builder newException();
 
-	HttpException.Builder newExceptionFromResponse(Throwable cause);
-
 	void setErrorHandler(HttpErrorHandler errorHandler);
 
 	void doConnection() throws IOException;
