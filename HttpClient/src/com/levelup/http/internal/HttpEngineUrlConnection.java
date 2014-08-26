@@ -27,6 +27,7 @@ import com.levelup.http.HttpStream;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
 import com.levelup.http.HttpResponseHandler;
+import com.levelup.http.ParserException;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -183,10 +184,18 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			return getHttpResponse().getInputStream();
 
 		} catch (FileNotFoundException e) {
-			DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(getHttpResponse(), this, e);
+			try {
+				DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(getHttpResponse(), this, e);
 
-			HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
-			throw exceptionBuilder.build();
+				HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
+				throw exceptionBuilder.build();
+
+			} catch (ParserException ee) {
+				throw exceptionToHttpException(request, ee).build();
+
+			} catch (IOException ee) {
+				throw exceptionToHttpException(request, ee).build();
+			}
 
 		} catch (IOException e) {
 			throw exceptionToHttpException(request, e).build();

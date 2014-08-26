@@ -39,6 +39,7 @@ import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.HttpResponseHandler;
 import com.levelup.http.LogManager;
+import com.levelup.http.ParserException;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.gson.XferTransformViaGson;
 import com.levelup.http.internal.BaseHttpEngine;
@@ -275,8 +276,17 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 							exceptionWithData = new DataErrorException(data, null);
 						}
 					}
-					if (null == exceptionWithData)
-						exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
+					if (null == exceptionWithData) {
+						try {
+							exceptionWithData = httpResponseHandler.errorHandler.handleError(getHttpResponse(), this, getHttpResponse().getException());
+
+						} catch (ParserException ee) {
+							throw exceptionToHttpException(request, ee).build();
+
+						} catch (IOException ee) {
+							throw exceptionToHttpException(request, ee).build();
+						}
+					}
 
 					HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
 					throw exceptionBuilder.build();

@@ -17,22 +17,16 @@ public class BaseHttpResponseErrorHandler implements HttpResponseErrorHandler {
 	}
 
 	@Override
-	public DataErrorException handleError(HttpResponse response, ImmutableHttpRequest request, Exception cause) {
+	public DataErrorException handleError(HttpResponse response, ImmutableHttpRequest request, Exception cause) throws IOException, ParserException {
 		// parse the InputStream and handles the error
 		MediaType type = MediaType.parse(response.getContentType());
-		try {
-			if (Util.MediaTypeJSON.equalsType(type)) {
-				JSONObject errorData = ResponseToJSONObject.INSTANCE.transformData(response, request);
-				return new DataErrorException(errorData, cause);
-			} else if (null == type || "text".equals(type.type())) {
-				String errorData = ResponseToString.INSTANCE.transformData(response, request);
-				return new DataErrorException(errorData, cause);
-			}
-			return new DataErrorException(response.getContentStream(), cause);
-		} catch (IOException ignored) {
-			return new DataErrorException(null, cause);
-		} catch (ParserException ignored) {
-			return new DataErrorException(null, cause);
+		if (Util.MediaTypeJSON.equalsType(type)) {
+			JSONObject errorData = ResponseToJSONObject.INSTANCE.transformData(response, request);
+			return new DataErrorException(errorData, cause);
+		} else if (null == type || "text".equals(type.type())) {
+			String errorData = ResponseToString.INSTANCE.transformData(response, request);
+			return new DataErrorException(errorData, cause);
 		}
+		return new DataErrorException(response.getContentStream(), cause);
 	}
 }
