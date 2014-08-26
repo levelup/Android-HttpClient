@@ -3,8 +3,6 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -355,16 +353,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 	@Override
 	public HttpException.Builder newException() {
 		return new HttpException.Builder(this);
-	}
-
-	/**
-	 * Handle error data returned in JSON format
-	 * @param builder
-	 * @param jsonData
-	 * @return
-	 */
-	public HttpException.Builder handleJSONError(HttpException.Builder builder, JSONObject jsonData) {
-		return builder;
 	}
 
 	public final HttpEngine<T> getHttpEngine() {

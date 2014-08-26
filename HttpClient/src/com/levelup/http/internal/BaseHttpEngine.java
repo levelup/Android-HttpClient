@@ -411,8 +411,6 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return this;
 	}
 
-	protected abstract InputStream getParseableErrorStream() throws Exception;
-
 	@Override
 	public void setErrorHandler(HttpErrorHandler errorHandler) {
 		this.errorHandler = errorHandler;

@@ -220,13 +220,4 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		return super.parseRequest(responseHandler, request);
 	}
 
-	@Override
-	protected InputStream getParseableErrorStream() throws IOException {
-		HttpResponseUrlConnection response = getHttpResponse();
-		InputStream errorStream = response.getErrorStream();
-		if (null == errorStream)
-			errorStream = response.getInputStream();
-
-		return errorStream;
-	}
 }

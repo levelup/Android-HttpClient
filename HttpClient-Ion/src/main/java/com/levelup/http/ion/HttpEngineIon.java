@@ -1,6 +1,5 @@
 package com.levelup.http.ion;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -37,9 +36,9 @@ import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.ResponseHandler;
 import com.levelup.http.LogManager;
 import com.levelup.http.ParserException;
+import com.levelup.http.ResponseHandler;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.gson.XferTransformViaGson;
 import com.levelup.http.internal.BaseHttpEngine;
@@ -302,28 +301,6 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			throw exceptionToHttpException(request, e).build();
 
 		}
-	}
-
-	@Override
-	protected InputStream getParseableErrorStream() throws Exception {
-		Object result;
-		HttpResponseIon<T> response = getHttpResponse();
-		if (response.getException() instanceof DataErrorException) {
-			DataErrorException errorSource = (DataErrorException) response.getException();
-			result = errorSource.errorContent;
-		} else {
-			result = response.getResult();
-		}
-		if (result instanceof InputStream) {
-			return (InputStream) result;
-		}
-		if (result == null) {
-			if (response.getException()!=null)
-				throw response.getException();
-			throw new IOException("error stream not supported");
-		}
-
-		return new ByteArrayInputStream(result.toString().getBytes());
 	}
 
 	@Override
