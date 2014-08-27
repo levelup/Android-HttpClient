@@ -1,7 +1,7 @@
 package com.levelup.http;
 
 /**
- * Runtime Exception that occurs when data parsing with {@link InputStreamParser} fails
+ * Runtime Exception that occurs when data parsing with {@link com.levelup.http.HttpResponse} fails
  */
 public class ParserException extends RuntimeException {
 	private static final long serialVersionUID = 3213822444086259097L;
