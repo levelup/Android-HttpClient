@@ -6,24 +6,13 @@ import org.json.JSONObject;
  * Created by robUx4 on 20/08/2014.
  */
 public final class ResponseToJSONObject extends ResponseTransformChain<JSONObject> {
-	public static final ResponseToJSONObject INSTANCE = new Builder().build();
+	public static final ResponseToJSONObject INSTANCE = new ResponseToJSONObject(
+			ResponseTransformChain.Builder
+					.init(ResponseToString.INSTANCE)
+					.addDataTransform(XferTransformStringJSONObject.INSTANCE)
+	);
 
-	private static class Builder extends ResponseTransformChain.Builder<JSONObject> {
-		public Builder() {
-			addDataTransform(XferTransformInputStreamString.INSTANCE);
-		}
-
-		@Override
-		protected ResponseTransformChain<JSONObject> createChain(XferTransform[] transforms) {
-			return new ResponseToJSONObject(transforms);
-		}
-
-		private ResponseToJSONObject build() {
-			return (ResponseToJSONObject) buildChain(XferTransformStringJSONObject.INSTANCE);
-		}
-	}
-
-	private ResponseToJSONObject(XferTransform[] xferTransforms) {
-		super(xferTransforms);
+	private ResponseToJSONObject(Builder<JSONObject> builder) {
+		super(builder);
 	}
 }

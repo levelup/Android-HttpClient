@@ -1,5 +1,7 @@
 package com.levelup.http.parser;
 
+import java.io.InputStream;
+
 import com.levelup.http.HttpResponse;
 
 /**
@@ -8,30 +10,27 @@ import com.levelup.http.HttpResponse;
 public class ResponseTransformChain<T> extends XferTransformChain<HttpResponse, T> {
 
 	public static class Builder<T> extends XferTransformChain.Builder<HttpResponse, T> {
-		public Builder() {
-			super(XferTransformResponseInputStream.INSTANCE);
-		}
 
-		public Builder(XferTransform<HttpResponse,?> firstTransform) {
-			super(firstTransform);
+		public static <T> Builder<T> init(XferTransform<HttpResponse, T> firstTransform) {
+			return XferTransformChain.Builder.start(firstTransform, new Builder<T>());
 		}
 
 		@Override
-		protected XferTransformChain<HttpResponse, T> createChain(XferTransform[] transforms) {
-			return new ResponseTransformChain(transforms);
+		protected XferTransformChain<HttpResponse, T> buildInstance(XferTransformChain.Builder<HttpResponse, T> builder) {
+			return new ResponseTransformChain((Builder) builder);
 		}
 
 		@Override
-		public ResponseTransformChain<T> buildChain(XferTransform<?, T> lastTransform) {
-			return (ResponseTransformChain<T>) super.buildChain(lastTransform);
+		public <V> Builder<V> addDataTransform(XferTransform<T, V> endTransform) {
+			return (Builder<V>) super.addDataTransform(endTransform);
 		}
 	}
 
-	public ResponseTransformChain(Builder<T> builder, XferTransform<?, T> lastTransform) {
-		super(builder, lastTransform);
+	public ResponseTransformChain(XferTransform<InputStream, T> endTransform) {
+		this(Builder.init(XferTransformResponseInputStream.INSTANCE).addDataTransform(endTransform));
 	}
 
-	protected ResponseTransformChain(XferTransform[] transforms) {
-		super(transforms);
+	protected ResponseTransformChain(Builder<T> builder) {
+		super(builder);
 	}
 }

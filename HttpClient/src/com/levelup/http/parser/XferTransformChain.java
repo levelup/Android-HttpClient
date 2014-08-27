@@ -19,11 +19,10 @@ public class XferTransformChain<INPUT, OUTPUT> implements XferTransform<INPUT, O
 	public static class Builder<INPUT, OUTPUT> {
 		private ArrayList<XferTransform> transforms = new ArrayList<XferTransform>();
 
-		public Builder(XferTransform<INPUT,?> firstTransform) {
-			addDataTransform(firstTransform);
+		protected Builder() {
 		}
 
-		public final Builder<INPUT,OUTPUT> addDataTransform(XferTransform<?, ?> intermediateTransform) {
+		public <V> Builder<INPUT, V> addDataTransform(XferTransform<OUTPUT, V> intermediateTransform) {
 			if (intermediateTransform instanceof XferTransformChain) {
 				// flatten the list of transforms
 				XferTransformChain transform = (XferTransformChain) intermediateTransform;
@@ -31,25 +30,33 @@ public class XferTransformChain<INPUT, OUTPUT> implements XferTransform<INPUT, O
 			} else {
 				transforms.add(intermediateTransform);
 			}
-			return this;
+			return (Builder<INPUT, V>) this;
 		}
 
-		public XferTransformChain<INPUT, OUTPUT> buildChain(XferTransform<?,OUTPUT> lastTransform) {
-			addDataTransform(lastTransform);
-			return createChain(transforms.toArray(new XferTransform[transforms.size()]));
+		public XferTransformChain<INPUT, OUTPUT> build() {
+			return buildInstance(this);
 		}
 
-		protected XferTransformChain<INPUT, OUTPUT> createChain(XferTransform[] transforms) {
-			return new XferTransformChain<INPUT, OUTPUT>(transforms);
+		public static <K, L, B extends Builder<K, L>> B start(XferTransform<K, L> pipe, B builder) {
+			((Builder) builder).transforms = new ArrayList<XferTransform>();
+			((Builder) builder).transforms.add(pipe);
+			return builder;
+		}
+
+		public static <K, L> Builder<K, L> start(XferTransform<K, L> pipe) {
+			return start(pipe, new Builder<K, L>());
+		}
+
+		protected XferTransformChain<INPUT, OUTPUT> buildInstance(Builder<INPUT, OUTPUT> builder) {
+			return new XferTransformChain<INPUT, OUTPUT>(builder);
 		}
 	}
 
-	public XferTransformChain(Builder<INPUT, OUTPUT> builder, XferTransform<?, OUTPUT> lastTransform) {
-		builder.addDataTransform(lastTransform);
+	protected XferTransformChain(Builder<INPUT, OUTPUT> builder) {
 		this.transforms = builder.transforms.toArray(new XferTransform[builder.transforms.size()]);
 	}
 
-	protected XferTransformChain(XferTransform[] transforms) {
+	private XferTransformChain(XferTransform[] transforms) {
 		if (null==transforms) throw new NullPointerException();
 		this.transforms = transforms;
 	}

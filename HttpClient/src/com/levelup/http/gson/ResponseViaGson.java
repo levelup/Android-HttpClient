@@ -13,19 +13,19 @@ import com.levelup.http.parser.ResponseTransformChain;
  */
 public class ResponseViaGson<T> extends ResponseTransformChain<T> {
 	public ResponseViaGson(TypeToken<T> typeToken) {
-		super(new Builder<T>(), new XferTransformViaGson<T>(typeToken));
+		super(new XferTransformViaGson<T>(typeToken));
 	}
 
 	public ResponseViaGson(Type type) {
-		super(new Builder<T>(), new XferTransformViaGson<T>(type));
+		super(new XferTransformViaGson<T>(type));
 	}
 
 	public ResponseViaGson(Gson gson, TypeToken<T> typeToken) {
-		super(new Builder<T>(), new XferTransformViaGson<T>(gson, typeToken));
+		super(new XferTransformViaGson<T>(gson, typeToken));
 	}
 
 	public ResponseViaGson(Gson gson, Type type) {
-		super(new Builder<T>(), new XferTransformViaGson<T>(gson, type));
+		super(new XferTransformViaGson<T>(gson, type));
 	}
 
 	public ResponseViaGson<T> enableDebugData(boolean enable) {
