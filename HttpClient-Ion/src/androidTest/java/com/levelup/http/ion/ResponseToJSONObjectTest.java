@@ -12,7 +12,7 @@ import com.levelup.http.HttpException;
 import com.levelup.http.ParserException;
 import com.levelup.http.parser.ResponseToJSONObject;
 
-public class InputStreamJSONObjectParserTest extends AndroidTestCase {
+public class ResponseToJSONObjectTest extends AndroidTestCase {
 
 	@Override
 	public void setContext(Context context) {
