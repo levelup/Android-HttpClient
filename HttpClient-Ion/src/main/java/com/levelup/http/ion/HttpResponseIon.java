@@ -77,7 +77,7 @@ public class HttpResponseIon<T> implements HttpResponse {
 				return (InputStream) exception.errorContent;
 		}
 
-		throw new IOException("trying to read an InputStream from Ion result "+response.getResult()+" error:"+response.getException());
+		throw new IOException("trying to read an InputStream from Ion result:"+response.getResult()+" error:"+response.getException());
 	}
 
 	T getResult() {

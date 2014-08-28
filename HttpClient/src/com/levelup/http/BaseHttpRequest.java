@@ -251,6 +251,8 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * Build the HTTP request to run through {@link HttpClient}
 		 */
 		public R build() {
+			if (!isStreaming && responseHandler==null)
+				throw new RuntimeException("You forgot to call setResponseHandler()");
 			return build(buildImpl());
 		}
 	}

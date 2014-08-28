@@ -426,9 +426,10 @@ public class IonClientTest extends AndroidTestCase {
 	public void testNullContext() throws Exception {
 		try {
 			HttpClient.setup(null);
-			BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>().
-					setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
-					build();
+			BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+					.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
+					.setStreaming()
+					.build();
 			//when not using Ion, we don't need a Context fail("A query with no context is invalid");
 		} catch (NullPointerException e) {
 			// all good
@@ -445,9 +446,10 @@ public class IonClientTest extends AndroidTestCase {
 
 	public void testSetupContext() throws Exception {
 		HttpClient.setup(getContext());
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>().
-				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
-				build();
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
+				.setStreaming()
+				.build();
 		HttpClient.setup(null);
 	}
 }
