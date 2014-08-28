@@ -19,16 +19,16 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams) {
-		this(new Builder<T>().setUrl(baseUrl, uriParams).buildImpl());
+	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, ResponseHandler<T> responseHandler) {
+		this(new Builder<T>().setUrl(baseUrl, uriParams).setResponseParser(responseHandler).buildImpl());
 	}
 
-	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams) {
-		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).buildImpl());
+	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, ResponseHandler<T> responseHandler) {
+		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).setResponseParser(responseHandler).buildImpl());
 	}
 
-	public HttpRequestGet(String url) {
-		this(new Builder<T>().setUrl(url).buildImpl());
+	public HttpRequestGet(String url, ResponseHandler<T> responseHandler) {
+		this(new Builder<T>().setUrl(url).setResponseParser(responseHandler).buildImpl());
 	}
 
 	protected HttpRequestGet(HttpEngine<T> impl) {

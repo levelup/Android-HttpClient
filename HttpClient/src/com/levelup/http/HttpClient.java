@@ -9,8 +9,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
-import com.levelup.http.parser.ResponseToString;
-
 /**
  * HTTP client that handles {@link HttpRequest} 
  */
@@ -97,18 +95,6 @@ public class HttpClient {
 	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
 		ResponseHandler<T> responseHandler = request.getResponseHandler();
 		if (!request.isStreaming() && null==responseHandler) throw new NullPointerException("typed request without a stream parser:"+request);
-		return parseRequest(request, responseHandler);
-	}
-
-	/**
-	 * Perform the query on the network and get the resulting body as an InputStream
-	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
-	 * @param request The HTTP request to process
-	 * @param responseHandler The {@link ResponseHandler responseHandler} used to transform the input stream into the desired type. May be {@code null}
-	 * @return The parsed object or null
-	 * @throws HttpException
-	 */
-	public static <T> T parseRequest(final HttpRequest request, ResponseHandler<T> responseHandler) throws HttpException {
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
 			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
@@ -116,17 +102,6 @@ public class HttpClient {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Perform the query on the network and get the resulting body as a String
-	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
-	 * @param request The HTTP request to process
-	 * @return The resulting body as a String
-	 * @throws HttpException
-	 */
-	public static String getStringResponse(HttpRequest request) throws HttpException {
-		return parseRequest(request, ResponseToString.RESPONSE_HANDLER);
 	}
 
 	public static HttpEngineFactory getHttpEngineFactory() {

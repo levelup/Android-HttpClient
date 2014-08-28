@@ -17,7 +17,7 @@ import com.levelup.http.TypedHttpRequest;
  * @param <T>
  */
 public class HttpCallable<T> implements Callable<T>, Closeable {
-	private final HttpRequest request;
+	private final TypedHttpRequest<T> request;
 	private final ResponseHandler<T> parser;
 
 	public HttpCallable(TypedHttpRequest<T> request) {
@@ -26,15 +26,9 @@ public class HttpCallable<T> implements Callable<T>, Closeable {
 		this.parser = request.getResponseHandler();
 	}
 
-	public HttpCallable(HttpRequest request, ResponseHandler<T> parser) {
-		if (null==request) throw new IllegalArgumentException();
-		this.request = request;
-		this.parser = parser;
-	}
-
 	@Override
 	public T call() throws Exception {
-		return HttpClient.parseRequest(request, parser);
+		return HttpClient.parseRequest(request);
 	}
 
 	@Override

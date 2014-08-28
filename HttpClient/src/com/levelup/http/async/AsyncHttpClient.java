@@ -67,10 +67,10 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 */
 	public static void getString(String url, String tag, NetworkCallback<String> callback) {
-		BaseHttpRequest.Builder<Void> reqBuilder = new BaseHttpRequest.Builder<Void>(HttpClient.defaultContext);
-		reqBuilder.setUrl(url);
-		BaseHttpRequest<?> req = reqBuilder.build();
-		getString(req, tag, callback);
+		BaseHttpRequest.Builder<String> reqBuilder = new BaseHttpRequest.Builder<String>(HttpClient.defaultContext);
+		reqBuilder.setUrl(url)
+				.setResponseParser(ResponseToString.RESPONSE_HANDLER);
+		doRequest(reqBuilder.build(), tag, callback);
 	}
 
 	/**
@@ -81,19 +81,7 @@ public class AsyncHttpClient {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback) {
-		return doRequest(request, request.getResponseHandler(), callback, BaseNetworkTaskFactory.instance);
-	}
-
-	/**
-	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
-	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
-	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
-	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @return A Future<T> representing the download task, if you need to cancel it
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> Future<T> doRequest(HttpRequest request, ResponseHandler<T> parser, NetworkCallback<T> callback) {
-		return doRequest(request, parser, callback, BaseNetworkTaskFactory.instance);
+		return doRequest(request, callback, BaseNetworkTaskFactory.instance);
 	}
 
 	/**
@@ -102,39 +90,10 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, com.levelup.http.ResponseHandler, NetworkCallback)
+	 * @see #doRequest(TypedHttpRequest, NetworkCallback)
 	 */
 	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
-		return doRequest(executor, request, request.getResponseHandler(), callback, factory);
-	}
-
-		/**
-	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
-	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
-	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
-	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
-	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, com.levelup.http.ResponseHandler, NetworkCallback)
-	 */
-	public static <T> Future<T> doRequest(HttpRequest request, ResponseHandler<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
-		return doRequest(executor, request, parser, callback, factory);
-	}
-
-	/**
-	 * Run an {@link HttpRequest HTTP request} in the thread executor and post the resulting parsed object to {@code callback} in the UI thread.
-	 * @param executor The executor to use for the downloading thread
-	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
-	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
-	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
-	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(HttpRequest, String, com.levelup.http.ResponseHandler, NetworkCallback)
-	 */
-	public static <T> Future<T> doRequest(Executor executor, HttpRequest request, ResponseHandler<T> parser, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
-		if (null==parser) throw new NullPointerException();
-
-		return doRequest(executor, factory, new HttpCallable<T>(request, parser), callback);
+		return doRequest(executor, factory, new HttpCallable<T>(request), callback);
 	}
 
 	public static <T> Future<T> doRequest(Executor executor, NetworkTaskFactory<T> factory, Callable<T> callable, NetworkCallback<T> callback) {
@@ -144,42 +103,16 @@ public class AsyncHttpClient {
 	}
 
 	/**
-	 * Do an {@link HttpRequest} query to load a String though this asynchronous client
-	 * @param request {@link HttpRequest HTTP request} to execute
-	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
-	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #getString(String, String, NetworkCallback)
-	 */
-	public static void getString(HttpRequest request, String tag, NetworkCallback<String> callback) {
-		doRequest(request, tag, ResponseToString.RESPONSE_HANDLER, callback);
-	}
-
-	/**
-	 * Run an {@link TypedHttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
-	 * <p>The {@code tag} is used to identify similar queries so previous instances can be canceled so that only the last call gives a result.
-	 * @param request {@link TypedHttpRequest HTTP request} to execute to get the parsed object
-	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
-	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #getString(HttpRequest, String, NetworkCallback)
-	 */
-	public static <T> void doRequest(TypedHttpRequest<T> request, String tag, NetworkCallback<T> callback) {
-		doRequest(request, tag, request.getResponseHandler(), callback);
-	}
-	
-	/**
 	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * <p>The {@code tag} is used to identify similar queries so previous instances can be canceled so that only the last call gives a result.
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
-	 * @param parser Parser to transform the HTTP response into your object, in the network thread. Must not be {@code null}
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #getString(HttpRequest, String, NetworkCallback)
+	 * @see #getString(TypedHttpRequest, String, NetworkCallback)
 	 */
-	public static <T> void doRequest(HttpRequest request, String tag, ResponseHandler<T> parser, NetworkCallback<T> callback) {
-		if (null==parser) throw new NullPointerException();
-
+	public static <T> void doRequest(TypedHttpRequest<T> request, String tag, NetworkCallback<T> callback) {
 		if (TextUtils.isEmpty(tag)) {
-			doRequest(request, parser, callback);
+			doRequest(request, callback);
 			return;
 		}
 
@@ -189,7 +122,7 @@ public class AsyncHttpClient {
 				oldTask.cancel(true);
 			}
 
-			Future<T> task = doRequest(request, parser, callback, new TaggedStringDownloadFactory<T>(tag));
+			Future<T> task = doRequest(request, callback, new TaggedStringDownloadFactory<T>(tag));
 
 			taggedJobs.put(tag, task);
 		}

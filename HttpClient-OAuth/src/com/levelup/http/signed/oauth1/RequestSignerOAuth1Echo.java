@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestGet;
+import com.levelup.http.parser.ResponseToString;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
 
@@ -45,7 +46,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 		}
 		if (!TextUtils.isEmpty(verifyRealm))
 			realm.put("realm", verifyRealm);
-		HttpRequestGet<Void> echoReq = new HttpRequestGet<Void>(verifyUrl);
+		HttpRequestGet<String> echoReq = new HttpRequestGet<String>(verifyUrl, ResponseToString.RESPONSE_HANDLER);
 		super.sign(echoReq, realm);
 
 		String header = echoReq.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);

@@ -77,8 +77,8 @@ public class AsyncClientTest extends AndroidTestCase {
 
 
 	public void testCancelShort() {
-		HttpRequest request = new HttpRequestGet(BASIC_URL);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, ResponseToString.RESPONSE_HANDLER, new TestLongAsyncCallback());
+		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL, ResponseToString.RESPONSE_HANDLER);
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -94,8 +94,8 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testCancelShortHttps() {
-		HttpRequest request = new HttpRequestGet(BASIC_URL_HTTPS);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, ResponseToString.RESPONSE_HANDLER, new TestLongAsyncCallback());
+		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL_HTTPS, ResponseToString.RESPONSE_HANDLER);
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -111,8 +111,8 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testCancelLong() {
-		HttpRequest request = new HttpRequestGet(SLOW_URL);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, ResponseToString.RESPONSE_HANDLER, new TestLongAsyncCallback());
+		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL, ResponseToString.RESPONSE_HANDLER);
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -132,8 +132,8 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testCancelLongHttps() {
-		HttpRequest request = new HttpRequestGet(SLOW_URL_HTTPS);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, ResponseToString.RESPONSE_HANDLER, new TestLongAsyncCallback());
+		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL_HTTPS, ResponseToString.RESPONSE_HANDLER);
+		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
