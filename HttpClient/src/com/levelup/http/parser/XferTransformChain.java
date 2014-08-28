@@ -39,7 +39,12 @@ public class XferTransformChain<INPUT, OUTPUT> implements XferTransform<INPUT, O
 
 		public static <K, L, B extends Builder<K, L>> B start(XferTransform<K, L> pipe, B builder) {
 			((Builder) builder).transforms = new ArrayList<XferTransform>();
-			((Builder) builder).transforms.add(pipe);
+			if (pipe instanceof XferTransformChain) {
+				XferTransformChain xferTransformChain = (XferTransformChain) pipe;
+				((Builder) builder).transforms.addAll(Arrays.asList(xferTransformChain.transforms));
+			} else {
+				((Builder) builder).transforms.add(pipe);
+			}
 			return builder;
 		}
 
