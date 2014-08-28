@@ -26,8 +26,8 @@ import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpStream;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
-import com.levelup.http.ResponseHandler;
 import com.levelup.http.ParserException;
+import com.levelup.http.ResponseHandler;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}

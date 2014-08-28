@@ -102,4 +102,12 @@ public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
 	public TypeToken getGsonOutputTypeToken() {
 		return typeToken;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o==this) return true;
+		if (!(o instanceof XferTransformViaGson)) return false;
+		XferTransformViaGson og = (XferTransformViaGson) o;
+		return og.type.equals(type) && og.gson.equals(gson);
+	}
 }

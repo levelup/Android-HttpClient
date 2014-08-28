@@ -78,4 +78,22 @@ public class XferTransformChain<INPUT, OUTPUT> implements XferTransform<INPUT, O
 		return new XferTransformChain<Object, OUTPUT>(Arrays.copyOfRange(transforms, 1, transforms.length));
 	}
 
+	public XferTransformChain<INPUT,?> removeLastTransform() {
+		if (transforms.length==0)
+			return null;
+		return new XferTransformChain<INPUT, Object>(Arrays.copyOfRange(transforms, 0, transforms.length-1));
+	}
+
+	@Override
+	public String toString() {
+		return '{' + super.toString() + " transforms:" + Arrays.toString(transforms) + '}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o==this) return true;
+		if (!(o instanceof XferTransformChain)) return false;
+		XferTransformChain oc = (XferTransformChain) o;
+		return Arrays.equals(oc.transforms, transforms);
+	}
 }
