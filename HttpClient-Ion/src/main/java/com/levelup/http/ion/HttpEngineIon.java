@@ -78,7 +78,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			if (ion == null) {
 				ion = Ion.getDefault(builder.getContext());
 				// until https://github.com/koush/AndroidAsync/issues/210 is fixed
-				// test if it's fixed ion.getConscryptMiddleware().enable(false);
+				ion.getConscryptMiddleware().enable(false);
 				ion.configure().addLoader(0, new HttpLoaderWithError());
 				ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
 					@Override
