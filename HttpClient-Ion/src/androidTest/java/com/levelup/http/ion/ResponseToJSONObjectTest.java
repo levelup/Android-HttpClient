@@ -29,8 +29,7 @@ public class ResponseToJSONObjectTest extends AndroidTestCase {
 		try {
 			HttpClient.parseRequest(request);
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_PARSER)
-				throw e; // forward
+			assertEquals(HttpException.ERROR_PARSER, e.getErrorCode());
 			assertNotNull(e.getMessage());
 			assertTrue(e.getCause() instanceof ParserException);
 			ParserException pe = (ParserException) e.getCause();

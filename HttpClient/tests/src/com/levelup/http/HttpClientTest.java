@@ -15,6 +15,7 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import com.levelup.http.internal.HttpEngineUrlConnection;
 import com.levelup.http.parser.ResponseToJSONObject;
 import com.levelup.http.parser.ResponseToString;
 
@@ -22,6 +23,9 @@ import okio.BufferedSource;
 import okio.Okio;
 
 public class HttpClientTest extends AndroidTestCase {
+
+	private static final Class<?> ENGINE_CLASS = HttpEngineUrlConnection.class;
+	private static final Class<?> STREAM_ENGINE_CLASS = HttpEngineUrlConnection.class;
 
 	@Override
 	public void setContext(Context context) {
@@ -41,6 +45,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		JSONObject result = HttpClient.parseRequest(request);
 		assertNotNull(result);
@@ -68,6 +73,7 @@ public class HttpClientTest extends AndroidTestCase {
 					setBody(body).
 					setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 					build();
+			assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 			JSONObject result = HttpClient.parseRequest(request);
 			assertNotNull(result);
@@ -95,6 +101,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		JSONObject result = HttpClient.parseRequest(request);
 		assertNotNull(result);
@@ -118,6 +125,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		JSONObject result = HttpClient.parseRequest(request);
 		assertNotNull(result);
@@ -143,6 +151,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		JSONObject result = HttpClient.parseRequest(request);
 		assertNotNull(result);
@@ -165,6 +174,7 @@ public class HttpClientTest extends AndroidTestCase {
 				return 3000; // 3s
 			}
 		});
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
 			JSONObject result = HttpClient.parseRequest(request);
@@ -180,13 +190,14 @@ public class HttpClientTest extends AndroidTestCase {
 				setUrl("http://httpbin.org/status/" + errorCode).
 				setResponseParser(ResponseToString.RESPONSE_HANDLER).
 				build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode() != errorCode)
-				throw e;
+			assertEquals(HttpException.ERROR_DATA_MSG, e.getErrorCode());
+			assertEquals(errorCode, e.getHttpStatusCode());
 		}
 	}
 
@@ -200,8 +211,8 @@ public class HttpClientTest extends AndroidTestCase {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_HTTP && e.getHttpStatusCode() != errorCode)
-				throw e;
+			assertEquals(HttpException.ERROR_NETWORK, e.getErrorCode());
+			assertEquals(errorCode, e.getHttpStatusCode());
 		}
 	}
 
@@ -218,11 +229,25 @@ public class HttpClientTest extends AndroidTestCase {
 	}
 
 	@MediumTest
+	public void testString() throws Exception {
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>(getContext())
+				.setUrl("http://httpbin.org/ip")
+				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
+
+		String result = HttpClient.parseRequest(request);
+		assertNotNull(result);
+		assertTrue(result.contains("\"origin\""));
+	}
+
+	@MediumTest
 	public void testStreaming() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext()).
 				setUrl("http://httpbin.org/drip?numbytes=5&duration=5").
 				setStreaming().
 				build();
+		assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		HttpStream stream = HttpClient.parseRequest(request);
 		try {
@@ -261,6 +286,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setStreaming().
 				build();
 		request.setHeader("Accept","gzip,deflate");
+		assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		HttpStream stream = HttpClient.parseRequest(request);
 		try {
@@ -298,6 +324,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setUrl("http://httpbin.org/stream/2").
 				setStreaming().
 				build();
+		assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		HttpStream stream = HttpClient.parseRequest(request);
 		try {
@@ -333,6 +360,7 @@ public class HttpClientTest extends AndroidTestCase {
 				return 5000; // 5s
 			}
 		});
+		assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
 			HttpStream stream = HttpClient.parseRequest(request);
@@ -358,6 +386,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
 				setStreaming().
 				build();
+		assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		HttpStream stream = HttpClient.parseRequest(request);
 		InputStream streamIn = stream.getInputStream();
@@ -384,6 +413,7 @@ public class HttpClientTest extends AndroidTestCase {
 				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
 				setStreaming().
 				build();
+		assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		final HttpStream stream = HttpClient.parseRequest(request);
 		InputStream streamIn = stream.getInputStream();
@@ -415,10 +445,11 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testNullContext() throws Exception {
 		try {
 			HttpClient.setup(null);
-			BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+			BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
 					.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
-					.setStreaming()
+					.setResponseParser(ResponseToString.RESPONSE_HANDLER)
 					.build();
+			assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 			//when not using Ion, we don't need a Context fail("A query with no context is invalid");
 		} catch (NullPointerException e) {
 			// all good
@@ -427,18 +458,20 @@ public class HttpClientTest extends AndroidTestCase {
 
 	public void testNullContextStreaming() throws Exception {
 		HttpClient.setup(null);
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>().
-				setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2").
-				setStreaming().
-				build();
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
+				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
+				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 	}
 
 	public void testSetupContext() throws Exception {
 		HttpClient.setup(getContext());
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
-				.setStreaming()
+				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
 				.build();
+		assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 		HttpClient.setup(null);
 	}
 }

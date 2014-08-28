@@ -106,7 +106,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		ResponseViaGson<Void> testParser = new ResponseViaGson<Void>(Void.class);
 		testParser.enableDebugData(true);
 		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().
-				setUrl("http://www.google.com/").
+				setUrl("http://httpbin.org/ip").
 				setResponseParser(new ResponseHandler<Void>(testParser)).
 				build();
 

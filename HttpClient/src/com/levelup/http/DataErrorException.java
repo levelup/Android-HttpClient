@@ -6,8 +6,7 @@ package com.levelup.http;
 public class DataErrorException extends Exception {
 	public final Object errorContent;
 
-	public DataErrorException(Object errorContent, Exception cause) {
-		super(cause);
+	public DataErrorException(Object errorContent) {
 		this.errorContent = errorContent;
 	}
 
