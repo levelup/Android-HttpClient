@@ -16,9 +16,9 @@ import oauth.signpost.http.HttpRequest;
  * Wrap a {@link BaseHttpRequest HttpClient BaseHttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
  */
 public class OAuth1RequestAdapter implements HttpRequest {
-	private final BaseHttpRequest<?> httpRequest;
+	private final BaseHttpRequest<InputStream> httpRequest;
 
-    public OAuth1RequestAdapter(BaseHttpRequest<?> httpRequest) {
+    public OAuth1RequestAdapter(BaseHttpRequest<InputStream> httpRequest) {
 		this.httpRequest = httpRequest;
 	}
 
@@ -74,7 +74,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 	}
 
 	@Override
-	public BaseHttpRequest<?> unwrap() {
+	public BaseHttpRequest<InputStream> unwrap() {
 		return httpRequest;
 	}
 }

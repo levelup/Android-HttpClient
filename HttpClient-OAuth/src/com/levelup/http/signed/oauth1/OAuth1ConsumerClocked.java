@@ -1,5 +1,6 @@
 package com.levelup.http.signed.oauth1;
 
+import java.io.InputStream;
 import java.util.Date;
 
 import org.apache.http.impl.cookie.DateParseException;
@@ -45,9 +46,9 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 		super(clientApp);
 	}
 
-	private class HttpProviderRequest extends HttpRequestPost<Void> {
+	private class HttpProviderRequest extends HttpRequestPost<InputStream> {
 		protected HttpProviderRequest(String endpointUrl) {
-			super(endpointUrl, null);
+			super(endpointUrl, null, HttpClientOAuth1Provider.OAUTH1_RESPONSE_HANDLER);
 		}
 
 		@Override
@@ -63,7 +64,7 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 		}
 	}
 
-	public BaseHttpRequest<?> createRequest(String endpointUrl) {
+	public BaseHttpRequest<InputStream> createRequest(String endpointUrl) {
 		return new HttpProviderRequest(endpointUrl);
 	}
 }

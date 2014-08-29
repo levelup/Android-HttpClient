@@ -1,6 +1,8 @@
 package com.levelup.http.signed.oauth1;
 
 
+import java.io.InputStream;
+
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.oauth1.internal.OAuth1RequestAdapter;
@@ -18,6 +20,6 @@ public class HttpClientOAuth1Consumer extends AbstractOAuthConsumer {
 
 	@Override
 	protected HttpRequest wrap(Object request) {
-		return new OAuth1RequestAdapter((BaseHttpRequest<?>) request);
+		return new OAuth1RequestAdapter((BaseHttpRequest<InputStream>) request);
 	}
 }

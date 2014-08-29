@@ -22,12 +22,12 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	public HttpRequestPost(String url, HttpBodyParameters bodyParams) {
-		this(new Builder<T>().setBody(bodyParams).setUrl(url).buildImpl());
+	public HttpRequestPost(String url, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
+		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseParser(responseHandler).buildImpl());
 	}
 
-	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams) {
-		this(new Builder<T>().setBody(bodyParams).setUri(uri).buildImpl());
+	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
+		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseParser(responseHandler).buildImpl());
 	}
 
 	protected HttpRequestPost(HttpEngine<T,?> impl) {

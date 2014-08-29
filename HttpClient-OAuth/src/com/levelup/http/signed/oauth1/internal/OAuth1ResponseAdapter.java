@@ -10,9 +10,9 @@ import oauth.signpost.http.HttpResponse;
 public class OAuth1ResponseAdapter implements HttpResponse {
 
 	private final InputStream inputStream;
-    private final BaseHttpRequest<?> httpRequest;
+    private final BaseHttpRequest<InputStream> httpRequest;
 
-    public OAuth1ResponseAdapter(BaseHttpRequest<?> engine, InputStream inputStream) {
+    public OAuth1ResponseAdapter(BaseHttpRequest<InputStream> engine, InputStream inputStream) {
 		this.inputStream = inputStream;
 		this.httpRequest = engine;
 	}
@@ -33,7 +33,7 @@ public class OAuth1ResponseAdapter implements HttpResponse {
 	}
 
 	@Override
-	public BaseHttpRequest<?> unwrap() {
+	public BaseHttpRequest<InputStream> unwrap() {
 		return httpRequest;
 	}
 }

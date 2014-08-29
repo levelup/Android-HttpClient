@@ -7,6 +7,8 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestPost;
+import com.levelup.http.ResponseHandler;
+import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.oauth1.internal.OAuth1RequestAdapter;
 import com.levelup.http.signed.oauth1.internal.OAuth1ResponseAdapter;
@@ -26,6 +28,7 @@ import oauth.signpost.http.HttpResponse;
  */
 public class HttpClientOAuth1Provider {
 
+	static final ResponseHandler<InputStream> OAUTH1_RESPONSE_HANDLER = new ResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE);
 	private final HttpClientOAuth1Consumer consumer;
 	private final DefaultOAuthProvider provider;
 
@@ -59,12 +62,12 @@ public class HttpClientOAuth1Provider {
 
 			@Override
 			protected HttpRequest createRequest(String endpointUrl) throws IOException {
-				final BaseHttpRequest<?> request;
+				final BaseHttpRequest<InputStream> request;
 				if (HttpClientOAuth1Provider.this.consumer instanceof OAuth1ConsumerClocked) {
 					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
 					request = cons.createRequest(endpointUrl);
 				} else {
-					request = new HttpRequestPost<Void>(endpointUrl, null);
+					request = new HttpRequestPost<InputStream>(endpointUrl, null, OAUTH1_RESPONSE_HANDLER);
 				}
 				return new OAuth1RequestAdapter(request);
 			}
@@ -72,9 +75,9 @@ public class HttpClientOAuth1Provider {
 			@Override
 			protected HttpResponse sendRequest(HttpRequest request) throws IOException {
                 OAuth1RequestAdapter requestAdapter = (OAuth1RequestAdapter) request;
-                BaseHttpRequest<?> req = requestAdapter.unwrap();
+                BaseHttpRequest<InputStream> req = requestAdapter.unwrap();
 				try {
-					InputStream inputStream = HttpClient.getInputStream(req);
+					InputStream inputStream = HttpClient.parseRequest(req);
 					return new OAuth1ResponseAdapter(req, inputStream);
 				} catch (HttpException e) {
 					IOException ex = new IOException("failed to query data "+e.getMessage());
