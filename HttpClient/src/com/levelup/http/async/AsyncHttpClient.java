@@ -19,7 +19,6 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.TypedHttpRequest;
-import com.levelup.http.ResponseHandler;
 import com.levelup.http.parser.ResponseToString;
 
 /**

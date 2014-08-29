@@ -67,7 +67,6 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 	private static Ion ion;
 	private RawHeaders headers;
-	private InputStream inputStream;
 
 	public HttpEngineIon(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		super(wrapBuilderBodyParams(builder));
