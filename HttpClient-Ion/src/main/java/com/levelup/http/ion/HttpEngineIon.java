@@ -8,14 +8,11 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.http.protocol.HTTP;
 
-import android.net.Uri;
-
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.DataSink;
 import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.TransformFuture;
-import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.ConnectionClosedException;
 import com.koushikdutta.async.http.libcore.RawHeaders;
 import com.koushikdutta.async.parser.AsyncParser;
@@ -29,7 +26,6 @@ import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
-import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpBodyJSON;
@@ -45,8 +41,6 @@ import com.levelup.http.ResponseHandler;
 import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.internal.BaseHttpEngine;
-import com.levelup.http.ion.internal.HttpLoaderWithError;
-import com.levelup.http.ion.internal.IonAsyncHttpRequest;
 import com.levelup.http.ion.internal.IonBody;
 import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
@@ -87,19 +81,11 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				ion = Ion.getDefault(builder.getContext());
 				// until https://github.com/koush/AndroidAsync/issues/210 is fixed
 				ion.getConscryptMiddleware().enable(false);
-				ion.configure().addLoader(0, new HttpLoaderWithError());
-				ion.configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
-					@Override
-					public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, RawHeaders headers, Object cookie) {
-						return new IonAsyncHttpRequest(uri, method, headers, (HttpEngineIon) cookie);
-					}
-				});
 			}
 		}
 
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(builder.getContext());
 		this.requestBuilder = ionLoadBuilder.load(getHttpMethod(), getUri().toString());
-		requestBuilder.setHttpRequestCookie(this);
 	}
 
 	private static <T> BaseHttpRequest.AbstractBuilder<T, ?> wrapBuilderBodyParams(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
