@@ -79,12 +79,12 @@ public class HttpClient {
 		ResponseHandler<T> responseHandler = request.getResponseHandler();
 		if (!request.isStreaming() && null==responseHandler) throw new NullPointerException("typed request without a stream parser:"+request);
 		if (request instanceof BaseHttpRequest) {
-			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
-			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
-			return (T) httpEngine.parseRequest(responseHandler, request);
+			BaseHttpRequest<T> baseHttpRequest = (BaseHttpRequest<T>) request;
+			HttpEngine<T> httpEngine = baseHttpRequest.getHttpEngine();
+			return httpEngine.parseRequest(responseHandler, request);
 		}
 
-		return null;
+		throw new IllegalArgumentException("only BaseHttpRequest requests supported for now");
 	}
 
 	public static HttpEngineFactory getHttpEngineFactory() {
