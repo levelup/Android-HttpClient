@@ -14,7 +14,7 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 
 	public final static class Builder<T> extends AbstractBuilder<T,HttpRequestGet<T>> {
 		@Override
-		protected final HttpRequestGet<T> build(HttpEngine<T> impl) {
+		protected final HttpRequestGet<T> build(HttpEngine<T,?> impl) {
 			return new HttpRequestGet<T>(impl);
 		}
 	}
@@ -31,7 +31,7 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 		this(new Builder<T>().setUrl(url).setResponseParser(responseHandler).buildImpl());
 	}
 
-	protected HttpRequestGet(HttpEngine<T> impl) {
+	protected HttpRequestGet(HttpEngine<T,?> impl) {
 		super(impl);
 	}
 }

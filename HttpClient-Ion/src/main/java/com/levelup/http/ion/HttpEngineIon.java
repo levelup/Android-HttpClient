@@ -39,10 +39,10 @@ import com.levelup.http.HttpBodyString;
 import com.levelup.http.HttpBodyUrlEncoded;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionCreator;
-import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ParserException;
 import com.levelup.http.ResponseHandler;
+import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.internal.BaseHttpEngine;
 import com.levelup.http.ion.internal.HttpLoaderWithError;
@@ -123,7 +123,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public void settleHttpHeaders(HttpRequest request) throws HttpException {
+	public void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException {
 		if (!isMethodWithBody(getHttpMethod())) {
 			setHeader(HTTP.CONTENT_LEN, "0");
 		}
@@ -174,13 +174,13 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public InputStream getInputStream(HttpRequest request, ResponseHandler<?> responseHandler) throws HttpException {
-		// TODO do we still need this ?
+	public InputStream getInputStream(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
+		// TODO do we still need this?
 		if (inputStream == null) {
 			prepareRequest(request);
 			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
 			Future<Response<InputStream>> withResponse = req.withResponse();
-			inputStream = getServerResponse(withResponse, request, responseHandler, XferTransformResponseInputStream.INSTANCE);
+			inputStream = (InputStream) getServerResponse(withResponse, request, responseHandler, XferTransformResponseInputStream.INSTANCE);
 		}
 		return inputStream;
 	}
@@ -194,18 +194,18 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public <P> P parseRequest(ResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
+	public T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException {
 		XferTransform<HttpResponse, ?> errorParser = ((ErrorHandlerParser) responseHandler.errorHandler).errorDataParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
 		prepareRequest(request);
 		ResponseFuture<Object> req = requestBuilder.as(parser);
 		Future<Response<Object>> withResponse = req.withResponse();
-		P parsedResult = (P) getServerResponse(withResponse, request, responseHandler, commonTransforms);
+		T parsedResult = getServerResponse(withResponse, request, responseHandler, commonTransforms);
 		return parsedResult;
 	}
 
-	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request, ResponseHandler<?> responseHandler, XferTransform<HttpResponse,?> commonTransforms) throws HttpException {
+	private <P> T getServerResponse(Future<Response<P>> req, TypedHttpRequest<T> request, ResponseHandler<?> responseHandler, XferTransform<HttpResponse,?> commonTransforms) throws HttpException {
 		try {
 			Response<P> response = req.get();
 			HttpResponseIon ionResponse = new HttpResponseIon(response);
@@ -238,9 +238,9 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 				XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(responseHandler.contentParser, commonTransforms);
 				if (null == transformToResult)
-					return (P) data;
+					return (T) data;
 
-				return (P) transformToResult.transformData(data, this);
+				return (T) transformToResult.transformData(data, this);
 			} catch (ParserException ee) {
 				throw exceptionToHttpException(request, ee).build();
 

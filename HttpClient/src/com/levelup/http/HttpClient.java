@@ -72,23 +72,6 @@ public class HttpClient {
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
 	 * @param request The HTTP request to process
-	 * @return The InputStream corresponding to the data stream, may be null
-	 * @throws HttpException
-	 */
-	public static InputStream getInputStream(HttpRequest request) throws HttpException {
-		if (request instanceof BaseHttpRequest) {
-			BaseHttpRequest baseHttpRequest = (BaseHttpRequest) request;
-			HttpEngine httpEngine = baseHttpRequest.getHttpEngine();
-			return httpEngine.getInputStream(request, null);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Perform the query on the network and get the resulting body as an InputStream
-	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
-	 * @param request The HTTP request to process
 	 * @return The parsed object or null
 	 * @throws HttpException
 	 */

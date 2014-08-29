@@ -37,7 +37,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		}
 
 		@Override
-		protected final BaseHttpRequest<T> build(HttpEngine<T> impl) {
+		protected final BaseHttpRequest<T> build(HttpEngine<T,?> impl) {
 			return new BaseHttpRequest<T>(impl);
 		}
 	}
@@ -241,9 +241,9 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * @param impl Internal HTTP Implementation
 		 * @return
 		 */
-		protected abstract R build(HttpEngine<T> impl);
+		protected abstract R build(HttpEngine<T,?> impl);
 
-		public final HttpEngine<T> buildImpl() {
+		public final HttpEngine<T,?> buildImpl() {
 			return HttpClient.getHttpEngineFactory().createHttpEngine(this);
 		}
 
@@ -261,9 +261,9 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	private final HttpEngine<T> engine;
+	private final HttpEngine<T,?> engine;
 
-	protected BaseHttpRequest(HttpEngine<T> httpEngine) {
+	protected BaseHttpRequest(HttpEngine<T,?> httpEngine) {
 		this.engine = httpEngine;
 		engine.setErrorHandler(this);
 	}
@@ -357,7 +357,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		return new HttpException.Builder(this);
 	}
 
-	public final HttpEngine<T> getHttpEngine() {
+	public final HttpEngine<T,?> getHttpEngine() {
 		return engine;
 	}
 

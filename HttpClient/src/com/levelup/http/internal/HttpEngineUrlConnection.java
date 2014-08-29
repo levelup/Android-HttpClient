@@ -22,12 +22,12 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpStream;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
 import com.levelup.http.ParserException;
 import com.levelup.http.ResponseHandler;
+import com.levelup.http.TypedHttpRequest;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}
@@ -59,7 +59,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	 * @return an {@link java.net.HttpURLConnection} with the network response
 	 * @throws com.levelup.http.HttpException
 	 */
-	private void getQueryResponse(HttpRequest request, boolean allowGzip) throws HttpException {
+	private void getQueryResponse(TypedHttpRequest<T> request, boolean allowGzip) throws HttpException {
 		try {
 			if (allowGzip && request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
 				request.setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
@@ -112,7 +112,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 
 	@SuppressLint("NewApi")
 	@Override
-	public void settleHttpHeaders(HttpRequest request) throws HttpException {
+	public void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException {
 		try {
 			urlConnection.setRequestMethod(getHttpMethod());
 
@@ -178,7 +178,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public InputStream getInputStream(HttpRequest request, ResponseHandler<?> responseHandler) throws HttpException {
+	public InputStream getInputStream(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
 		getQueryResponse(request, true);
 		try {
 			return getHttpResponse().getInputStream();
@@ -204,12 +204,12 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public <P> P parseRequest(ResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
+	public T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException {
 		if (request.isStreaming()) {
 			// special case: streaming with HttpRequestUrlConnection
 			getQueryResponse(request, true);
 			try {
-				return (P) new HttpStream(getHttpResponse().getInputStream(), request);
+				return (T) new HttpStream(getHttpResponse().getInputStream(), request);
 
 			} catch (IOException e) {
 				throw exceptionToHttpException(request, e).build();

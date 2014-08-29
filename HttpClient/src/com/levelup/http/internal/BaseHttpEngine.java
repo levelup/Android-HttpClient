@@ -41,6 +41,7 @@ import com.levelup.http.LoggerTagged;
 import com.levelup.http.ParserException;
 import com.levelup.http.RequestSigner;
 import com.levelup.http.ResponseHandler;
+import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.signed.AbstractRequestSigner;
 
@@ -49,7 +50,7 @@ import com.levelup.http.signed.AbstractRequestSigner;
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, ImmutableHttpRequest {
+public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T, R>, ImmutableHttpRequest {
 	private final Uri uri;
 	protected final Map<String, String> mRequestSetHeaders = new HashMap<String, String>();
 	protected final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -117,7 +118,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return mHttpConfig;
 	}
 
-	public final void prepareRequest(HttpRequest request) throws HttpException {
+	public final void prepareRequest(TypedHttpRequest<T> request) throws HttpException {
 			/*
 			HttpResponse resp = null;
 			try {
@@ -143,7 +144,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public void settleHttpHeaders(HttpRequest request) throws HttpException {
+	public void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException {
 		request.settleHttpHeaders();
 
 		if (null != signer)
@@ -234,7 +235,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public <P> P parseRequest(ResponseHandler<P> responseHandler, HttpRequest request) throws HttpException {
+	public T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException {
 		InputStream is = getInputStream(request, responseHandler);
 		if (null != is)
 			try {
@@ -276,7 +277,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public HttpResponse getResponse() {
+	public R getResponse() {
 		return httpResponse;
 	}
 

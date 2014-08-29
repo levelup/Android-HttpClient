@@ -9,7 +9,7 @@ import com.levelup.http.internal.HttpErrorHandler;
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */
-public interface HttpEngine<T> extends HttpRequestInfo {
+public interface HttpEngine<T, R extends HttpResponse> extends HttpRequestInfo {
 	ResponseHandler<T> getResponseHandler();
 
 	void setLogger(LoggerTagged logger);
@@ -36,13 +36,13 @@ public interface HttpEngine<T> extends HttpRequestInfo {
 
 	void setupBody();
 
-	<P> P parseRequest(ResponseHandler<P> responseHandler, HttpRequest request) throws HttpException;
+	T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException;
 
-	InputStream getInputStream(HttpRequest request, ResponseHandler<?> responseHandler) throws HttpException;
+	InputStream getInputStream(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException;
 
-	void settleHttpHeaders(HttpRequest request) throws HttpException;
+	void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException;
 
 	void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException;
 
-	HttpResponse getResponse();
+	R getResponse();
 }
