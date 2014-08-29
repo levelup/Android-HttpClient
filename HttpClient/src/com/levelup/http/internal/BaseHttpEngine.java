@@ -50,7 +50,7 @@ import com.levelup.http.signed.AbstractRequestSigner;
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T, R>, ImmutableHttpRequest {
+public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, ImmutableHttpRequest {
 	private final Uri uri;
 	protected final Map<String, String> mRequestSetHeaders = new HashMap<String, String>();
 	protected final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
@@ -277,7 +277,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public R getResponse() {
+	public HttpResponse getResponse() {
 		return httpResponse;
 	}
 

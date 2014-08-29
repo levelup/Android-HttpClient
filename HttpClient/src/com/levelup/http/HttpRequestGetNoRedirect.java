@@ -17,7 +17,7 @@ public class HttpRequestGetNoRedirect extends BaseHttpRequest<Void> {
 
 	public final static class Builder extends AbstractBuilder<HttpRequestGetNoRedirect> {
 		@Override
-		protected final HttpRequestGetNoRedirect build(HttpEngine<Void,?> impl) {
+		protected final HttpRequestGetNoRedirect build(HttpEngine<Void> impl) {
 			return new HttpRequestGetNoRedirect(impl);
 		}
 	}
@@ -34,7 +34,7 @@ public class HttpRequestGetNoRedirect extends BaseHttpRequest<Void> {
 		this(new Builder().setUrl(baseUri.toString(), uriParams).buildImpl());
 	}
 
-	protected HttpRequestGetNoRedirect(HttpEngine<Void,?> impl) {
+	protected HttpRequestGetNoRedirect(HttpEngine<Void> impl) {
 		super(impl);
 	}
 }

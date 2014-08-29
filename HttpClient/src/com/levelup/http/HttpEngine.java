@@ -9,7 +9,7 @@ import com.levelup.http.internal.HttpErrorHandler;
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */
-public interface HttpEngine<T, R extends HttpResponse> extends HttpRequestInfo {
+public interface HttpEngine<T> extends HttpRequestInfo {
 	ResponseHandler<T> getResponseHandler();
 
 	void setLogger(LoggerTagged logger);
@@ -44,5 +44,5 @@ public interface HttpEngine<T, R extends HttpResponse> extends HttpRequestInfo {
 
 	void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException;
 
-	R getResponse();
+	HttpResponse getResponse();
 }

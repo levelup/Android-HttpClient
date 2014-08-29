@@ -5,6 +5,6 @@ package com.levelup.http;
  */
 public interface HttpEngineFactory {
 
-	<T> HttpEngine<T,?> createHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder);
+	<T> HttpEngine<T> createHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder);
 
 }
