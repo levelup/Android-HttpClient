@@ -43,15 +43,4 @@ public class BaseErrorHandler extends ErrorHandlerParser<InputStream> {
 		}
 		return new DataErrorException(errorStream);
 	}
-
-	@Override
-	public DataErrorException handleError(HttpResponse response, ImmutableHttpRequest request) throws IOException, ParserException {
-		DataErrorException inputStreamError = super.handleError(response, request);
-		if (null!=inputStreamError && inputStreamError.errorContent instanceof InputStream) {
-			// parse the InputStream and handles the error
-			InputStream errorStream = (InputStream) inputStreamError.errorContent;
-			return handleErrorData(errorStream, request);
-		}
-		return new DataErrorException(response.getContentStream());
-	}
 }

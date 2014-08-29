@@ -24,8 +24,8 @@ public class ErrorHandlerParser<T> implements ErrorHandler {
 	}
 
 	@Override
-	public DataErrorException handleError(HttpResponse httpResponse, ImmutableHttpRequest request) throws IOException, ParserException {
-		Object errorData = errorDataParser.transformData(httpResponse, request);
-		return new DataErrorException(errorData);
+	public final DataErrorException handleError(HttpResponse httpResponse, ImmutableHttpRequest request) throws IOException, ParserException {
+		T errorData = errorDataParser.transformData(httpResponse, request);
+		return handleErrorData(errorData, request);
 	}
 }

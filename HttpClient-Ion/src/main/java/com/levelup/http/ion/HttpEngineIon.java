@@ -205,10 +205,6 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		return parsedResult;
 	}
 
-	private static boolean isHttpError(HttpResponseIon<?> httpResponse) {
-		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
-	}
-
 	private <P> P getServerResponse(Future<Response<P>> req, HttpRequest request, ResponseHandler<?> responseHandler, XferTransform<HttpResponse,?> commonTransforms) throws HttpException {
 		try {
 			Response<P> response = req.get();

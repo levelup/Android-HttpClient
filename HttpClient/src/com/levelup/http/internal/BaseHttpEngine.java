@@ -68,6 +68,10 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
+	protected static boolean isHttpError(HttpResponse httpResponse) throws IOException {
+		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
+	}
+
 	protected BaseHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		this.uri = builder.getUri();
 		this.method = builder.getHttpMethod();

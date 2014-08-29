@@ -98,12 +98,15 @@ public class HttpResponseUrlConnection implements HttpResponse {
 			return errorStream;
 
 		InputStream result = null;
-		try {
-			result = getInputStream();
-		} catch (IOException ignored) {
+		if (BaseHttpEngine.isHttpError(this)) {
+			if (null == result)
+				result = getErrorStream();
 		}
 		if (null == result)
-			result = getErrorStream();
+			try {
+				result = getInputStream();
+			} catch (IOException ignored) {
+			}
 		return result;
 	}
 }
