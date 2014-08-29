@@ -19,4 +19,12 @@ public class ParserException extends RuntimeException {
 	public String getSourceData() {
 		return sourceData;
 	}
+
+	@Override
+	public String toString() {
+		String result = super.toString();
+		if (null!=sourceData)
+			result = result + " data'" + sourceData+'\'';
+		return result;
+	}
 }
