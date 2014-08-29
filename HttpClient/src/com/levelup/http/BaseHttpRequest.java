@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.levelup.http.internal.HttpErrorHandler;
+import com.levelup.http.parser.ResponseToHttpStream;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -58,7 +59,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		private String httpMethod = "GET";
 		private RequestSigner signer;
 		private Boolean followRedirect;
-		private boolean isStreaming;
 
 		/**
 		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
@@ -161,8 +161,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * @return Current Builder
 		 */
 		public AbstractBuilder<T,R> setResponseParser(ResponseHandler<T> responseHandler) {
-			if (isStreaming)
-				throw new IllegalArgumentException("Trying to set a stream parser on a streaming request");
 			this.responseHandler = responseHandler;
 			return this;
 		}
@@ -173,10 +171,7 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 */
 		@SuppressWarnings("unchecked")
 		public AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>> setStreaming() {
-			if (responseHandler !=null)
-				throw new IllegalArgumentException("Trying to set a streaming request that has a streaming parser");
-			this.isStreaming = true;
-			return (AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>>) this;
+			return ((AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>>) this).setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER);
 		}
 
 		/**
@@ -231,10 +226,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 			return followRedirect;
 		}
 
-		public boolean isStreaming() {
-			return isStreaming;
-		}
-
 		/**
 		 * Build the {@link R} instance
 		 * <p></p>ONLY IMPLEMENT IN A NON ABSTRACT Builder
@@ -251,8 +242,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * Build the HTTP request to run through {@link HttpClient}
 		 */
 		public R build() {
-			if (!isStreaming && responseHandler==null)
-				throw new RuntimeException("You forgot to call setResponseHandler()");
 			return build(buildImpl());
 		}
 	}
@@ -345,11 +334,6 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 	@Override
 	public boolean hasBody() {
 		return engine.hasBody();
-	}
-
-	@Override
-	public boolean isStreaming() {
-		return engine.isStreaming();
 	}
 
 	@Override

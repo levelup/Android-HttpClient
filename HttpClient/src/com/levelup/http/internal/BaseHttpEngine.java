@@ -1,7 +1,6 @@
 package com.levelup.http.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
@@ -234,28 +233,21 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return null != bodyParams;
 	}
 
+	protected abstract R queryResponse(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException;
+	protected abstract T responseToResult(R response, ResponseHandler<T> responseHandler) throws ParserException, IOException;
+
 	@Override
-	public T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException {
-		InputStream is = getInputStream(request, responseHandler);
-		if (null != is)
-			try {
-				return responseHandler.contentParser.transformData(httpResponse, this);
-			} catch (ParserException e) {
-				throw exceptionToHttpException(request, e).build();
+	public final T parseRequest(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
+		R httpResponse = queryResponse(request, responseHandler);
+		try {
+			return responseToResult(httpResponse, responseHandler);
 
-			} catch (IOException e) {
-				throw exceptionToHttpException(request, e).build();
+		} catch (ParserException e) {
+			throw exceptionToHttpException(request, e).build();
 
-			} finally {
-				try {
-					is.close();
-				} catch (NullPointerException ignored) {
-					// okhttp 2.0 bug https://github.com/square/okhttp/issues/690
-				} catch (IOException ignored) {
-				}
-			}
-
-		return null;
+		} catch (IOException e) {
+			throw exceptionToHttpException(request, e).build();
+		}
 	}
 
 	protected void setRequestResponse(HttpRequest request, R httpResponse) {

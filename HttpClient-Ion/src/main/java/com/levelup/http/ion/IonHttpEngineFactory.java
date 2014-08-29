@@ -16,8 +16,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	@Override
 	public <T> HttpEngine<T> createHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
-		if (builder.isStreaming())
-			// streaming is not supported by Ion
+		if (!HttpEngineIon.canHandleXferTransform(builder.getResponseHandler().contentParser))
 			return nonStreamingFactory.createHttpEngine(builder);
 
 		if (!HttpEngineIon.errorCompatibleWithData(builder.getResponseHandler()))

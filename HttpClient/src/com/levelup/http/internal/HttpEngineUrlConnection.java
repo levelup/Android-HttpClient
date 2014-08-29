@@ -2,7 +2,6 @@ package com.levelup.http.internal;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -22,7 +21,6 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpStream;
 import com.levelup.http.LogManager;
 import com.levelup.http.LoggerTagged;
 import com.levelup.http.ParserException;
@@ -38,11 +36,9 @@ import com.levelup.http.TypedHttpRequest;
  */
 public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrlConnection> {
 	final HttpURLConnection urlConnection;
-	private final boolean isStreaming;
 
 	public HttpEngineUrlConnection(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
 		super(builder);
-		this.isStreaming = builder.isStreaming();
 
 		try {
 			this.urlConnection = (HttpURLConnection) new URL(getUri().toString()).openConnection();
@@ -103,11 +99,6 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 				throw builder.build();
 			}
 		}
-	}
-
-	@Override
-	public boolean isStreaming() {
-		return isStreaming;
 	}
 
 	@SuppressLint("NewApi")
@@ -178,14 +169,15 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public InputStream getInputStream(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
+	protected HttpResponseUrlConnection queryResponse(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
 		getQueryResponse(request, true);
+		HttpResponseUrlConnection response = getHttpResponse();
 		try {
-			return getHttpResponse().getInputStream();
-
+			response.getInputStream();
+			return response;
 		} catch (FileNotFoundException e) {
 			try {
-				DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(getHttpResponse(), this);
+				DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(response, this);
 
 				HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
 				throw exceptionBuilder.build();
@@ -196,7 +188,6 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			} catch (IOException ee) {
 				throw exceptionToHttpException(request, ee).build();
 			}
-
 		} catch (IOException e) {
 			throw exceptionToHttpException(request, e).build();
 
@@ -204,20 +195,8 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException {
-		if (request.isStreaming()) {
-			// special case: streaming with HttpRequestUrlConnection
-			getQueryResponse(request, true);
-			try {
-				return (T) new HttpStream(getHttpResponse().getInputStream(), request);
-
-			} catch (IOException e) {
-				throw exceptionToHttpException(request, e).build();
-
-			}
-		}
-
-		return super.parseRequest(responseHandler, request);
+	protected T responseToResult(HttpResponseUrlConnection response, ResponseHandler<T> responseHandler) throws ParserException, IOException {
+		return responseHandler.contentParser.transformData(response, this);
 	}
 
 }

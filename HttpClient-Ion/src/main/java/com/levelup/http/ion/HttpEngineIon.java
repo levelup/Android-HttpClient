@@ -56,6 +56,7 @@ import com.levelup.http.parser.ErrorHandlerParser;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
+import com.levelup.http.parser.XferTransformInputStreamHttpStream;
 import com.levelup.http.parser.XferTransformInputStreamString;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.parser.XferTransformStringJSONArray;
@@ -118,11 +119,6 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public boolean isStreaming() {
-		return false;
-	}
-
-	@Override
 	public void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException {
 		if (!isMethodWithBody(getHttpMethod())) {
 			setHeader(HTTP.CONTENT_LEN, "0");
@@ -173,18 +169,6 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		// do nothing
 	}
 
-	@Override
-	public InputStream getInputStream(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
-		// TODO do we still need this?
-		if (inputStream == null) {
-			prepareRequest(request);
-			ResponseFuture<InputStream> req = requestBuilder.asInputStream();
-			Future<Response<InputStream>> withResponse = req.withResponse();
-			inputStream = (InputStream) getServerResponse(withResponse, request, responseHandler, XferTransformResponseInputStream.INSTANCE);
-		}
-		return inputStream;
-	}
-
 	public RawHeaders getHeaders() {
 		return headers;
 	}
@@ -194,59 +178,43 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException {
+	protected HttpResponseIon<T> queryResponse(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
 		XferTransform<HttpResponse, ?> errorParser = ((ErrorHandlerParser) responseHandler.errorHandler).errorDataParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
 		prepareRequest(request);
 		ResponseFuture<Object> req = requestBuilder.as(parser);
 		Future<Response<Object>> withResponse = req.withResponse();
-		T parsedResult = getServerResponse(withResponse, request, responseHandler, commonTransforms);
-		return parsedResult;
-	}
-
-	private <P> T getServerResponse(Future<Response<P>> req, TypedHttpRequest<T> request, ResponseHandler<?> responseHandler, XferTransform<HttpResponse,?> commonTransforms) throws HttpException {
 		try {
-			Response<P> response = req.get();
-			HttpResponseIon ionResponse = new HttpResponseIon(response);
+			Response<Object> response = withResponse.get();
+			HttpResponseIon ionResponse = new HttpResponseIon(response, commonTransforms);
 			setRequestResponse(request, ionResponse);
 
-			Exception e = ionResponse.getException();
+			Exception e = response.getException();
 			if (null != e) {
 				throw exceptionToHttpException(request, e).build();
 			}
 
-			Object data = response.getResult();
-			try {
-				if (isHttpError(ionResponse)) {
-					DataErrorException exceptionWithData = null;
+			if (isHttpError(ionResponse)) {
+				DataErrorException exceptionWithData = null;
 
-					if (responseHandler.errorHandler instanceof ErrorHandlerParser) {
-						ErrorHandlerParser errorHandler = (ErrorHandlerParser) responseHandler.errorHandler;
-						XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorHandler.errorDataParser, commonTransforms);
-						Object errorData;
-						if (null == transformToResult)
-							errorData = data;
-						else
-							errorData = transformToResult.transformData(data, this);
-						exceptionWithData = ((ErrorHandlerParser) responseHandler.errorHandler).handleErrorData(errorData, this);
-					}
-
-					HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
-					throw exceptionBuilder.build();
+				if (responseHandler.errorHandler instanceof ErrorHandlerParser) {
+					Object data = response.getResult();
+					ErrorHandlerParser errorHandler = (ErrorHandlerParser) responseHandler.errorHandler;
+					XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorHandler.errorDataParser, commonTransforms);
+					Object errorData;
+					if (null == transformToResult)
+						errorData = data;
+					else
+						errorData = transformToResult.transformData(data, this);
+					exceptionWithData = ((ErrorHandlerParser) responseHandler.errorHandler).handleErrorData(errorData, this);
 				}
 
-				XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(responseHandler.contentParser, commonTransforms);
-				if (null == transformToResult)
-					return (T) data;
-
-				return (T) transformToResult.transformData(data, this);
-			} catch (ParserException ee) {
-				throw exceptionToHttpException(request, ee).build();
-
-			} catch (IOException ee) {
-				throw exceptionToHttpException(request, ee).build();
+				HttpException.Builder exceptionBuilder = exceptionToHttpException(request, exceptionWithData);
+				throw exceptionBuilder.build();
 			}
+
+			return ionResponse;
 
 		} catch (InterruptedException e) {
 			throw exceptionToHttpException(request, e).build();
@@ -254,7 +222,23 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		} catch (ExecutionException e) {
 			throw exceptionToHttpException(request, e).build();
 
+		} catch (ParserException e) {
+			throw exceptionToHttpException(request, e).build();
+
+		} catch (IOException e) {
+			throw exceptionToHttpException(request, e).build();
+
 		}
+	}
+
+	@Override
+	protected T responseToResult(HttpResponseIon<T> response, ResponseHandler<T> responseHandler) throws ParserException, IOException {
+		Object data = response.getResult();
+		XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(responseHandler.contentParser, response.getCommonTransform());
+		if (null == transformToResult)
+			return (T) data;
+
+		return (T) transformToResult.transformData(data, this);
 	}
 
 	@Override
@@ -338,5 +322,16 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 		ErrorHandlerParser errorHandlerParser = (ErrorHandlerParser) responseHandler.errorHandler;
 		return Utils.getCommonXferTransform(responseHandler.contentParser, errorHandlerParser.errorDataParser) != null;
+	}
+
+	public static <T> boolean canHandleXferTransform(XferTransform<HttpResponse, T> contentParser) {
+		if (contentParser instanceof XferTransformChain) {
+			XferTransformChain<HttpResponse, T> parser = (XferTransformChain<HttpResponse, T>) contentParser;
+			for (XferTransform transform : parser.transforms) {
+				if (transform == XferTransformInputStreamHttpStream.INSTANCE)
+					return false;
+			}
+		}
+		return true;
 	}
 }

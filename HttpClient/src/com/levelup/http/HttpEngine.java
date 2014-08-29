@@ -36,9 +36,7 @@ public interface HttpEngine<T> extends HttpRequestInfo {
 
 	void setupBody();
 
-	T parseRequest(ResponseHandler<T> responseHandler, TypedHttpRequest<T> request) throws HttpException;
-
-	InputStream getInputStream(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException;
+	T parseRequest(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException;
 
 	void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException;
 

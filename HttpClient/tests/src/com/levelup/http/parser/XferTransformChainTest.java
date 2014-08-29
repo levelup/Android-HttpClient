@@ -59,7 +59,10 @@ public class XferTransformChainTest extends AndroidTestCase {
 			Object source = s;
 			Object target = null;
 			for (XferTransform p : transforms) {
-				try {target = p.transformData(source, null);} catch (IOException e) {
+				try {target = p.transformData(source, null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (ParserException e) {
 					e.printStackTrace();
 				}
 				source = target;

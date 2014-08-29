@@ -12,15 +12,18 @@ import android.text.TextUtils;
 import com.koushikdutta.ion.Response;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpResponse;
+import com.levelup.http.parser.XferTransform;
 
 /**
  * Created by Steve Lhomme on 09/07/2014.
  */
 public class HttpResponseIon<T> implements HttpResponse {
 	private final Response<T> response;
+	private final XferTransform<HttpResponse, ?> commonTransform;
 
-	public HttpResponseIon(Response<T> response) {
+	public HttpResponseIon(Response<T> response, XferTransform<HttpResponse, ?> commonTransform) {
 		this.response = response;
+		this.commonTransform = commonTransform;
 	}
 
 	@Override
@@ -86,5 +89,9 @@ public class HttpResponseIon<T> implements HttpResponse {
 
 	Exception getException() {
 		return response.getException();
+	}
+
+	XferTransform<HttpResponse, ?> getCommonTransform() {
+		return commonTransform;
 	}
 }

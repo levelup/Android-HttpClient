@@ -1,7 +1,5 @@
 package com.levelup.http;
 
-import java.io.InputStream;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -77,11 +75,11 @@ public class HttpClient {
 	 */
 	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
 		ResponseHandler<T> responseHandler = request.getResponseHandler();
-		if (!request.isStreaming() && null==responseHandler) throw new NullPointerException("typed request without a stream parser:"+request);
+		if (null==responseHandler) throw new NullPointerException("typed request without a stream parser:"+request);
 		if (request instanceof BaseHttpRequest) {
 			BaseHttpRequest<T> baseHttpRequest = (BaseHttpRequest<T>) request;
 			HttpEngine<T> httpEngine = baseHttpRequest.getHttpEngine();
-			return httpEngine.parseRequest(responseHandler, request);
+			return httpEngine.parseRequest(request, responseHandler);
 		}
 
 		throw new IllegalArgumentException("only BaseHttpRequest requests supported for now");

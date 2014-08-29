@@ -222,7 +222,7 @@ public class IonClientTest extends AndroidTestCase {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
 		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_NETWORK, e.getErrorCode());
+			assertEquals(HttpException.ERROR_DATA_MSG, e.getErrorCode());
 			assertEquals(errorCode, e.getHttpStatusCode());
 		}
 	}

@@ -6,9 +6,9 @@ import java.io.InputStream;
 public class HttpStream {
 
 	private final InputStream inputStream;
-	private final HttpRequest request;
+	private final ImmutableHttpRequest request;
 
-	public HttpStream(InputStream inputStream, HttpRequest request) throws IOException {
+	public HttpStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException {
 		if (null==inputStream) throw new IOException("we need an InputStream for the stream");
 		this.inputStream = inputStream;
 		this.request = request;
@@ -23,7 +23,7 @@ public class HttpStream {
 			inputStream.close();
 		} catch (IOException ignored) {
 		} finally {
-			request.getResponse().disconnect();
+			request.getHttpResponse().disconnect();
 		}
 	}
 

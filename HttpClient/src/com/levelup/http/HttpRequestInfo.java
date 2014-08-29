@@ -40,11 +40,6 @@ public interface HttpRequestInfo {
 	boolean hasBody();
 
 	/**
-	 * Tell if the request is reading an object or just data from a continuous stream
-	 */
-	boolean isStreaming();
-
-	/**
 	 * Get the object that will be responsible for signing the HTTP request
 	 */
 	RequestSigner getRequestSigner();
