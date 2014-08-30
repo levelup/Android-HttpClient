@@ -16,7 +16,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.HttpClient;
+import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.parser.ResponseToString;
@@ -66,7 +66,7 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 */
 	public static void getString(String url, String tag, NetworkCallback<String> callback) {
-		BaseHttpRequest.Builder<String> reqBuilder = new BaseHttpRequest.Builder<String>(HttpClient.defaultContext);
+		BaseHttpRequest.Builder<String> reqBuilder = new BaseHttpRequest.Builder<String>();
 		reqBuilder.setUrl(url)
 				.setResponseParser(ResponseToString.RESPONSE_HANDLER);
 		doRequest(reqBuilder.build(), tag, callback);
@@ -92,7 +92,7 @@ public class AsyncHttpClient {
 	 * @see #doRequest(TypedHttpRequest, NetworkCallback)
 	 */
 	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
-		return doRequest(executor, factory, new HttpCallable<T>(request), callback);
+		return doRequest(executor, factory, new HttpEngine.Builder<T>().setTypedRequest(request).build(), callback);
 	}
 
 	public static <T> Future<T> doRequest(Executor executor, NetworkTaskFactory<T> factory, Callable<T> callable, NetworkCallback<T> callback) {

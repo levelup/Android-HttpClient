@@ -7,34 +7,34 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.Header;
+import com.levelup.http.HttpEngine;
 
 import oauth.signpost.http.HttpRequest;
 
 /**
- * Wrap a {@link BaseHttpRequest HttpClient BaseHttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
+ * Wrap a {@link com.levelup.http.BaseHttpRequest HttpClient BaseHttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
  */
 public class OAuth1RequestAdapter implements HttpRequest {
-	private final BaseHttpRequest<InputStream> httpRequest;
+	private final HttpEngine<?> httpEngine;
 
-    public OAuth1RequestAdapter(BaseHttpRequest<InputStream> httpRequest) {
-		this.httpRequest = httpRequest;
+    public OAuth1RequestAdapter(HttpEngine<?> httpEngine) {
+		this.httpEngine = httpEngine;
 	}
 
     @Override
 	public void setHeader(String name, String value) {
-        httpRequest.setHeader(name, value);
+        httpEngine.setHeader(name, value);
 	}
 	
 	@Override
 	public String getHeader(String name) {
-		return httpRequest.getHeader(name);
+		return httpEngine.getHttpRequest().getHeader(name);
 	}
 	
 	@Override
 	public Map<String, String> getAllHeaders() {
-		Header[] allHeaders = httpRequest.getAllHeaders();
+		Header[] allHeaders = httpEngine.getHttpRequest().getAllHeaders();
 		Map<String, String> result = new HashMap<String, String>(allHeaders.length);
 		for (Header header : allHeaders) {
 			result.put(header.getName(), header.getValue());
@@ -47,7 +47,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 		final String contentType = getContentType();  
 		if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
 			ByteArrayOutputStream output = new ByteArrayOutputStream(32);
-            httpRequest.outputBody(output);
+			httpEngine.getHttpRequest().getBodyParams().writeBodyTo(output, httpEngine.getHttpRequest(), null);
 			return new ByteArrayInputStream(output.toByteArray());
 		}
 		return null;
@@ -55,17 +55,19 @@ public class OAuth1RequestAdapter implements HttpRequest {
 
 	@Override
 	public String getContentType() {
-		return httpRequest.getContentType();
+		if (null!=httpEngine.getHttpRequest().getBodyParams())
+			return httpEngine.getHttpRequest().getBodyParams().getContentType();
+		return null;
 	}
 
 	@Override
 	public String getMethod() {
-		return httpRequest.getHttpMethod();
+		return httpEngine.getHttpRequest().getHttpMethod();
 	}
 
 	@Override
 	public String getRequestUrl() {
-		return httpRequest.getUri().toString();
+		return httpEngine.getHttpRequest().getUri().toString();
 	}
 
 	@Override
@@ -74,7 +76,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 	}
 
 	@Override
-	public BaseHttpRequest<InputStream> unwrap() {
-		return httpRequest;
+	public HttpEngine<InputStream> unwrap() {
+		return (HttpEngine<InputStream>) httpEngine;
 	}
 }

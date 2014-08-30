@@ -1,68 +1,50 @@
 package com.levelup.http.internal;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
-import org.apache.http.protocol.HTTP;
 
 import android.net.Uri;
 import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
-import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.BasicHttpConfig;
 import com.levelup.http.CookieManager;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.Header;
-import com.levelup.http.HttpBodyParameters;
 import com.levelup.http.HttpClient;
-import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpExceptionCreator;
+import com.levelup.http.HttpExceptionFactory;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.LogManager;
-import com.levelup.http.LoggerTagged;
 import com.levelup.http.ParserException;
-import com.levelup.http.RequestSigner;
+import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
-import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
- * Base HTTP request handler used internally by {@link com.levelup.http.BaseHttpRequest BaseHttpRequest}
+ * Base HTTP request engine
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, ImmutableHttpRequest {
-	private final Uri uri;
-	protected final Map<String, String> mRequestSetHeaders = new HashMap<String, String>();
-	protected final Map<String, HashSet<String>> mRequestAddHeaders = new HashMap<String, HashSet<String>>();
-	private LoggerTagged mLogger;
-	private HttpConfig mHttpConfig = BasicHttpConfig.instance;
-	private R httpResponse;
-	private final String method;
-	private final ResponseHandler<T> responseHandler;
-	private final RequestSigner signer;
-	private UploadProgressListener mProgressListener;
-	protected final HttpBodyParameters bodyParams;
-	protected final Boolean followRedirect;
-	private HttpErrorHandler errorHandler;
+public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, Closeable {
+	protected final Map<String, String> requestHeaders = new HashMap<String, String>();
+
+	protected final RawHttpRequest request;
+	protected final ResponseHandler<T> responseHandler;
+	protected final HttpExceptionFactory exceptionFactory;
+
+	protected R httpResponse;
 
 	protected static boolean isMethodWithBody(String httpMethod) {
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
@@ -72,18 +54,14 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
 	}
 
-	protected BaseHttpEngine(BaseHttpRequest.AbstractBuilder<T, ?> builder) {
-		this.uri = builder.getUri();
-		this.method = builder.getHttpMethod();
-		this.responseHandler = builder.getResponseHandler();
-		this.bodyParams = builder.getBodyParams();
-		this.signer = builder.getSigner();
-		this.followRedirect = builder.getFollowRedirect();
-	}
+	public BaseHttpEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
+		this.request = request;
+		this.responseHandler = responseHandler;
+		this.exceptionFactory = exceptionFactory;
 
-	@Override
-	public final String getHttpMethod() {
-		return method;
+		for (Header header : request.getAllHeaders()) {
+			requestHeaders.put(header.getName(), header.getValue());
+		}
 	}
 
 	@Override
@@ -91,166 +69,76 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return responseHandler;
 	}
 
-	/**
-	 * Set the {@link com.levelup.http.LoggerTagged} that will be used to send logs for this request. {@code null} is OK
-	 */
 	@Override
-	public void setLogger(LoggerTagged logger) {
-		mLogger = logger;
+	public final HttpRequest getHttpRequest() {
+		return request;
 	}
 
-	@Override
-	public LoggerTagged getLogger() {
-		return mLogger;
-	}
-
-	/**
-	 * Set a {@link com.levelup.http.HttpConfig}, by default {@link com.levelup.http.BasicHttpConfig} is used
-	 */
-	@Override
-	public void setHttpConfig(HttpConfig config) {
-		mHttpConfig = config;
-	}
-
-	@Override
-	public HttpConfig getHttpConfig() {
-		return mHttpConfig;
-	}
-
-	public final void prepareRequest(TypedHttpRequest<T> request) throws HttpException {
+	public final void prepareRequest() throws HttpException {
 			/*
 			HttpResponse resp = null;
 			try {
 				HttpConnectionParams.setSoTimeout(client.getParams(), config.getReadTimeout(request));
 				HttpConnectionParams.setConnectionTimeout(client.getParams(), CONNECTION_TIMEOUT_IN_MS);
 			 */
-		if (!TextUtils.isEmpty(HttpClient.getUserAgent())) {
-			setHeader(HTTP.USER_AGENT, HttpClient.getUserAgent());
-		}
-
-		if (null != HttpClient.getDefaultHeaders()) {
-			for (Header header : HttpClient.getDefaultHeaders()) {
-				setHeader(header.getName(), header.getValue());
-			}
-		}
-
 		if (null != HttpClient.getCookieManager()) {
-			HttpClient.getCookieManager().setCookieHeader(request);
+			HttpClient.getCookieManager().setCookieHeader(this);
 		}
 
 		setupBody();
-		settleHttpHeaders(request);
+		settleHttpHeaders();
 	}
 
-	@Override
-	public void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException {
+	protected void settleHttpHeaders() throws HttpException {
 		request.settleHttpHeaders();
 
-		if (null != signer)
-			signer.sign(request);
+		if (null != request.getRequestSigner())
+			request.getRequestSigner().sign(this);
 	}
 
 	@Override
-	public void addHeader(String key, String value) {
-		HashSet<String> values = mRequestAddHeaders.get(key);
-		if (null == values) {
-			values = new HashSet<String>();
-			mRequestAddHeaders.put(key, values);
-		}
-		values.add(value);
-	}
-
-	@Override
-	public void setHeader(String key, String value) {
-		mRequestAddHeaders.remove(key);
+	public final void setHeader(String key, String value) {
 		if (null == value)
-			mRequestSetHeaders.remove(key);
+			requestHeaders.remove(key);
 		else
-			mRequestSetHeaders.put(key, value);
+			requestHeaders.put(key, value);
 	}
 
-	@Override
-	public String getHeader(String name) {
-		if (mRequestSetHeaders.containsKey(name))
-			return mRequestSetHeaders.get(name);
-		if (mRequestAddHeaders.containsKey(name) && !mRequestAddHeaders.get(name).isEmpty())
-			return mRequestAddHeaders.get(name).toArray(EMPTY_STRINGS)[0];
-		return null;
-	}
-
-	@Override
-	public String getContentType() {
-		if (null != bodyParams) {
-			return bodyParams.getContentType();
-		}
-		return null;
-	}
-
-	private static final String[] EMPTY_STRINGS = {};
-
-	@Override
-	public Header[] getAllHeaders() {
-		List<Header> headers = null == HttpClient.getDefaultHeaders() ? new ArrayList<Header>() : new ArrayList<Header>(Arrays.asList(HttpClient.getDefaultHeaders()));
-		for (Entry<String, String> setHeader : mRequestSetHeaders.entrySet()) {
-			headers.add(new Header(setHeader.getKey(), setHeader.getValue()));
-		}
-		for (Entry<String, HashSet<String>> entries : mRequestAddHeaders.entrySet()) {
-			for (String entry : entries.getValue()) {
-				headers.add(new Header(entries.getKey(), entry));
-			}
-		}
-		return headers.toArray(new Header[headers.size()]);
-	}
-
-	@Override
-	public final Uri getUri() {
-		return uri;
-	}
-
-	@Override
-	public void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException {
-		final UploadProgressListener listener = getProgressListener();
+	protected void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException {
+		final UploadProgressListener listener = request.getProgressListener();
 		if (null != listener)
 			listener.onParamUploadProgress(requestInfo, null, 0);
-		if (null != bodyParams)
-			bodyParams.writeBodyTo(outputStream, requestInfo, listener);
+		if (null != request.getBodyParams())
+			request.getBodyParams().writeBodyTo(outputStream, requestInfo, listener);
 		if (null != listener)
 			listener.onParamUploadProgress(requestInfo, null, 100);
 	}
 
-	@Override
-	public void setProgressListener(UploadProgressListener listener) {
-		this.mProgressListener = listener;
-	}
-
-	@Override
-	public UploadProgressListener getProgressListener() {
-		return mProgressListener;
-	}
-
-	@Override
-	public boolean hasBody() {
-		return null != bodyParams;
-	}
-
-	protected abstract R queryResponse(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException;
+	protected abstract R queryResponse(ResponseHandler<T> responseHandler) throws HttpException;
 	protected abstract T responseToResult(R response, ResponseHandler<T> responseHandler) throws ParserException, IOException;
+	protected abstract void setupBody();
 
 	@Override
-	public final T parseRequest(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException {
-		R httpResponse = queryResponse(request, responseHandler);
+	public final T call() throws HttpException {
+		R httpResponse = queryResponse(responseHandler);
 		try {
 			return responseToResult(httpResponse, responseHandler);
 
 		} catch (ParserException e) {
-			throw exceptionToHttpException(request, e).build();
+			throw exceptionToHttpException(e).build();
 
 		} catch (IOException e) {
-			throw exceptionToHttpException(request, e).build();
+			throw exceptionToHttpException(e).build();
 		}
 	}
 
-	protected void setRequestResponse(HttpRequest request, R httpResponse) {
+	@Override
+	public void close() throws IOException {
+		if (null != httpResponse)
+			httpResponse.disconnect();
+	}
+
+	protected void setRequestResponse(R httpResponse) {
 		this.httpResponse = httpResponse;
 		request.setResponse(httpResponse);
 
@@ -269,16 +157,6 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public HttpResponse getResponse() {
-		return httpResponse;
-	}
-
-	@Override
-	public RequestSigner getRequestSigner() {
-		return signer;
-	}
-
-	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(64);
 		String simpleName = getClass().getSimpleName();
@@ -293,27 +171,20 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		sb.append('{');
 		sb.append(Integer.toHexString(System.identityHashCode(this)));
 		sb.append(' ');
-		if (signer instanceof AbstractRequestSigner) {
-			sb.append(" for ").append(((AbstractRequestSigner) signer).getOAuthUser());
+		if (request.getRequestSigner() instanceof AbstractRequestSigner) {
+			sb.append(" for ").append(((AbstractRequestSigner) request.getRequestSigner()).getOAuthUser());
 		}
 		sb.append('}');
 		return sb.toString();
 	}
 
-	@Override
-	public HttpException.Builder newException() {
-		if (null!=errorHandler)
-			return errorHandler.newException();
-		throw new IllegalAccessError("missing errorHandler");
-	}
-
-	protected HttpException.Builder exceptionToHttpException(HttpExceptionCreator request, Exception e) throws HttpException {
+	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
 		if (e instanceof DataErrorException) {
 			DataErrorException cause = (DataErrorException) e;
 			if (cause.errorContent instanceof Exception)
-				throw exceptionToHttpException(request, (Exception) cause.errorContent).build();
+				throw exceptionToHttpException((Exception) cause.errorContent).build();
 
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_DATA_MSG);
@@ -321,7 +192,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		}
 
 		if (e instanceof InterruptedException) {
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_HTTP);
@@ -330,9 +201,9 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 		if (e instanceof ExecutionException) {
 			if (e.getCause() instanceof Exception && e.getCause()!=e)
-				return exceptionToHttpException(request, (Exception) e.getCause());
+				return exceptionToHttpException((Exception) e.getCause());
 			else {
-				HttpException.Builder builder = request.newException();
+				HttpException.Builder builder = createExceptionBuilder();
 				builder.setErrorMessage("execution error");
 				builder.setCause(e.getCause());
 				builder.setErrorCode(HttpException.ERROR_HTTP);
@@ -342,7 +213,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("Timeout error "+e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
@@ -351,7 +222,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 		if (e instanceof ProtocolException) {
 			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("Method error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_HTTP);
@@ -360,7 +231,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 		if (e instanceof IOException) {
 			LogManager.getLogger().d("i/o error for " + request + ' ' + e.getMessage());
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("IO error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
@@ -372,7 +243,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			if (e.getCause() instanceof HttpException)
 				throw (HttpException) e.getCause();
 
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_PARSER);
 			return builder;
@@ -380,7 +251,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 		if (e instanceof JsonParseException) {
 			LogManager.getLogger().i("incorrect data for " + request);
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_PARSER);
 			return builder;
@@ -388,7 +259,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 
 		if (e instanceof SecurityException) {
 			LogManager.getLogger().w("security error for " + request + ' ' + e);
-			HttpException.Builder builder = request.newException();
+			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("Security error "+e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
@@ -396,20 +267,14 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		}
 
 		LogManager.getLogger().w("unknown error for " + request + ' ' + e);
-		HttpException.Builder builder = request.newException();
+		HttpException.Builder builder = createExceptionBuilder();
 		builder.setCause(e);
 		builder.setErrorCode(HttpException.ERROR_HTTP);
 		return builder;
 	}
 
-
 	@Override
-	public HttpRequestInfo getHttpRequestInfo() {
-		return this;
-	}
-
-	@Override
-	public void setErrorHandler(HttpErrorHandler errorHandler) {
-		this.errorHandler = errorHandler;
+	public HttpException.Builder createExceptionBuilder() {
+		return exceptionFactory.newException(httpResponse);
 	}
 }

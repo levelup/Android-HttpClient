@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.HttpClient;
+import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestPost;
+import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.signed.OAuthClientApp;
@@ -28,7 +29,7 @@ import oauth.signpost.http.HttpResponse;
  */
 public class HttpClientOAuth1Provider {
 
-	static final ResponseHandler<InputStream> OAUTH1_RESPONSE_HANDLER = new ResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE);
+	private static final ResponseHandler<InputStream> OAUTH1_RESPONSE_HANDLER = new ResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE);
 	private final HttpClientOAuth1Consumer consumer;
 	private final DefaultOAuthProvider provider;
 
@@ -48,7 +49,7 @@ public class HttpClientOAuth1Provider {
 
 	/**
 	 * Constructor to retrieve the tokens for the given client app with a custom {@link HttpClientOAuth1Consumer} and {@link ProviderHttpRequestFactory}
-	 * <p>The {@code requestFactory} can do special processing on the response via {@link BaseHttpRequest#setResponse(com.levelup.http.HttpResponse) HttpRequest.setResponse}
+	 * <p>The {@code requestFactory} can do special processing on the response via {@link com.levelup.http.BaseHttpRequest#setResponse(com.levelup.http.HttpResponse) HttpRequest.setResponse}
 	 * 
 	 * @param consumer The consumer used to retrieve the tokens
 	 * @param requestTokenUrl The URL of the service provider to get a Request token
@@ -62,23 +63,26 @@ public class HttpClientOAuth1Provider {
 
 			@Override
 			protected HttpRequest createRequest(String endpointUrl) throws IOException {
-				final BaseHttpRequest<InputStream> request;
+				final RawHttpRequest request;
 				if (HttpClientOAuth1Provider.this.consumer instanceof OAuth1ConsumerClocked) {
 					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
 					request = cons.createRequest(endpointUrl);
 				} else {
-					request = new HttpRequestPost<InputStream>(endpointUrl, null, OAUTH1_RESPONSE_HANDLER);
+					request = new RawHttpRequest.Builder().setUrl(endpointUrl).setHttpMethod("POST").build();
 				}
-				return new OAuth1RequestAdapter(request);
+				return new OAuth1RequestAdapter(new HttpEngine.Builder<InputStream>()
+						.setResponseHandler(OAUTH1_RESPONSE_HANDLER)
+						.setRequest(request)
+						.build());
 			}
 
 			@Override
 			protected HttpResponse sendRequest(HttpRequest request) throws IOException {
                 OAuth1RequestAdapter requestAdapter = (OAuth1RequestAdapter) request;
-                BaseHttpRequest<InputStream> req = requestAdapter.unwrap();
+				HttpEngine<InputStream> processEngine = requestAdapter.unwrap();
 				try {
-					InputStream inputStream = HttpClient.parseRequest(req);
-					return new OAuth1ResponseAdapter(req, inputStream);
+					InputStream inputStream = processEngine.call();
+					return new OAuth1ResponseAdapter(processEngine, inputStream);
 				} catch (HttpException e) {
 					IOException ex = new IOException("failed to query data "+e.getMessage());
 					ex.initCause(e);

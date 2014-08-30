@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * HTTP parameters suitable to pass to {@link BaseHttpRequest} 
+ * HTTP parameters suitable to pass to {@link RawHttpRequest}
  */
 public interface HttpBodyParameters extends HttpParameters {
 

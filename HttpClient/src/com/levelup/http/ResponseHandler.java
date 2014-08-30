@@ -20,4 +20,8 @@ public class ResponseHandler<OUTPUT> {
 	public ResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser) {
 		this(contentParser, BaseErrorHandler.INSTANCE);
 	}
+
+	public Boolean followsRedirect() {
+		return null;
+	}
 }

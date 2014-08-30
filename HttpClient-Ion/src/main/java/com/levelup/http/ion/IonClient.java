@@ -13,12 +13,15 @@ public class IonClient {
 	private IonClient() {
 	}
 
+	public static IonHttpEngineFactory ION_FACTORY;
+
 	public static void setup(Context context) {
 		setup(context, HttpClient.getHttpEngineFactory());
 	}
 
 	public static void setup(Context context, HttpEngineFactory fallbackFactory) {
 		HttpClient.setup(context);
-		HttpClient.setHttpEngineFactory(new IonHttpEngineFactory(fallbackFactory));
+		ION_FACTORY = new IonHttpEngineFactory(fallbackFactory);
+		HttpClient.setHttpEngineFactory(ION_FACTORY);
 	}
 }

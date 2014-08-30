@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
+import com.levelup.http.parser.ResponseToString;
+
 /**
  * HTTP client that handles {@link HttpRequest} 
  */
@@ -17,7 +19,7 @@ public class HttpClient {
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
 	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.instance;
-	public static Context defaultContext;
+	static Context defaultContext;
 
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
@@ -66,6 +68,14 @@ public class HttpClient {
 		return defaultHeaders;
 	}
 
+	public static String getStringResponse(HttpRequest request) throws HttpException {
+		return new HttpEngine.Builder<String>()
+				.setRequest(request)
+				.setResponseHandler(ResponseToString.RESPONSE_HANDLER)
+				.build()
+				.call();
+	}
+
 	/**
 	 * Perform the query on the network and get the resulting body as an InputStream
 	 * <p>Does various checks on the result and throw {@link HttpException} in case of problem</p>
@@ -74,15 +84,10 @@ public class HttpClient {
 	 * @throws HttpException
 	 */
 	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
-		ResponseHandler<T> responseHandler = request.getResponseHandler();
-		if (null==responseHandler) throw new NullPointerException("typed request without a stream parser:"+request);
-		if (request instanceof BaseHttpRequest) {
-			BaseHttpRequest<T> baseHttpRequest = (BaseHttpRequest<T>) request;
-			HttpEngine<T> httpEngine = baseHttpRequest.getHttpEngine();
-			return httpEngine.parseRequest(request, responseHandler);
-		}
-
-		throw new IllegalArgumentException("only BaseHttpRequest requests supported for now");
+		return new HttpEngine.Builder<T>()
+				.setTypedRequest(request)
+				.build()
+				.call();
 	}
 
 	public static HttpEngineFactory getHttpEngineFactory() {

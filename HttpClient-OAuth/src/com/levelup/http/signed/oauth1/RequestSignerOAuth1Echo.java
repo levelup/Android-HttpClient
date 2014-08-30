@@ -5,9 +5,10 @@ import java.util.SortedSet;
 
 import android.text.TextUtils;
 
+import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
-import com.levelup.http.HttpRequestGet;
 import com.levelup.http.parser.ResponseToString;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
@@ -37,7 +38,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 	}
 
     @Override
-	public void sign(HttpRequest req, HttpParameters oauthParams) throws HttpException {
+	public void sign(HttpEngine<?> req, HttpParameters oauthParams) throws HttpException {
 		HttpParameters realm = new HttpParameters();
 		if (null!=oauthParams) {
 			for (Entry<String, SortedSet<String>> entries : oauthParams.entrySet()) {
@@ -46,10 +47,14 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 		}
 		if (!TextUtils.isEmpty(verifyRealm))
 			realm.put("realm", verifyRealm);
-		HttpRequestGet<String> echoReq = new HttpRequestGet<String>(verifyUrl, ResponseToString.RESPONSE_HANDLER);
-		super.sign(echoReq, realm);
+	    BaseHttpRequest<String> echoReq = new BaseHttpRequest.Builder<String>()
+			    .setUrl(verifyUrl)
+			    .setResponseParser(ResponseToString.RESPONSE_HANDLER)
+			    .build();
+	    HttpEngine<String> engine = new HttpEngine.Builder<String>().setTypedRequest(echoReq).build();
+		super.sign(engine, realm);
 
-		String header = echoReq.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);
+		String header = engine.getHttpResponse().getHeaderField(OAuth.HTTP_AUTHORIZATION_HEADER);
 		if (header!=null) {
 			req.setHeader("X-Verify-Credentials-Authorization", header);
 			req.setHeader("X-Auth-Service-Provider", verifyUrl);

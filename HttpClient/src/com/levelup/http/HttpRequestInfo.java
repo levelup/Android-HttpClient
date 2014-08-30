@@ -18,9 +18,9 @@ public interface HttpRequestInfo {
 	String getHttpMethod();
 
 	/**
-	 * Get the content type of the body, or {@code null} if there's no body in the request
+	 * Get the body for this request, or {@code null} if there's no body in the request
 	 */
-	String getContentType();
+	HttpBodyParameters getBodyParameters();
 
 	/**
 	 * Get the single value of a HTTP header for this request

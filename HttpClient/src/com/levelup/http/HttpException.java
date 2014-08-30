@@ -154,15 +154,6 @@ public class HttpException extends Exception {
 		return msg.toString();
 	}
 
-	/**
-	 * Get the error message without the extra formating of {@link #getMessage()} containing HTTP error codes
-	 * <p>Can be useful when the error data are JSON or XML data</p>
-	 * @return Raw error message sent by the server (when applying) 
-	 */
-	public String getErrorMessage() {
-		return super.getMessage();
-	}
-
 	public static class Builder {
 		protected int errorCode = ERROR_HTTP;
 		protected String errorMessage;
@@ -172,7 +163,7 @@ public class HttpException extends Exception {
 		protected final List<Header> headers;
 		protected List<Header> receivedHeaders;
 
-		public Builder(HttpRequest httpRequest) {
+		public Builder(HttpRequest httpRequest, HttpResponse response) {
 			this.httpRequest = httpRequest;
 			Header[] srcHeaders = httpRequest.getAllHeaders();
 			if (null==srcHeaders)
@@ -181,14 +172,14 @@ public class HttpException extends Exception {
 				this.headers = new ArrayList<Header>(srcHeaders.length);
 				headers.addAll(Arrays.asList(srcHeaders));
 			}
-			HttpResponse response = httpRequest.getResponse();
-			if (null==response) {
+
+			if (null == response) {
 				this.receivedHeaders = Collections.emptyList();
 			} else {
 				setHTTPResponse(response);
 				try {
 					final Map<String, List<String>> responseHeaders = response.getHeaderFields();
-					if (null==responseHeaders)
+					if (null == responseHeaders)
 						this.receivedHeaders = Collections.emptyList();
 					else {
 						this.receivedHeaders = new ArrayList<Header>(responseHeaders.size());

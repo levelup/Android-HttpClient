@@ -9,28 +9,31 @@ import android.net.Uri;
  * @see BaseHttpRequest for a more complete API
  */
 public class HttpRequestPost<T> extends BaseHttpRequest<T> {
-	public static abstract class AbstractBuilder<T, R extends HttpRequestPost<T>> extends BaseHttpRequest.AbstractBuilder<T,R> {
+	public static abstract class AbstractBuilder<T, REQ extends HttpRequestPost<T>, BUILDER extends AbstractBuilder<T,REQ,BUILDER>> extends BaseHttpRequest.AbstractBuilder<T,REQ,BUILDER> {
 		public AbstractBuilder() {
 			setHttpMethod("POST");
 		}
 	}
 
-	public final static class Builder<T> extends AbstractBuilder<T,HttpRequestPost<T>> {
+	public static abstract class ChildBuilder<T, REQ extends HttpRequestPost<T>> extends AbstractBuilder<T, REQ, ChildBuilder<T, REQ>> {
+	}
+
+	public final static class Builder<T> extends AbstractBuilder<T, HttpRequestPost<T>, Builder<T>> {
 		@Override
-		protected final HttpRequestPost<T> build(HttpEngine<T> impl) {
-			return new HttpRequestPost<T>(impl);
+		protected HttpRequestPost<T> build(Builder<T> builder) {
+			return new HttpRequestPost<T>(builder);
 		}
 	}
 
 	public HttpRequestPost(String url, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
-		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseParser(responseHandler).buildImpl());
+		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseParser(responseHandler));
 	}
 
 	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
-		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseParser(responseHandler).buildImpl());
+		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseParser(responseHandler));
 	}
 
-	protected HttpRequestPost(HttpEngine<T> impl) {
-		super(impl);
+	protected HttpRequestPost(AbstractBuilder<T,?,?> builder) {
+		super(builder);
 	}
 }

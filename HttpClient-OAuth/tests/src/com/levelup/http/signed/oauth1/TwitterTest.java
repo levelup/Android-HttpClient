@@ -4,7 +4,7 @@ import oauth.signpost.exception.OAuthException;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
-import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.RawHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.UriParams;
@@ -60,7 +60,7 @@ public class TwitterTest extends AndroidTestCase {
 		UriParams searchParams = new UriParams(2);
 		searchParams.add("q", "toto");
 		searchParams.add("count", 5);
-		return new BaseHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/search/tweets.json", searchParams).build();
+		return new RawHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/search/tweets.json", searchParams).build();
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class TwitterTest extends AndroidTestCase {
 		UriParams uriParams = new UriParams(2);
 		uriParams.add("cursor", -1);
 		uriParams.add("screen_name", "twitterapi");
-		HttpRequest request = new BaseHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/friends/list.json", uriParams).build();
+		HttpRequest request = new RawHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/friends/list.json", uriParams).build();
 		String response = HttpClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
@@ -96,7 +96,7 @@ public class TwitterTest extends AndroidTestCase {
 		RequestSignerOAuth1 twitterSigner = new RequestSignerOAuth1(twitterApp, twitterUser);
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("screen_name", "touiteurtest");
-		HttpRequest request = new BaseHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/users/show.json", uriParams).build();
+		HttpRequest request = new RawHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/users/show.json", uriParams).build();
 		String response = HttpClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);

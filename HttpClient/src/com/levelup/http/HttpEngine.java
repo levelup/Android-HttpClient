@@ -1,46 +1,68 @@
 package com.levelup.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.concurrent.Callable;
 
-import com.levelup.http.internal.HttpErrorHandler;
+import android.content.Context;
 
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */
-public interface HttpEngine<T> extends HttpRequestInfo {
+public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
+	T call() throws HttpException;
+
 	ResponseHandler<T> getResponseHandler();
 
-	void setLogger(LoggerTagged logger);
-
-	LoggerTagged getLogger();
-
-	void setHttpConfig(HttpConfig config);
-
-	HttpConfig getHttpConfig();
-
-	void addHeader(String key, String value);
-
+	/**
+	 * Extra header to add to the query, in addition of the ones from the source {@link com.levelup.http.HttpRequest}
+	 * <p>Can be used to sign a request with a timestamp, for example</p>
+	 * @param key
+	 * @param value
+	 */
 	void setHeader(String key, String value);
 
-	void setProgressListener(UploadProgressListener listener);
+	HttpException.Builder createExceptionBuilder();
 
-	UploadProgressListener getProgressListener();
+	public static class Builder<T> {
+		private ResponseHandler<T> responseHandler;
+		private RawHttpRequest httpRequest;
+		private Context context = HttpClient.defaultContext;
+		private HttpEngineFactory factory = HttpClient.getHttpEngineFactory();
 
-	HttpException.Builder newException();
+		public Builder() {
+		}
 
-	void setErrorHandler(HttpErrorHandler errorHandler);
+		public Builder<T> setTypedRequest(TypedHttpRequest<T> request) {
+			return setRequest(request)
+					.setResponseHandler(request.getResponseHandler())
+					.setContext(request.getContext());
+		}
 
-	void doConnection() throws IOException;
+		public Builder<T> setRequest(HttpRequest request) {
+			if (!(request instanceof RawHttpRequest)) throw new IllegalStateException("only RawHttpRequest supported for now");
+			this.httpRequest = (RawHttpRequest) request;
+			return this;
+		}
 
-	void setupBody();
+		public Builder<T> setResponseHandler(ResponseHandler<T> responseHandler) {
+			this.responseHandler = responseHandler;
+			return this;
+		}
 
-	T parseRequest(TypedHttpRequest<T> request, ResponseHandler<T> responseHandler) throws HttpException;
+		public Builder<T> setContext(Context context) {
+			this.context = context;
+			return this;
+		}
 
-	void settleHttpHeaders(TypedHttpRequest<T> request) throws HttpException;
+		public Builder<T> setHttpEngineFactory(HttpEngineFactory factory) {
+			this.factory = factory;
+			return this;
+		}
 
-	void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException;
-
-	HttpResponse getResponse();
+		public HttpEngine<T> build() {
+			if (null == httpRequest) throw new NullPointerException("missing a HttpRequest for the engine");
+			if (null == responseHandler) throw new NullPointerException("missing a ResponseHandler for the engine of "+httpRequest);
+			HttpEngine<T> httpEngine = factory.createEngine(httpRequest, responseHandler, context, httpRequest);
+			return httpEngine;
+		}
+	}
 }

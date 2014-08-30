@@ -10,6 +10,7 @@ import java.util.concurrent.FutureTask;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.levelup.http.HttpEngine;
 import com.levelup.http.TypedHttpRequest;
 
 /**
@@ -24,7 +25,7 @@ public class NetworkTask<T> extends FutureTask<T> {
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	public NetworkTask(TypedHttpRequest<T> request, NetworkCallback<T> callback) {
-		this(new HttpCallable<T>(request), callback);
+		this(new HttpEngine.Builder<T>().setTypedRequest(request).build(), callback);
 	}
 
 	public NetworkTask(Callable<T> callable, NetworkCallback<T> callback) {

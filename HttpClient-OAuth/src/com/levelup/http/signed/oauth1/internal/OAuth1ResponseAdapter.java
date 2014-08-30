@@ -3,28 +3,28 @@ package com.levelup.http.signed.oauth1.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpEngine;
 
 import oauth.signpost.http.HttpResponse;
 
 public class OAuth1ResponseAdapter implements HttpResponse {
 
 	private final InputStream inputStream;
-    private final BaseHttpRequest<InputStream> httpRequest;
+	private final HttpEngine<InputStream> engine;
 
-    public OAuth1ResponseAdapter(BaseHttpRequest<InputStream> engine, InputStream inputStream) {
+	public OAuth1ResponseAdapter(HttpEngine<InputStream> engine, InputStream inputStream) {
 		this.inputStream = inputStream;
-		this.httpRequest = engine;
+		this.engine = engine;
 	}
 
     @Override
 	public int getStatusCode() throws IOException {
-		return httpRequest.getResponse().getResponseCode();
+		return engine.getHttpResponse().getResponseCode();
 	}
 
 	@Override
 	public String getReasonPhrase() throws Exception {
-		return httpRequest.getResponse().getResponseMessage();
+		return engine.getHttpResponse().getResponseMessage();
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class OAuth1ResponseAdapter implements HttpResponse {
 	}
 
 	@Override
-	public BaseHttpRequest<InputStream> unwrap() {
-		return httpRequest;
+	public HttpEngine<InputStream> unwrap() {
+		return engine;
 	}
 }

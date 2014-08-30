@@ -1,15 +1,6 @@
 package com.levelup.http;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import android.content.Context;
-import android.net.Uri;
-import android.text.TextUtils;
-
-import com.levelup.http.internal.HttpErrorHandler;
-import com.levelup.http.parser.ResponseToHttpStream;
-import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
@@ -17,142 +8,41 @@ import com.levelup.http.signed.AbstractRequestSigner;
  * @see HttpRequestPost for a more simple POST API
  * @param <T> type of the data read from the HTTP response
  */
-public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler {
-	/**
-	 * Builder for a {@link com.levelup.http.BaseHttpRequest BaseHttpRequest}
-	 * @param <T> type of the data read from the HTTP response
-	 */
-	public final static class Builder<T> extends AbstractBuilder<T,BaseHttpRequest<T>> {
-		/**
-		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
-		 */
+public class BaseHttpRequest<T> extends RawHttpRequest implements TypedHttpRequest<T> {
+
+	private final ResponseHandler<T> responseHandler;
+
+	public final static class Builder<T> extends AbstractBuilder<T, BaseHttpRequest<T>, Builder<T>> {
 		public Builder(Context context) {
 			super(context);
 		}
 
-		/**
-		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
-		 */
 		public Builder() {
-			super();
 		}
 
 		@Override
-		protected final BaseHttpRequest<T> build(HttpEngine<T> impl) {
-			return new BaseHttpRequest<T>(impl);
+		protected BaseHttpRequest<T> build(Builder<T> builder) {
+			return new BaseHttpRequest<T>(builder);
 		}
 	}
 
-	/**
-	 * Abstract Builder for a {@link com.levelup.http.BaseHttpRequest BaseHttpRequest} derivative instance
-	 * @param <T> type of the data read from the HTTP response
-	 * @param <R> type of the HTTP request class returned by {@link #build()}
-	 */
-	public static abstract class AbstractBuilder<T, R extends BaseHttpRequest<T>> {
-		private static final String DEFAULT_HTTP_METHOD = "GET";
-		private static final String DEFAULT_POST_METHOD = "POST";
+	public abstract static class ChildBuilder<T, REQ extends BaseHttpRequest<T>> extends AbstractBuilder<T, REQ, ChildBuilder<T,REQ>> {
+		public ChildBuilder(Context context) {
+			super(context);
+		}
 
-		private Context context;
-		private HttpBodyParameters bodyParams;
-		private Uri uri;
+		public ChildBuilder() {
+		}
+	}
+
+	public static abstract class AbstractBuilder<T, REQ extends BaseHttpRequest<T>, BUILDER extends RawHttpRequest.AbstractBuilder<REQ,BUILDER>> extends RawHttpRequest.AbstractBuilder<REQ, BUILDER> {
 		private ResponseHandler<T> responseHandler;
-		private String httpMethod = "GET";
-		private RequestSigner signer;
-		private Boolean followRedirect;
 
-		/**
-		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
-		 */
-		public AbstractBuilder() {
-			this(HttpClient.defaultContext);
+		protected AbstractBuilder(Context context) {
+			super(context);
 		}
 
-		/**
-		 * Constructor for the {@link BaseHttpRequest} builder, setting {@code GET} method by default
-		 */
-		public AbstractBuilder(Context context) {
-			setContext(context);
-			setHttpMethod(DEFAULT_HTTP_METHOD);
-		}
-
-		public Context getContext() {
-			return context;
-		}
-
-		/**
-		 * Set the class that will be responsible to send the HTTP body of the query
-		 * <p>sets {@code POST} method by default
-		 * @param bodyParams the object that will write the HTTP body to the remote server
-		 * @return Current Builder
-		 */
-		public AbstractBuilder<T,R> setBody(HttpBodyParameters bodyParams) {
-			return setBody(DEFAULT_POST_METHOD, bodyParams);
-		}
-
-		/**
-		 * Set the class that will be responsible to send the HTTP body of the query
-		 * @param postMethod HTTP method to use with this request, {@code GET} and {@code HEAD} not possible
-		 * @param bodyParams the object that will write the HTTP body to the remote server
-		 * @return Current Builder
-		 * @see {@link #setHttpMethod(String)}
-		 */
-		public AbstractBuilder<T,R> setBody(String postMethod, HttpBodyParameters bodyParams) {
-			setHttpMethod(postMethod);
-			if (null!=bodyParams && httpMethod!=null && !isMethodWithBody(httpMethod))
-				throw new IllegalArgumentException("invalid body for HTTP method:"+httpMethod);
-			this.bodyParams = bodyParams;
-			return this;
-		}
-
-		/**
-		 * Sets the HTTP method to use for the request like {@code GET}, {@code POST} or {@code HEAD}
-		 * @param httpMethod HTTP method to use with this request
-		 * @return Current Builder
-		 */
-		public AbstractBuilder<T,R> setHttpMethod(String httpMethod) {
-			if (TextUtils.isEmpty(httpMethod))
-				throw new IllegalArgumentException("invalid null HTTP method");
-			if (null!=bodyParams && !isMethodWithBody(httpMethod))
-				throw new IllegalArgumentException("invalid HTTP method with body:"+httpMethod);
-			this.httpMethod = httpMethod;
-			return this;
-		}
-
-		/**
-		 * Set the URL that will be queried on the remote server
-		 * @param url requested on the server
-		 * @return Current Builder
-		 */
-		public AbstractBuilder<T,R> setUrl(String url) {
-			return setUrl(url, null);
-		}
-
-		/**
-		 * Set the URL that will be queried on the remote server
-		 * @param url requested on the server
-		 * @param uriParams parameters to add to the URL
-		 * @return Current Builder
-		 */
-		public AbstractBuilder<T,R> setUrl(String url, HttpUriParameters uriParams) {
-			Uri uri = Uri.parse(url);
-			if (null==uriParams) {
-				this.uri = uri;
-			} else {
-				Uri.Builder uriBuilder = uri.buildUpon();
-				uriParams.addUriParameters(uriBuilder);
-				this.uri = uriBuilder.build();
-			}
-			return this;
-		}
-
-		/**
-		 * Set the URL that will be queried on the remote server
-		 * @param uri requested on the server
-		 * @return Current Builder
-		 */
-		public AbstractBuilder<T,R> setUri(Uri uri) {
-			this.uri = uri;
-			return this;
+		protected AbstractBuilder() {
 		}
 
 		/**
@@ -160,232 +50,23 @@ public class BaseHttpRequest<T> implements TypedHttpRequest<T>, HttpErrorHandler
 		 * @param responseHandler HTTP response body parser
 		 * @return Current Builder
 		 */
-		public AbstractBuilder<T,R> setResponseParser(ResponseHandler<T> responseHandler) {
+		public BUILDER setResponseParser(ResponseHandler<T> responseHandler) {
 			this.responseHandler = responseHandler;
-			return this;
-		}
-
-		/**
-		 * Indicate that this query will be used as a continuous stream rather than outputting an Object
-		 * @return Current Builder
-		 */
-		@SuppressWarnings("unchecked")
-		public AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>> setStreaming() {
-			return ((AbstractBuilder<HttpStream, BaseHttpRequest<HttpStream>>) this).setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER);
-		}
-
-		/**
-		 * Set the object that will be responsible for signing the {@link HttpRequest}
-		 * @param signer object that will sign the {@link HttpRequest}
-		 * @return Current Builder
-		 */
-		public AbstractBuilder<T,R> setSigner(RequestSigner signer) {
-			if (null==signer) {
-				throw new IllegalArgumentException();
-			}
-			this.signer = signer;
-			return this;
-		}
-
-		public AbstractBuilder<T,R> setContext(Context context) {
-			this.context = context;
-			return this;
-		}
-
-		/**
-		 * Enable/Disable the HTTP redirection following, will follow redirections by default
-		 * @param followRedirect
-		 * @return Current Builder
-		 */
-		public AbstractBuilder<T,R> setFollowRedirect(boolean followRedirect) {
-			this.followRedirect = followRedirect;
-			return this;
-		}
-
-		public Uri getUri() {
-			return uri;
-		}
-
-		public String getHttpMethod() {
-			return httpMethod;
+			return (BUILDER) this;
 		}
 
 		public ResponseHandler<T> getResponseHandler() {
 			return responseHandler;
 		}
-
-		public RequestSigner getSigner() {
-			return signer;
-		}
-
-		public HttpBodyParameters getBodyParams() {
-			return bodyParams;
-		}
-
-		public Boolean getFollowRedirect() {
-			return followRedirect;
-		}
-
-		/**
-		 * Build the {@link R} instance
-		 * <p></p>ONLY IMPLEMENT IN A NON ABSTRACT Builder
-		 * @param impl Internal HTTP Implementation
-		 * @return
-		 */
-		protected abstract R build(HttpEngine<T> impl);
-
-		public final HttpEngine<T> buildImpl() {
-			return HttpClient.getHttpEngineFactory().createHttpEngine(this);
-		}
-
-		/**
-		 * Build the HTTP request to run through {@link HttpClient}
-		 */
-		public R build() {
-			return build(buildImpl());
-		}
 	}
 
-	private static boolean isMethodWithBody(String httpMethod) {
-		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
-	}
-
-	private final HttpEngine<T> engine;
-
-	protected BaseHttpRequest(HttpEngine<T> httpEngine) {
-		this.engine = httpEngine;
-		engine.setErrorHandler(this);
-	}
-
-	@Override
-	public Uri getUri() {
-		return engine.getUri();
-	}
-
-	@Override
-	public String getHttpMethod() {
-		return engine.getHttpMethod();
-	}
-
-	@Override
-	public String getContentType() {
-		return engine.getContentType();
-	}
-
-	@Override
-	public void addHeader(String name, String value) {
-		engine.addHeader(name, value);
-	}
-
-	@Override
-	public void setHeader(String name, String value) {
-		engine.setHeader(name, value);
-	}
-
-	@Override
-	public String getHeader(String name) {
-		return engine.getHeader(name);
+	protected BaseHttpRequest(AbstractBuilder<T,?,?> builder) {
+		super(builder);
+		this.responseHandler = builder.responseHandler;
 	}
 
 	@Override
 	public ResponseHandler<T> getResponseHandler() {
-		return engine.getResponseHandler();
-	}
-
-	@Override
-	public void settleHttpHeaders() throws HttpException {
-		// do nothing
-	}
-
-	public void outputBody(OutputStream outputStream) throws IOException {
-		engine.outputBody(outputStream, this);
-	}
-
-	@Override
-	public void setResponse(HttpResponse resp) {
-		// do nothing
-	}
-
-	@Override
-	public HttpResponse getResponse() {
-		return engine.getResponse();
-	}
-
-	@Override
-	public LoggerTagged getLogger() {
-		return engine.getLogger();
-	}
-
-	@Override
-	public HttpConfig getHttpConfig() {
-		return engine.getHttpConfig();
-	}
-
-	@Override
-	public void setHttpConfig(HttpConfig config) {
-		engine.setHttpConfig(config);
-	}
-
-	@Override
-	public Header[] getAllHeaders() {
-		return engine.getAllHeaders();
-	}
-
-	@Override
-	public boolean hasBody() {
-		return engine.hasBody();
-	}
-
-	@Override
-	public HttpException.Builder newException() {
-		return new HttpException.Builder(this);
-	}
-
-	public final HttpEngine<T> getHttpEngine() {
-		return engine;
-	}
-
-	public void setLogger(LoggerTagged loggerTagged) {
-		engine.setLogger(loggerTagged);
-	}
-
-	public void setProgressListener(UploadProgressListener listener) {
-		engine.setProgressListener(listener);
-	}
-
-	public UploadProgressListener getProgressListener() {
-		return engine.getProgressListener();
-	}
-
-	@Override
-	public RequestSigner getRequestSigner() {
-		return engine.getRequestSigner();
-	}
-
-	protected String getToStringExtra() {
-		String result = getUri().toString();
-		if (getRequestSigner() instanceof AbstractRequestSigner)
-			result += " for " + ((AbstractRequestSigner) getRequestSigner()).getOAuthUser();
-		return result;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(64);
-		String simpleName = getClass().getSimpleName();
-		if (simpleName == null || simpleName.length() <= 0) {
-			simpleName = getClass().getName();
-			int end = simpleName.lastIndexOf('.');
-			if (end > 0) {
-				simpleName = simpleName.substring(end+1);
-			}
-		}
-		sb.append(simpleName);
-		sb.append('{');
-		sb.append(Integer.toHexString(System.identityHashCode(this)));
-		sb.append(' ');
-		sb.append(getToStringExtra());
-		sb.append('}');
-		return sb.toString();
+		return responseHandler;
 	}
 }

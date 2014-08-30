@@ -3,8 +3,8 @@ package com.levelup.http.signed;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequest;
 
 /**
  * Helper class to OAuth2 sign a {@link BaseHttpRequest}
@@ -20,7 +20,7 @@ public class RequestSignerOAuth2 extends AbstractRequestSigner {
 	}
 
 	@Override
-	public void sign(HttpRequest req) throws HttpException {
+	public void sign(HttpEngine<?> req) throws HttpException {
 		OAuthUser user = getOAuthUser();
 		if (null != user) {
 			String tokenSecret = user.getTokenSecret();

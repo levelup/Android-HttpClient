@@ -1,14 +1,13 @@
 package com.levelup.http;
 
-import java.io.IOException;
-import java.io.OutputStream;
 
+import android.content.Context;
 
 /**
  * Interface for HTTP requests to be passed to {@link HttpClient}
  * @see BaseHttpRequest
  */
-public interface HttpRequest extends HttpRequestInfo, HttpExceptionCreator {
+public interface HttpRequest extends HttpRequestInfo, HttpExceptionFactory {
 
 	/**
 	 * Add an extra HTTP header to this request
@@ -36,11 +35,6 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionCreator {
 	public <R extends HttpResponse> void setResponse(R resp);
 
 	/**
-	 * @return the HTTP response if there was any
-	 */
-	HttpResponse getResponse();
-
-	/**
 	 * Returns the {@link LoggerTagged} for this request or {@code null} 
 	 */
 	LoggerTagged getLogger();
@@ -54,4 +48,8 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionCreator {
 	 * Set the {@link HttpConfig} for this request or {@code null} 
 	 */
 	void setHttpConfig(HttpConfig config);
+
+	HttpBodyParameters getBodyParams();
+
+	Context getContext();
 }
