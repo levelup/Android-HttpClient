@@ -12,7 +12,6 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.parser.ResponseToString;
 
@@ -78,7 +77,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	public void testCancelShort() {
 		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL, ResponseToString.RESPONSE_HANDLER);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -95,7 +94,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	public void testCancelShortHttps() {
 		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL_HTTPS, ResponseToString.RESPONSE_HANDLER);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -112,7 +111,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	public void testCancelLong() {
 		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL, ResponseToString.RESPONSE_HANDLER);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -133,7 +132,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	public void testCancelLongHttps() {
 		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL_HTTPS, ResponseToString.RESPONSE_HANDLER);
-		Future<String> downloadTask = AsyncHttpClient.doRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {

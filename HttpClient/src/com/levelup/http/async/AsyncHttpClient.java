@@ -3,7 +3,6 @@ package com.levelup.http.async;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -11,8 +10,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import android.annotation.SuppressLint;
-import android.os.Build;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
@@ -35,10 +32,8 @@ public class AsyncHttpClient {
 
 	private static ExecutorService executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
 
-	@SuppressLint("NewApi")
 	private AsyncHttpClient() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
-			((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
+		((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
 	}
 
 	/**
@@ -69,7 +64,7 @@ public class AsyncHttpClient {
 		BaseHttpRequest.Builder<String> reqBuilder = new BaseHttpRequest.Builder<String>();
 		reqBuilder.setUrl(url)
 				.setResponseParser(ResponseToString.RESPONSE_HANDLER);
-		doRequest(reqBuilder.build(), tag, callback);
+		postRequest(reqBuilder.build(), tag, callback);
 	}
 
 	/**
@@ -79,8 +74,8 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback) {
-		return doRequest(request, callback, BaseNetworkTaskFactory.instance);
+	public static <T> Future<T> postRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback) {
+		return postRequest(request, callback, BaseNetworkTaskFactory.instance);
 	}
 
 	/**
@@ -89,14 +84,11 @@ public class AsyncHttpClient {
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
 	 * @return A Future<T> representing the download task, if you need to cancel it
-	 * @see #doRequest(TypedHttpRequest, NetworkCallback)
+	 * @see #postRequest(TypedHttpRequest, NetworkCallback)
 	 */
-	public static <T> Future<T> doRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
-		return doRequest(executor, factory, new HttpEngine.Builder<T>().setTypedRequest(request).build(), callback);
-	}
-
-	public static <T> Future<T> doRequest(Executor executor, NetworkTaskFactory<T> factory, Callable<T> callable, NetworkCallback<T> callback) {
-		FutureTask<T> task = factory.createNetworkTask(callable, callback);
+	public static <T> Future<T> postRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
+		HttpEngine<T> httpEngine = new HttpEngine.Builder<T>().setTypedRequest(request).build();
+		FutureTask<T> task = factory.createNetworkTask(httpEngine, callback);
 		executor.execute(task);
 		return task;
 	}
@@ -107,11 +99,11 @@ public class AsyncHttpClient {
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #getString(TypedHttpRequest, String, NetworkCallback)
+	 * @see #getString(String, String, NetworkCallback)
 	 */
-	public static <T> void doRequest(TypedHttpRequest<T> request, String tag, NetworkCallback<T> callback) {
+	public static <T> void postRequest(TypedHttpRequest<T> request, String tag, NetworkCallback<T> callback) {
 		if (TextUtils.isEmpty(tag)) {
-			doRequest(request, callback);
+			postRequest(request, callback);
 			return;
 		}
 
@@ -121,7 +113,7 @@ public class AsyncHttpClient {
 				oldTask.cancel(true);
 			}
 
-			Future<T> task = doRequest(request, callback, new TaggedStringDownloadFactory<T>(tag));
+			Future<T> task = postRequest(request, callback, new TaggedStringDownloadFactory<T>(tag));
 
 			taggedJobs.put(tag, task);
 		}
