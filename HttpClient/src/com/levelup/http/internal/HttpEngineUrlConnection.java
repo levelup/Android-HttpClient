@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.http.protocol.HTTP;
-
 import android.annotation.SuppressLint;
 import android.os.Build;
 
@@ -47,40 +45,32 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
-	}
 
-	@SuppressLint("NewApi")
-	@Override
-	public void settleHttpHeaders() throws HttpException {
 		try {
 			urlConnection.setRequestMethod(request.getHttpMethod());
 
 		} catch (ProtocolException e) {
-			throw exceptionToHttpException(e).build();
+			throw new IllegalStateException(e);
 		}
 
-		final long contentLength;
-		if (null != request.getBodyParameters()) {
-			setHeader(HTTP.CONTENT_TYPE, request.getBodyParameters().getContentType());
-			contentLength = request.getBodyParameters().getContentLength();
-			urlConnection.setDoOutput(true);
-			urlConnection.setDoInput(true);
-		} else {
-			contentLength = 0L;
+		if (request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
+			setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
 		}
-		setHeader(HTTP.CONTENT_LEN, Long.toString(contentLength));
+	}
+
+	@SuppressLint("NewApi")
+	@Override
+	protected void setContentLength(long contentLength) {
+		super.setContentLength(contentLength);
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
 			urlConnection.setFixedLengthStreamingMode((int) contentLength);
 		else
 			urlConnection.setFixedLengthStreamingMode(contentLength);
+	}
 
-		if (/*allowGzip && */request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
-			setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
-		}
-
-		super.settleHttpHeaders();
-
+	@Override
+	public void setHeadersAndConfig() {
 		for (Entry<String, String> entry : requestHeaders.entrySet()) {
 			urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
@@ -107,6 +97,11 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 					logger.v(header.getKey()+": "+header.getValue());
 				}
 			}
+
+			if (null != request.getBodyParameters()) {
+				urlConnection.setDoOutput(true);
+			}
+			urlConnection.setDoInput(true);
 
 			urlConnection.connect();
 

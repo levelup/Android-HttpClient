@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.http.protocol.HTTP;
-
 import android.content.Context;
 
 import com.koushikdutta.async.DataEmitter;
@@ -112,18 +110,10 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 				});
 			}
 		}
-
-		// TODO the headers should be static after that and set to the requestBuilder
 	}
 
 	@Override
-	public void settleHttpHeaders() throws HttpException {
-		if (!isMethodWithBody(request.getHttpMethod())) {
-			setHeader(HTTP.CONTENT_LEN, "0");
-		}
-
-		super.settleHttpHeaders();
-
+	public void setHeadersAndConfig() {
 		for (Entry<String, String> entry : requestHeaders.entrySet()) {
 			requestBuilder.setHeader(entry.getKey(), entry.getValue());
 		}

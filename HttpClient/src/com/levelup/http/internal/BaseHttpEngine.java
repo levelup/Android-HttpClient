@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.http.protocol.HTTP;
+
 import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
@@ -20,7 +22,6 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpExceptionFactory;
-import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.LogManager;
@@ -43,10 +44,6 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	protected final HttpExceptionFactory exceptionFactory;
 
 	protected R httpResponse;
-
-	protected static boolean isMethodWithBody(String httpMethod) {
-		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
-	}
 
 	protected static boolean isHttpError(HttpResponse httpResponse) throws IOException {
 		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
@@ -88,15 +85,32 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			HttpClient.getCookieManager().setCookieHeader(this);
 		}
 
-		settleHttpHeaders();
-	}
-
-	protected void settleHttpHeaders() throws HttpException {
 		request.settleHttpHeaders();
+
+		final long contentLength;
+		if (null != request.getBodyParameters()) {
+			setHeader(HTTP.CONTENT_TYPE, request.getBodyParameters().getContentType());
+			contentLength = request.getBodyParameters().getContentLength();
+		} else {
+			contentLength = 0L;
+		}
+		setContentLength(contentLength);
 
 		if (null != request.getRequestSigner())
 			request.getRequestSigner().sign(this);
+
+		setHeadersAndConfig();
 	}
+
+	protected void setContentLength(long contentLength) {
+		setHeader(HTTP.CONTENT_LEN, Long.toString(contentLength));
+	}
+
+	/**
+	 * Set the HTTP headers on the internal connection, the follow redirect setting and the timeout
+	 * @throws HttpException
+	 */
+	protected abstract void setHeadersAndConfig();
 
 	@Override
 	public final void setHeader(String key, String value) {
@@ -116,6 +130,11 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			listener.onParamUploadProgress(requestInfo, null, 100);
 	}
 
+	/**
+	 * Do the query on the network and return the internal {@link com.levelup.http.HttpResponse}
+	 * @return
+	 * @throws HttpException
+	 */
 	protected abstract R queryResponse() throws HttpException;
 
 	protected T responseToResult(R response) throws ParserException, IOException {
