@@ -11,11 +11,11 @@ import com.levelup.http.ParserException;
 /**
  * Created by robUx4 on 26/08/2014.
  */
-public class ErrorHandlerParser<T> implements ErrorHandler {
+public class ErrorHandlerViaXferTransform<T> implements ErrorHandler {
 
 	public final XferTransform<HttpResponse, T> errorDataParser;
 
-	public ErrorHandlerParser(XferTransform<HttpResponse, T> errorDataParser) {
+	public ErrorHandlerViaXferTransform(XferTransform<HttpResponse, T> errorDataParser) {
 		this.errorDataParser = errorDataParser;
 	}
 

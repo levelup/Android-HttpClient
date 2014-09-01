@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 import org.json.JSONObject;
 
-import com.levelup.http.parser.ErrorHandlerParser;
+import com.levelup.http.parser.ErrorHandlerViaXferTransform;
 import com.levelup.http.parser.XferTransformInputStreamString;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.parser.XferTransformStringJSONObject;
@@ -13,7 +13,7 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
 /**
  * Created by robUx4 on 26/08/2014.
  */
-public class BaseErrorHandler extends ErrorHandlerParser<InputStream> {
+public class BaseErrorHandler extends ErrorHandlerViaXferTransform<InputStream> {
 	public static final ErrorHandler INSTANCE = new BaseErrorHandler();
 
 	public BaseErrorHandler() {

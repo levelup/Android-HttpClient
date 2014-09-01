@@ -3,7 +3,9 @@ package com.levelup.http;
 import com.levelup.http.parser.XferTransform;
 
 /**
- * Created by robUx4 on 20/08/2014.
+ * Handle the body of the {@link com.levelup.http.HttpResponse} received from the {@link com.levelup.http.HttpEngine}
+ *
+ * @author Created by robUx4 on 20/08/2014.
  */
 public class ResponseHandler<OUTPUT> {
 

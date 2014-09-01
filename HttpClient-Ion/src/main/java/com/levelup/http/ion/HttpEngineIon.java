@@ -44,7 +44,7 @@ import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
-import com.levelup.http.parser.ErrorHandlerParser;
+import com.levelup.http.parser.ErrorHandlerViaXferTransform;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
@@ -132,7 +132,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 
 	@Override
 	protected HttpResponseIon<T> queryResponse() throws HttpException {
-		XferTransform<HttpResponse, ?> errorParser = ((ErrorHandlerParser) responseHandler.errorHandler).errorDataParser;
+		XferTransform<HttpResponse, ?> errorParser = ((ErrorHandlerViaXferTransform) responseHandler.errorHandler).errorDataParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
 		ResponseFuture<Object> req = requestBuilder.as(parser);
@@ -150,16 +150,16 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 			if (isHttpError(ionResponse)) {
 				DataErrorException exceptionWithData = null;
 
-				if (responseHandler.errorHandler instanceof ErrorHandlerParser) {
+				if (responseHandler.errorHandler instanceof ErrorHandlerViaXferTransform) {
 					Object data = response.getResult();
-					ErrorHandlerParser errorHandler = (ErrorHandlerParser) responseHandler.errorHandler;
+					ErrorHandlerViaXferTransform errorHandler = (ErrorHandlerViaXferTransform) responseHandler.errorHandler;
 					XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorHandler.errorDataParser, commonTransforms);
 					Object errorData;
 					if (null == transformToResult)
 						errorData = data;
 					else
 						errorData = transformToResult.transformData(data, this);
-					exceptionWithData = ((ErrorHandlerParser) responseHandler.errorHandler).handleErrorData(errorData, this);
+					exceptionWithData = ((ErrorHandlerViaXferTransform) responseHandler.errorHandler).handleErrorData(errorData, this);
 				}
 
 				HttpException.Builder exceptionBuilder = exceptionToHttpException(exceptionWithData);
