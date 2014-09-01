@@ -6,6 +6,38 @@ import java.util.concurrent.Callable;
  * Created by robUx4 on 30/08/2014.
  */
 public class CallableHelper {
+	public interface PageDataProcessor<PAGED_HOLDER, PAGE> {
+		/**
+		 * Add the {@code page} to the {@code pageHolder} and return the {@code Callable} to retrieve the next page
+		 * @param pagedHolder Object that will retain the data from the next page
+		 * @param page The new page received
+		 * @return A {@link java.util.concurrent.Callable} to retrieve the next page
+		 */
+		Callable<PAGE> addPageAndContinue(PAGED_HOLDER pagedHolder, PAGE page);
+	}
+
+	/**
+	 * Read a {@link PAGE}, store it and get the next page if there is one
+	 * @param pageRequest Request to get the {@link PAGE} data
+	 * @param pageDataProcessor Callback to handle the new page and generate the request to get the next page
+	 * @param pagedHolder Object that will keep all the pages
+	 * @param <PAGED_HOLDER> Type of the Object that will hold all the pages we receive
+	 * @param <PAGE> Type of the Object representing a page
+	 * @return
+	 */
+	public static <PAGED_HOLDER, PAGE> Callable<PAGED_HOLDER> processPage(final Callable<PAGE> pageRequest, final PageDataProcessor<PAGED_HOLDER, PAGE> pageDataProcessor, final PAGED_HOLDER pagedHolder) {
+		return new Callable<PAGED_HOLDER>() {
+			@Override
+			public PAGED_HOLDER call() throws Exception {
+				PAGE newPage = pageRequest.call();
+				Callable<PAGE> nextPageCall = pageDataProcessor.addPageAndContinue(pagedHolder, newPage);
+				if (null == nextPageCall)
+					return pagedHolder;
+				return processPage(nextPageCall, pageDataProcessor, pagedHolder).call();
+			}
+		};
+	}
+
 	/**
 	 * Chain a {@link java.util.concurrent.Callable} and a {@link com.levelup.http.CallableHelper.CallableForResult}
 	 * <p>The {@code Callable} is processed and the result passed to the {@link com.levelup.http.CallableHelper.CallableForResult} to
@@ -37,7 +69,4 @@ public class CallableHelper {
 		 */
 		Callable<B> getNextCallable(A a) throws HttpException;
 	}
-
-	// TODO might return a Callable or the end result, see what is best with the examples
-
 }

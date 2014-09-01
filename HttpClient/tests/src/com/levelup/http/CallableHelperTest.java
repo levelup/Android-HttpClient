@@ -7,6 +7,8 @@ import android.test.AndroidTestCase;
 
 import com.levelup.http.parser.ResponseToString;
 import com.levelup.http.parser.ResponseToVoid;
+import com.levelup.http.parser.ResponseTransformChain;
+import com.levelup.http.parser.Transformer;
 
 public class CallableHelperTest extends AndroidTestCase {
 
@@ -103,7 +105,7 @@ public class CallableHelperTest extends AndroidTestCase {
 		}
 	};
 
-	public void testPagedData() throws Exception {
+	public void testChainPagedData() throws Exception {
 		// stop after the last page and send all the pages data in the end
 		NextLinkReader pageReader = new NextLinkReader();
 
@@ -115,5 +117,69 @@ public class CallableHelperTest extends AndroidTestCase {
 		assertTrue(pageReader.links.contains("http://httpbin.org/links/3/0"));
 		assertTrue(pageReader.links.contains("http://httpbin.org/links/3/1"));
 		assertTrue(pageReader.links.contains("http://httpbin.org/links/3/2"));
+	}
+
+	private static class PagedResult {
+		private final ArrayList<String> links = new ArrayList<String>();
+	}
+
+	private static class Page {
+		private final ArrayList<String> pageLinks = new ArrayList<String>();
+	}
+
+	private static final ResponseHandler<Page> PAGE_RESPONSE_HANDLER = new ResponseHandler<Page>(
+			ResponseTransformChain.Builder
+					// read the data as a String
+					.init(ResponseToString.INSTANCE)
+					// parse the String data to retrieve the links
+					.addDataTransform(new Transformer<String, Page>() {
+						@Override
+						protected Page transform(String s, ImmutableHttpRequest request) {
+							Page result = new Page();
+							int linkIndex = s.indexOf("<a href='");
+							while (-1 != linkIndex) {
+								int linkEndIndex = s.indexOf("'>", linkIndex + 9);
+								String link = "http://httpbin.org" + s.substring(linkIndex + 9, linkEndIndex);
+								result.pageLinks.add(link);
+								linkIndex = s.indexOf("<a href='", linkEndIndex);
+							}
+							return result;
+						}
+					}).build()
+	);
+
+	private static HttpEngine<Page> getPageEngine(String link) {
+		return new HttpEngine.Builder<Page>()
+				.setRequest(new RawHttpRequest.Builder().setUrl(link).build())
+				.setResponseHandler(PAGE_RESPONSE_HANDLER)
+				.build();
+	}
+
+	public void testPagedData() throws Exception {
+		PagedResult initData = new PagedResult();
+
+		Callable<PagedResult> mainCallable = CallableHelper.processPage(getPageEngine("http://httpbin.org/links/3/0"),
+				new CallableHelper.PageDataProcessor<PagedResult, Page>() {
+					@Override
+					public Callable<Page> addPageAndContinue(PagedResult pagedHolder, Page page) {
+						for (String link : page.pageLinks) {
+							if (!pagedHolder.links.contains(link)) {
+								// we found a link we haven't read yet (a page), read it
+								pagedHolder.links.add(link);
+								return getPageEngine(link);
+							}
+						}
+						return null;
+					}
+				},
+				initData
+		);
+
+		PagedResult result = mainCallable.call();
+
+		assertEquals(3, result.links.size());
+		assertTrue(result.links.contains("http://httpbin.org/links/3/0"));
+		assertTrue(result.links.contains("http://httpbin.org/links/3/1"));
+		assertTrue(result.links.contains("http://httpbin.org/links/3/2"));
 	}
 }
