@@ -214,8 +214,11 @@ public class RawHttpRequest implements HttpRequest {
 			mRequestSetHeaders.put(HTTP.USER_AGENT, HttpClient.getUserAgent());
 		}
 
-		for (Header defaultHeader : HttpClient.getDefaultHeaders()) {
-			mRequestSetHeaders.put(defaultHeader.getName(), defaultHeader.getValue());
+		final Header[] defaultHeaders = HttpClient.getDefaultHeaders();
+		if (null!=defaultHeaders) {
+			for (Header defaultHeader : defaultHeaders) {
+				mRequestSetHeaders.put(defaultHeader.getName(), defaultHeader.getValue());
+			}
 		}
 	}
 
@@ -304,16 +307,6 @@ public class RawHttpRequest implements HttpRequest {
 			}
 		}
 		return headers.toArray(new Header[headers.size()]);
-	}
-
-	@Override
-	public boolean hasBody() {
-		return null != bodyParams;
-	}
-
-	@Override
-	public HttpBodyParameters getBodyParams() {
-		return bodyParams;
 	}
 
 	@Override

@@ -8,6 +8,11 @@ import android.content.Context;
  * Created by Steve Lhomme on 14/07/2014.
  */
 public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
+	/**
+	 * Process the {@link com.levelup.http.HttpRequest} it was built with
+	 * @return The result processed by the {@link com.levelup.http.ResponseHandler}
+	 * @throws HttpException
+	 */
 	T call() throws HttpException;
 
 	ResponseHandler<T> getResponseHandler();

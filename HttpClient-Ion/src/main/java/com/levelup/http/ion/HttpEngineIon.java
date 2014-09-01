@@ -50,7 +50,6 @@ import com.levelup.http.parser.ErrorHandlerParser;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
-import com.levelup.http.parser.XferTransformInputStreamHttpStream;
 import com.levelup.http.parser.XferTransformInputStreamString;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.parser.XferTransformStringJSONArray;
@@ -67,7 +66,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 	private static Ion ion;
 
-	public HttpEngineIon(RawHttpRequest request, ResponseHandler<T> responseHandler, Context context, HttpExceptionFactory exceptionFactory) {
+	protected HttpEngineIon(final RawHttpRequest request, ResponseHandler<T> responseHandler, Context context, HttpExceptionFactory exceptionFactory) {
 		super(request, responseHandler, exceptionFactory);
 
 		if (context == null) {
@@ -85,8 +84,35 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(context);
 		this.requestBuilder = ionLoadBuilder.load(request.getHttpMethod(), request.getUri().toString());
 
-		// TODO setup everything that is needed to use the requestBuilder without using the call()
-		// TODO   like most of settleHttpHeaders() and  setupBody()
+		final HttpBodyParameters sourceBody = request.getBodyParameters();
+		final IonBody ionBody;
+		if (sourceBody instanceof HttpBodyMultiPart)
+			ionBody = new IonHttpBodyMultiPart((HttpBodyMultiPart) sourceBody);
+		else if (sourceBody instanceof HttpBodyJSON)
+			ionBody = new IonHttpBodyJSON((HttpBodyJSON) sourceBody);
+		else if (sourceBody instanceof HttpBodyUrlEncoded)
+			ionBody = new IonHttpBodyUrlEncoded((HttpBodyUrlEncoded) sourceBody);
+		else if (sourceBody instanceof HttpBodyString)
+			ionBody = new IonHttpBodyString((HttpBodyString) sourceBody);
+		else if (sourceBody != null)
+			throw new IllegalStateException("Unknown body type "+sourceBody);
+		else
+			ionBody = null;
+
+		if (null != ionBody) {
+			ionBody.setOutputData(requestBuilder);
+
+			final UploadProgressListener progressListener = request.getProgressListener();
+			if (null != progressListener) {
+				requestBuilder.progress(new ProgressCallback() {
+					@Override
+					public void onProgress(long downloaded, long total) {
+						progressListener.onParamUploadProgress(request, null, (int) ((100 * downloaded) / total));
+					}
+				});
+			}
+		}
+
 		// TODO the headers should be static after that and set to the requestBuilder
 	}
 
@@ -115,41 +141,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	public final void setupBody() {
-		final HttpBodyParameters sourceBody = request.getBodyParams();
-		final IonBody ionBody;
-		if (sourceBody instanceof HttpBodyMultiPart)
-			ionBody = new IonHttpBodyMultiPart((HttpBodyMultiPart) sourceBody);
-		else if (sourceBody instanceof HttpBodyJSON)
-			ionBody = new IonHttpBodyJSON((HttpBodyJSON) sourceBody);
-		else if (sourceBody instanceof HttpBodyUrlEncoded)
-			ionBody = new IonHttpBodyUrlEncoded((HttpBodyUrlEncoded) sourceBody);
-		else if (sourceBody instanceof HttpBodyString)
-			ionBody = new IonHttpBodyString((HttpBodyString) sourceBody);
-		else if (sourceBody != null)
-			throw new IllegalStateException("Unknown body type "+sourceBody);
-		else
-			ionBody = null;
-
-		if (null != ionBody) {
-			ionBody.setOutputData(requestBuilder);
-
-			final UploadProgressListener progressListener = request.getProgressListener();
-			if (null != progressListener) {
-				requestBuilder.progress(new ProgressCallback() {
-					@Override
-					public void onProgress(long downloaded, long total) {
-						progressListener.onParamUploadProgress(request, null, (int) ((100 * downloaded) / total));
-					}
-				});
-			}
-		}
-	}
-
-	@Override
 	protected HttpResponseIon<T> queryResponse() throws HttpException {
-		prepareRequest();
-
 		XferTransform<HttpResponse, ?> errorParser = ((ErrorHandlerParser) responseHandler.errorHandler).errorDataParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
@@ -277,31 +269,5 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 		}
 
 		throw new IllegalStateException();
-	}
-
-	/**
-	 * See if we can find common ground to parse the data and the error data inside Ion
-	 * @param responseHandler
-	 * @return whether Ion will be able to parse the data and the error in its processing thread
-	 */
-	public static boolean errorCompatibleWithData(ResponseHandler<?> responseHandler) {
-		if (!(responseHandler.errorHandler instanceof ErrorHandlerParser)) {
-			// not possible to handle the error data with the data coming out of the data parser
-			return false;
-		}
-
-		ErrorHandlerParser errorHandlerParser = (ErrorHandlerParser) responseHandler.errorHandler;
-		return Utils.getCommonXferTransform(responseHandler.contentParser, errorHandlerParser.errorDataParser) != null;
-	}
-
-	public static <T> boolean canHandleXferTransform(XferTransform<HttpResponse, T> contentParser) {
-		if (contentParser instanceof XferTransformChain) {
-			XferTransformChain<HttpResponse, T> parser = (XferTransformChain<HttpResponse, T>) contentParser;
-			for (XferTransform transform : parser.transforms) {
-				if (transform == XferTransformInputStreamHttpStream.INSTANCE)
-					return false;
-			}
-		}
-		return true;
 	}
 }

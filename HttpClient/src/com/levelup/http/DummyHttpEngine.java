@@ -3,7 +3,7 @@ package com.levelup.http;
 /**
  * Created by robUx4 on 01/09/2014.
  */
-public class DummyHttpEngine<T> implements HttpEngine<T> {
+public final class DummyHttpEngine<T> implements HttpEngine<T> {
 	private final RawHttpRequest request;
 	private final ResponseHandler<T> responseHandler;
 	private final HttpExceptionFactory exceptionFactory;
@@ -30,7 +30,7 @@ public class DummyHttpEngine<T> implements HttpEngine<T> {
 	}
 
 	@Override
-	public HttpRequest getHttpRequest() {
+	public HttpRequestInfo getHttpRequest() {
 		return request;
 	}
 

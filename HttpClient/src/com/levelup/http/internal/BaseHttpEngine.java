@@ -68,11 +68,16 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	@Override
-	public final HttpRequest getHttpRequest() {
+	public final HttpRequestInfo getHttpRequest() {
 		return request;
 	}
 
-	public final void prepareRequest() throws HttpException {
+	/**
+	 * Set all internal variables and sign the query if needed
+	 * <p>Usually you don't need to call this yourself, the engine will do it</p>
+	 * @throws HttpException
+	 */
+	public final void prepareEngine() throws HttpException {
 			/*
 			HttpResponse resp = null;
 			try {
@@ -83,7 +88,6 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			HttpClient.getCookieManager().setCookieHeader(this);
 		}
 
-		setupBody();
 		settleHttpHeaders();
 	}
 
@@ -106,18 +110,22 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		final UploadProgressListener listener = request.getProgressListener();
 		if (null != listener)
 			listener.onParamUploadProgress(requestInfo, null, 0);
-		if (null != request.getBodyParams())
-			request.getBodyParams().writeBodyTo(outputStream, requestInfo, listener);
+		if (null != request.getBodyParameters())
+			request.getBodyParameters().writeBodyTo(outputStream, requestInfo, listener);
 		if (null != listener)
 			listener.onParamUploadProgress(requestInfo, null, 100);
 	}
 
 	protected abstract R queryResponse() throws HttpException;
-	protected abstract T responseToResult(R response) throws ParserException, IOException;
-	protected abstract void setupBody();
+
+	protected T responseToResult(R response) throws ParserException, IOException {
+		return responseHandler.contentParser.transformData(response, this);
+	}
 
 	@Override
 	public final T call() throws HttpException {
+		prepareEngine();
+
 		R httpResponse = queryResponse();
 		try {
 			return responseToResult(httpResponse);

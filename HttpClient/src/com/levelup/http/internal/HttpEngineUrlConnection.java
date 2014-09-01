@@ -49,53 +49,6 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		}
 	}
 
-	/**
-	 * Process the HTTP request on the network and return the HttpURLConnection
-	 * @return an {@link java.net.HttpURLConnection} with the network response
-	 * @throws com.levelup.http.HttpException
-	 */
-	private void getQueryResponse() throws HttpException {
-		prepareRequest();
-
-		try {
-			final LoggerTagged logger = request.getLogger();
-			if (null != logger) {
-				logger.v(request.getHttpMethod() + ' ' + request.getUri());
-				for (Map.Entry<String, List<String>> header : urlConnection.getRequestProperties().entrySet()) {
-					logger.v(header.getKey()+": "+header.getValue());
-				}
-			}
-
-			doConnection();
-
-			if (null != logger) {
-				logger.v(urlConnection.getResponseMessage());
-				for (Map.Entry<String, List<String>> header : urlConnection.getHeaderFields().entrySet()) {
-					logger.v(header.getKey()+": "+header.getValue());
-				}
-			}
-
-		} catch (SecurityException e) {
-			throw exceptionToHttpException(e).build();
-
-		} catch (IOException e) {
-			throw exceptionToHttpException(e).build();
-
-		} finally {
-			try {
-				setRequestResponse(new HttpResponseUrlConnection(this));
-			} catch (IllegalStateException e) {
-				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-				HttpException.Builder builder = createExceptionBuilder();
-				builder.setErrorMessage("Connection closed "+e.getMessage());
-				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_NETWORK);
-				throw builder.build();
-			}
-		}
-	}
-
 	@SuppressLint("NewApi")
 	@Override
 	public void settleHttpHeaders() throws HttpException {
@@ -107,9 +60,9 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		}
 
 		final long contentLength;
-		if (null != request.getBodyParams()) {
-			setHeader(HTTP.CONTENT_TYPE, request.getBodyParams().getContentType());
-			contentLength = request.getBodyParams().getContentLength();
+		if (null != request.getBodyParameters()) {
+			setHeader(HTTP.CONTENT_TYPE, request.getBodyParameters().getContentType());
+			contentLength = request.getBodyParameters().getContentLength();
 			urlConnection.setDoOutput(true);
 			urlConnection.setDoInput(true);
 		} else {
@@ -145,26 +98,53 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	public final void setupBody() {
-		// do nothing
-	}
+	protected HttpResponseUrlConnection queryResponse() throws HttpException {
+		try {
+			final LoggerTagged logger = request.getLogger();
+			if (null != logger) {
+				logger.v(request.getHttpMethod() + ' ' + request.getUri());
+				for (Map.Entry<String, List<String>> header : urlConnection.getRequestProperties().entrySet()) {
+					logger.v(header.getKey()+": "+header.getValue());
+				}
+			}
 
-	public final void doConnection() throws IOException {
-		urlConnection.connect();
+			urlConnection.connect();
 
-		if (null != request.getBodyParams()) {
-			OutputStream output = urlConnection.getOutputStream();
+			if (null != request.getBodyParameters()) {
+				OutputStream output = urlConnection.getOutputStream();
+				try {
+					outputBody(output, request);
+				} finally {
+					output.close();
+				}
+			}
+
+			if (null != logger) {
+				logger.v(urlConnection.getResponseMessage());
+				for (Map.Entry<String, List<String>> header : urlConnection.getHeaderFields().entrySet()) {
+					logger.v(header.getKey()+": "+header.getValue());
+				}
+			}
+
+		} catch (SecurityException e) {
+			throw exceptionToHttpException(e).build();
+
+		} catch (IOException e) {
+			throw exceptionToHttpException(e).build();
+
+		} finally {
 			try {
-				outputBody(output, request);
-			} finally {
-				output.close();
+				setRequestResponse(new HttpResponseUrlConnection(this));
+			} catch (IllegalStateException e) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
+				HttpException.Builder builder = createExceptionBuilder();
+				builder.setErrorMessage("Connection closed "+e.getMessage());
+				builder.setCause(e);
+				builder.setErrorCode(HttpException.ERROR_NETWORK);
+				throw builder.build();
 			}
 		}
-	}
-
-	@Override
-	protected HttpResponseUrlConnection queryResponse() throws HttpException {
-		getQueryResponse();
 
 		try {
 			httpResponse.getInputStream();
@@ -186,10 +166,5 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			throw exceptionToHttpException(e).build();
 
 		}
-	}
-
-	@Override
-	protected T responseToResult(HttpResponseUrlConnection response) throws ParserException, IOException {
-		return responseHandler.contentParser.transformData(response, this);
 	}
 }

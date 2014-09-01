@@ -46,6 +46,4 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionFactory {
 	 * Set the {@link HttpConfig} for this request or {@code null} 
 	 */
 	void setHttpConfig(HttpConfig config);
-
-	HttpBodyParameters getBodyParams();
 }

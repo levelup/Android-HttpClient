@@ -35,11 +35,6 @@ public interface HttpRequestInfo {
 	Header[] getAllHeaders();
 
 	/**
-	 * Tell if the request has a body (for POST, PUT, DELETE, etc methods)
-	 */
-	boolean hasBody();
-
-	/**
 	 * Get the object that will be responsible for signing the HTTP request
 	 */
 	RequestSigner getRequestSigner();

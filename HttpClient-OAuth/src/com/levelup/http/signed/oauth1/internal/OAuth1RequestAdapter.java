@@ -47,7 +47,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 		final String contentType = getContentType();  
 		if (null != contentType && contentType.startsWith("application/x-www-form-urlencoded")) {
 			ByteArrayOutputStream output = new ByteArrayOutputStream(32);
-			httpEngine.getHttpRequest().getBodyParams().writeBodyTo(output, httpEngine.getHttpRequest(), null);
+			httpEngine.getHttpRequest().getBodyParameters().writeBodyTo(output, httpEngine.getHttpRequest(), null);
 			return new ByteArrayInputStream(output.toByteArray());
 		}
 		return null;
@@ -55,8 +55,8 @@ public class OAuth1RequestAdapter implements HttpRequest {
 
 	@Override
 	public String getContentType() {
-		if (null!=httpEngine.getHttpRequest().getBodyParams())
-			return httpEngine.getHttpRequest().getBodyParams().getContentType();
+		if (null!=httpEngine.getHttpRequest().getBodyParameters())
+			return httpEngine.getHttpRequest().getBodyParameters().getContentType();
 		return null;
 	}
 
