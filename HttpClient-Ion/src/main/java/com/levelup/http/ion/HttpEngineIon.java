@@ -147,11 +147,12 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	protected HttpResponseIon<T> queryResponse(ResponseHandler<T> responseHandler) throws HttpException {
+	protected HttpResponseIon<T> queryResponse() throws HttpException {
+		prepareRequest();
+
 		XferTransform<HttpResponse, ?> errorParser = ((ErrorHandlerParser) responseHandler.errorHandler).errorDataParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
-		prepareRequest();
 		ResponseFuture<Object> req = requestBuilder.as(parser);
 		Future<Response<Object>> withResponse = req.withResponse();
 		try {
@@ -201,7 +202,7 @@ public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
 	}
 
 	@Override
-	protected T responseToResult(HttpResponseIon<T> response, ResponseHandler<T> responseHandler) throws ParserException, IOException {
+	protected T responseToResult(HttpResponseIon<T> response) throws ParserException, IOException {
 		Object data = response.getResult();
 		XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(responseHandler.contentParser, response.getCommonTransform());
 		if (null == transformToResult)

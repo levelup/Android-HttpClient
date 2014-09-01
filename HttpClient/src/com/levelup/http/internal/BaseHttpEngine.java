@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import android.net.Uri;
 import android.text.TextUtils;
 
 import com.google.gson.JsonParseException;
@@ -24,7 +23,6 @@ import com.levelup.http.HttpExceptionFactory;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.LogManager;
 import com.levelup.http.ParserException;
 import com.levelup.http.RawHttpRequest;
@@ -114,15 +112,15 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			listener.onParamUploadProgress(requestInfo, null, 100);
 	}
 
-	protected abstract R queryResponse(ResponseHandler<T> responseHandler) throws HttpException;
-	protected abstract T responseToResult(R response, ResponseHandler<T> responseHandler) throws ParserException, IOException;
+	protected abstract R queryResponse() throws HttpException;
+	protected abstract T responseToResult(R response) throws ParserException, IOException;
 	protected abstract void setupBody();
 
 	@Override
 	public final T call() throws HttpException {
-		R httpResponse = queryResponse(responseHandler);
+		R httpResponse = queryResponse();
 		try {
-			return responseToResult(httpResponse, responseHandler);
+			return responseToResult(httpResponse);
 
 		} catch (ParserException e) {
 			throw exceptionToHttpException(e).build();

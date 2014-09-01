@@ -54,14 +54,10 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	 * @return an {@link java.net.HttpURLConnection} with the network response
 	 * @throws com.levelup.http.HttpException
 	 */
-	private void getQueryResponse(boolean allowGzip) throws HttpException {
+	private void getQueryResponse() throws HttpException {
+		prepareRequest();
+
 		try {
-			if (allowGzip && request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
-				setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
-			}
-
-			prepareRequest();
-
 			final LoggerTagged logger = request.getLogger();
 			if (null != logger) {
 				logger.v(request.getHttpMethod() + ' ' + request.getUri());
@@ -126,6 +122,10 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 		else
 			urlConnection.setFixedLengthStreamingMode(contentLength);
 
+		if (/*allowGzip && */request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
+			setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
+		}
+
 		super.settleHttpHeaders();
 
 		for (Entry<String, String> entry : requestHeaders.entrySet()) {
@@ -163,8 +163,9 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	protected HttpResponseUrlConnection queryResponse(ResponseHandler<T> responseHandler) throws HttpException {
-		getQueryResponse(true);
+	protected HttpResponseUrlConnection queryResponse() throws HttpException {
+		getQueryResponse();
+
 		try {
 			httpResponse.getInputStream();
 			return httpResponse;
@@ -188,7 +189,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 	}
 
 	@Override
-	protected T responseToResult(HttpResponseUrlConnection response, ResponseHandler<T> responseHandler) throws ParserException, IOException {
+	protected T responseToResult(HttpResponseUrlConnection response) throws ParserException, IOException {
 		return responseHandler.contentParser.transformData(response, this);
 	}
 }
