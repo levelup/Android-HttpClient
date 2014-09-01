@@ -1,7 +1,5 @@
 package com.levelup.http;
 
-import android.content.Context;
-
 import com.levelup.http.internal.HttpEngineUrlConnection;
 
 /**
@@ -12,10 +10,10 @@ public class BaseHttpEngineFactory implements HttpEngineFactory {
 	private BaseHttpEngineFactory() {
 	}
 
-	public static BaseHttpEngineFactory instance = new BaseHttpEngineFactory();
+	public static final BaseHttpEngineFactory INSTANCE = new BaseHttpEngineFactory();
 
 	@Override
-	public <T> HttpEngine<T> createEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, Context context, HttpExceptionFactory exceptionFactory) {
+	public <T> HttpEngine<T> createEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
 		return new HttpEngineUrlConnection<T>(request, responseHandler, exceptionFactory);
 	}
 }

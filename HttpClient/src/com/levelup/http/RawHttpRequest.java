@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.apache.http.protocol.HTTP;
 
-import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -22,12 +21,6 @@ public class RawHttpRequest implements HttpRequest {
 	 * Builder for a {@link RawHttpRequest RawHttpRequest}
 	 */
 	public final static class Builder extends AbstractBuilder<RawHttpRequest, Builder> {
-		/**
-		 * Constructor for the {@link RawHttpRequest} builder, setting {@code GET} method by default
-		 */
-		public Builder(Context context) {
-			super(context);
-		}
 
 		/**
 		 * Constructor for the {@link RawHttpRequest} builder, setting {@code GET} method by default
@@ -47,12 +40,6 @@ public class RawHttpRequest implements HttpRequest {
 	 * @param <REQ> Type of the child class of {@link com.levelup.http.RawHttpRequest}
 	 */
 	public static abstract class ChildBuilder<REQ extends RawHttpRequest> extends AbstractBuilder<REQ, ChildBuilder<REQ>> {
-		/**
-		 * Constructor for the {@link REQ} builder, setting {@code GET} method by default
-		 */
-		public ChildBuilder(Context context) {
-			super(context);
-		}
 
 		/**
 		 * Constructor for the {@link REQ} builder, setting {@code GET} method by default
@@ -70,29 +57,16 @@ public class RawHttpRequest implements HttpRequest {
 		private static final String DEFAULT_HTTP_METHOD = "GET";
 		private static final String DEFAULT_POST_METHOD = "POST";
 
-		private Context context;
 		private HttpBodyParameters bodyParams;
 		private Uri uri;
-		private String httpMethod = "GET";
+		private String httpMethod;
 		private RequestSigner signer;
 
 		/**
 		 * Constructor for the {@link RawHttpRequest} builder, setting {@code GET} method by default
 		 */
 		public AbstractBuilder() {
-			this(HttpClient.defaultContext);
-		}
-
-		/**
-		 * Constructor for the {@link RawHttpRequest} builder, setting {@code GET} method by default
-		 */
-		public AbstractBuilder(Context context) {
-			setContext(context);
 			setHttpMethod(DEFAULT_HTTP_METHOD);
-		}
-
-		public Context getContext() {
-			return context;
 		}
 
 		/**
@@ -184,11 +158,6 @@ public class RawHttpRequest implements HttpRequest {
 			return (B) this;
 		}
 
-		public B setContext(Context context) {
-			this.context = context;
-			return (B) this;
-		}
-
 		public Uri getUri() {
 			return uri;
 		}
@@ -224,7 +193,6 @@ public class RawHttpRequest implements HttpRequest {
 		return !TextUtils.equals(httpMethod, "GET") && !TextUtils.equals(httpMethod, "HEAD");
 	}
 
-	private final Context context;
 	private final Uri uri;
 	private final String httpMethod;
 	private HttpBodyParameters bodyParams;
@@ -241,7 +209,6 @@ public class RawHttpRequest implements HttpRequest {
 		this.httpMethod = builder.getHttpMethod();
 		this.signer = builder.getSigner();
 		this.bodyParams = builder.getBodyParams();
-		this.context = builder.getContext();
 
 		if (!TextUtils.isEmpty(HttpClient.getUserAgent())) {
 			mRequestSetHeaders.put(HTTP.USER_AGENT, HttpClient.getUserAgent());
@@ -260,11 +227,6 @@ public class RawHttpRequest implements HttpRequest {
 	@Override
 	public String getHttpMethod() {
 		return httpMethod;
-	}
-
-	@Override
-	public Context getContext() {
-		return context;
 	}
 
 	@Override

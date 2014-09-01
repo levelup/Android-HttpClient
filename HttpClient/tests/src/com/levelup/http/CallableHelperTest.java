@@ -10,12 +10,12 @@ import com.levelup.http.parser.ResponseToVoid;
 public class CallableHelperTest extends AndroidTestCase {
 
 	public void testChain() throws Exception {
-		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>(getContext())
+		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/")
 				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
 				.build();
 
-		BaseHttpRequest<Void> resultIsFalseRequest = new BaseHttpRequest.Builder<Void>(getContext())
+		BaseHttpRequest<Void> resultIsFalseRequest = new BaseHttpRequest.Builder<Void>()
 				.setUrl("http://httpbin.org/status/404")
 				.setResponseParser(ResponseToVoid.RESPONSE_HANDLER)
 				.build();
@@ -34,7 +34,7 @@ public class CallableHelperTest extends AndroidTestCase {
 	}
 
 	public void testPostData() throws Exception {
-		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>(getContext())
+		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/")
 				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
 				.build();
@@ -66,7 +66,7 @@ public class CallableHelperTest extends AndroidTestCase {
 
 	public void testDoubleChain() throws Exception {
 		// TODO do the query 3 times using a chain of a chain
-		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>(getContext())
+		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/")
 				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
 				.build();

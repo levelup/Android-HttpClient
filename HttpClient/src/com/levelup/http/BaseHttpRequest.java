@@ -1,7 +1,5 @@
 package com.levelup.http;
 
-import android.content.Context;
-
 /**
  * Basic HTTP request to be passed to {@link HttpClient}
  * @see HttpRequestGet for a more simple API
@@ -13,10 +11,6 @@ public class BaseHttpRequest<T> extends RawHttpRequest implements TypedHttpReque
 	private final ResponseHandler<T> responseHandler;
 
 	public final static class Builder<T> extends AbstractBuilder<T, BaseHttpRequest<T>, Builder<T>> {
-		public Builder(Context context) {
-			super(context);
-		}
-
 		public Builder() {
 		}
 
@@ -27,20 +21,12 @@ public class BaseHttpRequest<T> extends RawHttpRequest implements TypedHttpReque
 	}
 
 	public abstract static class ChildBuilder<T, REQ extends BaseHttpRequest<T>> extends AbstractBuilder<T, REQ, ChildBuilder<T,REQ>> {
-		public ChildBuilder(Context context) {
-			super(context);
-		}
-
 		public ChildBuilder() {
 		}
 	}
 
 	public static abstract class AbstractBuilder<T, REQ extends BaseHttpRequest<T>, BUILDER extends RawHttpRequest.AbstractBuilder<REQ,BUILDER>> extends RawHttpRequest.AbstractBuilder<REQ, BUILDER> {
 		private ResponseHandler<T> responseHandler;
-
-		protected AbstractBuilder(Context context) {
-			super(context);
-		}
 
 		protected AbstractBuilder() {
 		}

@@ -52,7 +52,7 @@ public class IonClientTest extends AndroidTestCase {
 		HttpBodyMultiPart body = new HttpBodyMultiPart(1);
 		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), uploadData.getBytes().length, "text/plain");
 
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
@@ -80,7 +80,7 @@ public class IonClientTest extends AndroidTestCase {
 			HttpBodyMultiPart body = new HttpBodyMultiPart(1);
 			body.addFile(fileFieldName, tempFile, "text/plain");
 
-			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
 					setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
@@ -108,7 +108,7 @@ public class IonClientTest extends AndroidTestCase {
 		body.add(fieldName1, uploadData1);
 		body.add(fieldName2, uploadData2);
 
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
@@ -132,7 +132,7 @@ public class IonClientTest extends AndroidTestCase {
 		HttpBodyParameters body = new HttpBodyUrlEncoded();
 		body.add(fieldName, uploadData);
 
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
@@ -158,7 +158,7 @@ public class IonClientTest extends AndroidTestCase {
 		object.put(fieldName2, uploadData2);
 
 		HttpBodyJSON body = new HttpBodyJSON(object);
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=jsonBody").
 				setBody(body).
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
@@ -176,7 +176,7 @@ public class IonClientTest extends AndroidTestCase {
 	}
 
 	public void testTimeout() throws Exception {
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>(getContext()).
+		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/delay/10").
 				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
 				build();
@@ -198,7 +198,7 @@ public class IonClientTest extends AndroidTestCase {
 	}
 
 	private void testError(int errorCode) throws Exception {
-		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>(getContext()).
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
 				setUrl("http://httpbin.org/status/" + errorCode).
 				setResponseParser(ResponseToString.RESPONSE_HANDLER).
 				build();
@@ -214,7 +214,7 @@ public class IonClientTest extends AndroidTestCase {
 	}
 
 	private void testStreamingError(int errorCode) throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext())
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/status/" + errorCode)
 				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -242,7 +242,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testString() throws Exception {
-		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>(getContext())
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/ip")
 				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
 				.build();
@@ -255,7 +255,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreaming() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext())
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
 				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -293,7 +293,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingCompressed() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext())
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
 				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -332,7 +332,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingLine() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext())
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/stream/2")
 				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -362,7 +362,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingTimeout() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext())
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=8")
 				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -394,7 +394,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingDisconnect() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext())
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -421,7 +421,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingDisconnectAsync() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>(getContext())
+		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
 				.build();

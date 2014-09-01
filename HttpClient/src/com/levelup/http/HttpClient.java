@@ -18,8 +18,7 @@ public class HttpClient {
 	private static String userAgent;
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
-	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.instance;
-	static Context defaultContext;
+	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.INSTANCE;
 
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
@@ -28,13 +27,12 @@ public class HttpClient {
 	 */
 	public static void setup(Context context) {
 		if (null!=context) {
-			defaultContext = context;
 
 			ApplicationInfo applicationInfo = context.getApplicationInfo();
 			int versionCode = -1;
-			PackageManager pM = defaultContext.getPackageManager();
+			PackageManager pM = context.getPackageManager();
 			try {
-				PackageInfo pI = pM.getPackageInfo(defaultContext.getPackageName(), 0);
+				PackageInfo pI = pM.getPackageInfo(context.getPackageName(), 0);
 				if (pI != null) {
 					versionCode = pI.versionCode;
 				}

@@ -1,8 +1,6 @@
 package com.levelup.http;
 
 
-import android.content.Context;
-
 /**
  * Interface for HTTP requests to be passed to {@link HttpClient}
  * @see BaseHttpRequest
@@ -50,6 +48,4 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionFactory {
 	void setHttpConfig(HttpConfig config);
 
 	HttpBodyParameters getBodyParams();
-
-	Context getContext();
 }

@@ -25,7 +25,6 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 	public static class Builder<T> {
 		private ResponseHandler<T> responseHandler;
 		private RawHttpRequest httpRequest;
-		private Context context = HttpClient.defaultContext;
 		private HttpEngineFactory factory = HttpClient.getHttpEngineFactory();
 
 		public Builder() {
@@ -33,8 +32,7 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 
 		public Builder<T> setTypedRequest(TypedHttpRequest<T> request) {
 			return setRequest(request)
-					.setResponseHandler(request.getResponseHandler())
-					.setContext(request.getContext());
+					.setResponseHandler(request.getResponseHandler());
 		}
 
 		public Builder<T> setRequest(HttpRequest request) {
@@ -48,11 +46,6 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 			return this;
 		}
 
-		public Builder<T> setContext(Context context) {
-			this.context = context;
-			return this;
-		}
-
 		public Builder<T> setHttpEngineFactory(HttpEngineFactory factory) {
 			this.factory = factory;
 			return this;
@@ -61,7 +54,9 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 		public HttpEngine<T> build() {
 			if (null == httpRequest) throw new NullPointerException("missing a HttpRequest for the engine");
 			if (null == responseHandler) throw new NullPointerException("missing a ResponseHandler for the engine of "+httpRequest);
-			HttpEngine<T> httpEngine = factory.createEngine(httpRequest, responseHandler, context, httpRequest);
+			HttpEngine<T> httpEngine = factory.createEngine(httpRequest, responseHandler, httpRequest);
+			if (null == httpEngine)
+				return new DummyHttpEngine<T>(httpRequest, responseHandler, httpRequest);
 			return httpEngine;
 		}
 	}

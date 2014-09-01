@@ -27,6 +27,7 @@ public class HttpException extends Exception {
 	static public final int ERROR_PARSER           = 4006;
 	/**	Indicates there was a HTTP error, the {@link #getCause()} must be a {@link com.levelup.http.DataErrorException DataErrorException} */
 	static public final int ERROR_DATA_MSG         = 4007;
+	public static final int ERROR_ENGINE           = 4008;
 
 	// HTTP errors found on getHttpStatusCode()
 	static public final int ERROR_HTTP_BAD_REQUEST  = 400;
