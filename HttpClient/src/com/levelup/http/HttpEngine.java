@@ -15,17 +15,23 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 	 */
 	T call() throws HttpException;
 
+	/**
+	 * @return The {@link com.levelup.http.ResponseHandler} that will be used to parse the reponse body
+	 */
 	ResponseHandler<T> getResponseHandler();
+
+	/**
+	 * @return The {@link com.levelup.http.HttpExceptionFactory} used by the engine
+	 */
+	HttpExceptionFactory getExceptionFactory();
 
 	/**
 	 * Extra header to add to the query, in addition of the ones from the source {@link com.levelup.http.HttpRequest}
 	 * <p>Can be used to sign a request with a timestamp, for example</p>
-	 * @param key
-	 * @param value
+	 * @param name HTTP Header name
+	 * @param value HTTP Header value
 	 */
-	void setHeader(String key, String value);
-
-	HttpException.Builder createExceptionBuilder();
+	void setHeader(String name, String value);
 
 	public static class Builder<T> {
 		private ResponseHandler<T> responseHandler;

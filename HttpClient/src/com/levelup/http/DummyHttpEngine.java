@@ -16,12 +16,12 @@ public final class DummyHttpEngine<T> implements HttpEngine<T> {
 
 	@Override
 	public T call() throws HttpException {
-		throw createExceptionBuilder().build();
+		throw exceptionFactory.newException(null).setErrorCode(HttpException.ERROR_ENGINE).build();
 	}
 
 	@Override
-	public HttpException.Builder createExceptionBuilder() {
-		return exceptionFactory.newException(null).setErrorCode(HttpException.ERROR_ENGINE);
+	public HttpExceptionFactory getExceptionFactory() {
+		return exceptionFactory;
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public final class DummyHttpEngine<T> implements HttpEngine<T> {
 	}
 
 	@Override
-	public void setHeader(String key, String value) {
+	public void setHeader(String name, String value) {
 		throw new IllegalStateException();
 	}
 

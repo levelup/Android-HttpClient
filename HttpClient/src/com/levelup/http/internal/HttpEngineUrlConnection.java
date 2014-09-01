@@ -133,7 +133,7 @@ public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrl
 			} catch (IllegalStateException e) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-				HttpException.Builder builder = createExceptionBuilder();
+				HttpException.Builder builder = getExceptionFactory().newException(httpResponse);
 				builder.setErrorMessage("Connection closed "+e.getMessage());
 				builder.setCause(e);
 				builder.setErrorCode(HttpException.ERROR_NETWORK);

@@ -12,9 +12,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.http.protocol.HTTP;
 
-import android.text.TextUtils;
-
-import com.google.gson.JsonParseException;
 import com.levelup.http.CookieManager;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.Header;
@@ -69,6 +66,11 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return request;
 	}
 
+	@Override
+	public final HttpExceptionFactory getExceptionFactory() {
+		return exceptionFactory;
+	}
+
 	/**
 	 * Set all internal variables and sign the query if needed
 	 * <p>Usually you don't need to call this yourself, the engine will do it</p>
@@ -113,11 +115,11 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	protected abstract void setHeadersAndConfig();
 
 	@Override
-	public final void setHeader(String key, String value) {
+	public final void setHeader(String name, String value) {
 		if (null == value)
-			requestHeaders.remove(key);
+			requestHeaders.remove(name);
 		else
-			requestHeaders.put(key, value);
+			requestHeaders.put(name, value);
 	}
 
 	protected void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException {
@@ -204,31 +206,30 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 	}
 
 	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
+		HttpException.Builder builder = exceptionFactory.newException(httpResponse);
+
 		if (e instanceof DataErrorException) {
 			DataErrorException cause = (DataErrorException) e;
 			if (cause.errorContent instanceof Exception)
 				throw exceptionToHttpException((Exception) cause.errorContent).build();
 
-			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_DATA_MSG);
 			return builder;
 		}
 
-		if (e instanceof InterruptedException) {
-			HttpException.Builder builder = createExceptionBuilder();
+		else if (e instanceof InterruptedException) {
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			return builder;
 		}
 
-		if (e instanceof ExecutionException) {
+		else if (e instanceof ExecutionException) {
 			if (e.getCause() instanceof Exception && e.getCause()!=e)
 				return exceptionToHttpException((Exception) e.getCause());
 			else {
-				HttpException.Builder builder = createExceptionBuilder();
 				builder.setErrorMessage("execution error");
 				builder.setCause(e.getCause());
 				builder.setErrorCode(HttpException.ERROR_HTTP);
@@ -236,70 +237,54 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			}
 		}
 
-		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
+		else if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("Timeout error "+e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
 			return builder;
 		}
 
-		if (e instanceof ProtocolException) {
+		else if (e instanceof ProtocolException) {
 			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
-			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("Method error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_HTTP);
 			return builder;
 		}
 
-		if (e instanceof IOException) {
+		else if (e instanceof IOException) {
 			LogManager.getLogger().d("i/o error for " + request + ' ' + e.getMessage());
-			HttpException.Builder builder = createExceptionBuilder();
 			builder.setErrorMessage("IO error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
 			return builder;
 		}
 
-		if (e instanceof ParserException) {
+		else if (e instanceof ParserException) {
 			LogManager.getLogger().i("incorrect data for " + request);
 			if (e.getCause() instanceof HttpException)
 				throw (HttpException) e.getCause();
 
-			HttpException.Builder builder = createExceptionBuilder();
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_PARSER);
 			return builder;
 		}
 
-		if (e instanceof JsonParseException) {
-			LogManager.getLogger().i("incorrect data for " + request);
-			HttpException.Builder builder = createExceptionBuilder();
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_PARSER);
-			return builder;
-		}
-
-		if (e instanceof SecurityException) {
+		else if (e instanceof SecurityException) {
 			LogManager.getLogger().w("security error for " + request + ' ' + e);
-			HttpException.Builder builder = createExceptionBuilder();
-			builder.setErrorMessage("Security error "+e.getMessage());
+			builder.setErrorMessage("Security error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
 			return builder;
 		}
 
-		LogManager.getLogger().w("unknown error for " + request + ' ' + e);
-		HttpException.Builder builder = createExceptionBuilder();
-		builder.setCause(e);
-		builder.setErrorCode(HttpException.ERROR_HTTP);
-		return builder;
-	}
+		else {
+			LogManager.getLogger().w("unknown error for " + request + ' ' + e);
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_HTTP);
+		}
 
-	@Override
-	public HttpException.Builder createExceptionBuilder() {
-		return exceptionFactory.newException(httpResponse);
+		return builder;
 	}
 }
