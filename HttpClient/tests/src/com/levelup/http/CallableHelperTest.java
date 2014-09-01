@@ -1,6 +1,7 @@
 package com.levelup.http;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 import android.test.AndroidTestCase;
@@ -79,9 +80,7 @@ public class CallableHelperTest extends AndroidTestCase {
 
 	private static HttpEngine<String> getLinkPageEngine(String link) {
 		return new HttpEngine.Builder<String>()
-				.setRequest(new RawHttpRequest.Builder()
-						.setUrl(link)
-						.build())
+				.setRequest(new RawHttpRequest.Builder().setUrl(link).build())
 				.setResponseHandler(ResponseToString.RESPONSE_HANDLER)
 				.build();
 	}
@@ -181,5 +180,31 @@ public class CallableHelperTest extends AndroidTestCase {
 		assertTrue(result.links.contains("http://httpbin.org/links/3/0"));
 		assertTrue(result.links.contains("http://httpbin.org/links/3/1"));
 		assertTrue(result.links.contains("http://httpbin.org/links/3/2"));
+	}
+
+	public void testSimplePageReader() throws Exception {
+		Callable<LinkedList<Page>> pagesReader = CallableHelper.readPages(
+				getPageEngine("http://httpbin.org/links/3/0"),
+				new CallableHelper.NextPageFactory<Page>() {
+					@Override
+					public Callable<Page> createNextPageCallable(Page page) {
+						if ("http://httpbin.org/links/3/2".equals(page.pageLinks.get(1))) {
+							if ("http://httpbin.org/links/3/1".equals(page.pageLinks.get(0))) {
+								return getPageEngine("http://httpbin.org/links/3/1");
+							} else {
+								return getPageEngine("http://httpbin.org/links/3/2");
+							}
+						}
+						return null;
+					}
+				}
+		);
+
+		LinkedList<Page> result = pagesReader.call();
+
+		assertEquals(3, result.size());
+		/*assertTrue(result.contains("http://httpbin.org/links/3/0"));
+		assertTrue(result.contains("http://httpbin.org/links/3/1"));
+		assertTrue(result.contains("http://httpbin.org/links/3/2"));*/
 	}
 }

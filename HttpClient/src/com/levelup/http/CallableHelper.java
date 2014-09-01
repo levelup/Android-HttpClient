@@ -1,11 +1,32 @@
 package com.levelup.http;
 
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 /**
  * Created by robUx4 on 30/08/2014.
  */
 public class CallableHelper {
+	public interface NextPageFactory<PAGE> {
+		/**
+		 * @param page The current page
+		 * @return A {@link java.util.concurrent.Callable} to retrieve the next page or {@code null}
+		 */
+		Callable<PAGE> createNextPageCallable(PAGE page);
+	}
+
+	public static <PAGE> Callable<LinkedList<PAGE>> readPages(final Callable<PAGE> pageRequest, final NextPageFactory<PAGE> nextPageFactory) {
+		return processPage(pageRequest,
+				new PageDataProcessor<LinkedList<PAGE>, PAGE>() {
+					@Override
+					public Callable<PAGE> addPageAndContinue(LinkedList<PAGE> pages, PAGE page) {
+						pages.add(page);
+						return nextPageFactory.createNextPageCallable(page);
+					}
+				},
+				new LinkedList<PAGE>());
+	}
+
 	public interface PageDataProcessor<PAGED_HOLDER, PAGE> {
 		/**
 		 * Add the {@code page} to the {@code pageHolder} and return the {@code Callable} to retrieve the next page
