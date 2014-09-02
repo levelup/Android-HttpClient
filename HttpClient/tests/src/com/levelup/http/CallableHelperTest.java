@@ -1,17 +1,26 @@
 package com.levelup.http;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
+import android.content.Context;
 import android.test.AndroidTestCase;
 
+import com.levelup.http.paging.NextPageFactory;
+import com.levelup.http.paging.PageCallback;
+import com.levelup.http.paging.PagingHelper;
 import com.levelup.http.parser.ResponseToString;
 import com.levelup.http.parser.ResponseToVoid;
 import com.levelup.http.parser.ResponseTransformChain;
 import com.levelup.http.parser.Transformer;
 
 public class CallableHelperTest extends AndroidTestCase {
+
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		HttpClient.setup(context);
+	}
 
 	public void testChain() throws Exception {
 		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>()
@@ -155,23 +164,34 @@ public class CallableHelperTest extends AndroidTestCase {
 	}
 
 	public void testPagedData() throws Exception {
-		PagedResult initData = new PagedResult();
+		final PagedResult initData = new PagedResult();
 
-		Callable<PagedResult> mainCallable = CallableHelper.processPage(getPageEngine("http://httpbin.org/links/3/0"),
-				new CallableHelper.PageDataProcessor<PagedResult, Page>() {
+		Callable<PagedResult> mainCallable = PagingHelper.processPage(getPageEngine("http://httpbin.org/links/3/0")
+				, initData
+				, new PageCallback<PagedResult, Page>() {
 					@Override
-					public Callable<Page> addPageAndContinue(PagedResult pagesHolder, Page page) {
+					public void onNewPage(PagedResult pagesHolder, Page page) {
 						for (String link : page.pageLinks) {
 							if (!pagesHolder.links.contains(link)) {
 								// we found a link we haven't read yet (a page), read it
 								pagesHolder.links.add(link);
+								break;
+							}
+						}
+					}
+				},
+				new NextPageFactory<Page>() {
+					@Override
+					public Callable<Page> createNextPageCallable(Page page) {
+						for (String link : page.pageLinks) {
+							if (!initData.links.contains(link)) {
+								// we found a link we haven't read yet (a page), read it
 								return getPageEngine(link);
 							}
 						}
 						return null;
 					}
-				},
-				initData
+				}
 		);
 
 		PagedResult result = mainCallable.call();
@@ -182,29 +202,4 @@ public class CallableHelperTest extends AndroidTestCase {
 		assertTrue(result.links.contains("http://httpbin.org/links/3/2"));
 	}
 
-	public void testSimplePageReader() throws Exception {
-		Callable<LinkedList<Page>> pagesReader = CallableHelper.readPages(
-				getPageEngine("http://httpbin.org/links/3/0"),
-				new CallableHelper.NextPageFactory<Page>() {
-					@Override
-					public Callable<Page> createNextPageCallable(Page page) {
-						if ("http://httpbin.org/links/3/2".equals(page.pageLinks.get(1))) {
-							if ("http://httpbin.org/links/3/1".equals(page.pageLinks.get(0))) {
-								return getPageEngine("http://httpbin.org/links/3/1");
-							} else {
-								return getPageEngine("http://httpbin.org/links/3/2");
-							}
-						}
-						return null;
-					}
-				}
-		);
-
-		LinkedList<Page> result = pagesReader.call();
-
-		assertEquals(3, result.size());
-		/*assertTrue(result.contains("http://httpbin.org/links/3/0"));
-		assertTrue(result.contains("http://httpbin.org/links/3/1"));
-		assertTrue(result.contains("http://httpbin.org/links/3/2"));*/
-	}
 }

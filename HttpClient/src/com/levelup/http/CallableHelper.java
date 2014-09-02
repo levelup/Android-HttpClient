@@ -1,64 +1,11 @@
 package com.levelup.http;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
  * Created by robUx4 on 30/08/2014.
  */
 public class CallableHelper {
-	public interface NextPageFactory<PAGE> {
-		/**
-		 * @param page The current page
-		 * @return A {@link java.util.concurrent.Callable} to retrieve the next page or {@code null}
-		 */
-		Callable<PAGE> createNextPageCallable(PAGE page);
-	}
-
-	public static <PAGE> Callable<List<PAGE>> readPages(final Callable<PAGE> pageRequest, final NextPageFactory<PAGE> nextPageFactory) {
-		return processPage(pageRequest,
-				new PageDataProcessor<List<PAGE>, PAGE>() {
-					@Override
-					public Callable<PAGE> addPageAndContinue(List<PAGE> pagesHolder, PAGE page) {
-						pagesHolder.add(page);
-						return nextPageFactory.createNextPageCallable(page);
-					}
-				},
-				new ArrayList<PAGE>());
-	}
-
-	public interface PageDataProcessor<PAGE_HOLDER, PAGE> {
-		/**
-		 * Add the {@code page} to the {@code pageHolder} and return the {@code Callable} to retrieve the next page
-		 * @param pagesHolder Object that will retain the data from the next page
-		 * @param page The new page received
-		 * @return A {@link java.util.concurrent.Callable} to retrieve the next page
-		 */
-		Callable<PAGE> addPageAndContinue(PAGE_HOLDER pagesHolder, PAGE page);
-	}
-
-	/**
-	 * Read a {@link PAGE}, store it and get the next page if there is one
-	 * @param pageRequest Request to get the {@link PAGE} data
-	 * @param pageDataProcessor Callback to handle the new page and generate the request to get the next page
-	 * @param pagedHolder Object that will keep all the pages
-	 * @param <PAGE_HOLDER> Type of the Object that will hold all the pages we receive
-	 * @param <PAGE> Type of the Object representing a page
-	 * @return
-	 */
-	public static <PAGE_HOLDER, PAGE> Callable<PAGE_HOLDER> processPage(final Callable<PAGE> pageRequest, final PageDataProcessor<PAGE_HOLDER, PAGE> pageDataProcessor, final PAGE_HOLDER pagedHolder) {
-		return new Callable<PAGE_HOLDER>() {
-			@Override
-			public PAGE_HOLDER call() throws Exception {
-				PAGE newPage = pageRequest.call();
-				Callable<PAGE> nextPageCall = pageDataProcessor.addPageAndContinue(pagedHolder, newPage);
-				if (null == nextPageCall)
-					return pagedHolder;
-				return processPage(nextPageCall, pageDataProcessor, pagedHolder).call();
-			}
-		};
-	}
 
 	/**
 	 * Chain a {@link java.util.concurrent.Callable} and a {@link com.levelup.http.CallableHelper.CallableForResult}
