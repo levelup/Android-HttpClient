@@ -11,7 +11,6 @@ import android.test.AndroidTestCase;
 
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpEngine;
-import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.async.BaseHttpAsyncCallback;
@@ -42,7 +41,7 @@ public class PagingHelperTest extends AndroidTestCase {
 					// parse the String data to retrieve the links
 					.addDataTransform(new Transformer<String, Page>() {
 						@Override
-						protected Page transform(String s, ImmutableHttpRequest request) {
+						protected Page transform(String s) {
 							Page result = new Page();
 							int linkIndex = s.indexOf("<a href='");
 							while (-1 != linkIndex) {

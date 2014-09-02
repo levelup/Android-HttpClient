@@ -142,7 +142,7 @@ public class CallableHelperTest extends AndroidTestCase {
 					// parse the String data to retrieve the links
 					.addDataTransform(new Transformer<String, Page>() {
 						@Override
-						protected Page transform(String s, ImmutableHttpRequest request) {
+						protected Page transform(String s) {
 							Page result = new Page();
 							int linkIndex = s.indexOf("<a href='");
 							while (-1 != linkIndex) {
