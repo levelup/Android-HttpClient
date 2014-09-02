@@ -21,6 +21,7 @@ import com.levelup.http.TypedHttpRequest;
  */
 public class NetworkTask<T> extends FutureTask<T> {
 	private final NetworkCallback<T> callback;
+	private final boolean reportNullResult;
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
@@ -29,8 +30,13 @@ public class NetworkTask<T> extends FutureTask<T> {
 	}
 
 	public NetworkTask(Callable<T> callable, NetworkCallback<T> callback) {
+		this(callable, callback, true);
+	}
+
+	public NetworkTask(Callable<T> callable, NetworkCallback<T> callback, boolean reportNullResult) {
 		super(callable);
 		this.callback = callback;
+		this.reportNullResult = reportNullResult;
 	}
 
 	@Override
@@ -52,7 +58,7 @@ public class NetworkTask<T> extends FutureTask<T> {
 		if (null!=callback)
 			try {
 				T result = get();
-				if (!isCancelled()) {
+				if (!isCancelled() && (reportNullResult || null != result)) {
 					callback.onNetworkSuccess(result);
 				}
 			} catch (CancellationException e) {
