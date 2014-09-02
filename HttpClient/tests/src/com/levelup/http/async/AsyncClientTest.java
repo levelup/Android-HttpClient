@@ -34,7 +34,7 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 	
 	public void testAsyncSimpleQuery() {
-		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, null);
+		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, null);
 	}
 
 	private static class TestAsyncCallback extends BaseNetworkCallback<String> {
@@ -61,7 +61,7 @@ public class AsyncClientTest extends AndroidTestCase {
 	public void testAsyncSimpleQueryResult() {
 		final CountDownLatch latch = new CountDownLatch(1);
 
-		AsyncHttpClient.getString(BASIC_URL, BASIC_URL_TAG, new TestAsyncCallback() {
+		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, new TestAsyncCallback() {
 			@Override
 			public void onNetworkSuccess(String response) {
 				latch.countDown();

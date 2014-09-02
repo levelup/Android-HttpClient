@@ -63,7 +63,7 @@ public class AsyncHttpClient {
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param callback Callback receiving the String or errors (not job canceled) in the UI thread. May be {@code null}
 	 */
-	public static void getString(String url, String tag, NetworkCallback<String> callback) {
+	public static void postStringRequest(String url, String tag, NetworkCallback<String> callback) {
 		BaseHttpRequest.Builder<String> reqBuilder = new BaseHttpRequest.Builder<String>();
 		reqBuilder.setUrl(url)
 				.setResponseParser(ResponseToString.RESPONSE_HANDLER);
@@ -116,7 +116,7 @@ public class AsyncHttpClient {
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #getString(String, String, NetworkCallback)
+	 * @see #postStringRequest(String, String, NetworkCallback)
 	 */
 	public static <T> void postRequest(TypedHttpRequest<T> request, String tag, NetworkCallback<T> callback) {
 		if (TextUtils.isEmpty(tag)) {
