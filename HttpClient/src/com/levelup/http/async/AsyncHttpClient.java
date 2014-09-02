@@ -3,7 +3,7 @@ package com.levelup.http.async;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,27 +30,30 @@ public class AsyncHttpClient {
 
 	private static final HashMap<String, Future<?>> taggedJobs = new HashMap<String, Future<?>>();
 
-	private static ExecutorService executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
-
-	private AsyncHttpClient() {
+	private static Executor executor;
+	static {
+		executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
 		((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
 	}
 
+	private AsyncHttpClient() {
+	}
+
 	/**
-	 * Replaces the default {@link ExecutorService} with your own
+	 * Replaces the default {@link Executor} with your own
 	 * <p>This should be called before doing any queries
-	 * @param newExecutor The {@link ExecutorService} that will run the network queries
+	 * @param newExecutor The {@link Executor} that will run the network queries
 	 */
-	public static void setExecutorService(ExecutorService newExecutor) {
+	public static void setExecutor(Executor newExecutor) {
 		executor = newExecutor;
 	}
 
 	/**
-	 * Get the {@link ExecutorService} used by the Async client.
+	 * Get the {@link Executor} used by the Async client.
 	 * <p>Can be useful if you want to use it as your network Thread pool 
-	 * @return The {@link ExecutorService} used by the Async client.
+	 * @return The {@link Executor} used by the Async client.
 	 */
-	public static ExecutorService getExecutorService() {
+	public static Executor getExecutor() {
 		return executor;
 	}
 
