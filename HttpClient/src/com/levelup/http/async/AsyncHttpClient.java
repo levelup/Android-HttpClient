@@ -74,6 +74,7 @@ public class AsyncHttpClient {
 	 * Run an {@link TypedHttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * @param request {@link TypedHttpRequest HTTP request} to execute to get the parsed object
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
+	 * @param <T> Type of the Object generated from the parsed data
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
@@ -82,15 +83,28 @@ public class AsyncHttpClient {
 	}
 
 	/**
-	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
+	 * Run an {@link com.levelup.http.TypedHttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
 	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
+	 * @param <T> Type of the Object generated from the parsed data
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #postRequest(TypedHttpRequest, NetworkCallback)
 	 */
 	public static <T> Future<T> postRequest(TypedHttpRequest<T> request, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		HttpEngine<T> httpEngine = new HttpEngine.Builder<T>().setTypedRequest(request).build();
+		return postRequest(httpEngine, callback, factory);
+	}
+
+	/**
+	 * Run the {@link com.levelup.http.HttpEngine HttpEngine} in the background and post the resulting parsed object to {@code callback} in the UI thread.
+	 * @param httpEngine {@link com.levelup.http.HttpEngine} to execute to get the parsed object
+	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
+	 * @param factory Factory used to create the {@link NetworkTask} that will download the data and send the result in the UI thread
+	 * @param <T> Type of the Object generated from the parsed data
+	 * @return A Future<T> representing the download task, if you need to cancel it
+	 */
+	public static <T> Future<T> postRequest(HttpEngine<T> httpEngine, NetworkCallback<T> callback, NetworkTaskFactory<T> factory) {
 		FutureTask<T> task = factory.createNetworkTask(httpEngine, callback);
 		executor.execute(task);
 		return task;
