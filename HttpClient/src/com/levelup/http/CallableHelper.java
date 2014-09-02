@@ -1,6 +1,7 @@
 package com.levelup.http;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -15,26 +16,26 @@ public class CallableHelper {
 		Callable<PAGE> createNextPageCallable(PAGE page);
 	}
 
-	public static <PAGE> Callable<LinkedList<PAGE>> readPages(final Callable<PAGE> pageRequest, final NextPageFactory<PAGE> nextPageFactory) {
+	public static <PAGE> Callable<List<PAGE>> readPages(final Callable<PAGE> pageRequest, final NextPageFactory<PAGE> nextPageFactory) {
 		return processPage(pageRequest,
-				new PageDataProcessor<LinkedList<PAGE>, PAGE>() {
+				new PageDataProcessor<List<PAGE>, PAGE>() {
 					@Override
-					public Callable<PAGE> addPageAndContinue(LinkedList<PAGE> pages, PAGE page) {
-						pages.add(page);
+					public Callable<PAGE> addPageAndContinue(List<PAGE> pagesHolder, PAGE page) {
+						pagesHolder.add(page);
 						return nextPageFactory.createNextPageCallable(page);
 					}
 				},
-				new LinkedList<PAGE>());
+				new ArrayList<PAGE>());
 	}
 
-	public interface PageDataProcessor<PAGED_HOLDER, PAGE> {
+	public interface PageDataProcessor<PAGE_HOLDER, PAGE> {
 		/**
 		 * Add the {@code page} to the {@code pageHolder} and return the {@code Callable} to retrieve the next page
-		 * @param pagedHolder Object that will retain the data from the next page
+		 * @param pagesHolder Object that will retain the data from the next page
 		 * @param page The new page received
 		 * @return A {@link java.util.concurrent.Callable} to retrieve the next page
 		 */
-		Callable<PAGE> addPageAndContinue(PAGED_HOLDER pagedHolder, PAGE page);
+		Callable<PAGE> addPageAndContinue(PAGE_HOLDER pagesHolder, PAGE page);
 	}
 
 	/**
@@ -42,14 +43,14 @@ public class CallableHelper {
 	 * @param pageRequest Request to get the {@link PAGE} data
 	 * @param pageDataProcessor Callback to handle the new page and generate the request to get the next page
 	 * @param pagedHolder Object that will keep all the pages
-	 * @param <PAGED_HOLDER> Type of the Object that will hold all the pages we receive
+	 * @param <PAGE_HOLDER> Type of the Object that will hold all the pages we receive
 	 * @param <PAGE> Type of the Object representing a page
 	 * @return
 	 */
-	public static <PAGED_HOLDER, PAGE> Callable<PAGED_HOLDER> processPage(final Callable<PAGE> pageRequest, final PageDataProcessor<PAGED_HOLDER, PAGE> pageDataProcessor, final PAGED_HOLDER pagedHolder) {
-		return new Callable<PAGED_HOLDER>() {
+	public static <PAGE_HOLDER, PAGE> Callable<PAGE_HOLDER> processPage(final Callable<PAGE> pageRequest, final PageDataProcessor<PAGE_HOLDER, PAGE> pageDataProcessor, final PAGE_HOLDER pagedHolder) {
+		return new Callable<PAGE_HOLDER>() {
 			@Override
-			public PAGED_HOLDER call() throws Exception {
+			public PAGE_HOLDER call() throws Exception {
 				PAGE newPage = pageRequest.call();
 				Callable<PAGE> nextPageCall = pageDataProcessor.addPageAndContinue(pagedHolder, newPage);
 				if (null == nextPageCall)

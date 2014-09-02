@@ -160,11 +160,11 @@ public class CallableHelperTest extends AndroidTestCase {
 		Callable<PagedResult> mainCallable = CallableHelper.processPage(getPageEngine("http://httpbin.org/links/3/0"),
 				new CallableHelper.PageDataProcessor<PagedResult, Page>() {
 					@Override
-					public Callable<Page> addPageAndContinue(PagedResult pagedHolder, Page page) {
+					public Callable<Page> addPageAndContinue(PagedResult pagesHolder, Page page) {
 						for (String link : page.pageLinks) {
-							if (!pagedHolder.links.contains(link)) {
+							if (!pagesHolder.links.contains(link)) {
 								// we found a link we haven't read yet (a page), read it
-								pagedHolder.links.add(link);
+								pagesHolder.links.add(link);
 								return getPageEngine(link);
 							}
 						}
