@@ -37,9 +37,9 @@ public class AsyncClientTest extends AndroidTestCase {
 		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, null);
 	}
 
-	private static class TestAsyncCallback extends BaseNetworkCallback<String> {
+	private static class TestAsyncCallback extends BaseHttpAsyncCallback<String> {
 		@Override
-		public void onNetworkFailed(Throwable t) {
+		public void onHttpFailed(Throwable t) {
 			if (t instanceof IOException) {
 				// shit happens
 			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
@@ -52,7 +52,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	private static class TestLongAsyncCallback extends TestAsyncCallback {
 		@Override
-		public void onNetworkSuccess(String response) {
+		public void onHttpResult(String result) {
 			fail("We're not supposed to have received this");
 		}
 	}
@@ -63,7 +63,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, new TestAsyncCallback() {
 			@Override
-			public void onNetworkSuccess(String response) {
+			public void onHttpResult(String result) {
 				latch.countDown();
 			}
 		});

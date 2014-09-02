@@ -14,7 +14,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.async.AsyncHttpClient;
-import com.levelup.http.async.BaseNetworkCallback;
+import com.levelup.http.async.BaseHttpAsyncCallback;
 import com.levelup.http.ion.IonClient;
 import com.levelup.http.parser.ResponseToString;
 
@@ -40,9 +40,9 @@ public class AsyncClientTest extends AndroidTestCase {
 		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, null);
 	}
 
-	private static class TestAsyncCallback extends BaseNetworkCallback<String> {
+	private static class TestAsyncCallback extends BaseHttpAsyncCallback<String> {
 		@Override
-		public void onNetworkFailed(Throwable t) {
+		public void onHttpFailed(Throwable t) {
 			if (t instanceof IOException || t instanceof TimeoutException) {
 				// shit happens
 			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
@@ -57,7 +57,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	private static class TestLongAsyncCallback extends TestAsyncCallback {
 		@Override
-		public void onNetworkSuccess(String response) {
+		public void onHttpResult(String response) {
 			fail("We're not supposed to have received this");
 		}
 	}
@@ -68,7 +68,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, new TestAsyncCallback() {
 			@Override
-			public void onNetworkSuccess(String response) {
+			public void onHttpResult(String response) {
 				latch.countDown();
 			}
 		});

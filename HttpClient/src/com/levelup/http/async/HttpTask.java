@@ -14,26 +14,27 @@ import com.levelup.http.HttpEngine;
 import com.levelup.http.TypedHttpRequest;
 
 /**
- * Future task that will be used to do the network download in the background, the result/error will be sent to the {@code AsyncHttpCallback} in the UI thread
+ * {@link java.util.concurrent.FutureTask FutureTask} that will be used to do the HTTP download in the background,
+ * the result/error will be sent to the {@code AsyncHttpCallback} in the UI thread
  * @author Steve Lhomme
  *
  * @param <T>
  */
-public class NetworkTask<T> extends FutureTask<T> {
-	private final NetworkCallback<T> callback;
+public class HttpTask<T> extends FutureTask<T> {
+	private final HttpAsyncCallback<T> callback;
 	private final boolean reportNullResult;
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public NetworkTask(TypedHttpRequest<T> request, NetworkCallback<T> callback) {
+	public HttpTask(TypedHttpRequest<T> request, HttpAsyncCallback<T> callback) {
 		this(new HttpEngine.Builder<T>().setTypedRequest(request).build(), callback);
 	}
 
-	public NetworkTask(Callable<T> callable, NetworkCallback<T> callback) {
+	public HttpTask(Callable<T> callable, HttpAsyncCallback<T> callback) {
 		this(callable, callback, true);
 	}
 
-	public NetworkTask(Callable<T> callable, NetworkCallback<T> callback, boolean reportNullResult) {
+	public HttpTask(Callable<T> callable, HttpAsyncCallback<T> callback, boolean reportNullResult) {
 		super(callable);
 		this.callback = callback;
 		this.reportNullResult = reportNullResult;
@@ -59,16 +60,16 @@ public class NetworkTask<T> extends FutureTask<T> {
 			try {
 				T result = get();
 				if (!isCancelled() && (reportNullResult || null != result)) {
-					callback.onNetworkSuccess(result);
+					callback.onHttpResult(result);
 				}
 			} catch (CancellationException e) {
 				// do nothing, the job was canceled
 			} catch (InterruptedException e) {
 				// do nothing, the job was canceled
 			} catch (ExecutionException e) {
-				callback.onNetworkFailed(e.getCause());
+				callback.onHttpFailed(e.getCause());
 			} finally {
-				callback.onNetworkFinished(NetworkTask.this);
+				callback.onHttpTaskFinished(this);
 			}
 	}
 
@@ -78,7 +79,7 @@ public class NetworkTask<T> extends FutureTask<T> {
 			uiHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					callback.onNetworkStarted(NetworkTask.this);
+					callback.onHttpTaskStarted(HttpTask.this);
 				}
 			});
 

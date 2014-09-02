@@ -7,31 +7,33 @@ package com.levelup.http.async;
  *
  * @param <T>
  */
-public interface NetworkCallback<T> {
+public interface HttpAsyncCallback<T> {
 	/**
 	 * The resulting data, called in the UI thread
 	 * @param result The parsed response after execution, may be {@code null}
+	 *
 	 */
-	void onNetworkSuccess(T result);
+	void onHttpResult(T result);
 	
 	/**
 	 * Called when an error has occurred during the download
 	 * <p>Will not be called if the download has been interrupted
 	 * @param t The {@link Throwable} that caused the execution to fail
+	 *
 	 */
-	void onNetworkFailed(Throwable t);
+	void onHttpFailed(Throwable t);
 	
 	/**
 	 * Called when the HTTP request is about to start being processed
-	 * <p>Always balanced with {@link #onNetworkFinished(NetworkTask)}
-	 * @param task The {@link NetworkTask} that has started
+	 * <p>Always balanced with {@link #onHttpTaskFinished(HttpTask)}
+	 * @param task The {@link HttpTask} that has started
 	 */
-	void onNetworkStarted(NetworkTask<T> task);
+	void onHttpTaskStarted(HttpTask<T> task);
 	
 	/**
-	 * Called when the HTTP request has finished processing. You can use {@link NetworkTask#get()} to get the result or an exception if it didn't finish correctly.
-	 * <p>Always balanced with {@link #onNetworkStarted(NetworkTask)}
-	 * @param task The {@link NetworkTask} that has stopped
+	 * Called when the HTTP request has finished processing. You can use {@link HttpTask#get()} to get the result or an exception if it didn't finish correctly.
+	 * <p>Always balanced with {@link #onHttpTaskStarted(HttpTask)}
+	 * @param task The {@link HttpTask} that has stopped
 	 */
-	void onNetworkFinished(NetworkTask<T> task);
+	void onHttpTaskFinished(HttpTask<T> task);
 }
