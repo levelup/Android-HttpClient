@@ -47,6 +47,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 		}
 		if (!TextUtils.isEmpty(verifyRealm))
 			realm.put("realm", verifyRealm);
+
 	    BaseHttpRequest<String> echoReq = new BaseHttpRequest.Builder<String>()
 			    .setUrl(verifyUrl)
 			    .setResponseParser(ResponseToString.RESPONSE_HANDLER)
@@ -54,10 +55,16 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 	    HttpEngine<String> engine = new HttpEngine.Builder<String>().setTypedRequest(echoReq).build();
 		super.sign(engine, realm);
 
-		String header = engine.getHttpResponse().getHeaderField(OAuth.HTTP_AUTHORIZATION_HEADER);
-		if (header!=null) {
-			req.setHeader("X-Verify-Credentials-Authorization", header);
-			req.setHeader("X-Auth-Service-Provider", verifyUrl);
-		}
+		String header = engine.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);
+	    if (null==header) {
+		    throw req.getExceptionFactory()
+				    .newException(null)
+				    .setErrorCode(HttpException.ERROR_AUTH)
+				    .setErrorMessage("request not properly signed")
+				    .build();
+	    }
+
+		req.setHeader("X-Verify-Credentials-Authorization", header);
+		req.setHeader("X-Auth-Service-Provider", verifyUrl);
 	}
 }

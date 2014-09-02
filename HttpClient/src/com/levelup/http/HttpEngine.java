@@ -33,6 +33,13 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 	 */
 	void setHeader(String name, String value);
 
+	/**
+	 * Get the internal header value used by the engine, may differ or not exist in the original {@link com.levelup.http.HttpRequest}
+	 * @param name HTTP Header name
+	 * @return HTTP Header value
+	 */
+	String getHeader(String name);
+
 	public static class Builder<T> {
 		private ResponseHandler<T> responseHandler;
 		private RawHttpRequest httpRequest;

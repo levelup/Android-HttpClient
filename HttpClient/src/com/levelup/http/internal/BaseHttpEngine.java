@@ -122,6 +122,11 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 			requestHeaders.put(name, value);
 	}
 
+	@Override
+	public String getHeader(String name) {
+		return requestHeaders.get(name);
+	}
+
 	protected void outputBody(OutputStream outputStream, HttpRequestInfo requestInfo) throws IOException {
 		final UploadProgressListener listener = request.getProgressListener();
 		if (null != listener)

@@ -40,6 +40,11 @@ public final class DummyHttpEngine<T> implements HttpEngine<T> {
 	}
 
 	@Override
+	public String getHeader(String name) {
+		return null;
+	}
+
+	@Override
 	public HttpResponse getHttpResponse() {
 		return null;
 	}
