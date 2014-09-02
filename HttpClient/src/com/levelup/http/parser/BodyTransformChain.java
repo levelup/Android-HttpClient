@@ -7,7 +7,7 @@ import com.levelup.http.HttpResponse;
 /**
  * Created by robUx4 on 21/08/2014.
  */
-public class ResponseTransformChain<T> extends XferTransformChain<HttpResponse, T> {
+public class BodyTransformChain<T> extends XferTransformChain<HttpResponse, T> {
 
 	public static class Builder<T> extends XferTransformChain.Builder<HttpResponse, T> {
 
@@ -17,7 +17,7 @@ public class ResponseTransformChain<T> extends XferTransformChain<HttpResponse, 
 
 		@Override
 		protected XferTransformChain<HttpResponse, T> buildInstance(XferTransformChain.Builder<HttpResponse, T> builder) {
-			return new ResponseTransformChain((Builder) builder);
+			return new BodyTransformChain((Builder) builder);
 		}
 
 		@Override
@@ -26,11 +26,11 @@ public class ResponseTransformChain<T> extends XferTransformChain<HttpResponse, 
 		}
 	}
 
-	public ResponseTransformChain(XferTransform<InputStream, T> endTransform) {
+	public BodyTransformChain(XferTransform<InputStream, T> endTransform) {
 		this(Builder.init(XferTransformResponseInputStream.INSTANCE).addDataTransform(endTransform));
 	}
 
-	protected ResponseTransformChain(Builder<T> builder) {
+	protected BodyTransformChain(Builder<T> builder) {
 		super(builder);
 	}
 }

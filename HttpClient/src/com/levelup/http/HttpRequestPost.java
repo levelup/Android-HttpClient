@@ -26,11 +26,11 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 	}
 
 	public HttpRequestPost(String url, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
-		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseParser(responseHandler));
+		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseHandler(responseHandler));
 	}
 
 	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
-		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseParser(responseHandler));
+		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseHandler(responseHandler));
 	}
 
 	protected HttpRequestPost(AbstractBuilder<T,?,?> builder) {

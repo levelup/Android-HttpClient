@@ -15,8 +15,8 @@ import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.async.BaseHttpAsyncCallback;
-import com.levelup.http.parser.ResponseToString;
-import com.levelup.http.parser.ResponseTransformChain;
+import com.levelup.http.parser.BodyToString;
+import com.levelup.http.parser.BodyTransformChain;
 import com.levelup.http.parser.Transformer;
 
 public class PagingHelperTest extends AndroidTestCase {
@@ -36,10 +36,10 @@ public class PagingHelperTest extends AndroidTestCase {
 	}
 
 	private static final ResponseHandler<Page> PAGE_RESPONSE_HANDLER = new ResponseHandler<Page>(
-			ResponseTransformChain.Builder
+			BodyTransformChain.Builder
 					// read the data as a String
-					.init(ResponseToString.INSTANCE)
-							// parse the String data to retrieve the links
+					.init(BodyToString.INSTANCE)
+					// parse the String data to retrieve the links
 					.addDataTransform(new Transformer<String, Page>() {
 						@Override
 						protected Page transform(String s, ImmutableHttpRequest request) {

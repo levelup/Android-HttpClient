@@ -16,7 +16,7 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.TypedHttpRequest;
-import com.levelup.http.parser.ResponseToString;
+import com.levelup.http.parser.BodyToString;
 
 /**
  * Basic HttpClient to run network queries outside of the UI thread
@@ -66,7 +66,7 @@ public class AsyncHttpClient {
 	public static void postStringRequest(String url, String tag, HttpAsyncCallback<String> callback) {
 		BaseHttpRequest.Builder<String> reqBuilder = new BaseHttpRequest.Builder<String>();
 		reqBuilder.setUrl(url)
-				.setResponseParser(ResponseToString.RESPONSE_HANDLER);
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER);
 		postRequest(reqBuilder.build(), tag, callback);
 	}
 

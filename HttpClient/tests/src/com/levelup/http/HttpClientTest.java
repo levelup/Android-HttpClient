@@ -16,9 +16,9 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.internal.HttpEngineUrlConnection;
-import com.levelup.http.parser.ResponseToHttpStream;
-import com.levelup.http.parser.ResponseToJSONObject;
-import com.levelup.http.parser.ResponseToString;
+import com.levelup.http.parser.BodyToHttpStream;
+import com.levelup.http.parser.BodyToString;
+import com.levelup.http.parser.BodyToJSONObject;
 
 import okio.BufferedSource;
 import okio.Okio;
@@ -44,7 +44,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
-				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -72,7 +72,7 @@ public class HttpClientTest extends AndroidTestCase {
 			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
-					setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+					setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
 					build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -100,7 +100,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
-				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -124,7 +124,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
-				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -150,7 +150,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=jsonBody").
 				setBody(body).
-				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -167,7 +167,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testTimeout() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/delay/10").
-				setResponseParser(new ResponseHandler<JSONObject>(ResponseToJSONObject.INSTANCE)).
+				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
 				build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override
@@ -189,7 +189,7 @@ public class HttpClientTest extends AndroidTestCase {
 	private void testError(int errorCode) throws Exception {
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
 				setUrl("http://httpbin.org/status/" + errorCode).
-				setResponseParser(ResponseToString.RESPONSE_HANDLER).
+				setResponseHandler(BodyToString.RESPONSE_HANDLER).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -205,7 +205,7 @@ public class HttpClientTest extends AndroidTestCase {
 	private void testStreamingError(int errorCode) throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/status/" + errorCode)
-				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 
 		try {
@@ -233,7 +233,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testString() throws Exception {
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/ip")
-				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -246,7 +246,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testStreaming() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
-				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -284,7 +284,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testStreamingCompressed() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
-				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		request.setHeader("Accept", "gzip,deflate");
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
@@ -323,7 +323,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testStreamingLine() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/stream/2")
-				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -353,7 +353,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testStreamingTimeout() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=8")
-				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override
@@ -385,7 +385,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testStreamingDisconnect() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
-				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -412,7 +412,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testStreamingDisconnectAsync() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
-				.setResponseParser(ResponseToHttpStream.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -448,7 +448,7 @@ public class HttpClientTest extends AndroidTestCase {
 			HttpClient.setup(null);
 			BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
 					.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
-					.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+					.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 					.build();
 			// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 			//when not using Ion, we don't need a Context fail("A query with no context is invalid");
@@ -461,7 +461,7 @@ public class HttpClientTest extends AndroidTestCase {
 		HttpClient.setup(null);
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
-				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 			// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 	}
@@ -470,7 +470,7 @@ public class HttpClientTest extends AndroidTestCase {
 		HttpClient.setup(getContext());
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
-				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 			// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 		HttpClient.setup(null);

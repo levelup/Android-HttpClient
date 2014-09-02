@@ -10,10 +10,10 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.ParserException;
-import com.levelup.http.gson.ResponseViaGson;
+import com.levelup.http.gson.BodyViaGson;
 import com.levelup.http.ion.IonClient;
+import com.levelup.http.parser.BodyToString;
 import com.levelup.http.parser.ErrorHandlerViaXferTransform;
-import com.levelup.http.parser.ResponseToString;
 
 public class ResponseViaGsonTest extends AndroidTestCase {
 
@@ -30,7 +30,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 	public void testGsonData() throws Exception {
 		BaseHttpRequest<HttpbinData> request = new BaseHttpRequest.Builder<HttpbinData>().
 				setUrl("http://httpbin.org/get").
-				setResponseParser(new ResponseHandler<HttpbinData>(new ResponseViaGson<HttpbinData>(HttpbinData.class))).
+				setResponseHandler(new ResponseHandler<HttpbinData>(new BodyViaGson<HttpbinData>(HttpbinData.class))).
 				build();
 
 		HttpbinData data = HttpClient.parseRequest(request);
@@ -51,10 +51,10 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 	public void testGsonErrorData() throws Exception {
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
 				setUrl("http://graph.facebook.com/test").
-				setResponseParser(
-						new ResponseHandler<String>(ResponseToString.INSTANCE,
+				setResponseHandler(
+						new ResponseHandler<String>(BodyToString.INSTANCE,
 								new ErrorHandlerViaXferTransform(
-										new ResponseViaGson<FacebookErrorData>(FacebookErrorData.class)
+										new BodyViaGson<FacebookErrorData>(FacebookErrorData.class)
 								)
 						)
 				).
@@ -76,12 +76,12 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 	}
 
 	public void testGsonErrorDebugData() throws Exception {
-		ResponseViaGson<FacebookErrorData> testParser = new ResponseViaGson<FacebookErrorData>(FacebookErrorData.class);
+		BodyViaGson<FacebookErrorData> testParser = new BodyViaGson<FacebookErrorData>(FacebookErrorData.class);
 		testParser.enableDebugData(true);
 		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
 				setUrl("http://graph.facebook.com/test").
-				setResponseParser(
-						new ResponseHandler<String>(ResponseToString.INSTANCE,
+				setResponseHandler(
+						new ResponseHandler<String>(BodyToString.INSTANCE,
 								new ErrorHandlerViaXferTransform(testParser)
 						)
 				).
@@ -103,11 +103,11 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 	}
 
 	public void testSetDebugData() throws Exception {
-		ResponseViaGson<Void> testParser = new ResponseViaGson<Void>(Void.class);
+		BodyViaGson<Void> testParser = new BodyViaGson<Void>(Void.class);
 		testParser.enableDebugData(true);
 		BaseHttpRequest<Void> request = new BaseHttpRequest.Builder<Void>().
 				setUrl("http://httpbin.org/ip").
-				setResponseParser(new ResponseHandler<Void>(testParser)).
+				setResponseHandler(new ResponseHandler<Void>(testParser)).
 				build();
 
 		try {

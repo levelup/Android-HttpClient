@@ -36,7 +36,7 @@ public class BaseHttpRequest<T> extends RawHttpRequest implements TypedHttpReque
 		 * @param responseHandler HTTP response body parser
 		 * @return Current Builder
 		 */
-		public BUILDER setResponseParser(ResponseHandler<T> responseHandler) {
+		public BUILDER setResponseHandler(ResponseHandler<T> responseHandler) {
 			this.responseHandler = responseHandler;
 			return (BUILDER) this;
 		}

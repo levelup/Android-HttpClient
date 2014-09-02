@@ -9,9 +9,9 @@ import android.test.AndroidTestCase;
 import com.levelup.http.paging.NextPageFactory;
 import com.levelup.http.paging.PageCallback;
 import com.levelup.http.paging.PagingHelper;
-import com.levelup.http.parser.ResponseToString;
+import com.levelup.http.parser.BodyToString;
+import com.levelup.http.parser.BodyTransformChain;
 import com.levelup.http.parser.ResponseToVoid;
-import com.levelup.http.parser.ResponseTransformChain;
 import com.levelup.http.parser.Transformer;
 
 public class CallableHelperTest extends AndroidTestCase {
@@ -25,12 +25,12 @@ public class CallableHelperTest extends AndroidTestCase {
 	public void testChain() throws Exception {
 		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/")
-				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 
 		BaseHttpRequest<Void> resultIsFalseRequest = new BaseHttpRequest.Builder<Void>()
 				.setUrl("http://httpbin.org/status/404")
-				.setResponseParser(ResponseToVoid.RESPONSE_HANDLER)
+				.setResponseHandler(ResponseToVoid.RESPONSE_HANDLER)
 				.build();
 
 		HttpEngine<String> mainEngine = new HttpEngine.Builder<String>().setTypedRequest(mainRequest).build();
@@ -49,7 +49,7 @@ public class CallableHelperTest extends AndroidTestCase {
 	public void testPostData() throws Exception {
 		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/")
-				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 
 		HttpEngine<String> mainEngine = new HttpEngine.Builder<String>().setTypedRequest(mainRequest).build();
@@ -81,7 +81,7 @@ public class CallableHelperTest extends AndroidTestCase {
 		// TODO do the query 3 times using a chain of a chain
 		BaseHttpRequest<String> mainRequest = new BaseHttpRequest.Builder<String>()
 				.setUrl("http://httpbin.org/")
-				.setResponseParser(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 
 		HttpEngine<String> mainEngine = new HttpEngine.Builder<String>().setTypedRequest(mainRequest).build();
@@ -90,7 +90,7 @@ public class CallableHelperTest extends AndroidTestCase {
 	private static HttpEngine<String> getLinkPageEngine(String link) {
 		return new HttpEngine.Builder<String>()
 				.setRequest(new RawHttpRequest.Builder().setUrl(link).build())
-				.setResponseHandler(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 	}
 
@@ -136,9 +136,9 @@ public class CallableHelperTest extends AndroidTestCase {
 	}
 
 	private static final ResponseHandler<Page> PAGE_RESPONSE_HANDLER = new ResponseHandler<Page>(
-			ResponseTransformChain.Builder
+			BodyTransformChain.Builder
 					// read the data as a String
-					.init(ResponseToString.INSTANCE)
+					.init(BodyToString.INSTANCE)
 					// parse the String data to retrieve the links
 					.addDataTransform(new Transformer<String, Page>() {
 						@Override

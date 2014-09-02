@@ -6,7 +6,7 @@ import android.test.AndroidTestCase;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.UriParams;
-import com.levelup.http.parser.ResponseToString;
+import com.levelup.http.parser.BodyToString;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
 
@@ -38,7 +38,7 @@ public class OAuthUserTest extends AndroidTestCase {
 		BaseHttpRequest<String> get = new BaseHttpRequest.Builder<String>().
 				setSigner(signer).
 				setUrl("http://www.levelupstudio.com/", uriParams).
-				setResponseParser(ResponseToString.RESPONSE_HANDLER).
+				setResponseHandler(BodyToString.RESPONSE_HANDLER).
 				build();
 		HttpClient.parseRequest(get);
 	}
@@ -63,7 +63,7 @@ public class OAuthUserTest extends AndroidTestCase {
 		BaseHttpRequest<String> get = new BaseHttpRequest.Builder<String>().
 				setSigner(signer).
 				setUrl("http://www.levelupstudio.com/", uriParams).
-				setResponseParser(ResponseToString.RESPONSE_HANDLER).
+				setResponseHandler(BodyToString.RESPONSE_HANDLER).
 				build();
 		HttpClient.parseRequest(get);
 	}

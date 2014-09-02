@@ -13,7 +13,7 @@ import com.levelup.http.ParserException;
  *
  * <p>Use the {@link #INSTANCE}</p>
  *
- * @see com.levelup.http.parser.ResponseToJSONArray
+ * @see BodyToJSONArray
  * @author Created by robUx4 on 20/08/2014.
  */
 public final class XferTransformStringJSONArray implements XferTransform<String, JSONArray> {

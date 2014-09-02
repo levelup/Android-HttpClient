@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 
-import com.levelup.http.parser.ResponseToString;
+import com.levelup.http.parser.BodyToString;
 
 /**
  * HTTP client that handles {@link HttpRequest} 
@@ -69,7 +69,7 @@ public class HttpClient {
 	public static String getStringResponse(HttpRequest request) throws HttpException {
 		return new HttpEngine.Builder<String>()
 				.setRequest(request)
-				.setResponseHandler(ResponseToString.RESPONSE_HANDLER)
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build()
 				.call();
 	}

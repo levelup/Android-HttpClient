@@ -23,15 +23,15 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 	}
 
 	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, ResponseHandler<T> responseHandler) {
-		this(new Builder<T>().setUrl(baseUrl, uriParams).setResponseParser(responseHandler));
+		this(new Builder<T>().setUrl(baseUrl, uriParams).setResponseHandler(responseHandler));
 	}
 
 	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, ResponseHandler<T> responseHandler) {
-		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).setResponseParser(responseHandler));
+		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).setResponseHandler(responseHandler));
 	}
 
 	public HttpRequestGet(String url, ResponseHandler<T> responseHandler) {
-		this(new Builder<T>().setUrl(url).setResponseParser(responseHandler));
+		this(new Builder<T>().setUrl(url).setResponseHandler(responseHandler));
 	}
 
 	protected HttpRequestGet(AbstractBuilder<T,?,?> builder) {
