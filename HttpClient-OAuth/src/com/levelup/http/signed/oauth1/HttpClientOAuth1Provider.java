@@ -3,10 +3,8 @@ package com.levelup.http.signed.oauth1;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpRequestPost;
 import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.parser.XferTransformResponseInputStream;
@@ -63,16 +61,17 @@ public class HttpClientOAuth1Provider {
 
 			@Override
 			protected HttpRequest createRequest(String endpointUrl) throws IOException {
-				final RawHttpRequest request;
+				final RawHttpRequest request = new RawHttpRequest.Builder().setUrl(endpointUrl).setHttpMethod("POST").build();
+				final ResponseHandler<InputStream> responseHandler;
 				if (HttpClientOAuth1Provider.this.consumer instanceof OAuth1ConsumerClocked) {
 					OAuth1ConsumerClocked cons = (OAuth1ConsumerClocked) HttpClientOAuth1Provider.this.consumer;
-					request = cons.createRequest(endpointUrl);
+					responseHandler = cons.responseHandler;
 				} else {
-					request = new RawHttpRequest.Builder().setUrl(endpointUrl).setHttpMethod("POST").build();
+					responseHandler = OAUTH1_RESPONSE_HANDLER;
 				}
 				return new OAuth1RequestAdapter(new HttpEngine.Builder<InputStream>()
-						.setResponseHandler(OAUTH1_RESPONSE_HANDLER)
 						.setRequest(request)
+						.setResponseHandler(responseHandler)
 						.build());
 			}
 

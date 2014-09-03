@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 
 /**
  * Factory interface to create a {@link HttpTask} from a {@link Callable}
- * <p>By default {@link BaseHttpTaskFactory#instance} is used by {@link AsyncHttpClient}
+ * <p>By default {@link BaseHttpTaskFactory#instance} is used by {@link com.levelup.http.async.HttpTask.Builder}
  * @author Steve Lhomme
  *
  * @param <T>

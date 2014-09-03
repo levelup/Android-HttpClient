@@ -12,6 +12,10 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.http.protocol.HTTP;
 
+import android.annotation.SuppressLint;
+import android.net.TrafficStats;
+import android.os.Build;
+
 import com.levelup.http.CookieManager;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.Header;
@@ -39,6 +43,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	protected final RawHttpRequest request;
 	protected final ResponseHandler<T> responseHandler;
 	protected final HttpExceptionFactory exceptionFactory;
+	protected final int threadStatsTag;
 
 	protected R httpResponse;
 
@@ -46,10 +51,11 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
 	}
 
-	public AbstractHttpEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
-		this.request = request;
-		this.responseHandler = responseHandler;
-		this.exceptionFactory = exceptionFactory;
+	public AbstractHttpEngine(Builder<T> builder) {
+		this.request = builder.getHttpRequest();
+		this.responseHandler = builder.getResponseHandler();
+		this.exceptionFactory = builder.getExceptionFactory();
+		this.threadStatsTag = builder.getThreadStatsTag();
 
 		for (Header header : request.getAllHeaders()) {
 			requestHeaders.put(header.getName(), header.getValue());
@@ -86,8 +92,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		if (null != HttpClient.getCookieManager()) {
 			HttpClient.getCookieManager().setCookieHeader(this);
 		}
-
-		request.settleHttpHeaders();
 
 		final long contentLength;
 		if (null != request.getBodyParameters()) {
@@ -138,7 +142,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	}
 
 	/**
-	 * Do the query on the network and return the internal {@link com.levelup.http.HttpResponse}
+	 * Do the query on the network and return the internal {@link com.levelup.http.HttpResponse}, do not parse the result here
 	 * @return
 	 * @throws HttpException
 	 */
@@ -148,11 +152,18 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		return responseHandler.contentParser.transformData(response, this);
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public final T call() throws HttpException {
+		if (0 != threadStatsTag) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+				TrafficStats.setThreadStatsTag(threadStatsTag);
+		}
+
 		prepareEngine();
 
 		R httpResponse = queryResponse();
+		responseHandler.onNewResponse(httpResponse, request);
 		try {
 			return responseToResult(httpResponse);
 
@@ -161,6 +172,11 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 		} catch (IOException e) {
 			throw exceptionToHttpException(e).build();
+		} finally {
+			if (0 != threadStatsTag) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+					TrafficStats.clearThreadStatsTag();
+			}
 		}
 	}
 
@@ -172,7 +188,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 	protected void setRequestResponse(R httpResponse) {
 		this.httpResponse = httpResponse;
-		request.setResponse(httpResponse);
 
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster != null) {

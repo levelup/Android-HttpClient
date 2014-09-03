@@ -32,11 +32,8 @@ import com.levelup.http.HttpBodyString;
 import com.levelup.http.HttpBodyUrlEncoded;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpExceptionFactory;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ParserException;
-import com.levelup.http.RawHttpRequest;
-import com.levelup.http.ResponseHandler;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.internal.AbstractHttpEngine;
 import com.levelup.http.ion.internal.IonBody;
@@ -64,11 +61,11 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 	public final Builders.Any.B requestBuilder;
 	private static Ion ion;
 
-	protected HttpEngineIon(final RawHttpRequest request, ResponseHandler<T> responseHandler, Context context, HttpExceptionFactory exceptionFactory) {
-		super(request, responseHandler, exceptionFactory);
+	protected HttpEngineIon(Builder<T> builder, Context context) {
+		super(builder);
 
 		if (context == null) {
-			throw new NullPointerException("Ion HTTP request with no Context, try calling HttpClient.setup() first or a constructor with a Context");
+			throw new NullPointerException("Ion HTTP request with no Context, try calling IonClient.setup() first or a constructor with a Context");
 		}
 
 		synchronized (HttpEngineIon.class) {

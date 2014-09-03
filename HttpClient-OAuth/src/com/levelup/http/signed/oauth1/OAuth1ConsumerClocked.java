@@ -1,5 +1,6 @@
 package com.levelup.http.signed.oauth1;
 
+import java.io.InputStream;
 import java.util.Date;
 
 import org.apache.http.impl.cookie.DateParseException;
@@ -7,8 +8,10 @@ import org.apache.http.impl.cookie.DateUtils;
 
 import android.text.TextUtils;
 
+import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.RawHttpRequest;
+import com.levelup.http.ResponseHandler;
+import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.signed.OAuthClientApp;
 
 
@@ -20,6 +23,18 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 	private static final long serialVersionUID = 3963386898609696262L;
 
 	private long serverDelayInMilliseconds;
+
+	final ResponseHandler<InputStream> responseHandler = new ResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE) {
+		@Override
+		public void onNewResponse(HttpResponse response, HttpRequest request) {
+			super.onNewResponse(response, request);
+
+			String serverDate = response.getHeaderField("Date");
+			if (!TextUtils.isEmpty(serverDate)) {
+				setServerDate(serverDate);
+			}
+		}
+	};
 
 	public long getServerTime() {
 		return System.currentTimeMillis() - serverDelayInMilliseconds;
@@ -42,27 +57,5 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 
 	public OAuth1ConsumerClocked(OAuthClientApp clientApp) {
 		super(clientApp);
-	}
-
-	private class HttpProviderRequest extends RawHttpRequest {
-		protected HttpProviderRequest(String endpointUrl) {
-			super(new RawHttpRequest.Builder().setUrl(endpointUrl).setHttpMethod("POST"));
-		}
-
-		@Override
-		public void setResponse(HttpResponse resp) {
-			super.setResponse(resp);
-
-			if (null!=resp) {
-				String serverDate = resp.getHeaderField("Date");
-				if (!TextUtils.isEmpty(serverDate)) {
-					setServerDate(serverDate);
-				}
-			}
-		}
-	}
-
-	public RawHttpRequest createRequest(String endpointUrl) {
-		return new HttpProviderRequest(endpointUrl);
 	}
 }

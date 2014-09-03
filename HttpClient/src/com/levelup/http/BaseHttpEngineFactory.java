@@ -13,7 +13,7 @@ public class BaseHttpEngineFactory implements HttpEngineFactory {
 	public static final BaseHttpEngineFactory INSTANCE = new BaseHttpEngineFactory();
 
 	@Override
-	public <T> HttpEngine<T> createEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
-		return new HttpEngineUrlConnection<T>(request, responseHandler, exceptionFactory);
+	public <T> HttpEngine<T> createEngine(HttpEngine.Builder<T> builder) {
+		return new HttpEngineUrlConnection<T>(builder);
 	}
 }

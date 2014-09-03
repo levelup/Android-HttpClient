@@ -22,17 +22,6 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionFactory {
 	void setHeader(String name, String value);
 
 	/**
-	 * Settle the HTTP headers for the lifetime of this request, useful to sign the query
-	 */
-	void settleHttpHeaders() throws HttpException;
-
-	/**
-	 * Called when the request has been performed on the server, even if the response is an error
-	 * @param resp Contains the received headers/data from the server
-	 */
-	public <R extends HttpResponse> void setResponse(R resp);
-
-	/**
 	 * Returns the {@link LoggerTagged} for this request or {@code null} 
 	 */
 	LoggerTagged getLogger();

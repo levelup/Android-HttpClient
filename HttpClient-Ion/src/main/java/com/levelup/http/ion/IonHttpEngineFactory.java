@@ -5,9 +5,7 @@ import android.content.Context;
 import com.levelup.http.DummyHttpEngine;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpEngineFactory;
-import com.levelup.http.HttpExceptionFactory;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.parser.ErrorHandlerViaXferTransform;
 import com.levelup.http.parser.Utils;
@@ -36,15 +34,15 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	}
 
 	@Override
-	public <T> HttpEngine<T> createEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
-		if (!canHandleXferTransform(responseHandler.contentParser))
-			return new DummyHttpEngine<T>(request, responseHandler, exceptionFactory);
+	public <T> HttpEngine<T> createEngine(HttpEngine.Builder<T> builder) {
+		if (!canHandleXferTransform(builder.getResponseHandler().contentParser))
+			return new DummyHttpEngine<T>(builder);
 
-		if (!errorCompatibleWithData(responseHandler))
+		if (!errorCompatibleWithData(builder.getResponseHandler()))
 			// Ion returns the data fully parsed so if we don't have common ground to parse the data and the error data, Ion can't handle the request
-			return new DummyHttpEngine<T>(request, responseHandler, exceptionFactory);
+			return new DummyHttpEngine<T>(builder);
 
-		return new HttpEngineIon<T>(request, responseHandler, context, exceptionFactory);
+		return new HttpEngineIon<T>(builder, context);
 	}
 
 	private static <T> boolean canHandleXferTransform(XferTransform<HttpResponse, T> contentParser) {

@@ -2,8 +2,6 @@ package com.levelup.http;
 
 import java.util.concurrent.Callable;
 
-import android.content.Context;
-
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */
@@ -44,6 +42,7 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 		private ResponseHandler<T> responseHandler;
 		private RawHttpRequest httpRequest;
 		private HttpEngineFactory factory = HttpClient.getHttpEngineFactory();
+		private int threadStatsTag;
 
 		public Builder() {
 		}
@@ -69,13 +68,40 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 			return this;
 		}
 
+		/**
+		 * Set a tag to mark the query processed in this thread as belonging to a certain class of requests
+		 * @param threadStatsTag the tag for the engine when it will run, {@code null} by default
+		 * @return Current Builder
+		 * @see android.net.TrafficStats
+		 */
+		public Builder<T> setThreadStatsTag(int threadStatsTag) {
+			this.threadStatsTag = threadStatsTag;
+			return this;
+		}
+
 		public HttpEngine<T> build() {
 			if (null == httpRequest) throw new NullPointerException("missing a HttpRequest for the engine");
 			if (null == responseHandler) throw new NullPointerException("missing a ResponseHandler for the engine of "+httpRequest);
-			HttpEngine<T> httpEngine = factory.createEngine(httpRequest, responseHandler, httpRequest);
+			HttpEngine<T> httpEngine = factory.createEngine(this);
 			if (null == httpEngine)
-				return new DummyHttpEngine<T>(httpRequest, responseHandler, httpRequest);
+				return new DummyHttpEngine<T>(this);
 			return httpEngine;
+		}
+
+		public RawHttpRequest getHttpRequest() {
+			return httpRequest;
+		}
+
+		public ResponseHandler<T> getResponseHandler() {
+			return responseHandler;
+		}
+
+		public int getThreadStatsTag() {
+			return threadStatsTag;
+		}
+
+		public HttpExceptionFactory getExceptionFactory() {
+			return httpRequest;
 		}
 	}
 }

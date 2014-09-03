@@ -36,7 +36,10 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testAsyncSimpleQuery() {
-		AsyncHttpClient.postTagRequest(BASIC_REQUEST, BASIC_URL_TAG, null);
+		new HttpTask.Builder<String>()
+				.setTypedRequest(BASIC_REQUEST)
+				.setTaskTag(BASIC_URL_TAG)
+				.execute();
 	}
 
 	private static class TestAsyncCallback extends BaseHttpAsyncCallback<String> {
@@ -63,14 +66,18 @@ public class AsyncClientTest extends AndroidTestCase {
 	public void testAsyncSimpleQueryResult() {
 		final CountDownLatch latch = new CountDownLatch(1);
 
-		AsyncHttpClient.postTagRequest(BASIC_REQUEST, BASIC_URL_TAG, new TestAsyncCallback() {
+		new HttpTask.Builder<String>()
+				.setTypedRequest(BASIC_REQUEST)
+				.setTaskTag(BASIC_URL_TAG)
+				.setHttpAsyncCallback(new TestAsyncCallback() {
 					@Override
 					public void onHttpResult(String result) {
 						// we received the result successfully
 						latch.countDown();
 					}
-				}
-		);
+				})
+				.execute();
+
 		try {
 			latch.await();
 		} catch (InterruptedException e) {

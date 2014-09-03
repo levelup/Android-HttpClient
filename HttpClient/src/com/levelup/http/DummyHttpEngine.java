@@ -8,10 +8,10 @@ public final class DummyHttpEngine<T> implements HttpEngine<T> {
 	private final ResponseHandler<T> responseHandler;
 	private final HttpExceptionFactory exceptionFactory;
 
-	public DummyHttpEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
-		this.request = request;
-		this.responseHandler = responseHandler;
-		this.exceptionFactory = exceptionFactory;
+	public DummyHttpEngine(Builder<T> builder) {
+		this.request = builder.getHttpRequest();
+		this.responseHandler = builder.getResponseHandler();
+		this.exceptionFactory = builder.getExceptionFactory();
 	}
 
 	@Override

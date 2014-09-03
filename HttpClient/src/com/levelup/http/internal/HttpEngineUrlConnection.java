@@ -35,8 +35,8 @@ import com.levelup.http.ResponseHandler;
 public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpResponseUrlConnection> {
 	final HttpURLConnection urlConnection;
 
-	public HttpEngineUrlConnection(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
-		super(request, responseHandler, exceptionFactory);
+	public HttpEngineUrlConnection(Builder<T> builder) {
+		super(builder);
 
 		try {
 			this.urlConnection = (HttpURLConnection) new URL(request.getUri().toString()).openConnection();

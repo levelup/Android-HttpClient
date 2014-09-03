@@ -23,6 +23,9 @@ public class ResponseHandler<OUTPUT> {
 		this(contentParser, BaseErrorHandler.INSTANCE);
 	}
 
+	public void onNewResponse(HttpResponse response, HttpRequest request) {
+	}
+
 	public Boolean followsRedirect() {
 		return null;
 	}

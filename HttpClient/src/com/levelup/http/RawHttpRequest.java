@@ -271,16 +271,6 @@ public class RawHttpRequest implements HttpRequest {
 	}
 
 	@Override
-	public void settleHttpHeaders() throws HttpException {
-		// do nothing
-	}
-
-	@Override
-	public void setResponse(HttpResponse resp) {
-		// do nothing
-	}
-
-	@Override
 	public LoggerTagged getLogger() {
 		return loggerTagged;
 	}
