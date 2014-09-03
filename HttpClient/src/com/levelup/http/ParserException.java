@@ -8,7 +8,7 @@ public class ParserException extends Exception {
 	private final String sourceData;
 
 	public ParserException(String detailMessage, Exception cause, String sourceData) {
-		super(detailMessage, cause);
+		super(getDetailMessage(detailMessage, sourceData), cause);
 		this.sourceData = sourceData;
 	}
 
@@ -20,11 +20,15 @@ public class ParserException extends Exception {
 		return sourceData;
 	}
 
-	@Override
-	public String toString() {
-		String result = super.toString();
-		if (null!=sourceData)
-			result = result + " data'" + sourceData+'\'';
-		return result;
+	private static String getDetailMessage(String detailMessage, String sourceData) {
+		StringBuilder sb = new StringBuilder();
+		if (null!=detailMessage)
+			sb.append(detailMessage);
+		if (null!=sourceData) {
+			sb.append(" data'");
+			sb.append(sourceData);
+			sb.append('\'');
+		}
+		return sb.toString();
 	}
 }
