@@ -82,6 +82,9 @@ public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
 			JsonReader reader = new JsonReader(ir);
 			return gson.fromJson(reader, type);
 		} catch (JsonParseException e) {
+			if (e.getCause() instanceof IOException)
+				throw (IOException) e.getCause();
+
 			throw new ParserException("Bad data for GSON", e, dataString);
 		} finally {
 			try {
