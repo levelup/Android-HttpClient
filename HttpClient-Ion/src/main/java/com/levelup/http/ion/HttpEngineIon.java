@@ -38,7 +38,7 @@ import com.levelup.http.ParserException;
 import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.UploadProgressListener;
-import com.levelup.http.internal.BaseHttpEngine;
+import com.levelup.http.internal.AbstractHttpEngine;
 import com.levelup.http.ion.internal.IonBody;
 import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
@@ -60,7 +60,7 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineIon<T> extends BaseHttpEngine<T, HttpResponseIon<T>> {
+public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 	private static Ion ion;
 

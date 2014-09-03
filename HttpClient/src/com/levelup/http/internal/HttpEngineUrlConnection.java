@@ -32,7 +32,7 @@ import com.levelup.http.ResponseHandler;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineUrlConnection<T> extends BaseHttpEngine<T,HttpResponseUrlConnection> {
+public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpResponseUrlConnection> {
 	final HttpURLConnection urlConnection;
 
 	public HttpEngineUrlConnection(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {

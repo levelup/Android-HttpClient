@@ -29,11 +29,11 @@ import com.levelup.http.UploadProgressListener;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
- * Base HTTP request engine
+ * Base {@link com.levelup.http.HttpEngine} with the basic stuff handled and the necessary methods an engine needs to provide
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, Closeable {
+public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, Closeable {
 	protected final Map<String, String> requestHeaders = new HashMap<String, String>();
 
 	protected final RawHttpRequest request;
@@ -46,7 +46,7 @@ public abstract class BaseHttpEngine<T,R extends HttpResponse> implements HttpEn
 		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
 	}
 
-	public BaseHttpEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
+	public AbstractHttpEngine(RawHttpRequest request, ResponseHandler<T> responseHandler, HttpExceptionFactory exceptionFactory) {
 		this.request = request;
 		this.responseHandler = responseHandler;
 		this.exceptionFactory = exceptionFactory;

@@ -98,7 +98,7 @@ public class HttpResponseUrlConnection implements HttpResponse {
 			return errorStream;
 
 		InputStream result = null;
-		if (BaseHttpEngine.isHttpError(this)) {
+		if (AbstractHttpEngine.isHttpError(this)) {
 			if (null == result)
 				result = getErrorStream();
 		}
