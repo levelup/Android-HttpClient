@@ -34,6 +34,7 @@ import com.levelup.http.ResponseHandler;
  */
 public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpResponseUrlConnection> {
 	final HttpURLConnection urlConnection;
+	private static final String ENGINE_SIGNATURE = null; // TODO we could give the OS version
 
 	public HttpEngineUrlConnection(Builder<T> builder) {
 		super(builder);
@@ -56,6 +57,11 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 		if (request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
 			setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
 		}
+	}
+
+	@Override
+	protected String getEngineSignature() {
+		return null;
 	}
 
 	@SuppressLint("NewApi")

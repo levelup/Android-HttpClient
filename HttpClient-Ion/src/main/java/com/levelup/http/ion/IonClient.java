@@ -20,6 +20,6 @@ public class IonClient {
 
 	public static void setup(Context context, HttpEngineFactory fallbackFactory) {
 		HttpClient.setup(context);
-		HttpClient.setHttpEngineFactory(new HttpEngineFactoryFallback(fallbackFactory, IonHttpEngineFactory.getInstance(context)));
+		HttpClient.setHttpEngineFactory(new HttpEngineFactoryFallback(IonHttpEngineFactory.getInstance(context), fallbackFactory));
 	}
 }

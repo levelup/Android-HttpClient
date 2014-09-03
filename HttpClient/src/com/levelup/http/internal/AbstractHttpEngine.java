@@ -60,6 +60,14 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		for (Header header : request.getAllHeaders()) {
 			requestHeaders.put(header.getName(), header.getValue());
 		}
+
+		String userAgent = requestHeaders.get(HTTP.USER_AGENT);
+		if (null!=userAgent) {
+			String engineSignature = getEngineSignature();
+			if (null!=engineSignature) {
+				setHeader(HTTP.USER_AGENT, userAgent + ' ' + engineSignature);
+			}
+		}
 	}
 
 	@Override
@@ -117,6 +125,11 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	 * @throws HttpException
 	 */
 	protected abstract void setHeadersAndConfig();
+
+	/**
+	 * @return a String representing the engine, to put in the user-agent
+	 */
+	protected abstract String getEngineSignature();
 
 	@Override
 	public final void setHeader(String name, String value) {

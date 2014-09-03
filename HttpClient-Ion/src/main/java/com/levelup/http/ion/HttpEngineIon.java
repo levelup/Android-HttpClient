@@ -60,6 +60,7 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
 public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 	private static Ion ion;
+	private static final String ENGINE_SIGNATURE = "Ion-1.3.8+AndroidAsync-1.3.8"; // TODO do not hardcode this
 
 	protected HttpEngineIon(Builder<T> builder, Context context) {
 		super(builder);
@@ -107,6 +108,11 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 				});
 			}
 		}
+	}
+
+	@Override
+	protected String getEngineSignature() {
+		return ENGINE_SIGNATURE;
 	}
 
 	@Override
