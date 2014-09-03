@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.protocol.HTTP;
+
 import android.content.Context;
 
 import com.koushikdutta.async.DataEmitter;
@@ -116,7 +118,17 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 	}
 
 	@Override
+	protected void setContentLength(long contentLength) {
+		if (0L == contentLength)
+			super.setContentLength(contentLength);
+	}
+
+	@Override
 	public void setHeadersAndConfig() {
+		if (request.getBodyParameters() instanceof HttpBodyMultiPart) {
+			setHeader(HTTP.CONTENT_TYPE, null);
+		}
+
 		for (Entry<String, String> entry : requestHeaders.entrySet()) {
 			requestBuilder.setHeader(entry.getKey(), entry.getValue());
 		}
