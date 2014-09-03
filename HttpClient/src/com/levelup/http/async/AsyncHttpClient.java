@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -13,13 +11,13 @@ import java.util.concurrent.TimeUnit;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.TypedHttpRequest;
 import com.levelup.http.parser.BodyToString;
 
 /**
  * Basic HttpClient to run network queries outside of the UI thread
+ * <p>Helper class for {@link com.levelup.http.async.AsyncHttpBuilder}</p>
  * 
  * @author Steve Lhomme
  */
@@ -28,7 +26,7 @@ public class AsyncHttpClient {
 	private static final int THREAD_POOL_SIZE = 3*Runtime.getRuntime().availableProcessors();
 	private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>();
 
-	private static final HashMap<String, Future<?>> taggedJobs = new HashMap<String, Future<?>>();
+	private static final HashMap<String, HttpTask<?>> taggedJobs = new HashMap<String, HttpTask<?>>();
 
 	private static Executor executor;
 	static {
@@ -67,7 +65,7 @@ public class AsyncHttpClient {
 		BaseHttpRequest.Builder<String> reqBuilder = new BaseHttpRequest.Builder<String>();
 		reqBuilder.setUrl(url)
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER);
-		postRequest(reqBuilder.build(), tag, callback);
+		postTagRequest(reqBuilder.build(), tag, callback);
 	}
 
 	/**
@@ -78,8 +76,11 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Future<T> postRequest(TypedHttpRequest<T> request, HttpAsyncCallback<T> callback) {
-		return postRequest(request, callback, BaseHttpTaskFactory.instance);
+	public static <T> HttpTask<T> postRequest(TypedHttpRequest<T> request, HttpAsyncCallback<T> callback) {
+		return new AsyncHttpBuilder<T>()
+				.setTypedRequest(request)
+				.setHttpAsyncCallback(callback)
+				.runTask();
 	}
 
 	/**
@@ -91,49 +92,44 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 * @see #postRequest(TypedHttpRequest, HttpAsyncCallback)
 	 */
-	public static <T> Future<T> postRequest(TypedHttpRequest<T> request, HttpAsyncCallback<T> callback, HttpTaskFactory<T> factory) {
-		HttpEngine<T> httpEngine = new HttpEngine.Builder<T>().setTypedRequest(request).build();
-		return postRequest(httpEngine, callback, factory);
+	public static <T> HttpTask<T> postRequest(TypedHttpRequest<T> request, HttpAsyncCallback<T> callback, HttpTaskFactory<T> factory) {
+		return new AsyncHttpBuilder<T>()
+				.setTypedRequest(request)
+				.setHttpAsyncCallback(callback)
+				.setHttpTaskFactory(factory)
+				.runTask();
 	}
 
 	/**
-	 * Run the {@link com.levelup.http.HttpEngine HttpEngine} in the background and post the resulting parsed object to {@code callback} in the UI thread.
-	 * @param httpEngine {@link com.levelup.http.HttpEngine} to execute to get the parsed object
-	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @param factory Factory used to create the {@link HttpTask} that will download the data and send the result in the UI thread
-	 * @param <T> Type of the Object generated from the parsed data
-	 * @return A Future<T> representing the download task, if you need to cancel it
-	 */
-	public static <T> Future<T> postRequest(HttpEngine<T> httpEngine, HttpAsyncCallback<T> callback, HttpTaskFactory<T> factory) {
-		FutureTask<T> task = factory.createHttpTask(httpEngine, callback);
-		executor.execute(task);
-		return task;
-	}
-
-	/**
-	 * Run an {@link HttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
+	 * Run an {@link com.levelup.http.TypedHttpRequest HTTP request} in the background and post the resulting parsed object to {@code callback} in the UI thread.
 	 * <p>The {@code tag} is used to identify similar queries so previous instances can be canceled so that only the last call gives a result.
 	 * @param request {@link HttpRequest HTTP request} to execute to get the parsed object
 	 * @param tag String used to match previously running similar jobs to be canceled, null to not cancel anything
 	 * @param callback Callback receiving the parsed object or errors (not job canceled) in the UI thread. May be {@code null}
-	 * @see #postStringRequest(String, String, HttpAsyncCallback)
 	 */
-	public static <T> void postRequest(TypedHttpRequest<T> request, String tag, HttpAsyncCallback<T> callback) {
+	public static <T> void postTagRequest(TypedHttpRequest<T> request, String tag, HttpAsyncCallback<T> callback) {
+		final HttpTask<T> task;
+
+		final AsyncHttpBuilder<T> taskBuilder = new AsyncHttpBuilder<T>()
+				.setTypedRequest(request)
+				.setHttpAsyncCallback(callback);
+
 		if (TextUtils.isEmpty(tag)) {
-			postRequest(request, callback);
-			return;
-		}
+			task = taskBuilder.buildTask();
+		} else {
+			taskBuilder.setHttpTaskFactory(new TaggedStringDownloadFactory<T>(tag));
+			task = taskBuilder.buildTask();
 
-		synchronized (taggedJobs) {
-			Future<?> oldTask = taggedJobs.get(tag);
-			if (null != oldTask) {
-				oldTask.cancel(true);
+			synchronized (taggedJobs) {
+				HttpTask<?> oldTask = taggedJobs.get(tag);
+				if (null != oldTask) {
+					oldTask.cancel(true);
+				}
+
+				taggedJobs.put(tag, task);
 			}
-
-			Future<T> task = postRequest(request, callback, new TaggedStringDownloadFactory<T>(tag));
-
-			taggedJobs.put(tag, task);
 		}
+		executor.execute(task);
 	}
 
 	/**

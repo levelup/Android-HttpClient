@@ -30,14 +30,16 @@ public class AsyncClientTest extends AndroidTestCase {
 	// TODO test with streaming connection with SPDY
 	// TODO test with long POST
 
+	private static final HttpRequestGet<String> BASIC_REQUEST = new HttpRequestGet(BASIC_URL, BodyToString.RESPONSE_HANDLER);
+
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
 		IonClient.setup(context);
 	}
-	
+
 	public void testAsyncSimpleQuery() {
-		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, null);
+		AsyncHttpClient.postTagRequest(BASIC_REQUEST, BASIC_URL_TAG, null);
 	}
 
 	private static class TestAsyncCallback extends BaseHttpAsyncCallback<String> {
@@ -57,7 +59,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	private static class TestLongAsyncCallback extends TestAsyncCallback {
 		@Override
-		public void onHttpResult(String response) {
+		public void onHttpResult(String result) {
 			fail("We're not supposed to have received this");
 		}
 	}
@@ -66,12 +68,14 @@ public class AsyncClientTest extends AndroidTestCase {
 	public void testAsyncSimpleQueryResult() {
 		final CountDownLatch latch = new CountDownLatch(1);
 
-		AsyncHttpClient.postStringRequest(BASIC_URL, BASIC_URL_TAG, new TestAsyncCallback() {
-			@Override
-			public void onHttpResult(String response) {
-				latch.countDown();
-			}
-		});
+		AsyncHttpClient.postTagRequest(BASIC_REQUEST, BASIC_URL_TAG, new TestAsyncCallback() {
+					@Override
+					public void onHttpResult(String result) {
+						// we received the result successfully
+						latch.countDown();
+					}
+				}
+		);
 		try {
 			latch.await();
 		} catch (InterruptedException e) {
@@ -81,8 +85,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 
 	public void testCancelShort() {
-		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL, BodyToString.RESPONSE_HANDLER);
-		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncHttpClient.postRequest(BASIC_REQUEST, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
