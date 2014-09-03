@@ -176,7 +176,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		prepareEngine();
 
 		R httpResponse = queryResponse();
-		responseHandler.onNewResponse(httpResponse, request);
 		try {
 			return responseToResult(httpResponse);
 
@@ -201,6 +200,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 	protected void setRequestResponse(R httpResponse) {
 		this.httpResponse = httpResponse;
+		responseHandler.onNewResponse(httpResponse, request);
 
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster != null) {
