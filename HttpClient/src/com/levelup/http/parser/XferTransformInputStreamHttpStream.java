@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 import com.levelup.http.HttpStream;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 
 /**
  * Created by robUx4 on 29/08/2014.

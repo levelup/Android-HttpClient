@@ -6,6 +6,7 @@ import java.io.InputStream;
 import org.json.JSONObject;
 
 import com.levelup.http.parser.ErrorHandlerViaXferTransform;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.XferTransformInputStreamString;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.parser.XferTransformStringJSONObject;

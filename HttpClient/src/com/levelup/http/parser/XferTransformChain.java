@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 
 /**
  * A {@link com.levelup.http.parser.XferTransform} that uses multiple sub {@link com.levelup.http.parser.XferTransform} to generate the output

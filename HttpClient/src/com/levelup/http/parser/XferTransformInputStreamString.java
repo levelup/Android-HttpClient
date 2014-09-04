@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 
 import com.levelup.http.CharsetUtils;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 
 /**
  * <p>A {@link com.levelup.http.parser.XferTransform} to turn an {@code InputStream} into a {@code String}, using the charset from the HTTP reply</p>

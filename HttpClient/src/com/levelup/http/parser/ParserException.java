@@ -1,4 +1,4 @@
-package com.levelup.http;
+package com.levelup.http.parser;
 
 /**
  * Runtime Exception that occurs when data parsing with {@link com.levelup.http.HttpResponse} fails

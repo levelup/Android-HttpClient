@@ -6,10 +6,9 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.ResponseHandler;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
-import com.levelup.http.ParserException;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.BodyToJSONObject;
 
 public class ResponseToJSONObjectTest extends AndroidTestCase {

@@ -1,7 +1,5 @@
 package com.levelup.http.signed;
 
-import com.levelup.http.RequestSigner;
-
 
 public abstract class AbstractRequestSigner implements RequestSigner {
 

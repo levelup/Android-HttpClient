@@ -6,7 +6,6 @@ import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ErrorHandler;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 
 /**
  * Created by robUx4 on 26/08/2014.

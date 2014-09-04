@@ -17,6 +17,7 @@ import android.net.TrafficStats;
 import android.os.Build;
 
 import com.levelup.http.log.LogManager;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**

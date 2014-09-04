@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 import com.levelup.http.ResponseHandler;
 
 /**

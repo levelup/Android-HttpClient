@@ -14,7 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.levelup.http.CharsetUtils;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformInputStreamString;
 
@@ -55,7 +55,7 @@ public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
 	}
 
 	/**
-	 * Enable debugging of bogus data by providing the data in the {@link com.levelup.http.ParserException} message
+	 * Enable debugging of bogus data by providing the data in the {@link com.levelup.http.parser.ParserException} message
 	 * @param enable
 	 */
 	public XferTransformViaGson<T> enableDebugData(boolean enable) {

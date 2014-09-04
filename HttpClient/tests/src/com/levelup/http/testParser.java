@@ -11,6 +11,7 @@ import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
 import com.levelup.http.parser.BodyTransformChain;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.XferTransform;
 
 public class testParser extends AndroidTestCase {

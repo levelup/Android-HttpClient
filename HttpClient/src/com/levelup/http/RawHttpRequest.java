@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import com.levelup.http.body.HttpBodyParameters;
 import com.levelup.http.log.LoggerTagged;
 import com.levelup.http.signed.AbstractRequestSigner;
+import com.levelup.http.signed.RequestSigner;
 
 /**
  * Created by robUx4 on 29/08/2014.

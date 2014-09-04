@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 
 /**
  * <p>A {@link com.levelup.http.parser.XferTransform} to turn a {@code String} into a {@link org.json.JSONObject}</p>

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.levelup.http.DataErrorException;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 
 /**
  * Transform data coming from the network from {@link INPUT} to {@link OUTPUT} type

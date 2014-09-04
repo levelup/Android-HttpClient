@@ -29,7 +29,7 @@ import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.ParserException;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.body.HttpBodyJSON;
 import com.levelup.http.body.HttpBodyMultiPart;

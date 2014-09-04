@@ -6,6 +6,7 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 
 import com.levelup.http.parser.BodyToJSONObject;
+import com.levelup.http.parser.ParserException;
 
 public class ResponseToJSONObjectTest extends AndroidTestCase {
 

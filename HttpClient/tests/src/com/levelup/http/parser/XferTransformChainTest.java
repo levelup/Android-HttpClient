@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import android.test.AndroidTestCase;
 
-import com.levelup.http.HttpException;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ParserException;
 
 public class XferTransformChainTest extends AndroidTestCase {
 

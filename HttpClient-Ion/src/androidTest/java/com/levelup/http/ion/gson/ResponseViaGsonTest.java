@@ -9,7 +9,7 @@ import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.ResponseHandler;
-import com.levelup.http.ParserException;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.gson.BodyViaGson;
 import com.levelup.http.ion.IonClient;
 import com.levelup.http.parser.BodyToString;
