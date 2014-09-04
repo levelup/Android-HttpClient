@@ -7,8 +7,6 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.http.protocol.HTTP;
 
-import android.content.Context;
-
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.DataSink;
 import com.koushikdutta.async.callback.CompletedCallback;
@@ -26,18 +24,18 @@ import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
+import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.DataErrorException;
-import com.levelup.http.body.HttpBodyJSON;
-import com.levelup.http.body.HttpBodyMultiPart;
-import com.levelup.http.body.HttpBodyParameters;
-import com.levelup.http.body.HttpBodyString;
-import com.levelup.http.body.HttpBodyUrlEncoded;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ParserException;
 import com.levelup.http.UploadProgressListener;
-import com.levelup.http.AbstractHttpEngine;
+import com.levelup.http.body.HttpBodyJSON;
+import com.levelup.http.body.HttpBodyMultiPart;
+import com.levelup.http.body.HttpBodyParameters;
+import com.levelup.http.body.HttpBodyString;
+import com.levelup.http.body.HttpBodyUrlEncoded;
 import com.levelup.http.ion.internal.IonBody;
 import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
@@ -61,25 +59,12 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
  */
 public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
-	private static Ion ion;
 	private static final String ENGINE_SIGNATURE = "Ion-1.3.8+AndroidAsync-1.3.8"; // TODO do not hardcode this
 
-	protected HttpEngineIon(Builder<T> builder, Context context) {
+	protected HttpEngineIon(Builder<T> builder, Ion ion) {
 		super(builder);
 
-		if (context == null) {
-			throw new NullPointerException("Ion HTTP request with no Context, try calling IonClient.setup() first or a constructor with a Context");
-		}
-
-		synchronized (HttpEngineIon.class) {
-			if (ion == null) {
-				ion = Ion.getDefault(context);
-				// until https://github.com/koush/AndroidAsync/issues/210 is fixed
-				ion.getConscryptMiddleware().enable(false);
-			}
-		}
-
-		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(context);
+		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(ion.getContext());
 		this.requestBuilder = ionLoadBuilder.load(request.getHttpMethod(), request.getUri().toString());
 
 		final HttpBodyParameters sourceBody = request.getBodyParameters();

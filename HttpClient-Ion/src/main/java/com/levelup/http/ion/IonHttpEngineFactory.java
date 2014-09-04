@@ -2,6 +2,7 @@ package com.levelup.http.ion;
 
 import android.content.Context;
 
+import com.koushikdutta.ion.Ion;
 import com.levelup.http.DummyHttpEngine;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpEngineFactory;
@@ -20,7 +21,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	private static IonHttpEngineFactory INSTANCE;
 
-	private final Context context;
+	private final Ion ion;
 
 	public static IonHttpEngineFactory getInstance(Context context) {
 		if (null == INSTANCE) {
@@ -30,7 +31,17 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	}
 
 	private IonHttpEngineFactory(Context context) {
-		this.context = context;
+		if (context == null) {
+			throw new NullPointerException("Ion HTTP request with no Context");
+		}
+
+		ion = Ion.getDefault(context);
+		// until https://github.com/koush/AndroidAsync/issues/210 is fixed
+		ion.getConscryptMiddleware().enable(false);
+	}
+
+	public Ion getDefaultIon() {
+		return ion;
 	}
 
 	@Override
@@ -42,7 +53,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 			// Ion returns the data fully parsed so if we don't have common ground to parse the data and the error data, Ion can't handle the request
 			return new DummyHttpEngine<T>(builder);
 
-		return new HttpEngineIon<T>(builder, context);
+		return new HttpEngineIon<T>(builder, ion);
 	}
 
 	private static <T> boolean canHandleXferTransform(XferTransform<HttpResponse, T> contentParser) {
