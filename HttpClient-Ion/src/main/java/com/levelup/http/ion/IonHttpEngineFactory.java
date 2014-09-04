@@ -46,6 +46,10 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	@Override
 	public <T> HttpEngine<T> createEngine(HttpEngine.Builder<T> builder) {
+		return createEngine(builder, ion);
+	}
+
+	public <T> HttpEngine<T> createEngine(HttpEngine.Builder<T> builder, Ion ion) {
 		if (!canHandleXferTransform(builder.getResponseHandler().contentParser))
 			return new DummyHttpEngine<T>(builder);
 
