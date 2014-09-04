@@ -53,7 +53,7 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 		}
 
 		public Builder<T> setRequest(HttpRequest request) {
-			if (!(request instanceof RawHttpRequest)) throw new IllegalStateException("only RawHttpRequest supported for now");
+			if (null!=request && !(request instanceof RawHttpRequest)) throw new IllegalStateException("invalid RawRequest:"+request);
 			this.httpRequest = (RawHttpRequest) request;
 			return this;
 		}
