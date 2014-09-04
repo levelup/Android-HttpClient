@@ -29,8 +29,6 @@ import android.text.TextUtils;
  */
 public final class MediaType {
 
-	public final static MediaType MediaTypeJSON = parse("application/json");
-
   private static final String TOKEN = "([a-zA-Z0-9-!#$%&'*+.^_`{|}~]+)";
   private static final String QUOTED = "\"([^\"]*)\"";
   private static final Pattern TYPE_SUBTYPE = Pattern.compile(TOKEN + "/" + TOKEN);

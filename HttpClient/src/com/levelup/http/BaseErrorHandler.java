@@ -16,6 +16,8 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
 public class BaseErrorHandler extends ErrorHandlerViaXferTransform<InputStream> {
 	public static final ErrorHandler INSTANCE = new BaseErrorHandler();
 
+	private static final MediaType MediaTypeJSON = MediaType.parse("application/json");
+
 	public BaseErrorHandler() {
 		super(XferTransformResponseInputStream.INSTANCE);
 	}
@@ -23,7 +25,7 @@ public class BaseErrorHandler extends ErrorHandlerViaXferTransform<InputStream> 
 	@Override
 	public DataErrorException handleErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		MediaType type = MediaType.parse(request.getHttpResponse().getContentType());
-		if (MediaType.MediaTypeJSON.equalsType(type)) {
+		if (MediaTypeJSON.equalsType(type)) {
 			try {
 				JSONObject errorData = XferTransformStringJSONObject.INSTANCE.transformData(
 						XferTransformInputStreamString.INSTANCE.transformData(errorStream, request)
