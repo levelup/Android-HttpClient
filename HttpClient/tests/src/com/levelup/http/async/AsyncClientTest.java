@@ -36,15 +36,15 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testAsyncSimpleQuery() {
-		new HttpTask.Builder<String>()
+		new AsyncTask.Builder<String>()
 				.setTypedRequest(BASIC_REQUEST)
 				.setTaskTag(BASIC_URL_TAG)
 				.execute();
 	}
 
-	private static class TestAsyncCallback extends BaseHttpAsyncCallback<String> {
+	private static class TestAsyncCallback extends BaseAsyncCallback<String> {
 		@Override
-		public void onHttpFailed(Throwable t) {
+		public void onAsyncFailed(Throwable t) {
 			if (t instanceof IOException) {
 				// shit happens
 			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
@@ -57,7 +57,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	private static class TestLongAsyncCallback extends TestAsyncCallback {
 		@Override
-		public void onHttpResult(String result) {
+		public void onAsyncResult(String result) {
 			fail("We're not supposed to have received this");
 		}
 	}
@@ -66,12 +66,12 @@ public class AsyncClientTest extends AndroidTestCase {
 	public void testAsyncSimpleQueryResult() {
 		final CountDownLatch latch = new CountDownLatch(1);
 
-		new HttpTask.Builder<String>()
+		new AsyncTask.Builder<String>()
 				.setTypedRequest(BASIC_REQUEST)
 				.setTaskTag(BASIC_URL_TAG)
 				.setHttpAsyncCallback(new TestAsyncCallback() {
 					@Override
-					public void onHttpResult(String result) {
+					public void onAsyncResult(String result) {
 						// we received the result successfully
 						latch.countDown();
 					}

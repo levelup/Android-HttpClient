@@ -13,7 +13,7 @@ import com.levelup.http.HttpClient;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
-import com.levelup.http.async.BaseHttpAsyncCallback;
+import com.levelup.http.async.BaseAsyncCallback;
 import com.levelup.http.parser.BodyToString;
 import com.levelup.http.parser.BodyTransformChain;
 import com.levelup.http.parser.Transformer;
@@ -107,10 +107,10 @@ public class PagingHelperTest extends AndroidTestCase {
 						return null;
 					}
 				},
-				new BaseHttpAsyncCallback<List<Page>>() {
+				new BaseAsyncCallback<List<Page>>() {
 					@Override
-					public void onHttpResult(List<Page> result) {
-						super.onHttpResult(result);
+					public void onAsyncResult(List<Page> result) {
+						super.onAsyncResult(result);
 
 						assertEquals(3, result.size());
 						assertTrue(result.get(1).pageLinks.contains("http://httpbin.org/links/3/0"));
@@ -121,8 +121,8 @@ public class PagingHelperTest extends AndroidTestCase {
 					}
 
 					@Override
-					public void onHttpFailed(Throwable t) {
-						super.onHttpFailed(t);
+					public void onAsyncFailed(Throwable t) {
+						super.onAsyncFailed(t);
 
 						fail("failed on a request "+t);
 					}

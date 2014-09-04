@@ -20,26 +20,26 @@ import com.levelup.http.TypedHttpRequest;
 
 /**
  * {@link java.util.concurrent.FutureTask FutureTask} that will be used to do the HTTP download in the background,
- * the result/error will be sent to the {@code AsyncHttpCallback} in the UI thread
+ * the result/error will be sent to the {@link AsyncCallback} in the UI thread
  * @author Steve Lhomme
  *
  * @param <T>
  */
-public class HttpTask<T> extends FutureTask<T> {
-	private final HttpAsyncCallback<T> callback;
+public class AsyncTask<T> extends FutureTask<T> {
+	private final AsyncCallback<T> callback;
 	private final boolean reportNullResult;
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public HttpTask(TypedHttpRequest<T> request, HttpAsyncCallback<T> callback) {
+	public AsyncTask(TypedHttpRequest<T> request, AsyncCallback<T> callback) {
 		this(new HttpEngine.Builder<T>().setTypedRequest(request).build(), callback);
 	}
 
-	public HttpTask(Callable<T> callable, HttpAsyncCallback<T> callback) {
+	public AsyncTask(Callable<T> callable, AsyncCallback<T> callback) {
 		this(callable, callback, true);
 	}
 
-	public HttpTask(Callable<T> callable, HttpAsyncCallback<T> callback, boolean reportNullResult) {
+	public AsyncTask(Callable<T> callable, AsyncCallback<T> callback, boolean reportNullResult) {
 		super(callable);
 		this.callback = callback;
 		this.reportNullResult = reportNullResult;
@@ -65,16 +65,16 @@ public class HttpTask<T> extends FutureTask<T> {
 			try {
 				T result = get();
 				if (!isCancelled() && (reportNullResult || null != result)) {
-					callback.onHttpResult(result);
+					callback.onAsyncResult(result);
 				}
 			} catch (CancellationException e) {
 				// do nothing, the job was canceled
 			} catch (InterruptedException e) {
 				// do nothing, the job was canceled
 			} catch (ExecutionException e) {
-				callback.onHttpFailed(e.getCause());
+				callback.onAsyncFailed(e.getCause());
 			} finally {
-				callback.onHttpTaskFinished(this);
+				callback.onAsyncTaskFinished(this);
 			}
 	}
 
@@ -84,7 +84,7 @@ public class HttpTask<T> extends FutureTask<T> {
 			uiHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					callback.onHttpTaskStarted(HttpTask.this);
+					callback.onAsyncTaskStarted(AsyncTask.this);
 				}
 			});
 
@@ -102,16 +102,16 @@ public class HttpTask<T> extends FutureTask<T> {
 
 	/**
 	 * Builder class to run an {@link com.levelup.http.HttpEngine} asynchronously
-	 * <p>You may build the {@link HttpTask} and run it yourself or call {@link #execute()} to run it right away</p>
+	 * <p>You may build the {@link AsyncTask} and run it yourself or call {@link #execute()} to run it right away</p>
 	 * @author Created by robUx4 on 03/09/2014.
 	 */
 	public static class Builder<T> {
-		private static final HashMap<String, HttpTask<?>> taggedJobs = new HashMap<String, HttpTask<?>>();
+		private static final HashMap<String, AsyncTask<?>> taggedJobs = new HashMap<String, AsyncTask<?>>();
 
-		private HttpTaskFactory<T> factory = BaseHttpTaskFactory.instance;
+		private AsyncTaskFactory<T> factory = BaseAsyncTaskFactory.instance;
 		private Executor executor = AsyncHttpClient.getExecutor();
 		private Callable<T> callable;
-		private HttpAsyncCallback<T> callback;
+		private AsyncCallback<T> callback;
 		private String taskTag;
 
 		public Builder() {
@@ -155,23 +155,23 @@ public class HttpTask<T> extends FutureTask<T> {
 		 * @param callback May be {@code null}
 		 * @return Current Builder
 		 */
-		public Builder<T> setHttpAsyncCallback(HttpAsyncCallback<T> callback) {
+		public Builder<T> setHttpAsyncCallback(AsyncCallback<T> callback) {
 			this.callback = callback;
 			return this;
 		}
 
 		/**
-		 * Set the {@code HttpTask} factory in case you need to do some extra process when a HttpTask is ran
+		 * Set the {@code AsyncTask} factory in case you need to do some extra process when a AsyncTask is ran
 		 * @param factory
 		 * @return Current Builder
 		 */
-		public Builder<T> setHttpTaskFactory(HttpTaskFactory<T> factory) {
+		public Builder<T> setHttpTaskFactory(AsyncTaskFactory<T> factory) {
 			this.factory = factory;
 			return this;
 		}
 
 		/**
-		 * Set a tag on this request so the previous {@link HttpTask} with the same tag are cancelled
+		 * Set a tag on this request so the previous {@link AsyncTask} with the same tag are cancelled
 		 * @param tag
 		 * @return Current Builder
 		 */
@@ -181,7 +181,7 @@ public class HttpTask<T> extends FutureTask<T> {
 		}
 
 		/**
-		 * Set the executor that will be used to run the {@link HttpTask} asynchronously, in case you don't want the default one
+		 * Set the executor that will be used to run the {@link AsyncTask} asynchronously, in case you don't want the default one
 		 * @param executor
 		 * @return Current Builder
 		 */
@@ -191,29 +191,29 @@ public class HttpTask<T> extends FutureTask<T> {
 		}
 
 		/**
-		 * @return The {@link HttpTask} to be run asynchronously
+		 * @return The {@link AsyncTask} to be run asynchronously
 		 */
-		public HttpTask<T> buildTask() {
+		public AsyncTask<T> buildTask() {
 			if (null == factory) throw new NullPointerException("Missing factory");
-			HttpTask<T> result = factory.createHttpTask(callable, callback);
+			AsyncTask<T> result = factory.createAsyncTask(callable, callback);
 			this.callable = null; // safety as an HttpEngine is not reusable
 			return result;
 		}
 
 		/**
-		 * Create the {@link HttpTask} and run it asynchronously via the {@link java.util.concurrent.Executor}
+		 * Create the {@link AsyncTask} and run it asynchronously via the {@link java.util.concurrent.Executor}
 		 * @return The {@link FutureTask} that was submitted to the {@link java.util.concurrent.Executor}
 		 */
-		public HttpTask<T> execute() {
+		public AsyncTask<T> execute() {
 			if (null == factory) throw new NullPointerException("Missing factory");
 
 			final String tag = taskTag;
 			if (null != taskTag) {
-				callback = new DelegateHttpAsyncCallback<T>(callback) {
+				callback = new DelegateAsyncCallback<T>(callback) {
 					@Override
-					public void onHttpTaskFinished(HttpTask<T> task) {
+					public void onAsyncTaskFinished(AsyncTask<T> task) {
 						try {
-							super.onHttpTaskFinished(task);
+							super.onAsyncTaskFinished(task);
 						} finally {
 							synchronized (taggedJobs) {
 								taggedJobs.remove(tag);
@@ -223,7 +223,7 @@ public class HttpTask<T> extends FutureTask<T> {
 				};
 			}
 
-			HttpTask<T> task = buildTask();
+			AsyncTask<T> task = buildTask();
 
 			if (null != taskTag) {
 				synchronized (taggedJobs) {

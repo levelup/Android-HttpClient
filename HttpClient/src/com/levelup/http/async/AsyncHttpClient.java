@@ -2,7 +2,6 @@ package com.levelup.http.async;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +10,7 @@ import com.levelup.http.TypedHttpRequest;
 
 /**
  * Basic HttpClient to run network queries outside of the UI thread
- * <p>Helper class for {@link com.levelup.http.async.HttpTask.Builder}</p>
+ * <p>Helper class for {@link AsyncTask.Builder}</p>
  * 
  * @author Steve Lhomme
  */
@@ -55,8 +54,8 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> HttpTask<T> postRequest(TypedHttpRequest<T> request, HttpAsyncCallback<T> callback) {
-		return new HttpTask.Builder<T>()
+	public static <T> AsyncTask<T> postRequest(TypedHttpRequest<T> request, AsyncCallback<T> callback) {
+		return new AsyncTask.Builder<T>()
 				.setTypedRequest(request)
 				.setHttpAsyncCallback(callback)
 				.execute();
