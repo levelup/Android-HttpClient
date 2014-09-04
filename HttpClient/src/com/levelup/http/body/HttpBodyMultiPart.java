@@ -1,4 +1,4 @@
-package com.levelup.http;
+package com.levelup.http.body;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +10,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import android.text.TextUtils;
+
+import com.levelup.http.HttpRequestInfo;
+import com.levelup.http.UploadProgressListener;
 
 /**
  * HTTP POST parameters encoded as {@code multipart/form-data}

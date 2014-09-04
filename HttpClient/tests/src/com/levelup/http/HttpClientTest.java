@@ -15,6 +15,10 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import com.levelup.http.body.HttpBodyJSON;
+import com.levelup.http.body.HttpBodyMultiPart;
+import com.levelup.http.body.HttpBodyParameters;
+import com.levelup.http.body.HttpBodyUrlEncoded;
 import com.levelup.http.internal.HttpEngineUrlConnection;
 import com.levelup.http.parser.BodyToHttpStream;
 import com.levelup.http.parser.BodyToString;

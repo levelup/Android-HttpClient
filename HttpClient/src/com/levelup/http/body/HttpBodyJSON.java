@@ -1,4 +1,4 @@
-package com.levelup.http;
+package com.levelup.http.body;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.levelup.http.HttpRequestInfo;
+import com.levelup.http.UploadProgressListener;
 
 
 /**

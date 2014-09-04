@@ -12,9 +12,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.levelup.http.CharsetUtils;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ParserException;
-import com.levelup.http.Util;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformInputStreamString;
 
@@ -69,14 +69,13 @@ public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
 
 	@Override
 	public T transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
-		Charset readCharset = Util.getInputCharsetOrUtf8(request.getHttpResponse());
-
 		String dataString = null;
 		if (debugData) {
 			dataString = XferTransformInputStreamString.INSTANCE.transformData(inputStream, request);
 			inputStream = new ByteArrayInputStream(dataString.getBytes());
 		}
 
+		Charset readCharset = CharsetUtils.getInputCharsetOrUtf8(request.getHttpResponse());
 		InputStreamReader ir = new InputStreamReader(inputStream, readCharset);
 		try {
 			JsonReader reader = new JsonReader(ir);

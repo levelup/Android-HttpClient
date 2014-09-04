@@ -1,4 +1,4 @@
-package com.levelup.http;
+package com.levelup.http.body;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
+
+import com.levelup.http.HttpRequestInfo;
+import com.levelup.http.UploadProgressListener;
 
 /**
  * HTTP body class with data sent as {@code form-urlencoded}

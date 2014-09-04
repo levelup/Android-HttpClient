@@ -1,10 +1,14 @@
-package com.levelup.http;
+package com.levelup.http.body;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.levelup.http.HttpParameters;
+import com.levelup.http.HttpRequestInfo;
+import com.levelup.http.UploadProgressListener;
+
 /**
- * HTTP parameters suitable to pass to {@link RawHttpRequest}
+ * HTTP parameters suitable to pass to {@link com.levelup.http.RawHttpRequest}
  */
 public interface HttpBodyParameters extends HttpParameters {
 

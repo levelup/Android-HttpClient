@@ -1,4 +1,4 @@
-package com.levelup.http;
+package com.levelup.http.log;
 
 import android.annotation.TargetApi;
 import android.os.Build;

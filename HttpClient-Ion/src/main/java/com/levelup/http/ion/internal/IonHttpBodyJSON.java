@@ -2,7 +2,7 @@ package com.levelup.http.ion.internal;
 
 import com.koushikdutta.async.http.body.JSONObjectBody;
 import com.koushikdutta.ion.builder.Builders;
-import com.levelup.http.HttpBodyJSON;
+import com.levelup.http.body.HttpBodyJSON;
 
 /**
  * Created by Steve Lhomme on 15/07/2014.

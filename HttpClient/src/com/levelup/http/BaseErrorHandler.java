@@ -23,7 +23,7 @@ public class BaseErrorHandler extends ErrorHandlerViaXferTransform<InputStream> 
 	@Override
 	public DataErrorException handleErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		MediaType type = MediaType.parse(request.getHttpResponse().getContentType());
-		if (Util.MediaTypeJSON.equalsType(type)) {
+		if (MediaType.MediaTypeJSON.equalsType(type)) {
 			try {
 				JSONObject errorData = XferTransformStringJSONObject.INSTANCE.transformData(
 						XferTransformInputStreamString.INSTANCE.transformData(errorStream, request)

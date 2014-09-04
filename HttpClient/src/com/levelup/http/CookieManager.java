@@ -4,6 +4,6 @@ import java.io.IOException;
 
 
 public interface CookieManager {
-	public void setCookieHeader(HttpEngine<?> engine);
-	public void setCookieResponse(ImmutableHttpRequest request) throws IOException;
+	public void setHttpEngineCookies(HttpEngine<?> engine);
+	public void onCookiesReceived(ImmutableHttpRequest request) throws IOException;
 }

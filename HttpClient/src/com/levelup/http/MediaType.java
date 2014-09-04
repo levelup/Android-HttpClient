@@ -25,8 +25,12 @@ import android.text.TextUtils;
 /**
  * An <a href="http://tools.ietf.org/html/rfc2045">RFC 2045</a> Media Type,
  * appropriate to describe the content type of an HTTP request or response body.
+ * @author okhttp
  */
 public final class MediaType {
+
+	public final static MediaType MediaTypeJSON = parse("application/json");
+
   private static final String TOKEN = "([a-zA-Z0-9-!#$%&'*+.^_`{|}~]+)";
   private static final String QUOTED = "\"([^\"]*)\"";
   private static final Pattern TYPE_SUBTYPE = Pattern.compile(TOKEN + "/" + TOKEN);

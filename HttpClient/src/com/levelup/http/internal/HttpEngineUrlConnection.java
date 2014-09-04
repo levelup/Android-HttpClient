@@ -14,16 +14,14 @@ import java.util.Map.Entry;
 import android.annotation.SuppressLint;
 import android.os.Build;
 
+import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpExceptionFactory;
-import com.levelup.http.LogManager;
-import com.levelup.http.LoggerTagged;
+import com.levelup.http.log.LogManager;
+import com.levelup.http.log.LoggerTagged;
 import com.levelup.http.ParserException;
-import com.levelup.http.RawHttpRequest;
-import com.levelup.http.ResponseHandler;
 
 /**
  * Basic HTTP request to be passed to {@link com.levelup.http.HttpClient}

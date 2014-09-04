@@ -16,10 +16,10 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.HttpBodyJSON;
-import com.levelup.http.HttpBodyMultiPart;
-import com.levelup.http.HttpBodyParameters;
-import com.levelup.http.HttpBodyUrlEncoded;
+import com.levelup.http.body.HttpBodyJSON;
+import com.levelup.http.body.HttpBodyMultiPart;
+import com.levelup.http.body.HttpBodyParameters;
+import com.levelup.http.body.HttpBodyUrlEncoded;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;

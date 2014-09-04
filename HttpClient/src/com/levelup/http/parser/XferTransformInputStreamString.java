@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.levelup.http.CharsetUtils;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ParserException;
-import com.levelup.http.Util;
 
 /**
  * <p>A {@link com.levelup.http.parser.XferTransform} to turn an {@code InputStream} into a {@code String}, using the charset from the HTTP reply</p>
@@ -42,7 +42,7 @@ public final class XferTransformInputStreamString implements XferTransform<Input
 		if (contentLength != 0) {
 			BufferedReader reader = null;
 			try {
-				reader = new BufferedReader(new InputStreamReader(inputStream, Util.getInputCharsetOrUtf8(request.getHttpResponse())), 1250);
+				reader = new BufferedReader(new InputStreamReader(inputStream, CharsetUtils.getInputCharsetOrUtf8(request.getHttpResponse())), 1250);
 				for (String line = reader.readLine(); line!=null; line = reader.readLine()) {
 					if (sb.length()>0)
 						sb.append('\n');

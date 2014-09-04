@@ -1,4 +1,4 @@
-package com.levelup.http.internal;
+package com.levelup.http;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -16,20 +16,7 @@ import android.annotation.SuppressLint;
 import android.net.TrafficStats;
 import android.os.Build;
 
-import com.levelup.http.CookieManager;
-import com.levelup.http.DataErrorException;
-import com.levelup.http.Header;
-import com.levelup.http.HttpClient;
-import com.levelup.http.HttpEngine;
-import com.levelup.http.HttpException;
-import com.levelup.http.HttpExceptionFactory;
-import com.levelup.http.HttpRequestInfo;
-import com.levelup.http.HttpResponse;
-import com.levelup.http.LogManager;
-import com.levelup.http.ParserException;
-import com.levelup.http.RawHttpRequest;
-import com.levelup.http.ResponseHandler;
-import com.levelup.http.UploadProgressListener;
+import com.levelup.http.log.LogManager;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**
@@ -98,7 +85,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 				HttpConnectionParams.setConnectionTimeout(client.getParams(), CONNECTION_TIMEOUT_IN_MS);
 			 */
 		if (null != HttpClient.getCookieManager()) {
-			HttpClient.getCookieManager().setCookieHeader(this);
+			HttpClient.getCookieManager().setHttpEngineCookies(this);
 		}
 
 		final long contentLength;
@@ -205,7 +192,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster != null) {
 			try {
-				cookieMaster.setCookieResponse(this);
+				cookieMaster.onCookiesReceived(this);
 			} catch (IOException ignored) {
 			}
 		}

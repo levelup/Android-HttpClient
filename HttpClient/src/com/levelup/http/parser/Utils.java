@@ -1,7 +1,7 @@
 package com.levelup.http.parser;
 
 import com.levelup.http.HttpResponse;
-import com.levelup.http.LogManager;
+import com.levelup.http.log.LogManager;
 
 /**
  * Created by robUx4 on 28/08/2014.

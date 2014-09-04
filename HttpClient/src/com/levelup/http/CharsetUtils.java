@@ -8,13 +8,11 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.TextUtils;
 
-public final class Util {
+public final class CharsetUtils {
 
-	private Util() {
+	private CharsetUtils() {
 	}
 
-	public final static MediaType MediaTypeJSON = MediaType.parse("application/json");
-	
 	/**
 	 * Get the {@link Charset} of the HTTP response of the provided httpResponse or UTF-8
 	 * @param httpResponse received the server

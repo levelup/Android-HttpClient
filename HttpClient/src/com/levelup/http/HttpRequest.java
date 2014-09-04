@@ -1,6 +1,8 @@
 package com.levelup.http;
 
 
+import com.levelup.http.log.LoggerTagged;
+
 /**
  * Interface for HTTP requests to be passed to {@link HttpClient}
  * @see BaseHttpRequest
@@ -22,7 +24,7 @@ public interface HttpRequest extends HttpRequestInfo, HttpExceptionFactory {
 	void setHeader(String name, String value);
 
 	/**
-	 * Returns the {@link LoggerTagged} for this request or {@code null} 
+	 * Returns the {@link com.levelup.http.log.LoggerTagged} for this request or {@code null}
 	 */
 	LoggerTagged getLogger();
 

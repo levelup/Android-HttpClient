@@ -1,7 +1,10 @@
-package com.levelup.http;
+package com.levelup.http.body;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import com.levelup.http.HttpRequestInfo;
+import com.levelup.http.UploadProgressListener;
 
 
 /**

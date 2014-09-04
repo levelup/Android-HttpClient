@@ -2,6 +2,8 @@ package com.levelup.http;
 
 import android.net.Uri;
 
+import com.levelup.http.body.HttpBodyParameters;
+
 /**
  * Basic HTTP POST request to use with {@link HttpClient}
  * 

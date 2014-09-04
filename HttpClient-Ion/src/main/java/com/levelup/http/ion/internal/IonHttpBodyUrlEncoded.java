@@ -4,7 +4,7 @@ import org.apache.http.NameValuePair;
 
 import com.koushikdutta.async.http.body.UrlEncodedFormBody;
 import com.koushikdutta.ion.builder.Builders;
-import com.levelup.http.HttpBodyUrlEncoded;
+import com.levelup.http.body.HttpBodyUrlEncoded;
 
 /**
  * Created by Steve Lhomme on 15/07/2014.

@@ -1,4 +1,4 @@
-package com.levelup.http;
+package com.levelup.http.log;
 
 /**
  * interface for a logger class to replace the static calls to {@link android.util.Log} with implicit tag

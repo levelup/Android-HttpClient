@@ -2,6 +2,8 @@ package com.levelup.http;
 
 import android.net.Uri;
 
+import com.levelup.http.body.HttpBodyParameters;
+
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */

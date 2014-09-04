@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
+import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.HttpResponse;
 
 /**

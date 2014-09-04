@@ -11,7 +11,7 @@ import com.koushikdutta.async.http.body.FilePart;
 import com.koushikdutta.async.http.body.MultipartFormDataBody;
 import com.koushikdutta.async.http.body.Part;
 import com.koushikdutta.ion.builder.Builders;
-import com.levelup.http.HttpBodyMultiPart;
+import com.levelup.http.body.HttpBodyMultiPart;
 
 /**
  * Created by Steve Lhomme on 15/07/2014.

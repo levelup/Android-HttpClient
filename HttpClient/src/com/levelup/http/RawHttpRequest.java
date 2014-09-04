@@ -11,6 +11,8 @@ import org.apache.http.protocol.HTTP;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.levelup.http.body.HttpBodyParameters;
+import com.levelup.http.log.LoggerTagged;
 import com.levelup.http.signed.AbstractRequestSigner;
 
 /**

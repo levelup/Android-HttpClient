@@ -3,6 +3,9 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Output type for an "infinite" stream
+ */
 public class HttpStream {
 
 	private final InputStream inputStream;
