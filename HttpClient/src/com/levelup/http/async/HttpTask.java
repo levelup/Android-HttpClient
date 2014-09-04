@@ -110,7 +110,7 @@ public class HttpTask<T> extends FutureTask<T> {
 
 		private HttpTaskFactory<T> factory = BaseHttpTaskFactory.instance;
 		private Executor executor = AsyncHttpClient.getExecutor();
-		private HttpEngine<T> httpEngine;
+		private Callable<T> callable;
 		private HttpAsyncCallback<T> callback;
 		private String taskTag;
 
@@ -142,7 +142,11 @@ public class HttpTask<T> extends FutureTask<T> {
 		 * @return Current Builder
 		 */
 		public Builder<T> setHttpEngine(HttpEngine<T> httpEngine) {
-			this.httpEngine = httpEngine;
+			return setCallable(httpEngine);
+		}
+
+		public Builder<T> setCallable(Callable<T> callable) {
+			this.callable = callable;
 			return this;
 		}
 
@@ -191,8 +195,8 @@ public class HttpTask<T> extends FutureTask<T> {
 		 */
 		public HttpTask<T> buildTask() {
 			if (null == factory) throw new NullPointerException("Missing factory");
-			HttpTask<T> result = factory.createHttpTask(httpEngine, callback);
-			this.httpEngine = null; // safety as an HttpEngine is not reusable
+			HttpTask<T> result = factory.createHttpTask(callable, callback);
+			this.callable = null; // safety as an HttpEngine is not reusable
 			return result;
 		}
 

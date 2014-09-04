@@ -76,7 +76,7 @@ public class CallableHelperTest extends AndroidTestCase {
 				},
 				new NextPageFactory<Page>() {
 					@Override
-					public Callable<Page> createNextPageCallable(Page page) {
+					public Callable<Page> getNextCallable(Page page) {
 						for (String link : page.pageLinks) {
 							if (!initData.links.contains(link)) {
 								// we found a link we haven't read yet (a page), read it

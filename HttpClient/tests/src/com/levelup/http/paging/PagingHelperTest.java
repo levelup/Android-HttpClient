@@ -68,7 +68,7 @@ public class PagingHelperTest extends AndroidTestCase {
 				getPageEngine("http://httpbin.org/links/3/0"),
 				new NextPageFactory<Page>() {
 					@Override
-					public Callable<Page> createNextPageCallable(Page page) {
+					public Callable<Page> getNextCallable(Page page) {
 						if ("http://httpbin.org/links/3/2".equals(page.pageLinks.get(1))) {
 							if ("http://httpbin.org/links/3/1".equals(page.pageLinks.get(0))) {
 								return getPageEngine("http://httpbin.org/links/3/1");
@@ -96,7 +96,7 @@ public class PagingHelperTest extends AndroidTestCase {
 		PagingHelper.readPagesAsync(initialRequest,
 				new NextPageFactory<Page>() {
 					@Override
-					public Callable<Page> createNextPageCallable(Page page) {
+					public Callable<Page> getNextCallable(Page page) {
 						if ("http://httpbin.org/links/3/2".equals(page.pageLinks.get(1))) {
 							if ("http://httpbin.org/links/3/1".equals(page.pageLinks.get(0))) {
 								return getPageEngine("http://httpbin.org/links/3/1");
