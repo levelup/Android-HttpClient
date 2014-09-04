@@ -18,7 +18,7 @@ public class ResponseToJSONObjectTest extends AndroidTestCase {
 	public void testBogusData() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://android.com/").
-				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
+				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();
 
 		try {

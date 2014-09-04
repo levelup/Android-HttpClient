@@ -21,8 +21,8 @@ import com.levelup.http.body.HttpBodyParameters;
 import com.levelup.http.body.HttpBodyUrlEncoded;
 import com.levelup.http.internal.HttpEngineUrlConnection;
 import com.levelup.http.parser.BodyToHttpStream;
-import com.levelup.http.parser.BodyToString;
 import com.levelup.http.parser.BodyToJSONObject;
+import com.levelup.http.parser.BodyToString;
 
 import okio.BufferedSource;
 import okio.Okio;
@@ -48,7 +48,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
-				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
+				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -76,7 +76,7 @@ public class HttpClientTest extends AndroidTestCase {
 			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
-					setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
+					setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 					build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -104,7 +104,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
-				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
+				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -128,7 +128,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
-				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
+				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -154,7 +154,7 @@ public class HttpClientTest extends AndroidTestCase {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/post?test=jsonBody").
 				setBody(body).
-				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
+				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
@@ -171,7 +171,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testTimeout() throws Exception {
 		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
 				setUrl("http://httpbin.org/delay/10").
-				setResponseHandler(new ResponseHandler<JSONObject>(BodyToJSONObject.INSTANCE)).
+				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();
 		request.setHttpConfig(new HttpConfig() {
 			@Override
