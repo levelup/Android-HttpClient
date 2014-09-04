@@ -34,11 +34,11 @@ public class PagingHelper {
 	}
 
 	/**
-	 * Read a {@link PAGE}, store it and get the next page if there is one
+	 * Read a {@link PAGE}, store it and read the next page recursively until there's none
 	 *
 	 * @param currentPageRequest Request to get the current {@link PAGE} data (usually a {@link com.levelup.http.HttpEngine HttpEngine})
 	 * @param pagedHolder        Object that will keep all the pages
-	 * @param pageCallback  Callback to handle the new page and generate the request to get the next page
+	 * @param pageCallback       Callback to handle the loaded {@link PAGE} with the {@link PAGE_HOLDER}, may be {@code null}
 	 * @return A {@link java.util.concurrent.Callable} to get all the pages
 	 */
 	public static <PAGE_HOLDER, PAGE> Callable<PAGE_HOLDER> processPage(final Callable<PAGE> currentPageRequest, final PAGE_HOLDER pagedHolder,
@@ -48,7 +48,8 @@ public class PagingHelper {
 			@Override
 			public PAGE_HOLDER call() throws Exception {
 				PAGE newPage = currentPageRequest.call();
-				pageCallback.onNewPage(pagedHolder, newPage);
+				if (null!=pageCallback)
+					pageCallback.onNewPage(pagedHolder, newPage);
 				Callable<PAGE> nextPageCall = nextPageFactory.createNextPageCallable(newPage);
 				if (null == nextPageCall)
 					return pagedHolder;
@@ -97,11 +98,12 @@ public class PagingHelper {
 
 	/**
 	 * Read all the {@link PAGE} and give the {@code resultCallback} these pages in a {@link PAGE_HOLDER}
-	 *  @param currentPageRequest Request to get the current {@link PAGE} data (usually a {@link com.levelup.http.HttpEngine HttpEngine})
+	 *
+	 * @param currentPageRequest Request to get the current {@link PAGE} data (usually a {@link com.levelup.http.HttpEngine HttpEngine})
 	 * @param pagesHolder        Object that will be given the {@link PAGE} data one after the other
-	 * @param pageCallback  Callback to add the retrieved {@link PAGE} to the {@link PAGE_HOLDER} and get the request for the next one
+	 * @param pageCallback       Callback to handle the loaded {@link PAGE} with the {@link PAGE_HOLDER}, may be {@code null}
 	 * @param resultCallback     Callback that will be receive the data in the UI thread, the {@link com.levelup.http.async.HttpAsyncCallback#onHttpTaskStarted(com.levelup.http.async.HttpTask)}
-*                           and {@link com.levelup.http.async.HttpAsyncCallback#onHttpTaskFinished(com.levelup.http.async.HttpTask)} will be called for each page
+	 *                           and {@link com.levelup.http.async.HttpAsyncCallback#onHttpTaskFinished(com.levelup.http.async.HttpTask)} will be called for each page
 	 */
 	public static <PAGE_HOLDER, PAGE> void processPagesAsync(Callable<PAGE> currentPageRequest, PAGE_HOLDER pagesHolder, PageCallback<PAGE_HOLDER, PAGE> pageCallback,
 	                                                         NextPageFactory<PAGE> nextPageFactory,
@@ -111,11 +113,12 @@ public class PagingHelper {
 
 	/**
 	 * Read all the {@link PAGE} and give the {@code resultCallback} these pages in a {@link PAGE_HOLDER}
-	 *  @param currentPageRequest Request to get the current {@link PAGE} data (usually a {@link com.levelup.http.HttpEngine HttpEngine})
+	 *
+	 * @param currentPageRequest Request to get the current {@link PAGE} data (usually a {@link com.levelup.http.HttpEngine HttpEngine})
 	 * @param pagesHolder        Object that will be given the {@link PAGE} data one after the other
-	 * @param pageCallback  Callback to add the retrieved {@link PAGE} to the {@link PAGE_HOLDER} and get the request for the next one
+	 * @param pageCallback       Callback to handle the loaded {@link PAGE} with the {@link PAGE_HOLDER}, may be {@code null}
 	 * @param resultCallback     Callback that will be receive the data in the UI thread, the {@link com.levelup.http.async.HttpAsyncCallback#onHttpTaskStarted(com.levelup.http.async.HttpTask)}
-*                           and {@link com.levelup.http.async.HttpAsyncCallback#onHttpTaskFinished(com.levelup.http.async.HttpTask)} will be called for each page
+	 *                           and {@link com.levelup.http.async.HttpAsyncCallback#onHttpTaskFinished(com.levelup.http.async.HttpTask)} will be called for each page
 	 * @param executor           {@link java.util.concurrent.Executor} with which each {@link PAGE} data will be retrieved
 	 */
 	public static <PAGE_HOLDER, PAGE> void processPagesAsync(final Callable<PAGE> currentPageRequest, final PAGE_HOLDER pagesHolder, final PageCallback<PAGE_HOLDER, PAGE> pageCallback,
@@ -125,7 +128,8 @@ public class PagingHelper {
 			@Override
 			public PAGE_HOLDER call() throws Exception {
 				PAGE page = currentPageRequest.call();
-				pageCallback.onNewPage(pagesHolder, page);
+				if (null!=pageCallback)
+					pageCallback.onNewPage(pagesHolder, page);
 				Callable<PAGE> nextCall = nextPageFactory.createNextPageCallable(page);
 				if (nextCall == null)
 					return pagesHolder; // no more pages to load, now we return the result for good

@@ -34,7 +34,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 	protected R httpResponse;
 
-	protected static boolean isHttpError(HttpResponse httpResponse) throws IOException {
+	public static boolean isHttpError(HttpResponse httpResponse) throws IOException {
 		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
 	}
 
