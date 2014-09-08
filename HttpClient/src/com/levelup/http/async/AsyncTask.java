@@ -182,6 +182,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 
 		/**
 		 * Set the executor that will be used to run the {@link AsyncTask} asynchronously, in case you don't want the default one
+		 * <p>Only used when calling {@link #execute()} instead of {@link #buildTask()}</p>
 		 * @param executor
 		 * @return Current Builder
 		 */
