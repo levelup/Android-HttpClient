@@ -13,6 +13,7 @@ import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.TransformFuture;
 import com.koushikdutta.async.http.ConnectionClosedException;
+import com.koushikdutta.async.http.filter.PrematureDataEndException;
 import com.koushikdutta.async.parser.AsyncParser;
 import com.koushikdutta.async.parser.JSONArrayParser;
 import com.koushikdutta.async.parser.JSONObjectParser;
@@ -29,6 +30,7 @@ import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
+import com.levelup.http.log.LogManager;
 import com.levelup.http.parser.ParserException;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.body.HttpBodyJSON;
@@ -197,6 +199,15 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
 		if (e instanceof ConnectionClosedException && e.getCause() instanceof Exception) {
 			return exceptionToHttpException((Exception) e.getCause());
+		}
+
+		if (e instanceof PrematureDataEndException) {
+			LogManager.getLogger().d("timeout for "+request);
+			HttpException.Builder builder = exceptionFactory.newException(httpResponse);
+			builder.setErrorMessage("Timeout error "+e.getMessage());
+			builder.setCause(e);
+			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
+			return builder;
 		}
 
 		return super.exceptionToHttpException(e);
