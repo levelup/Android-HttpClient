@@ -127,13 +127,17 @@ public class RawHttpRequest implements HttpRequest {
 		 * @return Current Builder
 		 */
 		public B setUrl(String url, HttpUriParameters uriParams) {
-			Uri uri = Uri.parse(url);
-			if (null==uriParams) {
-				this.uri = uri;
-			} else {
-				Uri.Builder uriBuilder = uri.buildUpon();
-				uriParams.addUriParameters(uriBuilder);
-				this.uri = uriBuilder.build();
+			if (url == null)
+				this.uri = null;
+			else {
+				Uri uri = Uri.parse(url);
+				if (null == uriParams) {
+					this.uri = uri;
+				} else {
+					Uri.Builder uriBuilder = uri.buildUpon();
+					uriParams.addUriParameters(uriBuilder);
+					this.uri = uriBuilder.build();
+				}
 			}
 			return (B) this;
 		}
@@ -326,7 +330,7 @@ public class RawHttpRequest implements HttpRequest {
 	}
 
 	protected String getToStringExtra() {
-		String result = getUri().toString();
+		String result = getUri()==null ? "" : getUri().toString();
 		if (getRequestSigner() instanceof AbstractRequestSigner)
 			result += " for " + ((AbstractRequestSigner) getRequestSigner()).getOAuthUser();
 		return result;

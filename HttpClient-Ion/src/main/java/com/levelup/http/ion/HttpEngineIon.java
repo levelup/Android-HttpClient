@@ -67,7 +67,7 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 		super(builder);
 
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(ion.getContext());
-		this.requestBuilder = ionLoadBuilder.load(request.getHttpMethod(), request.getUri().toString());
+		this.requestBuilder = ionLoadBuilder.load(request.getHttpMethod(), null==request.getUri() ? null : request.getUri().toString());
 
 		final HttpBodyParameters sourceBody = request.getBodyParameters();
 		final IonBody ionBody;

@@ -67,6 +67,8 @@ public class OAuth1RequestAdapter implements HttpRequest {
 
 	@Override
 	public String getRequestUrl() {
+		if (null==httpEngine.getHttpRequest().getUri())
+			return "";
 		return httpEngine.getHttpRequest().getUri().toString();
 	}
 
