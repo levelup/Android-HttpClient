@@ -50,6 +50,7 @@ dependencies {
             }
         } else {
             compile IonVer
+            compile 'com.android.support:support-v4:20.+'
         }
     }
 
