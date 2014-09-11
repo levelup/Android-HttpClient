@@ -2,6 +2,7 @@ package com.levelup.http.internal;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -146,7 +147,10 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 		}
 
 		try {
-			httpResponse.getInputStream();
+			InputStream inputStream = httpResponse.getInputStream();
+			if (null == inputStream)
+				throw exceptionToHttpException(new IOException("no inputStream")).build();
+
 			return httpResponse;
 		} catch (FileNotFoundException e) {
 			try {
