@@ -13,7 +13,7 @@ import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.BodyToString;
 import com.levelup.http.parser.ErrorHandlerViaXferTransform;
 
-public class ResponseViaGsonTest extends AndroidTestCase {
+public class BodyViaGsonTest extends AndroidTestCase {
 
 	@Override
 	public void setContext(Context context) {
