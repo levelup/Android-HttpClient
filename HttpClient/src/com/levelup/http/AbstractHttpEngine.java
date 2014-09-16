@@ -15,6 +15,7 @@ import org.apache.http.protocol.HTTP;
 import android.annotation.SuppressLint;
 import android.net.TrafficStats;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.levelup.http.log.LogManager;
 import com.levelup.http.parser.ParserException;
@@ -165,6 +166,17 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 		R httpResponse = queryResponse();
 		try {
+			String expectedMimeType = request.getHeader("Accept");
+			if (!TextUtils.isEmpty(expectedMimeType)) {
+				MediaType expectedType = MediaType.parse(expectedMimeType);
+				if (null!=expectedType && !expectedType.equalsType(MediaType.parse(httpResponse.getContentType()))) {
+					HttpException.Builder builder = exceptionFactory.newException(httpResponse);
+					builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+httpResponse.getContentType());
+					builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
+					throw builder.build();
+				}
+			}
+
 			return responseToResult(httpResponse);
 
 		} catch (ParserException e) {
