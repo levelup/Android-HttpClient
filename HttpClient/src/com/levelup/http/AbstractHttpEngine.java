@@ -172,7 +172,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 				if (null!=expectedType && !expectedType.equalsType(MediaType.parse(httpResponse.getContentType()))) {
 					HttpException.Builder builder = exceptionFactory.newException(httpResponse);
 					builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+httpResponse.getContentType());
-					builder.setErrorCode(HttpException.ERROR_HTTP_MIME);
+					builder.setErrorCode(HttpException.ERROR_MIME);
 					throw builder.build();
 				}
 			}
@@ -255,7 +255,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		else if (e instanceof InterruptedException) {
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_HTTP);
+			builder.setErrorCode(HttpException.ERROR_DEFAULT);
 			return builder;
 		}
 
@@ -265,7 +265,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			else {
 				builder.setErrorMessage("execution error");
 				builder.setCause(e.getCause());
-				builder.setErrorCode(HttpException.ERROR_HTTP);
+				builder.setErrorCode(HttpException.ERROR_DEFAULT);
 				return builder;
 			}
 		}
@@ -282,7 +282,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
 			builder.setErrorMessage("Method error " + e.getMessage());
 			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_HTTP);
+			builder.setErrorCode(HttpException.ERROR_DEFAULT);
 			return builder;
 		}
 
@@ -315,7 +315,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		else {
 			LogManager.getLogger().w("unknown error for " + request + ' ' + e);
 			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_HTTP);
+			builder.setErrorCode(HttpException.ERROR_DEFAULT);
 		}
 
 		return builder;

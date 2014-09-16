@@ -192,7 +192,7 @@ public class IonClientTest extends AndroidTestCase {
 			JSONObject result = HttpClient.parseRequest(request);
 			fail("we should have timed out after 3s");
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_TIMEOUT)
+			if (e.errorCode != HttpException.ERROR_TIMEOUT)
 				throw e;
 		}
 	}
@@ -208,8 +208,8 @@ public class IonClientTest extends AndroidTestCase {
 			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
 		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_DATA_MSG, e.getErrorCode());
-			assertEquals(errorCode, e.getHttpStatusCode());
+			assertEquals(HttpException.ERROR_DATA_MSG, e.errorCode);
+			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
 
@@ -223,8 +223,8 @@ public class IonClientTest extends AndroidTestCase {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
 		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_DATA_MSG, e.getErrorCode());
-			assertEquals(errorCode, e.getHttpStatusCode());
+			assertEquals(HttpException.ERROR_DATA_MSG, e.errorCode);
+			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
 
@@ -266,7 +266,7 @@ public class IonClientTest extends AndroidTestCase {
 			String result = HttpClient.parseRequest(request);
 			fail("we should not be here");
 		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_HTTP_MIME, e.getErrorCode());
+			assertEquals(HttpException.ERROR_MIME, e.errorCode);
 		}
 	}
 
@@ -404,7 +404,7 @@ public class IonClientTest extends AndroidTestCase {
 			}
 			fail("we should have been in timeout");
 		} catch (HttpException e) {
-			if (e.getErrorCode() != HttpException.ERROR_TIMEOUT)
+			if (e.errorCode != HttpException.ERROR_TIMEOUT)
 				throw e;
 		}
 	}

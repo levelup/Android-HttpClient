@@ -64,7 +64,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (HttpException e) {
-			if (e.getErrorCode()!=HttpException.ERROR_DATA_MSG)
+			if (e.errorCode!=HttpException.ERROR_DATA_MSG)
 				throw e; // forward
 			assertTrue(e.getCause() instanceof DataErrorException);
 			DataErrorException errorException = (DataErrorException) e.getCause();
@@ -91,7 +91,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (HttpException e) {
-			if (e.getErrorCode()!=HttpException.ERROR_DATA_MSG)
+			if (e.errorCode!=HttpException.ERROR_DATA_MSG)
 				throw e; // forward
 			assertTrue(e.getCause() instanceof DataErrorException);
 			DataErrorException errorException = (DataErrorException) e.getCause();
@@ -113,7 +113,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		try {
 			HttpClient.parseRequest(request);
 		} catch (HttpException e) {
-			if (e.getErrorCode()!=HttpException.ERROR_PARSER)
+			if (e.errorCode!=HttpException.ERROR_PARSER)
 				throw e; // forward
 			assertTrue(e.getCause() instanceof ParserException);
 			ParserException pe = (ParserException) e.getCause();

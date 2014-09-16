@@ -2,13 +2,11 @@ package com.levelup.http;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import android.net.Uri;
 import android.text.TextUtils;
 
 /**
@@ -16,11 +14,10 @@ import android.text.TextUtils;
  */
 public class HttpException extends Exception {
 
-	// misc other errors returned by getErrorCode()
-	static public final int ERROR_HTTP             = 4000;
+	static public final int ERROR_DEFAULT          = 4000;
 	static public final int ERROR_TIMEOUT          = 4001;
 	static public final int ERROR_NETWORK          = 4002;
-	static public final int ERROR_HTTP_MIME        = 4003;
+	static public final int ERROR_MIME             = 4003;
 	static public final int ERROR_JSON             = 4004;
 	static public final int ERROR_AUTH             = 4005;
 	/**	Indicates there was a data parsing error, the {@link #getCause()} must be a {@link com.levelup.http.parser.ParserException ParserException} */
@@ -29,7 +26,6 @@ public class HttpException extends Exception {
 	static public final int ERROR_DATA_MSG         = 4007;
 	public static final int ERROR_ENGINE           = 4008;
 
-	// HTTP errors found on getHttpStatusCode()
 	static public final int ERROR_HTTP_BAD_REQUEST  = 400;
 	static public final int ERROR_HTTP_UNAUTHORIZED = 401;
 	static public final int ERROR_HTTP_FORBIDDEN    = 403;
@@ -47,76 +43,79 @@ public class HttpException extends Exception {
 
 	private static final long serialVersionUID = 4993791558983072165L;
 
-	private final int mErrorCode;
-	private final int mHttpStatusCode;
-	private final HttpRequest httpRequest;
-	private final Header[] headers;
-	private final Header[] receivedHeaders;
+	/**
+	 * The {@link com.levelup.http.HttpRequestInfo} that generated this Exception
+	 */
+	public final HttpRequestInfo request;
+
+	/**
+	 * The {@link com.levelup.http.HttpResponse} that generated this Exception, may be {@code null}
+	 */
+	public final HttpResponse response;
+
+	/**
+	 * {@link com.levelup.http.HttpException} internal error code
+	 * @see #ERROR_DATA_MSG
+	 * @see #ERROR_AUTH
+	 * @see #ERROR_TIMEOUT
+	 * @see #ERROR_NETWORK
+	 * @see #ERROR_MIME
+	 */
+	public final int errorCode;
+
+	/**
+	 * The HTTP status code sent by the server for this Rxception
+	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
+	 * <p>0 if we didn't receive any HTTP response for this Exception</p>
+	 */
+	public final int httpStatusCode;
 
 	protected HttpException(Builder builder) {
 		super(builder.errorMessage, builder.exception);
-		this.mErrorCode = builder.errorCode;
-		this.mHttpStatusCode = builder.statusCode;
-		this.httpRequest = builder.httpRequest;
-		this.headers = builder.headers.toArray(new Header[builder.headers.size()]);
-		this.receivedHeaders = builder.receivedHeaders.toArray(new Header[builder.receivedHeaders.size()]);
-		if ((getMessage()==null || "null".equals(getMessage())) && BuildConfig.DEBUG) throw new NullPointerException("We need an error message for "+mErrorCode+"/"+mHttpStatusCode+" query:"+httpRequest);
+		this.errorCode = builder.errorCode;
+		this.httpStatusCode = builder.getHttpStatusCode();
+		this.request = builder.httpRequest;
+		this.response = builder.response;
 	}
 
-	/**
-	 * Get the internal type of error
-	 */
-	public int getErrorCode() {
-		return mErrorCode;
-	}
-
-	/**
-	 * Get the HTTP status code for this Request exception
-	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
-	 */
-	public int getHttpStatusCode() {
-		return mHttpStatusCode;
-	}
-
-	/**
-	 * Get the {@link android.net.Uri Uri} corresponding to the query, may be {@code null}
-	 */
-	public Uri getUri() {
-		if (null==httpRequest)
-			return null;
-		return httpRequest.getUri();
-	}
-
-	/**
-	 * Get the full {@link HttpRequest} that triggered the exception
-	 * @return
-	 */
-	public HttpRequest getHttpRequest() {
-		return httpRequest;
-	}
-
-	public Header[] getAllHeaders() {
-		return headers;
-	}
-
-	public Header[] getReceivedHeaders() {
-		return receivedHeaders;
+	public List<Header> getReceivedHeaders() {
+		if (null!=response) {
+			try {
+				final Map<String, List<String>> responseHeaders = response.getHeaderFields();
+				if (null != responseHeaders) {
+					ArrayList<Header> receivedHeaders = new ArrayList<Header>(responseHeaders.size());
+					for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
+						for (String value : entry.getValue()) {
+							receivedHeaders.add(new Header(entry.getKey(), value));
+						}
+					}
+					return receivedHeaders;
+				}
+			} catch (IllegalStateException ignored) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+			} catch (IllegalArgumentException e) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/875
+			} catch (NullPointerException e) {
+				// issue https://github.com/square/okhttp/issues/348
+			}
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
 	public String toString() {
 		/*sb.append(' ');
 		sb.append('#');
-		sb.append(mErrorCode);
-		if (mHttpStatusCode!=200) {
+		sb.append(errorCode);
+		if (httpStatusCode!=200) {
 			sb.append(' ');
 			sb.append("http:");
-			sb.append(mHttpStatusCode);
+			sb.append(httpStatusCode);
 		}
 		sb.append(':');*/
-		/*if (null!=httpRequest) {
+		/*if (null!=request) {
 			sb.append(" on ");
-			sb.append(httpRequest);
+			sb.append(request);
 		}*/
 		return getClass().getSimpleName() + ' ' + getLocalizedMessage();
 	}
@@ -124,19 +123,19 @@ public class HttpException extends Exception {
 	@Override
 	public String getMessage() {
 		final StringBuilder msg = new StringBuilder();
-		if (0 != mErrorCode) {
+		if (0 != errorCode) {
 			msg.append("#");
-			msg.append(mErrorCode);
+			msg.append(errorCode);
 			msg.append(' ');
 		}
-		if (0 != mHttpStatusCode) {
+		if (0 != httpStatusCode) {
 			msg.append("http:");
-			msg.append(mHttpStatusCode);
+			msg.append(httpStatusCode);
 			msg.append(' ');
 		}
-		if (null!=httpRequest) {
+		if (null!= request) {
 			msg.append("req:");
-			msg.append(httpRequest);
+			msg.append(request);
 			msg.append(' ');
 		}
 		/*boolean hasMsg = false;
@@ -156,61 +155,24 @@ public class HttpException extends Exception {
 	}
 
 	public static class Builder {
-		protected int errorCode = ERROR_HTTP;
+		protected int errorCode = ERROR_DEFAULT;
 		protected String errorMessage;
 		protected Throwable exception;
-		protected int statusCode;
-		protected final HttpRequest httpRequest;
-		protected final List<Header> headers;
-		protected List<Header> receivedHeaders;
+		protected final HttpRequestInfo httpRequest;
+		protected final HttpResponse response;
 
-		public Builder(HttpRequest httpRequest, HttpResponse response) {
+		public Builder(HttpRequestInfo httpRequest, HttpResponse response) {
+			if (null==httpRequest) throw new NullPointerException("a HttpException needs a request");
 			this.httpRequest = httpRequest;
-			Header[] srcHeaders = httpRequest.getAllHeaders();
-			if (null==srcHeaders)
-				this.headers = Collections.emptyList();
-			else {
-				this.headers = new ArrayList<Header>(srcHeaders.length);
-				headers.addAll(Arrays.asList(srcHeaders));
-			}
-
-			if (null == response) {
-				this.receivedHeaders = Collections.emptyList();
-			} else {
-				setHTTPResponse(response);
-				try {
-					final Map<String, List<String>> responseHeaders = response.getHeaderFields();
-					if (null == responseHeaders)
-						this.receivedHeaders = Collections.emptyList();
-					else {
-						this.receivedHeaders = new ArrayList<Header>(responseHeaders.size());
-						for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-							for (String value : entry.getValue()) {
-								receivedHeaders.add(new Header(entry.getKey(), value));
-							}
-						}
-					}
-				} catch (IllegalStateException ignored) {
-					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-					this.receivedHeaders = Collections.emptyList();
-				} catch (IllegalArgumentException e) {
-					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/875
-					this.receivedHeaders = Collections.emptyList();
-				} catch (NullPointerException e) {
-					// issue https://github.com/square/okhttp/issues/348
-					this.receivedHeaders = Collections.emptyList();
-				}
-			}
+			this.response = response;
 		}
 
 		public Builder(HttpException e) {
-			this.errorCode = e.getErrorCode();
+			this.errorCode = e.errorCode;
 			this.errorMessage = e.getMessage();
 			this.exception = e.getCause();
-			this.statusCode = e.mHttpStatusCode;
-			this.httpRequest = e.httpRequest;
-			this.headers = Arrays.asList(e.headers);
-			this.receivedHeaders = Arrays.asList(e.receivedHeaders);
+			this.httpRequest = e.request;
+			this.response = e.response;
 		}
 
 		public Builder setErrorCode(int code) {
@@ -241,30 +203,22 @@ public class HttpException extends Exception {
 		}
 
 		/**
-		 * Alternative to {@link #setHTTPResponse(HttpResponse)} to simulate some issues
-		 * @param statusCode
-		 * @return The builder for easy chaining
+		 * Get the HTTP status code for this Request exception
+		 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
+		 * @return 0 if we didn't receive any HTTP response
 		 */
-		public Builder setHttpStatusCode(int statusCode) {
-			this.statusCode = statusCode;
-			return this;
-		}
-
-		public Builder setHTTPResponse(HttpResponse resp) {
-			if (null!=resp) {
+		public int getHttpStatusCode() {
+			if (null!= response) {
 				try {
-					this.statusCode = resp.getResponseCode();
+					return response.getResponseCode();
 				} catch (IllegalStateException e) {
 					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-					this.statusCode = 200;
 				} catch (NullPointerException ignored) {
 					// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
-					this.statusCode = 200;
 				} catch (IOException e) {
-					this.statusCode = 200;
 				}
 			}
-			return this;
+			return 0;
 		}
 
 		public HttpException build() {

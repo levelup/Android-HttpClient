@@ -53,7 +53,7 @@ public class AsyncClientTest extends AndroidTestCase {
 				// shit happens
 			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
 				// shit happens
-			} else if (t instanceof HttpException && ((HttpException) t).getErrorCode()==HttpException.ERROR_TIMEOUT) {
+			} else if (t instanceof HttpException && ((HttpException) t).errorCode==HttpException.ERROR_TIMEOUT) {
 				// shit happens
 			} else {
 				fail(t.getMessage());
