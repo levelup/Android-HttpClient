@@ -290,7 +290,7 @@ public class HttpClientTest extends AndroidTestCase {
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
-		request.setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
+		request.setHeader(HttpRequest.HEADER_ACCEPT_ENCODING, "gzip,deflate");
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		HttpStream stream = HttpClient.parseRequest(request);

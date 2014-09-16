@@ -13,7 +13,6 @@ import com.levelup.http.parser.BodyToString;
  * HTTP client that handles {@link HttpRequest} 
  */
 public class HttpClient {
-	public static final String ACCEPT_ENCODING = "Accept-Encoding";
 
 	private static String userAgent;
 	private static CookieManager cookieManager;

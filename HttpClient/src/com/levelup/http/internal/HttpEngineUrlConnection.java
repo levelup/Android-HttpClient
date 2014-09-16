@@ -17,9 +17,9 @@ import android.os.Build;
 
 import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.DataErrorException;
-import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpRequest;
 import com.levelup.http.log.LogManager;
 import com.levelup.http.log.LoggerTagged;
 import com.levelup.http.parser.ParserException;
@@ -53,8 +53,8 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 			throw new IllegalStateException(e);
 		}
 
-		if (request.getHeader(HttpClient.ACCEPT_ENCODING)==null) {
-			setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
+		if (request.getHeader(HttpRequest.HEADER_ACCEPT_ENCODING)==null) {
+			setHeader(HttpRequest.HEADER_ACCEPT_ENCODING, "gzip,deflate");
 		}
 	}
 

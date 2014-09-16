@@ -166,7 +166,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 		R httpResponse = queryResponse();
 		try {
-			String expectedMimeType = request.getHeader("Accept");
+			String expectedMimeType = request.getHeader(HttpRequest.HEADER_ACCEPT);
 			if (!TextUtils.isEmpty(expectedMimeType)) {
 				MediaType expectedType = MediaType.parse(expectedMimeType);
 				if (null!=expectedType && !expectedType.equalsType(MediaType.parse(httpResponse.getContentType()))) {

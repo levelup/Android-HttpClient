@@ -19,6 +19,7 @@ import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.HttpStream;
 import com.levelup.http.body.HttpBodyJSON;
@@ -296,7 +297,7 @@ public class IonClientTest extends AndroidTestCase {
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
-		request.setHeader(HttpClient.ACCEPT_ENCODING, "gzip,deflate");
+		request.setHeader(HttpRequest.HEADER_ACCEPT_ENCODING, "gzip,deflate");
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		HttpStream stream = HttpClient.parseRequest(request);
