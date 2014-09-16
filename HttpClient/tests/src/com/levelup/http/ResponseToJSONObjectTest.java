@@ -29,7 +29,7 @@ public class ResponseToJSONObjectTest extends AndroidTestCase {
 			assertNotNull(e.getMessage());
 			assertTrue(e.getCause() instanceof ParserException);
 			ParserException pe = (ParserException) e.getCause();
-			assertTrue(pe.getMessage().equals("Bad JSON data"));
+			assertTrue(pe.getMessage().startsWith("Bad JSON data"));
 			assertNotNull(pe.getSourceData());
 		}
 	}
