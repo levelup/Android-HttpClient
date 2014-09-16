@@ -241,4 +241,12 @@ public class AsyncTask<T> extends FutureTask<T> {
 			return task;
 		}
 	}
+
+/*
+	public <NEW_OUTPUT> AsyncTask<NEW_OUTPUT> then(NextCallable<T, NEW_OUTPUT> nextCallable) {
+		new Builder<NEW_OUTPUT>()
+				.setCallable(nextCallable.getNextCallable())
+				.setExecutor(this.e)
+	}
+*/
 }
