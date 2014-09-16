@@ -254,6 +254,23 @@ public class IonClientTest extends AndroidTestCase {
 	}
 
 	@MediumTest
+	public void testMime() throws Exception {
+		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
+				.setUrl("http://httpbin.org/html")
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
+				.build();
+		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
+		request.setHeader(HttpRequest.HEADER_ACCEPT, "application/json");
+
+		try {
+			String result = HttpClient.parseRequest(request);
+			fail("we should not be here");
+		} catch (HttpException e) {
+			assertEquals(HttpException.ERROR_HTTP_MIME, e.getErrorCode());
+		}
+	}
+
+	@MediumTest
 	public void testStreaming() throws Exception {
 		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
