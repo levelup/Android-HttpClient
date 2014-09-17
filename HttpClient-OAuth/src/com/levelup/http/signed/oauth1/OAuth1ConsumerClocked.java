@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ResponseHandler;
+import com.levelup.http.log.LogManager;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.signed.OAuthClientApp;
 
@@ -49,9 +50,10 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 		long now = System.currentTimeMillis();
 		try {
 			//Date twitterDate = getDate(DATE_FORMAT_HTTP, value);
-			Date twitterDate = DateUtils.parseDate(value);
-			serverDelayInMilliseconds = now - twitterDate.getTime();
+			Date serverDate = DateUtils.parseDate(value);
+			serverDelayInMilliseconds = now - serverDate.getTime();
 		} catch (DateParseException ignored) {
+			LogManager.getLogger().d("invalid OAuth1 server date:"+value);
 		}
 	}
 
