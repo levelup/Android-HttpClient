@@ -17,6 +17,7 @@ public class HttpException extends Exception {
 	static public final int ERROR_DEFAULT          = 4000;
 	static public final int ERROR_TIMEOUT          = 4001;
 	static public final int ERROR_NETWORK          = 4002;
+	/** The server response didn't give a {@code Content-Type} matching the {@code Accept} in the request header */
 	static public final int ERROR_MIME             = 4003;
 	static public final int ERROR_JSON             = 4004;
 	static public final int ERROR_AUTH             = 4005;
