@@ -127,10 +127,10 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 			}
 
 		} catch (SecurityException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		} catch (IOException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		} finally {
 			try {
@@ -149,24 +149,23 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 		try {
 			InputStream inputStream = httpResponse.getInputStream();
 			if (null == inputStream)
-				throw exceptionToHttpException(new IOException("no inputStream")).build();
+				throw exceptionToHttpException(new IOException("no inputStream"));
 
 			return httpResponse;
 		} catch (FileNotFoundException e) {
 			try {
 				DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(httpResponse, this);
 
-				HttpException.Builder exceptionBuilder = exceptionToHttpException(exceptionWithData);
-				throw exceptionBuilder.build();
+				throw exceptionToHttpException(exceptionWithData);
 
 			} catch (ParserException ee) {
-				throw exceptionToHttpException(ee).build();
+				throw exceptionToHttpException(ee);
 
 			} catch (IOException ee) {
-				throw exceptionToHttpException(ee).build();
+				throw exceptionToHttpException(ee);
 			}
 		} catch (IOException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		}
 	}

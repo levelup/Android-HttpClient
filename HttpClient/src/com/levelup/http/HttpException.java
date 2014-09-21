@@ -14,6 +14,57 @@ import android.text.TextUtils;
  */
 public class HttpException extends Exception {
 
+	public static class HttpTimeoutException extends HttpException {
+
+		protected HttpTimeoutException(Builder builder) {
+			super(builder);
+		}
+	}
+
+	public static class HttpIOException extends HttpException {
+
+		protected HttpIOException(Builder builder) {
+			super(builder);
+		}
+	}
+
+	public static class HttpMimeException extends HttpException {
+
+		protected HttpMimeException(Builder builder) {
+			super(builder);
+		}
+	}
+
+	public static class HttpJsonException extends HttpException {
+
+		protected HttpJsonException(Builder builder) {
+			super(builder);
+		}
+	}
+
+	public static class HttpAuthException extends HttpException {
+
+		protected HttpAuthException(Builder builder) {
+			super(builder);
+		}
+	}
+
+	public static class HttpParserException extends HttpException {
+
+		protected HttpParserException(Builder builder) {
+			super(builder);
+		}
+	}
+
+	/** TODO merge with {@link com.levelup.http.DataErrorException} */
+	public static class HttpDataErrorException extends Exception {
+
+	}
+
+	public static class HttpEngineException extends Exception {
+
+	}
+
 	static public final int ERROR_DEFAULT          = 4000;
 	static public final int ERROR_TIMEOUT          = 4001;
 	static public final int ERROR_NETWORK          = 4002;

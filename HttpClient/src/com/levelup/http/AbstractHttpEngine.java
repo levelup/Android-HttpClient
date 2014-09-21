@@ -180,10 +180,10 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			return responseToResult(httpResponse);
 
 		} catch (ParserException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		} catch (IOException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 		} finally {
 			if (0 != threadStatsTag) {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -238,25 +238,25 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		return sb.toString();
 	}
 
-	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
+	protected HttpException exceptionToHttpException(Exception e) throws HttpException {
 		HttpException.Builder builder = exceptionFactory.newException(httpResponse);
 
 		if (e instanceof DataErrorException) {
 			DataErrorException cause = (DataErrorException) e;
 			if (cause.errorContent instanceof Exception)
-				throw exceptionToHttpException((Exception) cause.errorContent).build();
+				throw exceptionToHttpException((Exception) cause.errorContent);
 
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_DATA_MSG);
-			return builder;
+			return builder.build();
 		}
 
 		else if (e instanceof InterruptedException) {
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_DEFAULT);
-			return builder;
+			return builder.build();
 		}
 
 		else if (e instanceof ExecutionException) {
@@ -266,7 +266,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 				builder.setErrorMessage("execution error");
 				builder.setCause(e.getCause());
 				builder.setErrorCode(HttpException.ERROR_DEFAULT);
-				return builder;
+				return builder.build();
 			}
 		}
 
@@ -275,7 +275,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			builder.setErrorMessage("Timeout error "+e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-			return builder;
+			return builder.build();
 		}
 
 		else if (e instanceof ProtocolException) {
@@ -283,7 +283,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			builder.setErrorMessage("Method error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_DEFAULT);
-			return builder;
+			return builder.build();
 		}
 
 		else if (e instanceof IOException) {
@@ -291,7 +291,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			builder.setErrorMessage("IO error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			return builder;
+			return builder.build();
 		}
 
 		else if (e instanceof ParserException) {
@@ -301,7 +301,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_PARSER);
-			return builder;
+			return builder.build();
 		}
 
 		else if (e instanceof SecurityException) {
@@ -309,7 +309,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			builder.setErrorMessage("Security error " + e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			return builder;
+			return builder.build();
 		}
 
 		else {
@@ -318,6 +318,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			builder.setErrorCode(HttpException.ERROR_DEFAULT);
 		}
 
-		return builder;
+		return builder.build();
 	}
 }

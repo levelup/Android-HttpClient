@@ -146,7 +146,7 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 
 			Exception e = response.getException();
 			if (null != e) {
-				throw exceptionToHttpException(e).build();
+				throw exceptionToHttpException(e);
 			}
 
 			if (isHttpError(ionResponse)) {
@@ -164,23 +164,22 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 					exceptionWithData = ((ErrorHandlerViaXferTransform) responseHandler.errorHandler).handleErrorData(errorData, this);
 				}
 
-				HttpException.Builder exceptionBuilder = exceptionToHttpException(exceptionWithData);
-				throw exceptionBuilder.build();
+				throw exceptionToHttpException(exceptionWithData);
 			}
 
 			return ionResponse;
 
 		} catch (InterruptedException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		} catch (ExecutionException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		} catch (ParserException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		} catch (IOException e) {
-			throw exceptionToHttpException(e).build();
+			throw exceptionToHttpException(e);
 
 		}
 	}
@@ -196,7 +195,7 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 	}
 
 	@Override
-	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
+	protected HttpException exceptionToHttpException(Exception e) throws HttpException {
 		if (e instanceof ConnectionClosedException && e.getCause() instanceof Exception) {
 			return exceptionToHttpException((Exception) e.getCause());
 		}
@@ -207,7 +206,7 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 			builder.setErrorMessage("Timeout error "+e.getMessage());
 			builder.setCause(e);
 			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-			return builder;
+			return builder.build();
 		}
 
 		return super.exceptionToHttpException(e);
