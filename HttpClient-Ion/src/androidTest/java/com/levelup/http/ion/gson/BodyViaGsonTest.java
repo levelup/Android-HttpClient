@@ -65,8 +65,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (HttpStatusException e) {
-			assertTrue(e.getCause() instanceof DataErrorException);
-			DataErrorException errorException = (DataErrorException) e.getCause();
+			DataErrorException errorException = e.getCause();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
 			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
 			assertNotNull(errorData.error);
@@ -90,8 +89,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (HttpStatusException e) {
-			assertTrue(e.getCause() instanceof DataErrorException);
-			DataErrorException errorException = (DataErrorException) e.getCause();
+			DataErrorException errorException = e.getCause();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
 			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
 			assertNotNull(errorData.error);
@@ -110,10 +108,8 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		try {
 			HttpClient.parseRequest(request);
 		} catch (HttpDataParserException e) {
-			assertTrue(e.getCause() instanceof ParserException);
-			ParserException pe = (ParserException) e.getCause();
-			assertEquals("Bad data for GSON", pe.getMessage());
-			assertNotNull(pe.getSourceData());
+			assertEquals("Bad data for GSON", e.getCause().getMessage());
+			assertNotNull(e.getCause().getSourceData());
 		}
 	}
 }

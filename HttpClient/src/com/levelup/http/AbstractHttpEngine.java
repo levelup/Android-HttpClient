@@ -245,10 +245,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			if (cause.errorContent instanceof Exception)
 				throw exceptionToHttpException((Exception) cause.errorContent).build();
 
-			HttpStatusException.Builder buildeR = new HttpStatusException.Builder(request, httpResponse);
-			buildeR.setErrorMessage("interrupted");
-			buildeR.setCause(e);
-			return buildeR;
+			return new HttpStatusException.Builder(request, httpResponse, cause);
 		}
 
 		else if (e instanceof InterruptedException) {
@@ -296,9 +293,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			if (e.getCause() instanceof HttpException)
 				throw (HttpException) e.getCause();
 
-			HttpDataParserException.Builder buildeR = new HttpDataParserException.Builder(request, httpResponse);
-			buildeR.setCause(e);
-			return buildeR;
+			return new HttpDataParserException.Builder(request, httpResponse, (ParserException) e);
 		}
 
 		else if (e instanceof SecurityException) {

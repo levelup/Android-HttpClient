@@ -6,7 +6,6 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 
 import com.levelup.http.parser.BodyToJSONObject;
-import com.levelup.http.parser.ParserException;
 
 public class BodyToJSONObjectTest extends AndroidTestCase {
 
@@ -26,10 +25,8 @@ public class BodyToJSONObjectTest extends AndroidTestCase {
 			HttpClient.parseRequest(request);
 		} catch (HttpDataParserException e) {
 			assertNotNull(e.getMessage());
-			assertTrue(e.getCause() instanceof ParserException);
-			ParserException pe = (ParserException) e.getCause();
-			assertTrue(pe.getMessage().startsWith("Bad JSON data"));
-			assertNotNull(pe.getSourceData());
+			assertTrue(e.getCause().getMessage().startsWith("Bad JSON data"));
+			assertNotNull(e.getCause().getSourceData());
 		}
 	}
 }
