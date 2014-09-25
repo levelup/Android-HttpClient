@@ -263,26 +263,23 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 		else if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder buildeR = new HttpTimeoutException.Builder(request, httpResponse);
-			buildeR.setErrorMessage("Timeout error " + e.getMessage());
-			buildeR.setCause(e);
-			return buildeR;
+			return new HttpTimeoutException.Builder(request, httpResponse)
+					.setErrorMessage("Timeout error " + e.getMessage())
+					.setCause(e);
 		}
 
 		else if (e instanceof ProtocolException) {
 			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
-			HttpUnsupportedException.Builder buildeR = new HttpUnsupportedException.Builder(request, httpResponse);
-			buildeR.setErrorMessage("Method error " + e.getMessage());
-			buildeR.setCause(e);
-			return buildeR;
+			return new HttpUnsupportedException.Builder(request, httpResponse)
+					.setErrorMessage("Method error " + e.getMessage())
+					.setCause(e);
 		}
 
 		else if (e instanceof IOException) {
 			LogManager.getLogger().d("i/o error for " + request + ' ' + e.getMessage());
-			HttpIOException.Builder buildeR = new HttpIOException.Builder(request, httpResponse);
-			buildeR.setErrorMessage("IO error " + e.getMessage());
-			buildeR.setCause(e);
-			return buildeR;
+			return new HttpIOException.Builder(request, httpResponse)
+					.setErrorMessage("IO error " + e.getMessage())
+					.setCause(e);
 		}
 
 		else if (e instanceof ParserException) {
@@ -295,10 +292,9 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 		else if (e instanceof SecurityException) {
 			LogManager.getLogger().w("security error for " + request + ' ' + e);
-			HttpIOException.Builder buildeR = new HttpIOException.Builder(request, httpResponse);
-			buildeR.setErrorMessage("Security error " + e.getMessage());
-			buildeR.setCause(e);
-			return buildeR;
+			return new HttpIOException.Builder(request, httpResponse)
+					.setErrorMessage("Security error " + e.getMessage())
+					.setCause(e);
 		}
 
 		else {
