@@ -50,11 +50,7 @@ public class AsyncClientTest extends AndroidTestCase {
 	private static class TestAsyncCallback extends BaseAsyncCallback<String> {
 		@Override
 		public void onAsyncFailed(Throwable t) {
-			if (t instanceof IOException || t instanceof TimeoutException) {
-				// shit happens
-			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
-				// shit happens
-			} else if (t instanceof HttpTimeoutException) {
+			if (t instanceof HttpException && ((HttpException) t).isTemporaryFailure()) {
 				// shit happens
 			} else {
 				fail(t.getMessage());

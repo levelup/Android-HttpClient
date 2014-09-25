@@ -55,6 +55,16 @@ public class HttpException extends Exception {
 		this.response = builder.response;
 	}
 
+	/**
+	 * @return whether this error was caused by a network or server issue
+	 */
+	public boolean isTemporaryFailure() {
+		return (this instanceof HttpIOException
+				|| this instanceof HttpTimeoutException
+				|| this instanceof HttpMimeException
+				|| httpStatusCode >= 500);
+	}
+
 	public List<Header> getReceivedHeaders() {
 		if (null!=response) {
 			try {
