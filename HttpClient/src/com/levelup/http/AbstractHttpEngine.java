@@ -170,7 +170,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			if (!TextUtils.isEmpty(expectedMimeType)) {
 				MediaType expectedType = MediaType.parse(expectedMimeType);
 				if (null!=expectedType && !expectedType.equalsType(MediaType.parse(httpResponse.getContentType()))) {
-					HttpException.Builder builder = new HttpMimeException.Builder(request, httpResponse);
+					HttpMimeException.Builder builder = new HttpMimeException.Builder(request, httpResponse);
 					builder.setErrorMessage("Expected '" + expectedMimeType + "' got '" + httpResponse.getContentType());
 					throw builder.build();
 				}
@@ -250,8 +250,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 		else if (e instanceof InterruptedException) {
 			builder.setErrorMessage("interrupted");
-			builder.setCause(e);
-			return builder;
 		}
 
 		else if (e instanceof ExecutionException) {
@@ -260,7 +258,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			else {
 				builder.setErrorMessage("execution error");
 				builder.setCause(e.getCause());
-				return builder;
 			}
 		}
 
@@ -306,9 +303,9 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 		else {
 			LogManager.getLogger().w("unknown error for " + request + ' ' + e);
-			builder.setCause(e);
 		}
 
+		builder.setCause(e);
 		return builder;
 	}
 }
