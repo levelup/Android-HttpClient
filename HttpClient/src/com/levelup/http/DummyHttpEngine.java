@@ -6,22 +6,15 @@ package com.levelup.http;
 public final class DummyHttpEngine<T> implements HttpEngine<T> {
 	private final RawHttpRequest request;
 	private final ResponseHandler<T> responseHandler;
-	private final HttpExceptionFactory exceptionFactory;
 
 	public DummyHttpEngine(Builder<T> builder) {
 		this.request = builder.getHttpRequest();
 		this.responseHandler = builder.getResponseHandler();
-		this.exceptionFactory = builder.getExceptionFactory();
 	}
 
 	@Override
 	public T call() throws HttpException {
 		throw new HttpUnsupportedException.Builder(request, null).build();
-	}
-
-	@Override
-	public HttpExceptionFactory getExceptionFactory() {
-		return exceptionFactory;
 	}
 
 	@Override

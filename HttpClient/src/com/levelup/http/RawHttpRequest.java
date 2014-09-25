@@ -306,11 +306,6 @@ public class RawHttpRequest implements HttpRequest {
 		return headers.toArray(new Header[headers.size()]);
 	}
 
-	@Override
-	public HttpException.Builder newException(HttpResponse response) {
-		return new HttpException.Builder(this, response);
-	}
-
 	// TODO move this to the engine
 	public void setLogger(LoggerTagged loggerTagged) {
 		this.loggerTagged = loggerTagged;

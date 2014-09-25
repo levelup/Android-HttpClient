@@ -19,11 +19,6 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 	ResponseHandler<T> getResponseHandler();
 
 	/**
-	 * @return The {@link com.levelup.http.HttpExceptionFactory} used by the engine
-	 */
-	HttpExceptionFactory getExceptionFactory();
-
-	/**
 	 * Extra header to add to the query, in addition of the ones from the source {@link com.levelup.http.HttpRequest}
 	 * <p>Can be used to sign a request with a timestamp, for example</p>
 	 * @param name HTTP Header name
@@ -98,10 +93,6 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 
 		public int getThreadStatsTag() {
 			return threadStatsTag;
-		}
-
-		public HttpExceptionFactory getExceptionFactory() {
-			return httpRequest;
 		}
 	}
 }

@@ -7,7 +7,7 @@ import com.levelup.http.log.LoggerTagged;
  * Interface for HTTP requests to be passed to {@link HttpClient}
  * @see BaseHttpRequest
  */
-public interface HttpRequest extends HttpRequestInfo, HttpExceptionFactory {
+public interface HttpRequest extends HttpRequestInfo {
 
 	/**
 	 * Add an extra HTTP header to this request

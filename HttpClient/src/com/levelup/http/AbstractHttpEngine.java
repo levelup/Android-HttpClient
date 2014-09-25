@@ -31,7 +31,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 	protected final RawHttpRequest request;
 	protected final ResponseHandler<T> responseHandler;
-	protected final HttpExceptionFactory exceptionFactory;
 	protected final int threadStatsTag;
 
 	protected R httpResponse;
@@ -43,7 +42,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	public AbstractHttpEngine(Builder<T> builder) {
 		this.request = builder.getHttpRequest();
 		this.responseHandler = builder.getResponseHandler();
-		this.exceptionFactory = builder.getExceptionFactory();
 		this.threadStatsTag = builder.getThreadStatsTag();
 
 		for (Header header : request.getAllHeaders()) {
@@ -67,11 +65,6 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	@Override
 	public final HttpRequestInfo getHttpRequest() {
 		return request;
-	}
-
-	@Override
-	public final HttpExceptionFactory getExceptionFactory() {
-		return exceptionFactory;
 	}
 
 	/**
@@ -238,27 +231,12 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	}
 
 	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
-		HttpException.Builder builder = exceptionFactory.newException(httpResponse);
-
 		if (e instanceof DataErrorException) {
 			DataErrorException cause = (DataErrorException) e;
 			if (cause.errorContent instanceof Exception)
 				throw exceptionToHttpException((Exception) cause.errorContent).build();
 
 			return new HttpStatusException.Builder(request, httpResponse, cause);
-		}
-
-		else if (e instanceof InterruptedException) {
-			builder.setErrorMessage("interrupted");
-		}
-
-		else if (e instanceof ExecutionException) {
-			if (e.getCause() instanceof Exception && e.getCause()!=e)
-				return exceptionToHttpException((Exception) e.getCause());
-			else {
-				builder.setErrorMessage("execution error");
-				builder.setCause(e.getCause());
-			}
 		}
 
 		else if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
@@ -297,11 +275,26 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 					.setCause(e);
 		}
 
+		HttpException.Builder builder = new HttpException.Builder(request, httpResponse);
+		builder.setCause(e);
+
+		if (e instanceof InterruptedException) {
+			builder.setErrorMessage("interrupted");
+		}
+
+		else if (e instanceof ExecutionException) {
+			if (e.getCause() instanceof Exception && e.getCause()!=e)
+				return exceptionToHttpException((Exception) e.getCause());
+			else {
+				builder.setErrorMessage("execution error");
+				builder.setCause(e.getCause());
+			}
+		}
+
 		else {
 			LogManager.getLogger().w("unknown error for " + request + ' ' + e);
 		}
 
-		builder.setCause(e);
 		return builder;
 	}
 }
