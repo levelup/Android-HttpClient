@@ -30,8 +30,7 @@ import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.log.LogManager;
-import com.levelup.http.parser.ParserException;
+import com.levelup.http.HttpTimeoutException;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.body.HttpBodyJSON;
 import com.levelup.http.body.HttpBodyMultiPart;
@@ -43,7 +42,9 @@ import com.levelup.http.ion.internal.IonHttpBodyJSON;
 import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
+import com.levelup.http.log.LogManager;
 import com.levelup.http.parser.ErrorHandlerViaXferTransform;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
@@ -203,10 +204,9 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 
 		if (e instanceof PrematureDataEndException) {
 			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder builder = exceptionFactory.newException(httpResponse);
-			builder.setErrorMessage("Timeout error "+e.getMessage());
+			HttpException.Builder builder = new HttpTimeoutException.Builder(request, httpResponse);
+			builder.setErrorMessage("Timeout error " + e.getMessage());
 			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
 			return builder;
 		}
 

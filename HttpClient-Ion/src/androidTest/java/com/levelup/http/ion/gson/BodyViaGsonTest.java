@@ -7,15 +7,16 @@ import com.google.gson.annotations.SerializedName;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpClient;
-import com.levelup.http.HttpException;
+import com.levelup.http.HttpDataParserException;
+import com.levelup.http.HttpStatusException;
 import com.levelup.http.ResponseHandler;
-import com.levelup.http.parser.ParserException;
 import com.levelup.http.gson.BodyViaGson;
 import com.levelup.http.ion.IonClient;
 import com.levelup.http.parser.BodyToString;
 import com.levelup.http.parser.ErrorHandlerViaXferTransform;
+import com.levelup.http.parser.ParserException;
 
-public class ResponseViaGsonTest extends AndroidTestCase {
+public class BodyViaGsonTest extends AndroidTestCase {
 
 	@Override
 	public void setContext(Context context) {
@@ -63,9 +64,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		try {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
-		} catch (HttpException e) {
-			if (e.errorCode!=HttpException.ERROR_DATA_MSG)
-				throw e; // forward
+		} catch (HttpStatusException e) {
 			assertTrue(e.getCause() instanceof DataErrorException);
 			DataErrorException errorException = (DataErrorException) e.getCause();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
@@ -90,9 +89,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 		try {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
-		} catch (HttpException e) {
-			if (e.errorCode!=HttpException.ERROR_DATA_MSG)
-				throw e; // forward
+		} catch (HttpStatusException e) {
 			assertTrue(e.getCause() instanceof DataErrorException);
 			DataErrorException errorException = (DataErrorException) e.getCause();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
@@ -112,9 +109,7 @@ public class ResponseViaGsonTest extends AndroidTestCase {
 
 		try {
 			HttpClient.parseRequest(request);
-		} catch (HttpException e) {
-			if (e.errorCode!=HttpException.ERROR_PARSER)
-				throw e; // forward
+		} catch (HttpDataParserException e) {
 			assertTrue(e.getCause() instanceof ParserException);
 			ParserException pe = (ParserException) e.getCause();
 			assertEquals("Bad data for GSON", pe.getMessage());

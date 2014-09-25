@@ -18,10 +18,12 @@ import android.test.suitebuilder.annotation.MediumTest;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
-import com.levelup.http.HttpException;
+import com.levelup.http.HttpMimeException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestInfo;
+import com.levelup.http.HttpStatusException;
 import com.levelup.http.HttpStream;
+import com.levelup.http.HttpTimeoutException;
 import com.levelup.http.body.HttpBodyJSON;
 import com.levelup.http.body.HttpBodyMultiPart;
 import com.levelup.http.body.HttpBodyParameters;
@@ -191,9 +193,8 @@ public class IonClientTest extends AndroidTestCase {
 		try {
 			JSONObject result = HttpClient.parseRequest(request);
 			fail("we should have timed out after 3s");
-		} catch (HttpException e) {
-			if (e.errorCode != HttpException.ERROR_TIMEOUT)
-				throw e;
+		} catch (HttpTimeoutException e) {
+			// ok
 		}
 	}
 
@@ -207,8 +208,7 @@ public class IonClientTest extends AndroidTestCase {
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
-		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_DATA_MSG, e.errorCode);
+		} catch (HttpStatusException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
@@ -222,8 +222,7 @@ public class IonClientTest extends AndroidTestCase {
 		try {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
-		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_DATA_MSG, e.errorCode);
+		} catch (HttpStatusException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
@@ -265,8 +264,8 @@ public class IonClientTest extends AndroidTestCase {
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should not be here");
-		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_MIME, e.errorCode);
+		} catch (HttpMimeException e) {
+			// ok
 		}
 	}
 
@@ -403,9 +402,8 @@ public class IonClientTest extends AndroidTestCase {
 				stream.disconnect();
 			}
 			fail("we should have been in timeout");
-		} catch (HttpException e) {
-			if (e.errorCode != HttpException.ERROR_TIMEOUT)
-				throw e;
+		} catch (HttpTimeoutException e) {
+			// ok
 		}
 	}
 

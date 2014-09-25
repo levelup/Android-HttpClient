@@ -184,9 +184,8 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			JSONObject result = HttpClient.parseRequest(request);
 			fail("we should have timed out after 3s");
-		} catch (HttpException e) {
-			if (e.errorCode != HttpException.ERROR_TIMEOUT)
-				throw e;
+		} catch (HttpTimeoutException e) {
+			// ok
 		}
 	}
 
@@ -200,8 +199,7 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
-		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_DATA_MSG, e.errorCode);
+		} catch (HttpStatusException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
@@ -215,8 +213,7 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
-		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_DATA_MSG, e.errorCode);
+		} catch (HttpStatusException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
@@ -258,8 +255,8 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should not be here");
-		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_MIME, e.errorCode);
+		} catch (HttpMimeException e) {
+			// ok
 		}
 	}
 
@@ -396,9 +393,8 @@ public class HttpClientTest extends AndroidTestCase {
 				stream.disconnect();
 			}
 			fail("we should have been in timeout");
-		} catch (HttpException e) {
-			if (e.errorCode != HttpException.ERROR_TIMEOUT)
-				throw e;
+		} catch (HttpTimeoutException e) {
+			// ok
 		}
 	}
 

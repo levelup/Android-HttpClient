@@ -170,9 +170,8 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			if (!TextUtils.isEmpty(expectedMimeType)) {
 				MediaType expectedType = MediaType.parse(expectedMimeType);
 				if (null!=expectedType && !expectedType.equalsType(MediaType.parse(httpResponse.getContentType()))) {
-					HttpException.Builder builder = exceptionFactory.newException(httpResponse);
-					builder.setErrorMessage("Expected '"+expectedMimeType+"' got '"+httpResponse.getContentType());
-					builder.setErrorCode(HttpException.ERROR_MIME);
+					HttpException.Builder builder = new HttpMimeException.Builder(request, httpResponse);
+					builder.setErrorMessage("Expected '" + expectedMimeType + "' got '" + httpResponse.getContentType());
 					throw builder.build();
 				}
 			}
@@ -246,16 +245,15 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			if (cause.errorContent instanceof Exception)
 				throw exceptionToHttpException((Exception) cause.errorContent).build();
 
-			builder.setErrorMessage("interrupted");
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_DATA_MSG);
-			return builder;
+			HttpStatusException.Builder buildeR = new HttpStatusException.Builder(request, httpResponse);
+			buildeR.setErrorMessage("interrupted");
+			buildeR.setCause(e);
+			return buildeR;
 		}
 
 		else if (e instanceof InterruptedException) {
 			builder.setErrorMessage("interrupted");
 			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_DEFAULT);
 			return builder;
 		}
 
@@ -265,33 +263,32 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			else {
 				builder.setErrorMessage("execution error");
 				builder.setCause(e.getCause());
-				builder.setErrorCode(HttpException.ERROR_DEFAULT);
 				return builder;
 			}
 		}
 
 		else if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			LogManager.getLogger().d("timeout for "+request);
-			builder.setErrorMessage("Timeout error "+e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_TIMEOUT);
-			return builder;
+			HttpException.Builder buildeR = new HttpTimeoutException.Builder(request, httpResponse);
+			buildeR.setErrorMessage("Timeout error " + e.getMessage());
+			buildeR.setCause(e);
+			return buildeR;
 		}
 
 		else if (e instanceof ProtocolException) {
 			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
-			builder.setErrorMessage("Method error " + e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_DEFAULT);
-			return builder;
+			HttpUnsupportedException.Builder buildeR = new HttpUnsupportedException.Builder(request, httpResponse);
+			buildeR.setErrorMessage("Method error " + e.getMessage());
+			buildeR.setCause(e);
+			return buildeR;
 		}
 
 		else if (e instanceof IOException) {
 			LogManager.getLogger().d("i/o error for " + request + ' ' + e.getMessage());
-			builder.setErrorMessage("IO error " + e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			return builder;
+			HttpIOException.Builder buildeR = new HttpIOException.Builder(request, httpResponse);
+			buildeR.setErrorMessage("IO error " + e.getMessage());
+			buildeR.setCause(e);
+			return buildeR;
 		}
 
 		else if (e instanceof ParserException) {
@@ -299,23 +296,22 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 			if (e.getCause() instanceof HttpException)
 				throw (HttpException) e.getCause();
 
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_PARSER);
-			return builder;
+			HttpDataParserException.Builder buildeR = new HttpDataParserException.Builder(request, httpResponse);
+			buildeR.setCause(e);
+			return buildeR;
 		}
 
 		else if (e instanceof SecurityException) {
 			LogManager.getLogger().w("security error for " + request + ' ' + e);
-			builder.setErrorMessage("Security error " + e.getMessage());
-			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_NETWORK);
-			return builder;
+			HttpIOException.Builder buildeR = new HttpIOException.Builder(request, httpResponse);
+			buildeR.setErrorMessage("Security error " + e.getMessage());
+			buildeR.setCause(e);
+			return buildeR;
 		}
 
 		else {
 			LogManager.getLogger().w("unknown error for " + request + ' ' + e);
 			builder.setCause(e);
-			builder.setErrorCode(HttpException.ERROR_DEFAULT);
 		}
 
 		return builder;

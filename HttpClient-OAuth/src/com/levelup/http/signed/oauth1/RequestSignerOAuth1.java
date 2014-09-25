@@ -1,5 +1,6 @@
 package com.levelup.http.signed.oauth1;
 
+import com.levelup.http.HttpAuthException;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.signed.AbstractRequestSigner;
@@ -59,8 +60,7 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 			try {
 				mOAuthConsumer.sign(req);
 			} catch (OAuthException e) {
-				HttpException.Builder builder = req.getExceptionFactory().newException(null);
-				builder.setErrorCode(HttpException.ERROR_AUTH);
+				HttpException.Builder builder = new HttpAuthException.Builder(req.getHttpRequest(), null);
 				builder.setErrorMessage("Bad OAuth for "+getOAuthUser()+" on "+req);
 				builder.setCause(e);
 				throw builder.build();

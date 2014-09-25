@@ -16,7 +16,7 @@ public final class DummyHttpEngine<T> implements HttpEngine<T> {
 
 	@Override
 	public T call() throws HttpException {
-		throw exceptionFactory.newException(null).setErrorCode(HttpException.ERROR_ENGINE).build();
+		throw new HttpUnsupportedException.Builder(request, null).build();
 	}
 
 	@Override

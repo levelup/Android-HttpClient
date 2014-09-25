@@ -19,6 +19,7 @@ import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpIOException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.log.LogManager;
 import com.levelup.http.log.LoggerTagged;
@@ -138,10 +139,9 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 			} catch (IllegalStateException e) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-				HttpException.Builder builder = getExceptionFactory().newException(httpResponse);
+				HttpException.Builder builder = new HttpIOException.Builder(request, httpResponse);
 				builder.setErrorMessage("Connection closed "+e.getMessage());
 				builder.setCause(e);
-				builder.setErrorCode(HttpException.ERROR_NETWORK);
 				throw builder.build();
 			}
 		}

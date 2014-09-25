@@ -1,19 +1,22 @@
-package com.levelup.http;
+package com.levelup.http.ion;
 
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
 
+import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpClient;
+import com.levelup.http.HttpDataParserException;
 import com.levelup.http.parser.BodyToJSONObject;
 import com.levelup.http.parser.ParserException;
 
-public class ResponseToJSONObjectTest extends AndroidTestCase {
+public class BodyToJSONObjectTest extends AndroidTestCase {
 
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		IonClient.setup(context);
 	}
 	
 	public void testBogusData() throws Exception {
@@ -24,8 +27,7 @@ public class ResponseToJSONObjectTest extends AndroidTestCase {
 
 		try {
 			HttpClient.parseRequest(request);
-		} catch (HttpException e) {
-			assertEquals(HttpException.ERROR_PARSER, e.errorCode);
+		} catch (HttpDataParserException e) {
 			assertNotNull(e.getMessage());
 			assertTrue(e.getCause() instanceof ParserException);
 			ParserException pe = (ParserException) e.getCause();

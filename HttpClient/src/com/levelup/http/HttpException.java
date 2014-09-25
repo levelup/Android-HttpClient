@@ -14,19 +14,6 @@ import android.text.TextUtils;
  */
 public class HttpException extends Exception {
 
-	static public final int ERROR_DEFAULT          = 4000;
-	static public final int ERROR_TIMEOUT          = 4001;
-	static public final int ERROR_NETWORK          = 4002;
-	/** The server response didn't give a {@code Content-Type} matching the {@code Accept} in the request header */
-	static public final int ERROR_MIME             = 4003;
-	static public final int ERROR_JSON             = 4004;
-	static public final int ERROR_AUTH             = 4005;
-	/**	Indicates there was a data parsing error, the {@link #getCause()} must be a {@link com.levelup.http.parser.ParserException ParserException} */
-	static public final int ERROR_PARSER           = 4006;
-	/**	Indicates there was a HTTP error, the {@link #getCause()} must be a {@link com.levelup.http.DataErrorException DataErrorException} */
-	static public final int ERROR_DATA_MSG         = 4007;
-	public static final int ERROR_ENGINE           = 4008;
-
 	static public final int ERROR_HTTP_BAD_REQUEST  = 400;
 	static public final int ERROR_HTTP_UNAUTHORIZED = 401;
 	static public final int ERROR_HTTP_FORBIDDEN    = 403;
@@ -55,16 +42,6 @@ public class HttpException extends Exception {
 	public final HttpResponse response;
 
 	/**
-	 * {@link com.levelup.http.HttpException} internal error code
-	 * @see #ERROR_DATA_MSG
-	 * @see #ERROR_AUTH
-	 * @see #ERROR_TIMEOUT
-	 * @see #ERROR_NETWORK
-	 * @see #ERROR_MIME
-	 */
-	public final int errorCode;
-
-	/**
 	 * The HTTP status code sent by the server for this Rxception
 	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
 	 * <p>0 if we didn't receive any HTTP response for this Exception</p>
@@ -73,7 +50,6 @@ public class HttpException extends Exception {
 
 	protected HttpException(Builder builder) {
 		super(builder.errorMessage, builder.exception);
-		this.errorCode = builder.errorCode;
 		this.httpStatusCode = builder.getHttpStatusCode();
 		this.request = builder.httpRequest;
 		this.response = builder.response;
@@ -124,11 +100,6 @@ public class HttpException extends Exception {
 	@Override
 	public String getMessage() {
 		final StringBuilder msg = new StringBuilder();
-		if (0 != errorCode) {
-			msg.append("#");
-			msg.append(errorCode);
-			msg.append(' ');
-		}
 		if (0 != httpStatusCode) {
 			msg.append("http:");
 			msg.append(httpStatusCode);
@@ -156,7 +127,6 @@ public class HttpException extends Exception {
 	}
 
 	public static class Builder {
-		protected int errorCode = ERROR_DEFAULT;
 		protected String errorMessage;
 		protected Throwable exception;
 		protected final HttpRequestInfo httpRequest;
@@ -169,20 +139,10 @@ public class HttpException extends Exception {
 		}
 
 		public Builder(HttpException e) {
-			this.errorCode = e.errorCode;
 			this.errorMessage = e.getMessage();
 			this.exception = e.getCause();
 			this.httpRequest = e.request;
 			this.response = e.response;
-		}
-
-		public Builder setErrorCode(int code) {
-			this.errorCode = code;
-			return this;
-		}
-
-		public int getErrorCode() {
-			return errorCode;
 		}
 
 		public Builder setErrorMessage(String message) {

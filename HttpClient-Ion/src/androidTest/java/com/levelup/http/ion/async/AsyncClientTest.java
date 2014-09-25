@@ -13,6 +13,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
+import com.levelup.http.HttpTimeoutException;
 import com.levelup.http.async.AsyncHttpClient;
 import com.levelup.http.async.AsyncTask;
 import com.levelup.http.async.BaseAsyncCallback;
@@ -53,7 +54,7 @@ public class AsyncClientTest extends AndroidTestCase {
 				// shit happens
 			} else if (t instanceof HttpException && t.getCause() instanceof IOException) {
 				// shit happens
-			} else if (t instanceof HttpException && ((HttpException) t).errorCode==HttpException.ERROR_TIMEOUT) {
+			} else if (t instanceof HttpTimeoutException) {
 				// shit happens
 			} else {
 				fail(t.getMessage());

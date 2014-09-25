@@ -6,6 +6,7 @@ import java.util.SortedSet;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
+import com.levelup.http.HttpAuthException;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
@@ -57,9 +58,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 
 		String header = engine.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);
 	    if (null==header) {
-		    throw req.getExceptionFactory()
-				    .newException(null)
-				    .setErrorCode(HttpException.ERROR_AUTH)
+		    throw new HttpAuthException.Builder(req.getHttpRequest(), null)
 				    .setErrorMessage("request not properly signed")
 				    .build();
 	    }
