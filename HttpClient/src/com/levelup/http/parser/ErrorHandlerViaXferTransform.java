@@ -2,9 +2,10 @@ package com.levelup.http.parser;
 
 import java.io.IOException;
 
-import com.levelup.http.DataErrorException;
-import com.levelup.http.HttpResponse;
+import com.levelup.http.ErrorBody;
 import com.levelup.http.ErrorHandler;
+import com.levelup.http.HttpErrorBodyException;
+import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
 
 /**
@@ -18,12 +19,14 @@ public class ErrorHandlerViaXferTransform<T> implements ErrorHandler {
 		this.errorDataParser = errorDataParser;
 	}
 
-	public DataErrorException handleErrorData(T errorData, ImmutableHttpRequest request) throws IOException, ParserException {
-		return new DataErrorException(errorData);
+	public HttpErrorBodyException handleErrorData(T errorData, ImmutableHttpRequest request) throws IOException, ParserException {
+		ErrorBody errorBody = new ErrorBody(errorData);
+		return new HttpErrorBodyException.Builder(request.getHttpRequest(), request.getHttpResponse(), errorBody)
+				.build();
 	}
 
 	@Override
-	public final DataErrorException handleError(HttpResponse httpResponse, ImmutableHttpRequest request) throws IOException, ParserException {
+	public final HttpErrorBodyException getHttpErrBodyException(HttpResponse httpResponse, ImmutableHttpRequest request) throws IOException, ParserException {
 		T errorData = errorDataParser.transformData(httpResponse, request);
 		return handleErrorData(errorData, request);
 	}

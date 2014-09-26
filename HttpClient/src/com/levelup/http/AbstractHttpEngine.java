@@ -231,15 +231,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	}
 
 	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
-		if (e instanceof DataErrorException) {
-			DataErrorException cause = (DataErrorException) e;
-			if (cause.errorContent instanceof Exception)
-				throw exceptionToHttpException((Exception) cause.errorContent).build();
-
-			return new HttpStatusException.Builder(request, httpResponse, cause);
-		}
-
-		else if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
+		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			LogManager.getLogger().d("timeout for "+request);
 			return new HttpTimeoutException.Builder(request, httpResponse)
 					.setErrorMessage("Timeout error " + e.getMessage())

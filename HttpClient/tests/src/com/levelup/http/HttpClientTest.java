@@ -199,7 +199,7 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
-		} catch (HttpStatusException e) {
+		} catch (HttpErrorBodyException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
@@ -213,7 +213,7 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
-		} catch (HttpStatusException e) {
+		} catch (HttpErrorBodyException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}

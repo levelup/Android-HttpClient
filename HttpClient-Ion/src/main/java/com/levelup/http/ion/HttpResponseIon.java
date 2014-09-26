@@ -10,7 +10,7 @@ import org.apache.http.protocol.HTTP;
 import android.text.TextUtils;
 
 import com.koushikdutta.ion.Response;
-import com.levelup.http.DataErrorException;
+import com.levelup.http.HttpErrorBodyException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.parser.XferTransform;
 
@@ -74,10 +74,10 @@ public class HttpResponseIon<T> implements HttpResponse {
 		if (response.getResult() instanceof InputStream)
 			return (InputStream) response.getResult();
 
-		if (response.getException() instanceof DataErrorException) {
-			DataErrorException exception = (DataErrorException) response.getException();
-			if (exception.errorContent instanceof InputStream)
-				return (InputStream) exception.errorContent;
+		if (response.getException() instanceof HttpErrorBodyException) {
+			HttpErrorBodyException exception = (HttpErrorBodyException) response.getException();
+			if (exception.getErrorBody()!=null && exception.getErrorBody().errorContent instanceof InputStream)
+				return (InputStream) exception.getErrorBody().errorContent;
 		}
 
 		throw new IOException("trying to read an InputStream from Ion result:"+response.getResult()+" error:"+response.getException());

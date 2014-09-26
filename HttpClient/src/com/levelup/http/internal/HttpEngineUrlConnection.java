@@ -16,7 +16,6 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 
 import com.levelup.http.AbstractHttpEngine;
-import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpIOException;
@@ -154,10 +153,7 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 			return httpResponse;
 		} catch (FileNotFoundException e) {
 			try {
-				DataErrorException exceptionWithData = responseHandler.errorHandler.handleError(httpResponse, this);
-
-				HttpException.Builder exceptionBuilder = exceptionToHttpException(exceptionWithData);
-				throw exceptionBuilder.build();
+				throw responseHandler.errorHandler.getHttpErrBodyException(httpResponse, this);
 
 			} catch (ParserException ee) {
 				throw exceptionToHttpException(ee).build();

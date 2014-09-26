@@ -26,8 +26,8 @@ import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.AbstractHttpEngine;
-import com.levelup.http.DataErrorException;
 import com.levelup.http.HttpConfig;
+import com.levelup.http.HttpErrorBodyException;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.HttpTimeoutException;
@@ -151,7 +151,7 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 			}
 
 			if (isHttpError(ionResponse)) {
-				DataErrorException exceptionWithData = null;
+				HttpErrorBodyException bodyException = null;
 
 				if (responseHandler.errorHandler instanceof ErrorHandlerViaXferTransform) {
 					Object data = response.getResult();
@@ -162,11 +162,15 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 						errorData = data;
 					else
 						errorData = transformToResult.transformData(data, this);
-					exceptionWithData = ((ErrorHandlerViaXferTransform) responseHandler.errorHandler).handleErrorData(errorData, this);
+					bodyException = ((ErrorHandlerViaXferTransform) responseHandler.errorHandler).handleErrorData(errorData, this);
 				}
 
-				HttpException.Builder exceptionBuilder = exceptionToHttpException(exceptionWithData);
-				throw exceptionBuilder.build();
+				if (null != bodyException) {
+					throw bodyException;
+				}
+
+				throw new HttpErrorBodyException.Builder(request, httpResponse, null)
+						.build();
 			}
 
 			return ionResponse;

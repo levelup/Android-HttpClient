@@ -17,14 +17,15 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
 public class BaseErrorHandler extends ErrorHandlerViaXferTransform<InputStream> {
 	public static final ErrorHandler INSTANCE = new BaseErrorHandler();
 
-	private static final MediaType MediaTypeJSON = MediaType.parse("application/json");
+	public static final MediaType MediaTypeJSON = MediaType.parse("application/json");
 
 	public BaseErrorHandler() {
 		super(XferTransformResponseInputStream.INSTANCE);
 	}
 
 	@Override
-	public DataErrorException handleErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public HttpErrorBodyException handleErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
+		ErrorBody errorBody = null;
 		MediaType type = MediaType.parse(request.getHttpResponse().getContentType());
 		if (MediaTypeJSON.equalsType(type)) {
 			try {
@@ -32,18 +33,21 @@ public class BaseErrorHandler extends ErrorHandlerViaXferTransform<InputStream> 
 						XferTransformInputStreamString.INSTANCE.transformData(errorStream, request)
 						, request
 				);
-				return new DataErrorException(errorData);
+				errorBody = new ErrorBody(errorData);
 			} finally {
 				errorStream.close();
 			}
 		} else if (null == type || "text".equals(type.type())) {
 			try {
 				String errorData = XferTransformInputStreamString.INSTANCE.transformData(errorStream, request);
-				return new DataErrorException(errorData);
+				errorBody = new ErrorBody(errorData);
 			} finally {
 				errorStream.close();
 			}
+		} else {
+			errorBody = new ErrorBody(errorStream);
 		}
-		return new DataErrorException(errorStream);
+		return new HttpErrorBodyException.Builder(request.getHttpRequest(), request.getHttpResponse(), errorBody)
+				.build();
 	}
 }

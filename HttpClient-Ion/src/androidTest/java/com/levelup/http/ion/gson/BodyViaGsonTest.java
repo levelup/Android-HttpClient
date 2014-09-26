@@ -5,16 +5,15 @@ import android.test.AndroidTestCase;
 
 import com.google.gson.annotations.SerializedName;
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.DataErrorException;
+import com.levelup.http.ErrorBody;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpDataParserException;
-import com.levelup.http.HttpStatusException;
+import com.levelup.http.HttpErrorBodyException;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.gson.BodyViaGson;
 import com.levelup.http.ion.IonClient;
 import com.levelup.http.parser.BodyToString;
 import com.levelup.http.parser.ErrorHandlerViaXferTransform;
-import com.levelup.http.parser.ParserException;
 
 public class BodyViaGsonTest extends AndroidTestCase {
 
@@ -64,8 +63,8 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		try {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
-		} catch (HttpStatusException e) {
-			DataErrorException errorException = e.getCause();
+		} catch (HttpErrorBodyException e) {
+			ErrorBody errorException = e.getErrorBody();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
 			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
 			assertNotNull(errorData.error);
@@ -88,8 +87,8 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		try {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
-		} catch (HttpStatusException e) {
-			DataErrorException errorException = e.getCause();
+		} catch (HttpErrorBodyException e) {
+			ErrorBody errorException = e.getErrorBody();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
 			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
 			assertNotNull(errorData.error);
