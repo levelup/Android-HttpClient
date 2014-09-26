@@ -18,7 +18,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpConfig;
-import com.levelup.http.HttpErrorBodyException;
+import com.levelup.http.HttpFailureException;
 import com.levelup.http.HttpMimeException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpRequestInfo;
@@ -208,7 +208,7 @@ public class IonClientTest extends AndroidTestCase {
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
-		} catch (HttpErrorBodyException e) {
+		} catch (HttpFailureException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}
@@ -222,7 +222,7 @@ public class IonClientTest extends AndroidTestCase {
 		try {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
-		} catch (HttpErrorBodyException e) {
+		} catch (HttpFailureException e) {
 			assertEquals(errorCode, e.httpStatusCode);
 		}
 	}

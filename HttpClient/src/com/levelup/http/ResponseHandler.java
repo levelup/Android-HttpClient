@@ -10,23 +10,23 @@ import com.levelup.http.parser.XferTransform;
 public class ResponseHandler<OUTPUT> {
 
 	public final XferTransform<HttpResponse, OUTPUT> contentParser;
-	public final ErrorHandler errorHandler;
+	public final HttpFailureHandler httpFailureHandler;
 
 	/**
 	 * Main Constructor
 	 * @param contentParser
-	 * @param errorHandler
-	 * @see com.levelup.http.parser.ErrorHandlerViaXferTransform ErrorHandlerViaXferTransform for a common errorHandler
+	 * @param httpFailureHandler
+	 * @see com.levelup.http.parser.HttpFailureHandlerViaXferTransform HttpFailureHandlerViaXferTransform for a common httpFailureHandler
 	 */
-	public ResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser, ErrorHandler errorHandler) {
+	public ResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser, HttpFailureHandler httpFailureHandler) {
 		if (null == contentParser) throw new NullPointerException("we need a parser for the content");
-		if (null == errorHandler) throw new NullPointerException("we need an error handler, consider BaseErrorHandler");
+		if (null == httpFailureHandler) throw new NullPointerException("we need an error handler, consider BaseHttpFailureHandler");
 		this.contentParser = contentParser;
-		this.errorHandler = errorHandler;
+		this.httpFailureHandler = httpFailureHandler;
 	}
 
 	public ResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser) {
-		this(contentParser, BaseErrorHandler.INSTANCE);
+		this(contentParser, BaseHttpFailureHandler.INSTANCE);
 	}
 
 	public void onNewResponse(HttpResponse response, HttpRequest request) {

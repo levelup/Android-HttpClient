@@ -2,7 +2,6 @@ package com.levelup.http.parser;
 
 import java.io.IOException;
 
-import com.levelup.http.DataErrorException;
 import com.levelup.http.ImmutableHttpRequest;
 
 /**
@@ -18,7 +17,6 @@ public interface XferTransform<INPUT, OUTPUT> {
 	 * @return Transformed data
 	 * @throws IOException
 	 * @throws ParserException
-	 * @throws DataErrorException
 	 */
 	OUTPUT transformData(INPUT input, ImmutableHttpRequest request) throws IOException, ParserException;
 }

@@ -5,13 +5,13 @@ import android.test.AndroidTestCase;
 
 import com.google.gson.annotations.SerializedName;
 import com.levelup.http.BaseHttpRequest;
-import com.levelup.http.ErrorBody;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpDataParserException;
-import com.levelup.http.HttpErrorBodyException;
+import com.levelup.http.HttpFailure;
+import com.levelup.http.HttpFailureException;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.parser.BodyToString;
-import com.levelup.http.parser.ErrorHandlerViaXferTransform;
+import com.levelup.http.parser.HttpFailureHandlerViaXferTransform;
 
 public class BodyViaGsonTest extends AndroidTestCase {
 
@@ -51,7 +51,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 				setUrl("http://graph.facebook.com/test").
 				setResponseHandler(
 						new ResponseHandler<String>(BodyToString.INSTANCE,
-								new ErrorHandlerViaXferTransform(
+								new HttpFailureHandlerViaXferTransform(
 										new BodyViaGson<FacebookErrorData>(FacebookErrorData.class)
 								)
 						)
@@ -61,8 +61,8 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		try {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
-		} catch (HttpErrorBodyException e) {
-			ErrorBody errorException = e.getErrorBody();
+		} catch (HttpFailureException e) {
+			HttpFailure errorException = e.getHttpFailure();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
 			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
 			assertNotNull(errorData.error);
@@ -77,7 +77,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 				setUrl("http://graph.facebook.com/test").
 				setResponseHandler(
 						new ResponseHandler<String>(BodyToString.INSTANCE,
-								new ErrorHandlerViaXferTransform(testParser)
+								new HttpFailureHandlerViaXferTransform(testParser)
 						)
 				).
 				build();
@@ -85,8 +85,8 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		try {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
-		} catch (HttpErrorBodyException e) {
-			ErrorBody errorException = e.getErrorBody();
+		} catch (HttpFailureException e) {
+			HttpFailure errorException = e.getHttpFailure();
 			assertTrue(errorException.errorContent instanceof FacebookErrorData);
 			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
 			assertNotNull(errorData.error);

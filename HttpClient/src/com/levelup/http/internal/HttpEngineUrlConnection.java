@@ -153,7 +153,7 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 			return httpResponse;
 		} catch (FileNotFoundException e) {
 			try {
-				throw responseHandler.errorHandler.getHttpErrBodyException(httpResponse, this);
+				throw responseHandler.httpFailureHandler.getHttpFailureException(httpResponse, this);
 
 			} catch (ParserException ee) {
 				throw exceptionToHttpException(ee).build();
