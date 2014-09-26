@@ -1,11 +1,10 @@
 package com.levelup.http.ion.gson;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
@@ -14,7 +13,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.levelup.http.HttpClient;
@@ -51,11 +49,9 @@ public class AsyncGsonParse extends AndroidTestCase {
 	public void testGsonParser() throws Exception {
 		Gson gson = new GsonBuilder().setDateFormat(JSON_DATE_FORMAT).create();
 
-		Type listType = new TypeToken<ArrayList<AppXoid>>() {}.getType();
-
-		BodyViaGson<ArrayList<AppXoid>> parser = new BodyViaGson<ArrayList<AppXoid>>(gson, listType);
-		HttpRequestGet<ArrayList<AppXoid>> request = new HttpRequestGet(JSON_URL, new ResponseHandler<ArrayList<AppXoid>>(parser));
-		ArrayList<AppXoid> items = HttpClient.parseRequest(request);
+		BodyViaGson<List<AppXoid>> parser = BodyViaGson.asList(gson, AppXoid.class);
+		HttpRequestGet<List<AppXoid>> request = new HttpRequestGet(JSON_URL, new ResponseHandler<List<AppXoid>>(parser));
+		List<AppXoid> items = HttpClient.parseRequest(request);
 		assertNotNull(items);
 	}
 
@@ -129,9 +125,9 @@ public class AsyncGsonParse extends AndroidTestCase {
 		.setDateFormat(JSON_DATE_FORMAT)
 		.create();
 
-		BodyViaGson<ArrayList<AppXoidReader>> parser = new BodyViaGson<ArrayList<AppXoidReader>>(gson, new TypeToken<ArrayList<AppXoidReader>>(){});
-		HttpRequestGet<ArrayList<AppXoidReader>> request = new HttpRequestGet(JSON_URL, new ResponseHandler<ArrayList<AppXoidReader>>(parser));
-		ArrayList<AppXoidReader> items = HttpClient.parseRequest(request);
+		BodyViaGson<List<AppXoidReader>> parser = BodyViaGson.asList(gson, AppXoidReader.class);
+		HttpRequestGet<List<AppXoidReader>> request = new HttpRequestGet(JSON_URL, new ResponseHandler<List<AppXoidReader>>(parser));
+		List<AppXoidReader> items = HttpClient.parseRequest(request);
 		assertNotNull(items);
 	}
 }
