@@ -1,6 +1,8 @@
 package com.levelup.http.gson;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -9,7 +11,7 @@ import com.levelup.http.parser.BodyTransformChain;
 /**
  * An {@link XferTransformViaGson} class that has debug enabled for alpha/beta builds
  *
- * Created by Steve Lhomme on 26/06/2014.
+ * @author Created by Steve Lhomme on 26/06/2014.
  */
 public class BodyViaGson<T> extends BodyTransformChain<T> {
 	public BodyViaGson(TypeToken<T> typeToken) {
@@ -26,6 +28,16 @@ public class BodyViaGson<T> extends BodyTransformChain<T> {
 
 	public BodyViaGson(Gson gson, Type type) {
 		super(new XferTransformViaGson<T>(gson, type));
+	}
+
+	public static <T> BodyViaGson<List<T>> asList(Type type) {
+		TypeToken typeToken = new TypeToken<List<T>>() {};
+		return new BodyViaGson<List<T>>(typeToken);
+	}
+
+	public static <T> BodyViaGson<List<T>> asList(Gson gson, Type type) {
+		TypeToken typeToken = new TypeToken<List<T>>() {};
+		return new BodyViaGson<List<T>>(gson, typeToken);
 	}
 
 	public BodyViaGson<T> enableDebugData(boolean enable) {
