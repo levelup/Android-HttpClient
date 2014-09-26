@@ -23,7 +23,7 @@ public final class LogManager {
 	 * Helper class to redirect {@link LogManager#logger} to {@link Log}
 	 */
 	public static class LoggerDefault implements LoggerTagged {
-		private static final String tag = "PlumeHTTP";
+		private static final String tag = "STOHCA";
 		
 		public LoggerDefault() {}
 		
