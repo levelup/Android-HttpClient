@@ -3,9 +3,6 @@ package com.levelup.http;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.json.JSONObject;
-
-import com.levelup.http.parser.HttpFailureHandlerViaXferTransform;
 import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.XferTransformInputStreamString;
 import com.levelup.http.parser.XferTransformResponseInputStream;
@@ -14,8 +11,8 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
 /**
  * Created by robUx4 on 26/08/2014.
  */
-public class BaseHttpFailureHandler extends HttpFailureHandlerViaXferTransform<InputStream> {
-	public static final HttpFailureHandler INSTANCE = new BaseHttpFailureHandler();
+public class BaseHttpFailureHandler extends HttpFailureHandler<InputStream> {
+	public static final BaseHttpFailureHandler INSTANCE = new BaseHttpFailureHandler();
 
 	public static final MediaType MediaTypeJSON = MediaType.parse("application/json");
 
@@ -24,7 +21,7 @@ public class BaseHttpFailureHandler extends HttpFailureHandlerViaXferTransform<I
 	}
 
 	@Override
-	public HttpFailureException handleErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public HttpFailureException exceptionFromErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		Object errorData = null;
 		MediaType type = MediaType.parse(request.getHttpResponse().getContentType());
 		if (MediaTypeJSON.equalsType(type)) {

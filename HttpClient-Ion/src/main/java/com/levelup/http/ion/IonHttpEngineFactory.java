@@ -8,7 +8,6 @@ import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpEngineFactory;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ResponseHandler;
-import com.levelup.http.parser.HttpFailureHandlerViaXferTransform;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
@@ -77,12 +76,6 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	 * @return whether Ion will be able to parse the data and the error in its processing thread
 	 */
 	private static boolean errorCompatibleWithData(ResponseHandler<?> responseHandler) {
-		if (!(responseHandler.httpFailureHandler instanceof HttpFailureHandlerViaXferTransform)) {
-			// not possible to handle the error data with the data coming out of the data parser
-			return false;
-		}
-
-		HttpFailureHandlerViaXferTransform errorHandlerParser = (HttpFailureHandlerViaXferTransform) responseHandler.httpFailureHandler;
-		return Utils.getCommonXferTransform(responseHandler.contentParser, errorHandlerParser.errorDataParser) != null;
+		return Utils.getCommonXferTransform(responseHandler.contentParser, responseHandler.httpFailureHandler.errorDataParser) != null;
 	}
 }

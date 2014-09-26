@@ -43,7 +43,7 @@ import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
 import com.levelup.http.log.LogManager;
-import com.levelup.http.parser.HttpFailureHandlerViaXferTransform;
+import com.levelup.http.HttpFailureHandler;
 import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
@@ -135,7 +135,7 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 
 	@Override
 	protected HttpResponseIon<T> queryResponse() throws HttpException {
-		XferTransform<HttpResponse, ?> errorParser = ((HttpFailureHandlerViaXferTransform) responseHandler.httpFailureHandler).errorDataParser;
+		XferTransform<HttpResponse, ?> errorParser = responseHandler.httpFailureHandler.errorDataParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
 		ResponseFuture<Object> req = requestBuilder.as(parser);
@@ -151,19 +151,15 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 			}
 
 			if (isHttpError(ionResponse)) {
-				HttpFailureException bodyException = null;
-
-				if (responseHandler.httpFailureHandler instanceof HttpFailureHandlerViaXferTransform) {
-					Object data = response.getResult();
-					HttpFailureHandlerViaXferTransform errorHandler = (HttpFailureHandlerViaXferTransform) responseHandler.httpFailureHandler;
-					XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorHandler.errorDataParser, commonTransforms);
-					Object errorData;
-					if (null == transformToResult)
-						errorData = data;
-					else
-						errorData = transformToResult.transformData(data, this);
-					bodyException = ((HttpFailureHandlerViaXferTransform) responseHandler.httpFailureHandler).handleErrorData(errorData, this);
-				}
+				Object data = response.getResult();
+				HttpFailureHandler errorHandler = responseHandler.httpFailureHandler;
+				XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorHandler.errorDataParser, commonTransforms);
+				Object errorData;
+				if (null == transformToResult)
+					errorData = data;
+				else
+					errorData = transformToResult.transformData(data, this);
+				HttpFailureException bodyException = responseHandler.httpFailureHandler.exceptionFromErrorData(errorData, this);
 
 				if (null != bodyException) {
 					throw bodyException;

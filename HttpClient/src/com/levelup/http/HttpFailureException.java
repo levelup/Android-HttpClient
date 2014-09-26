@@ -3,7 +3,7 @@ package com.levelup.http;
 /**
  * Thrown when the server returns an HTTP error
  * <p>It contains an object corresponding the error body sent by the server.
- * This object is parsed using {@link HttpFailureHandler#getHttpFailureException(ImmutableHttpRequest) HttpFailureHandler.getHttpFailureException()}</p>
+ * This object is parsed using {@link HttpFailureHandler HttpFailureHandler}..</p>
  *
  * @author Created by robUx4 on 24/09/2014.
  */
@@ -16,7 +16,7 @@ public class HttpFailureException extends HttpException {
 	}
 
 	/**
-	 * @return The error object parsed by {@link HttpFailureHandler#getHttpFailureException(ImmutableHttpRequest) HttpFailureHandler.getHttpFailureException()}.
+	 * @return The error object parsed by {@link HttpFailureHandler HttpFailureHandler}.
 	 * May be {@code null}
 	 */
 	public Object getParsedError() {

@@ -13,10 +13,10 @@ public class ResponseHandler<OUTPUT> {
 	public final HttpFailureHandler httpFailureHandler;
 
 	/**
-	 * Main Constructor
-	 * @param contentParser
-	 * @param httpFailureHandler
-	 * @see com.levelup.http.parser.HttpFailureHandlerViaXferTransform HttpFailureHandlerViaXferTransform for a common httpFailureHandler
+	 * {@link com.levelup.http.HttpResponse} handler, turns the HTTP body into a typed object/exception
+	 * @param contentParser {@link com.levelup.http.parser.XferTransform} that will turn the body into an Object when there is no error
+	 * @param httpFailureHandler {@link com.levelup.http.HttpFailureHandler} that will wrap the body in a {@link com.levelup.http.HttpFailureException} when there is a server error
+	 * @see com.levelup.http.BaseHttpFailureHandler BaseHttpFailureHandler for a common httpFailureHandler
 	 */
 	public ResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser, HttpFailureHandler httpFailureHandler) {
 		if (null == contentParser) throw new NullPointerException("we need a parser for the content");
@@ -25,6 +25,11 @@ public class ResponseHandler<OUTPUT> {
 		this.httpFailureHandler = httpFailureHandler;
 	}
 
+	/**
+	 * {@link com.levelup.http.HttpResponse} handler, turns the HTTP body into a typed object/exception
+	 * <p>Use {@link com.levelup.http.BaseHttpFailureHandler} to parse the error data</p>
+	 * @param contentParser {@link com.levelup.http.parser.XferTransform} that will turn the body into an Object when there is no error
+	 */
 	public ResponseHandler(XferTransform<HttpResponse, OUTPUT> contentParser) {
 		this(contentParser, BaseHttpFailureHandler.INSTANCE);
 	}
