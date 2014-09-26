@@ -159,10 +159,9 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 					errorData = data;
 				else
 					errorData = transformToResult.transformData(data, this);
-				HttpFailureException bodyException = responseHandler.httpFailureHandler.exceptionFromErrorData(errorData, this);
-
-				if (null != bodyException) {
-					throw bodyException;
+				HttpFailureException failureException = responseHandler.httpFailureHandler.exceptionFromErrorData(errorData, this);
+				if (null != failureException) {
+					throw failureException;
 				}
 
 				throw new HttpFailureException.Builder(this, null).build();

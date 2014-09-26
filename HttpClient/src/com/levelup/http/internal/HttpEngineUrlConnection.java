@@ -18,6 +18,7 @@ import android.os.Build;
 import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
+import com.levelup.http.HttpFailureException;
 import com.levelup.http.HttpIOException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.log.LogManager;
@@ -153,7 +154,12 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 			return httpResponse;
 		} catch (FileNotFoundException e) {
 			try {
-				throw responseHandler.httpFailureHandler.getHttpFailureException(this);
+				HttpFailureException failureException = responseHandler.httpFailureHandler.getHttpFailureException(this);
+				if (null != failureException) {
+					throw failureException;
+				}
+
+				throw new HttpFailureException.Builder(this, null).build();
 
 			} catch (ParserException ee) {
 				throw exceptionToHttpException(ee).build();
