@@ -20,14 +20,12 @@ public class HttpFailureHandlerViaXferTransform<T> implements HttpFailureHandler
 	}
 
 	public HttpFailureException handleErrorData(T errorData, ImmutableHttpRequest request) throws IOException, ParserException {
-		HttpFailure httpFailure = new HttpFailure(errorData);
-		return new HttpFailureException.Builder(request.getHttpRequest(), request.getHttpResponse(), httpFailure)
-				.build();
+		return new HttpFailureException.Builder(request, new HttpFailure(errorData)).build();
 	}
 
 	@Override
-	public final HttpFailureException getHttpFailureException(HttpResponse httpResponse, ImmutableHttpRequest request) throws IOException, ParserException {
-		T errorData = errorDataParser.transformData(httpResponse, request);
+	public final HttpFailureException getHttpFailureException(ImmutableHttpRequest request) throws IOException, ParserException {
+		T errorData = errorDataParser.transformData(request.getHttpResponse(), request);
 		return handleErrorData(errorData, request);
 	}
 }

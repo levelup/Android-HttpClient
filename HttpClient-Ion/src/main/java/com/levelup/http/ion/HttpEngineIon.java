@@ -169,8 +169,7 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 					throw bodyException;
 				}
 
-				throw new HttpFailureException.Builder(request, httpResponse, null)
-						.build();
+				throw new HttpFailureException.Builder(this, null).build();
 			}
 
 			return ionResponse;

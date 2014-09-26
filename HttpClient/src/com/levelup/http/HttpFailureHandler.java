@@ -11,11 +11,10 @@ import com.levelup.http.parser.ParserException;
 public interface HttpFailureHandler {
 	/**
 	 * Parse the {@link com.levelup.http.HttpResponse} to extract an {@link HttpFailure}
-	 * @param httpResponse The server error response
 	 * @param request The request that created the server error
 	 * @return The {@link HttpFailureException} containing the parsed {@link HttpFailure}
 	 * @throws IOException
 	 * @throws ParserException
 	 */
-	HttpFailureException getHttpFailureException(HttpResponse httpResponse, ImmutableHttpRequest request) throws IOException, ParserException;
+	HttpFailureException getHttpFailureException(ImmutableHttpRequest request) throws IOException, ParserException;
 }

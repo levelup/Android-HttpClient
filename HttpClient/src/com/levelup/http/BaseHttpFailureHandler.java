@@ -47,7 +47,6 @@ public class BaseHttpFailureHandler extends HttpFailureHandlerViaXferTransform<I
 		} else {
 			httpFailure = new HttpFailure(errorStream);
 		}
-		return new HttpFailureException.Builder(request.getHttpRequest(), request.getHttpResponse(), httpFailure)
-				.build();
+		return new HttpFailureException.Builder(request, httpFailure).build();
 	}
 }
