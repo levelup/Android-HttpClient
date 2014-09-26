@@ -2,38 +2,38 @@ package com.levelup.http;
 
 /**
  * Thrown when the server returns an HTTP error
- * <p>It contains an {@link com.levelup.http.HttpFailure} corresponding the error body sent by the server.
+ * <p>It contains an object corresponding the error body sent by the server.
  * This object is parsed using {@link HttpFailureHandler#getHttpFailureException(ImmutableHttpRequest) HttpFailureHandler.getHttpFailureException()}</p>
  *
  * @author Created by robUx4 on 24/09/2014.
  */
 public class HttpFailureException extends HttpException {
-	private final HttpFailure httpFailure;
+	private final Object parsedError;
 
 	protected HttpFailureException(Builder builder) {
 		super(builder);
-		this.httpFailure = builder.errorData;
+		this.parsedError = builder.parsedError;
 	}
 
 	/**
 	 * @return The error object parsed by {@link HttpFailureHandler#getHttpFailureException(ImmutableHttpRequest) HttpFailureHandler.getHttpFailureException()}.
 	 * May be {@code null}
 	 */
-	public HttpFailure getHttpFailure() {
-		return httpFailure;
+	public Object getParsedError() {
+		return parsedError;
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() + " httpFailure:"+ httpFailure;
+		return super.toString() + " parsedError:"+ parsedError;
 	}
 
 	public static class Builder extends HttpException.Builder {
-		private final HttpFailure errorData;
+		private final Object parsedError;
 
-		public Builder(ImmutableHttpRequest request, HttpFailure errorData) {
+		public Builder(ImmutableHttpRequest request, Object parsedError) {
 			super(request.getHttpRequest(), request.getHttpResponse());
-			this.errorData = errorData;
+			this.parsedError = parsedError;
 		}
 
 		@Override

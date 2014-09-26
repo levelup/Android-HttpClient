@@ -10,9 +10,9 @@ import com.levelup.http.parser.ParserException;
  */
 public interface HttpFailureHandler {
 	/**
-	 * Parse the {@link com.levelup.http.HttpResponse} to extract an {@link HttpFailure}
+	 * Parse the server error {@link com.levelup.http.HttpResponse}
 	 * @param request The request that created the server error
-	 * @return The {@link HttpFailureException} containing the parsed {@link HttpFailure}
+	 * @return The {@link HttpFailureException} containing the parsed server error data
 	 * @throws IOException
 	 * @throws ParserException
 	 */

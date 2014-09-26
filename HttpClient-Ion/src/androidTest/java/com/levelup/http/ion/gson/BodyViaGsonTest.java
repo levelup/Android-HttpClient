@@ -7,7 +7,6 @@ import com.google.gson.annotations.SerializedName;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpDataParserException;
-import com.levelup.http.HttpFailure;
 import com.levelup.http.HttpFailureException;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.gson.BodyViaGson;
@@ -64,9 +63,9 @@ public class BodyViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (HttpFailureException e) {
-			HttpFailure errorException = e.getHttpFailure();
-			assertTrue(errorException.errorContent instanceof FacebookErrorData);
-			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
+			Object errorException = e.getParsedError();
+			assertTrue(errorException instanceof FacebookErrorData);
+			FacebookErrorData errorData = (FacebookErrorData) errorException;
 			assertNotNull(errorData.error);
 			assertEquals(803, errorData.error.code);
 		}
@@ -88,9 +87,9 @@ public class BodyViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (HttpFailureException e) {
-			HttpFailure errorException = e.getHttpFailure();
-			assertTrue(errorException.errorContent instanceof FacebookErrorData);
-			FacebookErrorData errorData = (FacebookErrorData) errorException.errorContent;
+			Object errorException = e.getParsedError();
+			assertTrue(errorException instanceof FacebookErrorData);
+			FacebookErrorData errorData = (FacebookErrorData) errorException;
 			assertNotNull(errorData.error);
 			assertEquals(803, errorData.error.code);
 		}

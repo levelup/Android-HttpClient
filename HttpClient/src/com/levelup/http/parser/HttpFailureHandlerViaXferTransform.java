@@ -2,9 +2,8 @@ package com.levelup.http.parser;
 
 import java.io.IOException;
 
-import com.levelup.http.HttpFailureHandler;
-import com.levelup.http.HttpFailure;
 import com.levelup.http.HttpFailureException;
+import com.levelup.http.HttpFailureHandler;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
 
@@ -20,7 +19,7 @@ public class HttpFailureHandlerViaXferTransform<T> implements HttpFailureHandler
 	}
 
 	public HttpFailureException handleErrorData(T errorData, ImmutableHttpRequest request) throws IOException, ParserException {
-		return new HttpFailureException.Builder(request, new HttpFailure(errorData)).build();
+		return new HttpFailureException.Builder(request, errorData).build();
 	}
 
 	@Override

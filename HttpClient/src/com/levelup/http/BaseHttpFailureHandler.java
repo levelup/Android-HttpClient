@@ -25,28 +25,26 @@ public class BaseHttpFailureHandler extends HttpFailureHandlerViaXferTransform<I
 
 	@Override
 	public HttpFailureException handleErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
-		HttpFailure httpFailure = null;
+		Object errorData = null;
 		MediaType type = MediaType.parse(request.getHttpResponse().getContentType());
 		if (MediaTypeJSON.equalsType(type)) {
 			try {
-				JSONObject errorData = XferTransformStringJSONObject.INSTANCE.transformData(
+				errorData = XferTransformStringJSONObject.INSTANCE.transformData(
 						XferTransformInputStreamString.INSTANCE.transformData(errorStream, request)
 						, request
 				);
-				httpFailure = new HttpFailure(errorData);
 			} finally {
 				errorStream.close();
 			}
 		} else if (null == type || "text".equals(type.type())) {
 			try {
-				String errorData = XferTransformInputStreamString.INSTANCE.transformData(errorStream, request);
-				httpFailure = new HttpFailure(errorData);
+				errorData = XferTransformInputStreamString.INSTANCE.transformData(errorStream, request);
 			} finally {
 				errorStream.close();
 			}
 		} else {
-			httpFailure = new HttpFailure(errorStream);
+			errorData = errorStream;
 		}
-		return new HttpFailureException.Builder(request, httpFailure).build();
+		return new HttpFailureException.Builder(request, errorData).build();
 	}
 }

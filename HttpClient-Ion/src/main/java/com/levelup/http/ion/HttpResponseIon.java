@@ -76,8 +76,8 @@ public class HttpResponseIon<T> implements HttpResponse {
 
 		if (response.getException() instanceof HttpFailureException) {
 			HttpFailureException exception = (HttpFailureException) response.getException();
-			if (exception.getHttpFailure()!=null && exception.getHttpFailure().errorContent instanceof InputStream)
-				return (InputStream) exception.getHttpFailure().errorContent;
+			if (exception.getParsedError() instanceof InputStream)
+				return (InputStream) exception.getParsedError();
 		}
 
 		throw new IOException("trying to read an InputStream from Ion result:"+response.getResult()+" error:"+response.getException());
