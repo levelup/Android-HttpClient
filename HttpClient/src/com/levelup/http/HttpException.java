@@ -24,6 +24,7 @@ public class HttpException extends Exception {
 	static public final int HTTP_STATUS_BAD_RANGE       = 416;
 	static public final int HTTP_STATUS_BACKOFF         = 420; // Twitter thing
 	static public final int HTTP_STATUS_RATELIMIT       = 429; // Twitter thing
+	static public final int HTTP_STATUS_SERVER_ERROR    = 500;
 	static public final int HTTP_STATUS_OVERLOADED      = 503;
 	static public final int HTTP_STATUS_GATEWAY_TIMEOUT = 504;
 	static public final int HTTP_STATUS_INTERNAL        = 506;
