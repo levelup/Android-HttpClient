@@ -8,6 +8,7 @@ import org.apache.http.impl.cookie.DateUtils;
 
 import android.text.TextUtils;
 
+import com.levelup.http.BaseResponseHandler;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ResponseHandler;
@@ -25,7 +26,7 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 
 	private long serverDelayInMilliseconds;
 
-	final ResponseHandler<InputStream> responseHandler = new ResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE) {
+	final BaseResponseHandler<InputStream> responseHandler = new BaseResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE) {
 		@Override
 		public void onNewResponse(HttpResponse response, HttpRequest request) {
 			super.onNewResponse(response, request);

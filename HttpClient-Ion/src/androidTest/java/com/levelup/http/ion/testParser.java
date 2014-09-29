@@ -10,13 +10,14 @@ import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
+import com.levelup.http.BaseResponseHandler;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.parser.ParserException;
-import com.levelup.http.ResponseHandler;
+import com.levelup.http.ServerException;
 import com.levelup.http.parser.BodyTransformChain;
+import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.XferTransform;
 
 public class testParser extends AndroidTestCase {
@@ -28,9 +29,9 @@ public class testParser extends AndroidTestCase {
 	}
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void testCustomParser() {
-		HttpRequestGet<Void> apiGet = new HttpRequestGet("http://social.appxoid.com/json/get_apps_by_pages2",
-				new ResponseHandler<Void>(
+	public void testCustomParser() throws ServerException {
+		HttpRequestGet<Void> apiGet = new HttpRequestGet<Void>("http://social.appxoid.com/json/get_apps_by_pages2",
+				new BaseResponseHandler<Void>(
 						new BodyTransformChain<Void>(new XferTransform<InputStream, Void>() {
 							@Override
 							public Void transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {

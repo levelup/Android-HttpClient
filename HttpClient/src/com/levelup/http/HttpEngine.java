@@ -5,18 +5,19 @@ import java.util.concurrent.Callable;
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */
-public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
+public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, ImmutableHttpRequest {
 	/**
 	 * Process the {@link com.levelup.http.HttpRequest} it was built with
 	 * @return The result processed by the {@link com.levelup.http.ResponseHandler}
 	 * @throws HttpException
+	 * @throws SE
 	 */
-	T call() throws HttpException;
+	T call() throws HttpException, SE;
 
 	/**
 	 * @return The {@link com.levelup.http.ResponseHandler} that will be used to parse the reponse body
 	 */
-	ResponseHandler<T> getResponseHandler();
+	ResponseHandler<T, SE> getResponseHandler();
 
 	/**
 	 * Extra header to add to the query, in addition of the ones from the source {@link com.levelup.http.HttpRequest}
@@ -33,8 +34,8 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 	 */
 	String getHeader(String name);
 
-	public static class Builder<T> {
-		private ResponseHandler<T> responseHandler;
+	public static class Builder<T, SE extends ServerException> {
+		private ResponseHandler<T,SE> responseHandler;
 		private RawHttpRequest httpRequest;
 		private HttpEngineFactory factory = HttpClient.getHttpEngineFactory();
 		private int threadStatsTag;
@@ -42,23 +43,23 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 		public Builder() {
 		}
 
-		public Builder<T> setTypedRequest(TypedHttpRequest<T> request) {
+		public Builder<T, SE> setTypedRequest(TypedHttpRequest<T, SE> request) {
 			return setRequest(request)
 					.setResponseHandler(request.getResponseHandler());
 		}
 
-		public Builder<T> setRequest(HttpRequest request) {
+		public Builder<T, SE> setRequest(HttpRequest request) {
 			if (null!=request && !(request instanceof RawHttpRequest)) throw new IllegalStateException("invalid RawRequest:"+request);
 			this.httpRequest = (RawHttpRequest) request;
 			return this;
 		}
 
-		public Builder<T> setResponseHandler(ResponseHandler<T> responseHandler) {
+		public Builder<T, SE> setResponseHandler(ResponseHandler<T, SE> responseHandler) {
 			this.responseHandler = responseHandler;
 			return this;
 		}
 
-		public Builder<T> setHttpEngineFactory(HttpEngineFactory factory) {
+		public Builder<T, SE> setHttpEngineFactory(HttpEngineFactory factory) {
 			this.factory = factory;
 			return this;
 		}
@@ -69,17 +70,17 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 		 * @return Current Builder
 		 * @see android.net.TrafficStats
 		 */
-		public Builder<T> setThreadStatsTag(int threadStatsTag) {
+		public Builder<T, SE> setThreadStatsTag(int threadStatsTag) {
 			this.threadStatsTag = threadStatsTag;
 			return this;
 		}
 
-		public HttpEngine<T> build() {
+		public HttpEngine<T, SE> build() {
 			if (null == httpRequest) throw new NullPointerException("missing a HttpRequest for the engine");
 			if (null == responseHandler) throw new NullPointerException("missing a ResponseHandler for the engine of "+httpRequest);
-			HttpEngine<T> httpEngine = factory.createEngine(this);
+			HttpEngine<T, SE> httpEngine = factory.createEngine(this);
 			if (null == httpEngine)
-				return new DummyHttpEngine<T>(this);
+				return new DummyHttpEngine<T, SE>(this);
 			return httpEngine;
 		}
 
@@ -87,7 +88,7 @@ public interface HttpEngine<T> extends Callable<T>, ImmutableHttpRequest {
 			return httpRequest;
 		}
 
-		public ResponseHandler<T> getResponseHandler() {
+		public ResponseHandler<T,SE> getResponseHandler() {
 			return responseHandler;
 		}
 

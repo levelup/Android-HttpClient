@@ -2,7 +2,6 @@ package com.levelup.http.signed.oauth1;
 
 import com.levelup.http.HttpAuthException;
 import com.levelup.http.HttpEngine;
-import com.levelup.http.HttpException;
 import com.levelup.http.signed.AbstractRequestSigner;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
@@ -44,11 +43,11 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 	}
 
 	@Override
-	public void sign(HttpEngine<?> req) throws HttpException {
+	public void sign(HttpEngine<?,?> req) throws HttpAuthException {
 		sign(req, null);
 	}
 	
-	public void sign(HttpEngine<?> req, HttpParameters oauthParams) throws HttpException {
+	public void sign(HttpEngine<?,?> req, HttpParameters oauthParams) throws HttpAuthException {
 		synchronized (mOAuthConsumer) {
 			if (null!=getOAuthUser()) {
 				mOAuthConsumer.setTokenWithSecret(getOAuthUser().getToken(), getOAuthUser().getTokenSecret());
@@ -60,7 +59,7 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 			try {
 				mOAuthConsumer.sign(req);
 			} catch (OAuthException e) {
-				HttpException.Builder builder = new HttpAuthException.Builder(req.getHttpRequest(), null);
+				HttpAuthException.Builder builder = new HttpAuthException.Builder(req.getHttpRequest(), null);
 				builder.setErrorMessage("Bad OAuth for "+getOAuthUser()+" on "+req);
 				builder.setCause(e);
 				throw builder.build();

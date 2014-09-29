@@ -13,8 +13,8 @@ public class HttpEngineFactoryFallback implements HttpEngineFactory {
 	}
 
 	@Override
-	public <T> HttpEngine<T> createEngine(HttpEngine.Builder<T> builder) {
-		HttpEngine<T> engine = mainFactory.createEngine(builder);
+	public <T, SE extends ServerException> HttpEngine<T, SE> createEngine(HttpEngine.Builder<T, SE> builder) {
+		HttpEngine<T, SE> engine = mainFactory.createEngine(builder);
 		if (null == engine || engine instanceof DummyHttpEngine)
 			return fallbackFactory.createEngine(builder);
 		return engine;

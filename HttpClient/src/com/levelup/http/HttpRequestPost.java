@@ -10,8 +10,8 @@ import com.levelup.http.body.HttpBodyParameters;
  * @author Steve Lhomme
  * @see BaseHttpRequest for a more complete API
  */
-public class HttpRequestPost<T> extends BaseHttpRequest<T> {
-	public static abstract class AbstractBuilder<T, REQ extends HttpRequestPost<T>, BUILDER extends AbstractBuilder<T,REQ,BUILDER>> extends BaseHttpRequest.AbstractBuilder<T,REQ,BUILDER> {
+public class HttpRequestPost<T> extends BaseHttpRequest<T, ServerException> {
+	public static abstract class AbstractBuilder<T, REQ extends HttpRequestPost<T>, BUILDER extends AbstractBuilder<T,REQ,BUILDER>> extends BaseHttpRequest.AbstractBuilder<T,ServerException, REQ,BUILDER> {
 		public AbstractBuilder() {
 			setHttpMethod("POST");
 		}
@@ -27,11 +27,11 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	public HttpRequestPost(String url, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
+	public HttpRequestPost(String url, HttpBodyParameters bodyParams, ResponseHandler<T,ServerException> responseHandler) {
 		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseHandler(responseHandler));
 	}
 
-	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, ResponseHandler<T> responseHandler) {
+	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, ResponseHandler<T,ServerException> responseHandler) {
 		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseHandler(responseHandler));
 	}
 

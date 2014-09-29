@@ -2,7 +2,7 @@ package com.levelup.http.parser;
 
 import org.json.JSONArray;
 
-import com.levelup.http.ResponseHandler;
+import com.levelup.http.BaseResponseHandler;
 
 /**
  * Created by robUx4 on 20/08/2014.
@@ -13,7 +13,7 @@ public final class BodyToJSONArray extends BodyTransformChain<JSONArray> {
 					.init(BodyToString.INSTANCE)
 					.addDataTransform(XferTransformStringJSONArray.INSTANCE)
 	);
-	public static final ResponseHandler<JSONArray> RESPONSE_HANDLER = new ResponseHandler<JSONArray>(INSTANCE);
+	public static final BaseResponseHandler<JSONArray> RESPONSE_HANDLER = new BaseResponseHandler<JSONArray>(INSTANCE);
 
 	private BodyToJSONArray(Builder<JSONArray> builder) {
 		super(builder);

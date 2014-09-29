@@ -3,22 +3,22 @@ package com.levelup.http;
 /**
  * Created by robUx4 on 01/09/2014.
  */
-public final class DummyHttpEngine<T> implements HttpEngine<T> {
+public final class DummyHttpEngine<T, SE extends ServerException> implements HttpEngine<T, SE> {
 	private final RawHttpRequest request;
-	private final ResponseHandler<T> responseHandler;
+	private final ResponseHandler<T, SE> responseHandler;
 
-	public DummyHttpEngine(Builder<T> builder) {
+	public DummyHttpEngine(Builder<T, SE> builder) {
 		this.request = builder.getHttpRequest();
 		this.responseHandler = builder.getResponseHandler();
 	}
 
 	@Override
-	public T call() throws HttpException {
+	public T call() throws HttpException, SE {
 		throw new HttpUnsupportedException.Builder(request, null).build();
 	}
 
 	@Override
-	public ResponseHandler<T> getResponseHandler() {
+	public ResponseHandler<T, SE> getResponseHandler() {
 		return responseHandler;
 	}
 

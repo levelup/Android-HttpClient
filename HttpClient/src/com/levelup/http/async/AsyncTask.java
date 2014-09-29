@@ -16,6 +16,7 @@ import android.os.Looper;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.ResponseHandler;
+import com.levelup.http.ServerException;
 import com.levelup.http.TypedHttpRequest;
 
 /**
@@ -31,8 +32,8 @@ public class AsyncTask<T> extends FutureTask<T> {
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public AsyncTask(TypedHttpRequest<T> request, AsyncCallback<T> callback) {
-		this(new HttpEngine.Builder<T>().setTypedRequest(request).build(), callback);
+	public <SE extends ServerException> AsyncTask(TypedHttpRequest<T,SE> request, AsyncCallback<T> callback) {
+		this(new HttpEngine.Builder<T,SE>().setTypedRequest(request).build(), callback);
 	}
 
 	public AsyncTask(Callable<T> callable, AsyncCallback<T> callback) {
@@ -122,8 +123,8 @@ public class AsyncTask<T> extends FutureTask<T> {
 		 * @param request to process asynchronously
 		 * @return Current Builder
 		 */
-		public Builder<T> setTypedRequest(TypedHttpRequest<T> request) {
-			return setHttpEngine(new HttpEngine.Builder<T>().setTypedRequest(request).build());
+		public <SE extends ServerException> Builder<T> setTypedRequest(TypedHttpRequest<T,SE> request) {
+			return setHttpEngine(new HttpEngine.Builder<T,SE>().setTypedRequest(request).build());
 		}
 
 		/**
@@ -132,8 +133,8 @@ public class AsyncTask<T> extends FutureTask<T> {
 		 * @param responseHandler to turn the body data into type {@link T}
 		 * @return Current Builder
 		 */
-		public Builder<T> setRequest(HttpRequest request, ResponseHandler<T> responseHandler) {
-			return setHttpEngine(new HttpEngine.Builder<T>().setRequest(request).setResponseHandler(responseHandler).build());
+		public <SE extends ServerException> Builder<T> setRequest(HttpRequest request, ResponseHandler<T,SE> responseHandler) {
+			return setHttpEngine(new HttpEngine.Builder<T,SE>().setRequest(request).setResponseHandler(responseHandler).build());
 		}
 
 		/**
@@ -141,7 +142,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 		 * @param httpEngine
 		 * @return Current Builder
 		 */
-		public Builder<T> setHttpEngine(HttpEngine<T> httpEngine) {
+		public <SE extends ServerException> Builder<T> setHttpEngine(HttpEngine<T,SE> httpEngine) {
 			return setCallable(httpEngine);
 		}
 

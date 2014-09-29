@@ -22,7 +22,7 @@ public final class XferTransformStringJSONObject implements XferTransform<String
 	}
 
 	@Override
-	public JSONObject transformData(String srcData, ImmutableHttpRequest request) throws IOException, ParserException {
+	public JSONObject transformData(String srcData, ImmutableHttpRequest request) throws ParserException {
 		try {
 			return new JSONObject(srcData);
 		} catch (JSONException e) {

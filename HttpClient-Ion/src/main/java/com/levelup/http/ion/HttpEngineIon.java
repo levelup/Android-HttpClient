@@ -28,9 +28,10 @@ import com.koushikdutta.ion.future.ResponseFuture;
 import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpFailureException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.HttpTimeoutException;
+import com.levelup.http.ServerException;
+import com.levelup.http.ServerErrorHandler;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.body.HttpBodyJSON;
 import com.levelup.http.body.HttpBodyMultiPart;
@@ -43,7 +44,6 @@ import com.levelup.http.ion.internal.IonHttpBodyMultiPart;
 import com.levelup.http.ion.internal.IonHttpBodyString;
 import com.levelup.http.ion.internal.IonHttpBodyUrlEncoded;
 import com.levelup.http.log.LogManager;
-import com.levelup.http.HttpFailureHandler;
 import com.levelup.http.parser.ParserException;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
@@ -60,11 +60,11 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> {
+public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEngine<T, HttpResponseIon<T>, SE> {
 	public final Builders.Any.B requestBuilder;
 	private static final String ENGINE_SIGNATURE = "Ion-1.3.8+AndroidAsync-1.3.8"; // TODO do not hardcode this
 
-	protected HttpEngineIon(Builder<T> builder, Ion ion) {
+	protected HttpEngineIon(Builder<T,SE> builder, Ion ion) {
 		super(builder);
 
 		final LoadBuilder<Builders.Any.B> ionLoadBuilder = ion.build(ion.getContext());
@@ -134,8 +134,8 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 	}
 
 	@Override
-	protected HttpResponseIon<T> queryResponse() throws HttpException {
-		XferTransform<HttpResponse, ?> errorParser = responseHandler.httpFailureHandler.errorDataParser;
+	protected HttpResponseIon<T> queryResponse() throws HttpException, SE {
+		XferTransform<HttpResponse, ?> errorParser = responseHandler.serverErrorHandler.errorDataParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
 		ResponseFuture<Object> req = requestBuilder.as(parser);
@@ -152,19 +152,14 @@ public class HttpEngineIon<T> extends AbstractHttpEngine<T, HttpResponseIon<T>> 
 
 			if (isHttpError(ionResponse)) {
 				Object data = response.getResult();
-				HttpFailureHandler errorHandler = responseHandler.httpFailureHandler;
+				ServerErrorHandler<Object, SE> errorHandler = (ServerErrorHandler<Object, SE>) responseHandler.serverErrorHandler;
 				XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorHandler.errorDataParser, commonTransforms);
 				Object errorData;
 				if (null == transformToResult)
 					errorData = data;
 				else
 					errorData = transformToResult.transformData(data, this);
-				HttpFailureException failureException = responseHandler.httpFailureHandler.exceptionFromErrorData(errorData, this);
-				if (null != failureException) {
-					throw failureException;
-				}
-
-				throw new HttpFailureException.Builder(this, null).build();
+				throw errorHandler.exceptionFromErrorData(errorData, this);
 			}
 
 			return ionResponse;

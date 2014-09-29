@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.levelup.http.Header;
 import com.levelup.http.HttpEngine;
+import com.levelup.http.ServerException;
 
 import oauth.signpost.http.HttpRequest;
 
@@ -16,9 +17,9 @@ import oauth.signpost.http.HttpRequest;
  * Wrap a {@link com.levelup.http.BaseHttpRequest HttpClient BaseHttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
  */
 public class OAuth1RequestAdapter implements HttpRequest {
-	private final HttpEngine<?> httpEngine;
+	private final HttpEngine<?,?> httpEngine;
 
-    public OAuth1RequestAdapter(HttpEngine<?> httpEngine) {
+    public OAuth1RequestAdapter(HttpEngine<?,?> httpEngine) {
 		this.httpEngine = httpEngine;
 	}
 
@@ -78,7 +79,7 @@ public class OAuth1RequestAdapter implements HttpRequest {
 	}
 
 	@Override
-	public HttpEngine<InputStream> unwrap() {
-		return (HttpEngine<InputStream>) httpEngine;
+	public HttpEngine<InputStream,ServerException> unwrap() {
+		return (HttpEngine<InputStream,ServerException>) httpEngine;
 	}
 }

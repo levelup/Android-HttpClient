@@ -8,6 +8,7 @@ import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpEngineFactory;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ResponseHandler;
+import com.levelup.http.ServerException;
 import com.levelup.http.parser.Utils;
 import com.levelup.http.parser.XferTransform;
 import com.levelup.http.parser.XferTransformChain;
@@ -44,19 +45,19 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	}
 
 	@Override
-	public <T> HttpEngine<T> createEngine(HttpEngine.Builder<T> builder) {
+	public <T, SE extends ServerException> HttpEngine<T, SE> createEngine(HttpEngine.Builder<T, SE> builder) {
 		return createEngine(builder, ion);
 	}
 
-	public <T> HttpEngine<T> createEngine(HttpEngine.Builder<T> builder, Ion ion) {
+	public <T, SE extends ServerException> HttpEngine<T,SE> createEngine(HttpEngine.Builder<T,SE> builder, Ion ion) {
 		if (!canHandleXferTransform(builder.getResponseHandler().contentParser))
-			return new DummyHttpEngine<T>(builder);
+			return new DummyHttpEngine<T,SE>(builder);
 
 		if (!errorCompatibleWithData(builder.getResponseHandler()))
 			// Ion returns the data fully parsed so if we don't have common ground to parse the data and the error data, Ion can't handle the request
-			return new DummyHttpEngine<T>(builder);
+			return new DummyHttpEngine<T,SE>(builder);
 
-		return new HttpEngineIon<T>(builder, ion);
+		return new HttpEngineIon<T,SE>(builder, ion);
 	}
 
 	private static <T> boolean canHandleXferTransform(XferTransform<HttpResponse, T> contentParser) {
@@ -75,7 +76,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	 * @param responseHandler
 	 * @return whether Ion will be able to parse the data and the error in its processing thread
 	 */
-	private static boolean errorCompatibleWithData(ResponseHandler<?> responseHandler) {
-		return Utils.getCommonXferTransform(responseHandler.contentParser, responseHandler.httpFailureHandler.errorDataParser) != null;
+	private static boolean errorCompatibleWithData(ResponseHandler<?,?> responseHandler) {
+		return Utils.getCommonXferTransform(responseHandler.contentParser, responseHandler.serverErrorHandler.errorDataParser) != null;
 	}
 }

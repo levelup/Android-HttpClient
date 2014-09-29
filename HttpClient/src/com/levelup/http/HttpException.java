@@ -12,7 +12,7 @@ import android.text.TextUtils;
 /**
  * Exception that will occur by using {@link HttpClient}
  */
-public class HttpException extends Exception {
+public class HttpException extends HttpError {
 
 	static public final int HTTP_STATUS_BAD_REQUEST     = 400;
 	static public final int HTTP_STATUS_UNAUTHORIZED    = 401;
@@ -32,22 +32,9 @@ public class HttpException extends Exception {
 
 	private static final long serialVersionUID = 4993791558983072165L;
 
-	/**
-	 * The {@link com.levelup.http.HttpRequestInfo} that generated this Exception
-	 */
-	public final HttpRequestInfo request;
-
-	/**
-	 * The {@link com.levelup.http.HttpResponse} that generated this Exception, may be {@code null}
-	 */
-	public final HttpResponse response;
-
-	/**
-	 * The HTTP status code sent by the server for this Rxception
-	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
-	 * <p>0 if we didn't receive any HTTP response for this Exception</p>
-	 */
-	public final int httpStatusCode;
+	private final HttpRequestInfo request;
+	private final HttpResponse response;
+	private final int httpStatusCode;
 
 	protected HttpException(Builder builder) {
 		super(builder.errorMessage, builder.exception);
@@ -59,6 +46,7 @@ public class HttpException extends Exception {
 	/**
 	 * @return whether this error was caused by a network or server issue
 	 */
+	@Override
 	public boolean isTemporaryFailure() {
 		return (this instanceof HttpIOException
 				|| this instanceof HttpTimeoutException
@@ -66,6 +54,22 @@ public class HttpException extends Exception {
 				|| httpStatusCode >= 500);
 	}
 
+	@Override
+	public int getStatusCode() {
+		return httpStatusCode;
+	}
+
+	@Override
+	public HttpRequestInfo getHttpRequest() {
+		return request;
+	}
+
+	@Override
+	public HttpResponse getHttpResponse() {
+		return response;
+	}
+
+	@Override
 	public List<Header> getReceivedHeaders() {
 		if (null!=response) {
 			try {

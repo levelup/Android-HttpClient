@@ -18,6 +18,6 @@ public class HttpClientOAuth1Consumer extends AbstractOAuthConsumer {
 
 	@Override
 	protected HttpRequest wrap(Object request) {
-		return new OAuth1RequestAdapter((HttpEngine<?>) request);
+		return new OAuth1RequestAdapter((HttpEngine<?,?>) request);
 	}
 }

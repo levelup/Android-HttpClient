@@ -4,15 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.levelup.http.HttpEngine;
+import com.levelup.http.ServerException;
 
 import oauth.signpost.http.HttpResponse;
 
 public class OAuth1ResponseAdapter implements HttpResponse {
 
 	private final InputStream inputStream;
-	private final HttpEngine<InputStream> engine;
+	private final HttpEngine<InputStream,ServerException> engine;
 
-	public OAuth1ResponseAdapter(HttpEngine<InputStream> engine, InputStream inputStream) {
+	public OAuth1ResponseAdapter(HttpEngine<InputStream,ServerException> engine, InputStream inputStream) {
 		this.inputStream = inputStream;
 		this.engine = engine;
 	}
@@ -33,7 +34,7 @@ public class OAuth1ResponseAdapter implements HttpResponse {
 	}
 
 	@Override
-	public HttpEngine<InputStream> unwrap() {
+	public HttpEngine<InputStream,ServerException> unwrap() {
 		return engine;
 	}
 }

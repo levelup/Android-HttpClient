@@ -54,7 +54,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> AsyncTask<T> postRequest(TypedHttpRequest<T> request, AsyncCallback<T> callback) {
+	public static <T> AsyncTask<T> postRequest(TypedHttpRequest<T,?> request, AsyncCallback<T> callback) {
 		return new AsyncTask.Builder<T>()
 				.setTypedRequest(request)
 				.setHttpAsyncCallback(callback)

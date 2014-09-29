@@ -8,6 +8,7 @@ import android.test.AndroidTestCase;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpDataParserException;
+import com.levelup.http.ServerException;
 import com.levelup.http.parser.BodyToJSONObject;
 import com.levelup.http.parser.ParserException;
 
@@ -20,7 +21,7 @@ public class BodyToJSONObjectTest extends AndroidTestCase {
 	}
 	
 	public void testBogusData() throws Exception {
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+		BaseHttpRequest<JSONObject, ServerException> request = new BaseHttpRequest.Builder<JSONObject, ServerException>().
 				setUrl("http://android.com/").
 				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();

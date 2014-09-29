@@ -29,7 +29,7 @@ public class CallableHelperTest extends AndroidTestCase {
 		private final ArrayList<String> pageLinks = new ArrayList<String>();
 	}
 
-	private static final ResponseHandler<Page> PAGE_RESPONSE_HANDLER = new ResponseHandler<Page>(
+	private static final BaseResponseHandler<Page> PAGE_RESPONSE_HANDLER = new BaseResponseHandler<Page>(
 			BodyTransformChain.Builder
 					// read the data as a String
 					.init(BodyToString.INSTANCE)
@@ -50,8 +50,8 @@ public class CallableHelperTest extends AndroidTestCase {
 					}).build()
 	);
 
-	private static HttpEngine<Page> getPageEngine(String link) {
-		return new HttpEngine.Builder<Page>()
+	private static HttpEngine<Page, ServerException> getPageEngine(String link) {
+		return new HttpEngine.Builder<Page, ServerException>()
 				.setRequest(new RawHttpRequest.Builder().setUrl(link).build())
 				.setResponseHandler(PAGE_RESPONSE_HANDLER)
 				.build();

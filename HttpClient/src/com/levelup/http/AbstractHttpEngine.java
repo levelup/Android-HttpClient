@@ -26,11 +26,11 @@ import com.levelup.http.signed.AbstractRequestSigner;
  *
  * @param <T> type of the data read from the HTTP response
  */
-public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements HttpEngine<T>, Closeable {
+public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends ServerException> implements HttpEngine<T, SE>, Closeable {
 	protected final Map<String, String> requestHeaders = new HashMap<String, String>();
 
 	protected final RawHttpRequest request;
-	protected final ResponseHandler<T> responseHandler;
+	protected final ResponseHandler<T, SE> responseHandler;
 	protected final int threadStatsTag;
 
 	protected R httpResponse;
@@ -39,7 +39,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
 	}
 
-	public AbstractHttpEngine(Builder<T> builder) {
+	public AbstractHttpEngine(Builder<T, SE> builder) {
 		this.request = builder.getHttpRequest();
 		this.responseHandler = builder.getResponseHandler();
 		this.threadStatsTag = builder.getThreadStatsTag();
@@ -58,7 +58,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	}
 
 	@Override
-	public final ResponseHandler<T> getResponseHandler() {
+	public final ResponseHandler<T,SE> getResponseHandler() {
 		return responseHandler;
 	}
 
@@ -70,9 +70,9 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	/**
 	 * Set all internal variables and sign the query if needed
 	 * <p>Usually you don't need to call this yourself, the engine will do it</p>
-	 * @throws HttpException
+	 * @throws HttpAuthException
 	 */
-	public final void prepareEngine() throws HttpException {
+	public final void prepareEngine() throws HttpAuthException {
 			/*
 			HttpResponse resp = null;
 			try {
@@ -141,7 +141,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 	 * @return
 	 * @throws HttpException
 	 */
-	protected abstract R queryResponse() throws HttpException;
+	protected abstract R queryResponse() throws HttpException, SE;
 
 	protected T responseToResult(R response) throws ParserException, IOException {
 		return responseHandler.contentParser.transformData(response, this);
@@ -149,7 +149,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse> implements Ht
 
 	@SuppressLint("NewApi")
 	@Override
-	public final T call() throws HttpException {
+	public final T call() throws HttpException, SE {
 		if (0 != threadStatsTag) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 				TrafficStats.setThreadStatsTag(threadStatsTag);

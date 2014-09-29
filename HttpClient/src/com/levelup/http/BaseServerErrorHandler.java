@@ -11,17 +11,17 @@ import com.levelup.http.parser.XferTransformStringJSONObject;
 /**
  * Created by robUx4 on 26/08/2014.
  */
-public class BaseHttpFailureHandler extends HttpFailureHandler<InputStream> {
-	public static final BaseHttpFailureHandler INSTANCE = new BaseHttpFailureHandler();
+public class BaseServerErrorHandler extends ServerErrorHandler<InputStream, ServerException> {
+	public static final BaseServerErrorHandler INSTANCE = new BaseServerErrorHandler();
 
 	public static final MediaType MediaTypeJSON = MediaType.parse("application/json");
 
-	public BaseHttpFailureHandler() {
+	public BaseServerErrorHandler() {
 		super(XferTransformResponseInputStream.INSTANCE);
 	}
 
 	@Override
-	public HttpFailureException exceptionFromErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public ServerException exceptionFromErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		Object errorData = null;
 		MediaType type = MediaType.parse(request.getHttpResponse().getContentType());
 		if (MediaTypeJSON.equalsType(type)) {
@@ -42,6 +42,6 @@ public class BaseHttpFailureHandler extends HttpFailureHandler<InputStream> {
 		} else {
 			errorData = errorStream;
 		}
-		return new HttpFailureException.Builder(request, errorData).build();
+		return new ServerException.Builder(request, errorData).build();
 	}
 }

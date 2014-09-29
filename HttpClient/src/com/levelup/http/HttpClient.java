@@ -65,8 +65,8 @@ public class HttpClient {
 		return defaultHeaders;
 	}
 
-	public static String getStringResponse(HttpRequest request) throws HttpException {
-		return new HttpEngine.Builder<String>()
+	public static String getStringResponse(HttpRequest request) throws HttpException, ServerException {
+		return new HttpEngine.Builder<String, ServerException>()
 				.setRequest(request)
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build()
@@ -80,8 +80,8 @@ public class HttpClient {
 	 * @return The parsed object or null
 	 * @throws HttpException
 	 */
-	public static <T> T parseRequest(TypedHttpRequest<T> request) throws HttpException {
-		return new HttpEngine.Builder<T>()
+	public static <T, SE extends ServerException> T parseRequest(TypedHttpRequest<T, SE> request) throws HttpException, SE {
+		return new HttpEngine.Builder<T, SE>()
 				.setTypedRequest(request)
 				.build()
 				.call();

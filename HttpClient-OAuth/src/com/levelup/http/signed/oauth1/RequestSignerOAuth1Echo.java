@@ -10,6 +10,7 @@ import com.levelup.http.HttpAuthException;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
+import com.levelup.http.ServerException;
 import com.levelup.http.parser.BodyToString;
 import com.levelup.http.signed.OAuthClientApp;
 import com.levelup.http.signed.OAuthUser;
@@ -39,7 +40,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 	}
 
     @Override
-	public void sign(HttpEngine<?> req, HttpParameters oauthParams) throws HttpException {
+	public void sign(HttpEngine<?,?> req, HttpParameters oauthParams) throws HttpAuthException {
 		HttpParameters realm = new HttpParameters();
 		if (null!=oauthParams) {
 			for (Entry<String, SortedSet<String>> entries : oauthParams.entrySet()) {
@@ -49,16 +50,16 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 		if (!TextUtils.isEmpty(verifyRealm))
 			realm.put("realm", verifyRealm);
 
-	    BaseHttpRequest<String> echoReq = new BaseHttpRequest.Builder<String>()
+	    BaseHttpRequest<String,ServerException> echoReq = new BaseHttpRequest.Builder<String,ServerException>()
 			    .setUrl(verifyUrl)
 			    .setResponseHandler(BodyToString.RESPONSE_HANDLER)
 			    .build();
-	    HttpEngine<String> engine = new HttpEngine.Builder<String>().setTypedRequest(echoReq).build();
+	    HttpEngine<String,ServerException> engine = new HttpEngine.Builder<String,ServerException>().setTypedRequest(echoReq).build();
 		super.sign(engine, realm);
 
 		String header = engine.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);
 	    if (null==header) {
-		    throw new HttpAuthException.Builder(req.getHttpRequest(), null)
+		    throw (HttpAuthException) new HttpAuthException.Builder(req.getHttpRequest(), null)
 				    .setErrorMessage("request not properly signed")
 				    .build();
 	    }

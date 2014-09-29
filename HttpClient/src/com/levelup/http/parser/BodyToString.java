@@ -1,6 +1,6 @@
 package com.levelup.http.parser;
 
-import com.levelup.http.ResponseHandler;
+import com.levelup.http.BaseResponseHandler;
 
 /**
  * Created by robUx4 on 20/08/2014.
@@ -11,7 +11,7 @@ public class BodyToString extends BodyTransformChain<String> {
 					.init(XferTransformResponseInputStream.INSTANCE)
 					.addDataTransform(XferTransformInputStreamString.INSTANCE)
 	);
-	public static final ResponseHandler<String> RESPONSE_HANDLER = new ResponseHandler<String>(INSTANCE);
+	public static final BaseResponseHandler<String> RESPONSE_HANDLER = new BaseResponseHandler<String>(INSTANCE);
 
 	private BodyToString(Builder<String> builder) {
 		super(builder);

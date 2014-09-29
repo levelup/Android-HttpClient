@@ -45,7 +45,7 @@ public class HttpClientTest extends AndroidTestCase {
 		HttpBodyMultiPart body = new HttpBodyMultiPart(1);
 		body.addStream("media", new ByteArrayInputStream(uploadData.getBytes()), uploadData.getBytes().length, "text/plain");
 
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+		BaseHttpRequest<JSONObject, ServerException> request = new BaseHttpRequest.Builder<JSONObject, ServerException>().
 				setUrl("http://httpbin.org/post?test=stream").
 				setBody(body).
 				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
@@ -73,7 +73,7 @@ public class HttpClientTest extends AndroidTestCase {
 			HttpBodyMultiPart body = new HttpBodyMultiPart(1);
 			body.addFile(fileFieldName, tempFile, "text/plain");
 
-			BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+			BaseHttpRequest<JSONObject, ServerException> request = new BaseHttpRequest.Builder<JSONObject, ServerException>().
 					setUrl("http://httpbin.org/post?test=file").
 					setBody(body).
 					setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
@@ -101,7 +101,7 @@ public class HttpClientTest extends AndroidTestCase {
 		body.add(fieldName1, uploadData1);
 		body.add(fieldName2, uploadData2);
 
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+		BaseHttpRequest<JSONObject, ServerException> request = new BaseHttpRequest.Builder<JSONObject, ServerException>().
 				setUrl("http://httpbin.org/post?test=multitext").
 				setBody(body).
 				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
@@ -125,7 +125,7 @@ public class HttpClientTest extends AndroidTestCase {
 		HttpBodyParameters body = new HttpBodyUrlEncoded();
 		body.add(fieldName, uploadData);
 
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+		BaseHttpRequest<JSONObject, ServerException> request = new BaseHttpRequest.Builder<JSONObject, ServerException>().
 				setUrl("http://httpbin.org/post?test=urlencoded").
 				setBody(body).
 				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
@@ -151,7 +151,7 @@ public class HttpClientTest extends AndroidTestCase {
 		object.put(fieldName2, uploadData2);
 
 		HttpBodyJSON body = new HttpBodyJSON(object);
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+		BaseHttpRequest<JSONObject, ServerException> request = new BaseHttpRequest.Builder<JSONObject, ServerException>().
 				setUrl("http://httpbin.org/post?test=jsonBody").
 				setBody(body).
 				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
@@ -169,7 +169,7 @@ public class HttpClientTest extends AndroidTestCase {
 	}
 
 	public void testTimeout() throws Exception {
-		BaseHttpRequest<JSONObject> request = new BaseHttpRequest.Builder<JSONObject>().
+		BaseHttpRequest<JSONObject, ServerException> request = new BaseHttpRequest.Builder<JSONObject, ServerException>().
 				setUrl("http://httpbin.org/delay/10").
 				setResponseHandler(BodyToJSONObject.RESPONSE_HANDLER).
 				build();
@@ -190,7 +190,7 @@ public class HttpClientTest extends AndroidTestCase {
 	}
 
 	private void testError(int errorCode) throws Exception {
-		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>().
+		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>().
 				setUrl("http://httpbin.org/status/" + errorCode).
 				setResponseHandler(BodyToString.RESPONSE_HANDLER).
 				build();
@@ -199,13 +199,13 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			String result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
-		} catch (HttpFailureException e) {
-			assertEquals(errorCode, e.httpStatusCode);
+		} catch (ServerException e) {
+			assertEquals(errorCode, e.getStatusCode());
 		}
 	}
 
 	private void testStreamingError(int errorCode) throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
 				.setUrl("http://httpbin.org/status/" + errorCode)
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -213,8 +213,8 @@ public class HttpClientTest extends AndroidTestCase {
 		try {
 			HttpStream result = HttpClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
-		} catch (HttpFailureException e) {
-			assertEquals(errorCode, e.httpStatusCode);
+		} catch (ServerException e) {
+			assertEquals(errorCode, e.getStatusCode());
 		}
 	}
 
@@ -232,7 +232,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testString() throws Exception {
-		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
+		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/ip")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
@@ -245,7 +245,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testMime() throws Exception {
-		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
+		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/html")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
@@ -262,7 +262,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreaming() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -300,7 +300,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingCompressed() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=5")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -339,7 +339,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingLine() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
 				.setUrl("http://httpbin.org/stream/2")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -369,7 +369,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingTimeout() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=8")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -400,7 +400,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingDisconnect() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -427,7 +427,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	@MediumTest
 	public void testStreamingDisconnectAsync() throws Exception {
-		BaseHttpRequest<HttpStream> request = new BaseHttpRequest.Builder<HttpStream>()
+		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
@@ -463,7 +463,7 @@ public class HttpClientTest extends AndroidTestCase {
 	public void testNullContext() throws Exception {
 		try {
 			HttpClient.setup(null);
-			BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
+			BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 					.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 					.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 					.build();
@@ -476,7 +476,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	public void testNullContextStreaming() throws Exception {
 		HttpClient.setup(null);
-		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
+		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
@@ -485,7 +485,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	public void testSetupContext() throws Exception {
 		HttpClient.setup(getContext());
-		BaseHttpRequest<String> request = new BaseHttpRequest.Builder<String>()
+		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();

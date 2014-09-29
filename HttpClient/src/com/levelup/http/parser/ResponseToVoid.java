@@ -2,16 +2,16 @@ package com.levelup.http.parser;
 
 import java.io.IOException;
 
+import com.levelup.http.BaseResponseHandler;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.ImmutableHttpRequest;
-import com.levelup.http.ResponseHandler;
 
 /**
  * Created by robUx4 on 29/08/2014.
  */
 public class ResponseToVoid implements XferTransform<HttpResponse,Void> {
 	public static final ResponseToVoid INSTANCE = new ResponseToVoid();
-	public static final ResponseHandler<Void> RESPONSE_HANDLER = new ResponseHandler<Void>(INSTANCE);
+	public static final BaseResponseHandler<Void> RESPONSE_HANDLER = new BaseResponseHandler<Void>(INSTANCE);
 
 	private ResponseToVoid() {
 	}

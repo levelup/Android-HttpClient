@@ -10,7 +10,7 @@ import org.apache.http.protocol.HTTP;
 import android.text.TextUtils;
 
 import com.koushikdutta.ion.Response;
-import com.levelup.http.HttpFailureException;
+import com.levelup.http.ServerException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.parser.XferTransform;
 
@@ -74,8 +74,8 @@ public class HttpResponseIon<T> implements HttpResponse {
 		if (response.getResult() instanceof InputStream)
 			return (InputStream) response.getResult();
 
-		if (response.getException() instanceof HttpFailureException) {
-			HttpFailureException exception = (HttpFailureException) response.getException();
+		if (response.getException() instanceof ServerException) {
+			ServerException exception = (ServerException) response.getException();
 			if (exception.getParsedError() instanceof InputStream)
 				return (InputStream) exception.getParsedError();
 		}

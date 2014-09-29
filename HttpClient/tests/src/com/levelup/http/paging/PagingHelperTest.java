@@ -9,10 +9,12 @@ import java.util.concurrent.TimeUnit;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
+import com.levelup.http.BaseResponseHandler;
 import com.levelup.http.HttpClient;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ResponseHandler;
+import com.levelup.http.ServerException;
 import com.levelup.http.async.BaseAsyncCallback;
 import com.levelup.http.parser.BodyToString;
 import com.levelup.http.parser.BodyTransformChain;
@@ -34,7 +36,7 @@ public class PagingHelperTest extends AndroidTestCase {
 		private final ArrayList<String> pageLinks = new ArrayList<String>();
 	}
 
-	private static final ResponseHandler<Page> PAGE_RESPONSE_HANDLER = new ResponseHandler<Page>(
+	private static final BaseResponseHandler<Page> PAGE_RESPONSE_HANDLER = new BaseResponseHandler<Page>(
 			BodyTransformChain.Builder
 					// read the data as a String
 					.init(BodyToString.INSTANCE)
@@ -55,8 +57,8 @@ public class PagingHelperTest extends AndroidTestCase {
 					}).build()
 	);
 
-	private static HttpEngine<Page> getPageEngine(String link) {
-		return new HttpEngine.Builder<Page>()
+	private static HttpEngine<Page,ServerException> getPageEngine(String link) {
+		return new HttpEngine.Builder<Page,ServerException>()
 				.setRequest(new RawHttpRequest.Builder().setUrl(link).build())
 				.setResponseHandler(PAGE_RESPONSE_HANDLER)
 				.build();
@@ -90,7 +92,7 @@ public class PagingHelperTest extends AndroidTestCase {
 	}
 
 	public void testListPagesAsync() throws Exception {
-		HttpEngine<Page> initialRequest = getPageEngine("http://httpbin.org/links/3/0");
+		HttpEngine<Page,ServerException> initialRequest = getPageEngine("http://httpbin.org/links/3/0");
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		PagingHelper.readPagesAsync(initialRequest,

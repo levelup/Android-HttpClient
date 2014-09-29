@@ -8,8 +8,8 @@ import android.net.Uri;
  * @author Steve Lhomme
  * @see BaseHttpRequest for a more complete API
  */
-public class HttpRequestGet<T> extends BaseHttpRequest<T> {
-	public static abstract class AbstractBuilder<T, REQ extends HttpRequestGet<T>, BUILDER extends AbstractBuilder<T,REQ,BUILDER>> extends BaseHttpRequest.AbstractBuilder<T,REQ,BUILDER> {
+public class HttpRequestGet<T> extends BaseHttpRequest<T, ServerException> {
+	public static abstract class AbstractBuilder<T, REQ extends HttpRequestGet<T>, BUILDER extends AbstractBuilder<T,REQ,BUILDER>> extends BaseHttpRequest.AbstractBuilder<T,ServerException,REQ,BUILDER> {
 	}
 
 	public static abstract class ChildBuilder<T, REQ extends HttpRequestGet<T>> extends AbstractBuilder<T, REQ, ChildBuilder<T, REQ>> {
@@ -22,15 +22,15 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T> {
 		}
 	}
 
-	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, ResponseHandler<T> responseHandler) {
+	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, ResponseHandler<T, ServerException> responseHandler) {
 		this(new Builder<T>().setUrl(baseUrl, uriParams).setResponseHandler(responseHandler));
 	}
 
-	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, ResponseHandler<T> responseHandler) {
+	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, ResponseHandler<T, ServerException> responseHandler) {
 		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).setResponseHandler(responseHandler));
 	}
 
-	public HttpRequestGet(String url, ResponseHandler<T> responseHandler) {
+	public HttpRequestGet(String url, ResponseHandler<T, ServerException> responseHandler) {
 		this(new Builder<T>().setUrl(url).setResponseHandler(responseHandler));
 	}
 

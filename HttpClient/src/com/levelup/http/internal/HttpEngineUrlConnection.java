@@ -18,7 +18,7 @@ import android.os.Build;
 import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.HttpConfig;
 import com.levelup.http.HttpException;
-import com.levelup.http.HttpFailureException;
+import com.levelup.http.ServerException;
 import com.levelup.http.HttpIOException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.log.LogManager;
@@ -32,11 +32,11 @@ import com.levelup.http.parser.ParserException;
  * @see com.levelup.http.HttpRequestGet for a more simple API
  * @see com.levelup.http.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpResponseUrlConnection> {
+public class HttpEngineUrlConnection<T, SE extends ServerException> extends AbstractHttpEngine<T,HttpResponseUrlConnection, SE> {
 	final HttpURLConnection urlConnection;
 	private static final String ENGINE_SIGNATURE = null; // TODO we could give the OS version
 
-	public HttpEngineUrlConnection(Builder<T> builder) {
+	public HttpEngineUrlConnection(Builder<T, SE> builder) {
 		super(builder);
 
 		try {
@@ -94,7 +94,7 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 	}
 
 	@Override
-	protected HttpResponseUrlConnection queryResponse() throws HttpException {
+	protected HttpResponseUrlConnection queryResponse() throws HttpException, SE {
 		try {
 			final LoggerTagged logger = request.getLogger();
 			if (null != logger) {
@@ -154,12 +154,7 @@ public class HttpEngineUrlConnection<T> extends AbstractHttpEngine<T,HttpRespons
 			return httpResponse;
 		} catch (FileNotFoundException e) {
 			try {
-				HttpFailureException failureException = responseHandler.httpFailureHandler.getHttpFailureException(this);
-				if (null != failureException) {
-					throw failureException;
-				}
-
-				throw new HttpFailureException.Builder(this, null).build();
+				throw responseHandler.serverErrorHandler.getServerErrorException(this);
 
 			} catch (ParserException ee) {
 				throw exceptionToHttpException(ee).build();
