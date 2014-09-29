@@ -31,7 +31,6 @@ import com.levelup.http.HttpException;
 import com.levelup.http.HttpResponse;
 import com.levelup.http.HttpTimeoutException;
 import com.levelup.http.ServerException;
-import com.levelup.http.ServerErrorHandler;
 import com.levelup.http.UploadProgressListener;
 import com.levelup.http.body.HttpBodyJSON;
 import com.levelup.http.body.HttpBodyMultiPart;
@@ -135,7 +134,7 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 
 	@Override
 	protected HttpResponseIon<T> queryResponse() throws HttpException, SE {
-		XferTransform<HttpResponse, ?> errorParser = responseHandler.serverErrorHandler.errorDataParser;
+		XferTransform<HttpResponse, SE> errorParser = responseHandler.errorParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);
 		ResponseFuture<Object> req = requestBuilder.as(parser);
@@ -152,14 +151,13 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 
 			if (isHttpError(ionResponse)) {
 				Object data = response.getResult();
-				ServerErrorHandler<Object, SE> errorHandler = (ServerErrorHandler<Object, SE>) responseHandler.serverErrorHandler;
-				XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorHandler.errorDataParser, commonTransforms);
-				Object errorData;
+				XferTransform<Object, Object> transformToResult = Utils.skipCommonTransforms(errorParser, commonTransforms);
+				SE errorData;
 				if (null == transformToResult)
-					errorData = data;
+					errorData = (SE) data;
 				else
-					errorData = transformToResult.transformData(data, this);
-				throw errorHandler.exceptionFromErrorData(errorData, this);
+					errorData = (SE) transformToResult.transformData(data, this);
+				throw errorData;
 			}
 
 			return ionResponse;

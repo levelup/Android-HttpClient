@@ -1,27 +1,25 @@
-package com.levelup.http;
+package com.levelup.http.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.levelup.http.parser.ParserException;
-import com.levelup.http.parser.XferTransformInputStreamString;
-import com.levelup.http.parser.XferTransformResponseInputStream;
-import com.levelup.http.parser.XferTransformStringJSONObject;
+import com.levelup.http.ImmutableHttpRequest;
+import com.levelup.http.MediaType;
+import com.levelup.http.ServerException;
 
 /**
- * Created by robUx4 on 26/08/2014.
+ * Created by robUx4 on 29/09/2014.
  */
-public class BaseServerErrorHandler extends ServerErrorHandler<InputStream, ServerException> {
-	public static final BaseServerErrorHandler INSTANCE = new BaseServerErrorHandler();
+public class XferTransformInputStreamServerException implements XferTransform<InputStream, ServerException> {
+	public static final XferTransformInputStreamServerException INSTANCE = new XferTransformInputStreamServerException();
 
 	public static final MediaType MediaTypeJSON = MediaType.parse("application/json");
 
-	public BaseServerErrorHandler() {
-		super(XferTransformResponseInputStream.INSTANCE);
+	private XferTransformInputStreamServerException() {
 	}
 
 	@Override
-	public ServerException exceptionFromErrorData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
+	public ServerException transformData(InputStream errorStream, ImmutableHttpRequest request) throws IOException, ParserException {
 		Object errorData = null;
 		MediaType type = MediaType.parse(request.getHttpResponse().getContentType());
 		if (MediaTypeJSON.equalsType(type)) {

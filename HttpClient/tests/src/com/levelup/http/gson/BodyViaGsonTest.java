@@ -11,8 +11,9 @@ import com.levelup.http.HttpDataParserException;
 import com.levelup.http.ImmutableHttpRequest;
 import com.levelup.http.ResponseHandler;
 import com.levelup.http.ServerException;
-import com.levelup.http.ServerExceptionFactory;
 import com.levelup.http.parser.BodyToString;
+import com.levelup.http.parser.BodyTransformChain;
+import com.levelup.http.parser.XferTransform;
 
 public class BodyViaGsonTest extends AndroidTestCase {
 
@@ -66,9 +67,9 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		}
 	}
 
-	private static final ServerExceptionFactory<FacebookErrorData, FacebookException> exceptionFactory = new ServerExceptionFactory<FacebookErrorData, FacebookException>() {
+	private static final XferTransform<FacebookErrorData, FacebookException> exceptionParser = new XferTransform<FacebookErrorData, FacebookException>() {
 		@Override
-		public FacebookException createException(ImmutableHttpRequest request, FacebookErrorData facebookErrorData) {
+		public FacebookException transformData(FacebookErrorData facebookErrorData, ImmutableHttpRequest request) {
 			return new FacebookException.Builder(request, facebookErrorData).build();
 		}
 	};
@@ -77,7 +78,11 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		BaseHttpRequest<String, FacebookException> request = new BaseHttpRequest.Builder<String, FacebookException>().
 				setUrl("http://graph.facebook.com/test").
 				setResponseHandler(
-						new ResponseHandler<String, FacebookException>(BodyToString.INSTANCE, new BodyViaGson<FacebookErrorData>(FacebookErrorData.class), exceptionFactory)
+						new ResponseHandler<String, FacebookException>(BodyToString.INSTANCE,
+								BodyTransformChain.Builder.init(new BodyViaGson<FacebookErrorData>(FacebookErrorData.class))
+										.addDataTransform(exceptionParser)
+										.build()
+						)
 				).
 				build();
 
@@ -99,7 +104,11 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		BaseHttpRequest<String, FacebookException> request = new BaseHttpRequest.Builder<String, FacebookException>().
 				setUrl("http://graph.facebook.com/test").
 				setResponseHandler(
-						new ResponseHandler<String, FacebookException>(BodyToString.INSTANCE, new BodyViaGson<FacebookErrorData>(FacebookErrorData.class), exceptionFactory)
+						new ResponseHandler<String, FacebookException>(BodyToString.INSTANCE,
+								BodyTransformChain.Builder.init(new BodyViaGson<FacebookErrorData>(FacebookErrorData.class))
+										.addDataTransform(exceptionParser)
+										.build()
+						)
 				).
 				build();
 

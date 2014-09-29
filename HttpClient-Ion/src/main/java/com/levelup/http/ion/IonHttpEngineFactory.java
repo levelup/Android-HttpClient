@@ -77,6 +77,6 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	 * @return whether Ion will be able to parse the data and the error in its processing thread
 	 */
 	private static boolean errorCompatibleWithData(ResponseHandler<?,?> responseHandler) {
-		return Utils.getCommonXferTransform(responseHandler.contentParser, responseHandler.serverErrorHandler.errorDataParser) != null;
+		return Utils.getCommonXferTransform(responseHandler.contentParser, responseHandler.errorParser) != null;
 	}
 }

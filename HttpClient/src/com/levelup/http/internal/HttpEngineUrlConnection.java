@@ -154,7 +154,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 			return httpResponse;
 		} catch (FileNotFoundException e) {
 			try {
-				throw responseHandler.serverErrorHandler.getServerErrorException(this);
+				throw responseHandler.errorParser.transformData(httpResponse, this);
 
 			} catch (ParserException ee) {
 				throw exceptionToHttpException(ee).build();
