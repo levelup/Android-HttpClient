@@ -49,28 +49,15 @@ public class BodyViaGsonTest extends AndroidTestCase {
 	}
 
 	private static class FacebookException extends ServerException {
-
-		protected FacebookException(Builder builder) {
-			super(builder);
-		}
-
-		private static class Builder extends ServerException.Builder {
-
-			public Builder(ImmutableHttpRequest request, Object parsedError) {
-				super(request, parsedError);
-			}
-
-			@Override
-			public FacebookException build() {
-				return new FacebookException(this);
-			}
+		protected FacebookException(ImmutableHttpRequest request, FacebookErrorData facebookErrorData) {
+			super(request, facebookErrorData);
 		}
 	}
 
 	private static final XferTransform<FacebookErrorData, FacebookException> exceptionParser = new XferTransform<FacebookErrorData, FacebookException>() {
 		@Override
 		public FacebookException transformData(FacebookErrorData facebookErrorData, ImmutableHttpRequest request) {
-			return new FacebookException.Builder(request, facebookErrorData).build();
+			return new FacebookException(request, facebookErrorData);
 		}
 	};
 

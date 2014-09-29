@@ -1,5 +1,6 @@
 package com.levelup.http;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -34,4 +35,23 @@ public abstract class HttpError extends Exception {
 	public abstract boolean isTemporaryFailure();
 
 	public abstract List<Header> getReceivedHeaders();
+
+	/**
+	 * Get the HTTP status code for this Request exception
+	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
+	 * @return 0 if we didn't receive any HTTP response
+	 */
+	protected static int getHttpStatusCode(HttpResponse response) {
+		if (null!= response) {
+			try {
+				return response.getResponseCode();
+			} catch (IllegalStateException e) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+			} catch (NullPointerException ignored) {
+				// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
+			} catch (IOException e) {
+			}
+		}
+		return 0;
+	}
 }

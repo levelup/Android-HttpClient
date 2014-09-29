@@ -38,7 +38,7 @@ public class HttpException extends HttpError {
 
 	protected HttpException(Builder builder) {
 		super(builder.errorMessage, builder.exception);
-		this.httpStatusCode = builder.getHttpStatusCode();
+		this.httpStatusCode = getHttpStatusCode(builder.response);
 		this.request = builder.httpRequest;
 		this.response = builder.response;
 	}
@@ -176,25 +176,6 @@ public class HttpException extends HttpError {
 
 		public Throwable getCause() {
 			return exception;
-		}
-
-		/**
-		 * Get the HTTP status code for this Request exception
-		 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
-		 * @return 0 if we didn't receive any HTTP response
-		 */
-		public int getHttpStatusCode() {
-			if (null!= response) {
-				try {
-					return response.getResponseCode();
-				} catch (IllegalStateException e) {
-					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-				} catch (NullPointerException ignored) {
-					// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
-				} catch (IOException e) {
-				}
-			}
-			return 0;
 		}
 
 		public HttpException build() {

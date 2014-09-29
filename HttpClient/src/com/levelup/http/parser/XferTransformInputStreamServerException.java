@@ -40,6 +40,6 @@ public class XferTransformInputStreamServerException implements XferTransform<In
 		} else {
 			errorData = errorStream;
 		}
-		return new ServerException.Builder(request, errorData).build();
+		return new ServerException(request, errorData);
 	}
 }

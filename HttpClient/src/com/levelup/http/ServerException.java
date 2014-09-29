@@ -1,6 +1,5 @@
 package com.levelup.http;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Map;
 /**
  * Thrown when the server returns an HTTP error
  * <p>It contains an object corresponding the error body sent by the server.
- * This object is parsed using {@link ServerErrorHandler ServerErrorHandler}..</p>
  *
  * @author Created by robUx4 on 24/09/2014.
  */
@@ -19,11 +17,11 @@ public class ServerException extends HttpError {
 	private final HttpResponse response;
 	private final HttpRequestInfo request;
 
-	protected ServerException(Builder builder) {
-		this.parsedError = builder.parsedError;
-		this.httpStatusCode = builder.getHttpStatusCode();
-		this.response = builder.response;
-		this.request = builder.request;
+	public ServerException(ImmutableHttpRequest request, Object parsedError) {
+		this.parsedError = parsedError;
+		this.httpStatusCode = getHttpStatusCode(request.getHttpResponse());
+		this.response = request.getHttpResponse();
+		this.request = request.getHttpRequest();
 	}
 
 	/**
@@ -84,38 +82,4 @@ public class ServerException extends HttpError {
 		return response;
 	}
 
-	public static class Builder {
-		private final Object parsedError;
-		private final HttpResponse response;
-		private final HttpRequestInfo request;
-
-		public Builder(ImmutableHttpRequest request, Object parsedError) {
-			this.parsedError = parsedError;
-			this.response = request.getHttpResponse();
-			this.request = request.getHttpRequest();
-		}
-
-		/**
-		 * Get the HTTP status code for this Request exception
-		 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
-		 * @return 0 if we didn't receive any HTTP response
-		 */
-		public int getHttpStatusCode() {
-			if (null!= response) {
-				try {
-					return response.getResponseCode();
-				} catch (IllegalStateException e) {
-					// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-				} catch (NullPointerException ignored) {
-					// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
-				} catch (IOException e) {
-				}
-			}
-			return 0;
-		}
-
-		public ServerException build() {
-			return new ServerException(this);
-		}
-	}
 }
