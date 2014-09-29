@@ -2,6 +2,8 @@ package com.levelup.http;
 
 import android.net.Uri;
 
+import com.levelup.http.parser.XferTransform;
+
 /**
  * Basic HTTP GET request to use with {@link HttpClient}
  * 
@@ -22,16 +24,16 @@ public class HttpRequestGet<T> extends BaseHttpRequest<T, ServerException> {
 		}
 	}
 
-	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, ResponseHandler<T, ServerException> responseHandler) {
-		this(new Builder<T>().setUrl(baseUrl, uriParams).setResponseHandler(responseHandler));
+	public HttpRequestGet(String baseUrl, HttpUriParameters uriParams, XferTransform<HttpResponse, T> responseParser) {
+		this(new Builder<T>().setUrl(baseUrl, uriParams).setResponseHandler(new BaseResponseHandler<T>(responseParser)));
 	}
 
-	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, ResponseHandler<T, ServerException> responseHandler) {
-		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).setResponseHandler(responseHandler));
+	public HttpRequestGet(Uri baseUri, HttpUriParameters uriParams, XferTransform<HttpResponse, T> responseParser) {
+		this(new Builder<T>().setUrl(baseUri.toString(), uriParams).setResponseHandler(new BaseResponseHandler<T>(responseParser)));
 	}
 
-	public HttpRequestGet(String url, ResponseHandler<T, ServerException> responseHandler) {
-		this(new Builder<T>().setUrl(url).setResponseHandler(responseHandler));
+	public HttpRequestGet(String url, XferTransform<HttpResponse, T> responseParser) {
+		this(new Builder<T>().setUrl(url).setResponseHandler(new BaseResponseHandler<T>(responseParser)));
 	}
 
 	protected HttpRequestGet(AbstractBuilder<T,?,?> builder) {

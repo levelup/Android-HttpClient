@@ -1,11 +1,9 @@
 package com.levelup.http.ion.async;
 
-import java.io.IOException;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
@@ -13,7 +11,6 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequestGet;
-import com.levelup.http.HttpTimeoutException;
 import com.levelup.http.async.AsyncHttpClient;
 import com.levelup.http.async.AsyncTask;
 import com.levelup.http.async.BaseAsyncCallback;
@@ -32,7 +29,7 @@ public class AsyncClientTest extends AndroidTestCase {
 	// TODO test with streaming connection with SPDY
 	// TODO test with long POST
 
-	private static final HttpRequestGet<String> BASIC_REQUEST = new HttpRequestGet(BASIC_URL, BodyToString.RESPONSE_HANDLER);
+	private static final HttpRequestGet<String> BASIC_REQUEST = new HttpRequestGet(BASIC_URL, BodyToString.INSTANCE);
 
 	@Override
 	public void setContext(Context context) {
@@ -106,7 +103,7 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testCancelShortHttps() {
-		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL_HTTPS, BodyToString.RESPONSE_HANDLER);
+		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL_HTTPS, BodyToString.INSTANCE);
 		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
@@ -123,7 +120,7 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testCancelLong() {
-		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL, BodyToString.RESPONSE_HANDLER);
+		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL, BodyToString.INSTANCE);
 		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
@@ -144,7 +141,7 @@ public class AsyncClientTest extends AndroidTestCase {
 	}
 
 	public void testCancelLongHttps() {
-		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL_HTTPS, BodyToString.RESPONSE_HANDLER);
+		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL_HTTPS, BodyToString.INSTANCE);
 		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);

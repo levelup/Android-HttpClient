@@ -21,24 +21,23 @@ public class testParser extends AndroidTestCase {
 		super.setContext(context);
 		HttpClient.setup(context);
 	}
-	
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void testCustomParser() throws ServerException {
 		HttpRequestGet<Void> apiGet = new HttpRequestGet<Void>("http://social.appxoid.com/json/get_apps_by_pages2",
-				new BaseResponseHandler<Void>(
-						new BodyTransformChain<Void>(new XferTransform<InputStream, Void>() {
-							@Override
-							public Void transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
-								// Process your InputStream
-								JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
-								try {
-									return readMessagesArray(reader);
-								} finally {
-									reader.close();
-								}
-							}
-						})
-				));
+				new BodyTransformChain<Void>(new XferTransform<InputStream, Void>() {
+					@Override
+					public Void transformData(InputStream inputStream, ImmutableHttpRequest request) throws IOException, ParserException {
+						// Process your InputStream
+						JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
+						try {
+							return readMessagesArray(reader);
+						} finally {
+							reader.close();
+						}
+					}
+				})
+		);
 
 		try {
 			Void parsed = HttpClient.parseRequest(apiGet);

@@ -3,6 +3,7 @@ package com.levelup.http;
 import android.net.Uri;
 
 import com.levelup.http.body.HttpBodyParameters;
+import com.levelup.http.parser.XferTransform;
 
 /**
  * Basic HTTP POST request to use with {@link HttpClient}
@@ -27,12 +28,12 @@ public class HttpRequestPost<T> extends BaseHttpRequest<T, ServerException> {
 		}
 	}
 
-	public HttpRequestPost(String url, HttpBodyParameters bodyParams, ResponseHandler<T,ServerException> responseHandler) {
-		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseHandler(responseHandler));
+	public HttpRequestPost(String url, HttpBodyParameters bodyParams, XferTransform<HttpResponse, T> responseParser) {
+		this(new Builder<T>().setBody(bodyParams).setUrl(url).setResponseHandler(new BaseResponseHandler<T>(responseParser)));
 	}
 
-	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, ResponseHandler<T,ServerException> responseHandler) {
-		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseHandler(responseHandler));
+	public HttpRequestPost(Uri uri, HttpBodyParameters bodyParams, XferTransform<HttpResponse, T> responseParser) {
+		this(new Builder<T>().setBody(bodyParams).setUri(uri).setResponseHandler(new BaseResponseHandler<T>(responseParser)));
 	}
 
 	protected HttpRequestPost(AbstractBuilder<T,?,?> builder) {
