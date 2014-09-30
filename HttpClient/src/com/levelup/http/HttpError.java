@@ -3,6 +3,8 @@ package com.levelup.http;
 import java.io.IOException;
 import java.util.List;
 
+import android.support.annotation.Nullable;
+
 /**
  * Created by robUx4 on 29/09/2014.
  */
@@ -30,6 +32,7 @@ public abstract class HttpError extends Exception {
 	/**
 	 * The {@link com.levelup.http.HttpResponse} that generated this Exception, may be {@code null}
 	 */
+	@Nullable
 	public abstract HttpResponse getHttpResponse();
 
 	public abstract boolean isTemporaryFailure();

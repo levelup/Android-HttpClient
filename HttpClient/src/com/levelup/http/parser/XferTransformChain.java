@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.support.annotation.NonNull;
+
 import com.levelup.http.ImmutableHttpRequest;
 
 /**
@@ -60,7 +62,7 @@ public class XferTransformChain<INPUT, OUTPUT> implements XferTransform<INPUT, O
 		this.transforms = builder.transforms.toArray(new XferTransform[builder.transforms.size()]);
 	}
 
-	private XferTransformChain(XferTransform[] transforms) {
+	private XferTransformChain(@NonNull XferTransform[] transforms) {
 		if (null==transforms) throw new NullPointerException();
 		this.transforms = transforms;
 	}

@@ -2,6 +2,8 @@ package com.levelup.http;
 
 import java.util.concurrent.Callable;
 
+import android.support.annotation.NonNull;
+
 /**
  * Created by Steve Lhomme on 14/07/2014.
  */
@@ -15,8 +17,9 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 	T call() throws HttpException, SE;
 
 	/**
-	 * @return The {@link com.levelup.http.ResponseHandler} that will be used to parse the reponse body
+	 * @return The {@link com.levelup.http.ResponseHandler} that will be used to parse the response body
 	 */
+	@NonNull
 	ResponseHandler<T, SE> getResponseHandler();
 
 	/**
@@ -48,13 +51,13 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 					.setResponseHandler(request.getResponseHandler());
 		}
 
-		public Builder<T, SE> setRequest(HttpRequest request) {
+		public Builder<T, SE> setRequest(@NonNull HttpRequest request) {
 			if (null!=request && !(request instanceof RawHttpRequest)) throw new IllegalStateException("invalid RawRequest:"+request);
 			this.httpRequest = (RawHttpRequest) request;
 			return this;
 		}
 
-		public Builder<T, SE> setResponseHandler(ResponseHandler<T, SE> responseHandler) {
+		public Builder<T, SE> setResponseHandler(@NonNull ResponseHandler<T, SE> responseHandler) {
 			this.responseHandler = responseHandler;
 			return this;
 		}
@@ -66,7 +69,7 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 
 		/**
 		 * Set a tag to mark the query processed in this thread as belonging to a certain class of requests
-		 * @param threadStatsTag the tag for the engine when it will run, {@code null} by default
+		 * @param threadStatsTag the tag for the engine when it will run
 		 * @return Current Builder
 		 * @see android.net.TrafficStats
 		 */

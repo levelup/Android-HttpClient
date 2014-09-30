@@ -1,6 +1,8 @@
 package com.levelup.http;
 
 
+import android.support.annotation.NonNull;
+
 /**
  * Holds parameters passed to the HTTP query
  */
@@ -10,26 +12,26 @@ public interface HttpParameters {
 	 * @param name Name of the parameter
 	 * @param value Value of the parameter
 	 */
-	void add(String name, String value);
+	void add(@NonNull String name, String value);
 
 	/**
 	 * Add a boolean parameter for the HTTP query
 	 * @param name Name of the parameter
 	 * @param value Value of the parameter
 	 */
-	void add(String name, boolean value);
+	void add(@NonNull String name, boolean value);
 
 	/**
 	 * Add an int parameter for the HTTP query
 	 * @param name Name of the parameter
 	 * @param value Value of the parameter
 	 */
-	void add(String name, int value);
+	void add(@NonNull String name, int value);
 
 	/**
 	 * Add a long parameter for the HTTP query
 	 * @param name Name of the parameter
 	 * @param value Value of the parameter
 	 */
-	void add(String name, long value);
+	void add(@NonNull String name, long value);
 }

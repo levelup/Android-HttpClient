@@ -1,6 +1,7 @@
 package com.levelup.http;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import com.levelup.http.body.HttpBodyParameters;
 import com.levelup.http.signed.RequestSigner;
@@ -23,6 +24,7 @@ public interface HttpRequestInfo {
 	/**
 	 * Get the body for this request, or {@code null} if there's no body in the request
 	 */
+	@Nullable
 	HttpBodyParameters getBodyParameters();
 
 	/**
@@ -30,6 +32,7 @@ public interface HttpRequestInfo {
 	 * @param name Name of the header
 	 * @return The value of the header or {@code null} if it is not set
 	 */
+	@Nullable
 	String getHeader(String name);
 
 	/**

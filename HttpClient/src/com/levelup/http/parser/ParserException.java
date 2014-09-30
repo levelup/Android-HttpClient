@@ -1,5 +1,7 @@
 package com.levelup.http.parser;
 
+import android.support.annotation.Nullable;
+
 /**
  * Runtime Exception that occurs when data parsing with {@link com.levelup.http.HttpResponse} fails
  */
@@ -16,6 +18,7 @@ public class ParserException extends Exception {
 	 * Get the source data that created the parsing error
 	 * @return {@code null} if the data was not available
 	 */
+	@Nullable
 	public String getSourceData() {
 		return sourceData;
 	}

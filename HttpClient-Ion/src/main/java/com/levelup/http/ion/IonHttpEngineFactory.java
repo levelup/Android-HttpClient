@@ -1,6 +1,7 @@
 package com.levelup.http.ion;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.koushikdutta.ion.Ion;
 import com.levelup.http.DummyHttpEngine;
@@ -30,7 +31,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 		return INSTANCE;
 	}
 
-	private IonHttpEngineFactory(Context context) {
+	private IonHttpEngineFactory(@NonNull Context context) {
 		if (context == null) {
 			throw new NullPointerException("Ion HTTP request with no Context");
 		}

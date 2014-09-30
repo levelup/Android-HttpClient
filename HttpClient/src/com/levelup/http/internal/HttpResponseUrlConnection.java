@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
+import android.support.annotation.NonNull;
+
 import com.levelup.http.AbstractHttpEngine;
 import com.levelup.http.HttpResponse;
 
@@ -21,7 +23,7 @@ public class HttpResponseUrlConnection implements HttpResponse {
 	private InputStream inputStream;
 	private InputStream errorStream;
 
-	public HttpResponseUrlConnection(HttpEngineUrlConnection request) {
+	public HttpResponseUrlConnection(@NonNull HttpEngineUrlConnection request) {
 		if (null == request) throw new NullPointerException();
 		if (null == request.urlConnection) throw new NullPointerException();
 		this.response = request.urlConnection;

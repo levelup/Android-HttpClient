@@ -1,5 +1,7 @@
 package com.levelup.http;
 
+import android.support.annotation.NonNull;
+
 import com.levelup.http.parser.XferTransform;
 
 /**
@@ -42,7 +44,7 @@ public class BaseHttpRequest<T, SE extends ServerException> extends RawHttpReque
 		 * @see #setContentParser(com.levelup.http.parser.XferTransform)
 		 * @see #setErrorParser(com.levelup.http.parser.XferTransform)
 		 */
-		public BUILDER setResponseHandler(ResponseHandler<T, SE> responseHandler) {
+		public BUILDER setResponseHandler(@NonNull ResponseHandler<T, SE> responseHandler) {
 			this.responseHandler = responseHandler;
 			return (BUILDER) this;
 		}
@@ -54,7 +56,7 @@ public class BaseHttpRequest<T, SE extends ServerException> extends RawHttpReque
 		 * @see #setErrorParser(com.levelup.http.parser.XferTransform)
 		 * @see #setResponseHandler(ResponseHandler)
 		 */
-		public BUILDER setContentParser(XferTransform<HttpResponse, T> contentParser) {
+		public BUILDER setContentParser(@NonNull XferTransform<HttpResponse, T> contentParser) {
 			if (null!=responseHandler && responseHandler.contentParser != contentParser) throw new IllegalStateException("setResponseHandler() already called with another contentParser");
 			this.contentParser = contentParser;
 			return (BUILDER) this;
@@ -67,7 +69,7 @@ public class BaseHttpRequest<T, SE extends ServerException> extends RawHttpReque
 		 * @see #setContentParser(com.levelup.http.parser.XferTransform)
 		 * @see #setResponseHandler(ResponseHandler)
 		 */
-		public BUILDER setErrorParser(XferTransform<HttpResponse,SE> errorParser) {
+		public BUILDER setErrorParser(@NonNull XferTransform<HttpResponse,SE> errorParser) {
 			if (null!=responseHandler && responseHandler.errorParser != errorParser) throw new IllegalStateException("setResponseHandler() already called with another errorParser");
 			this.errorParser = errorParser;
 			return (BUILDER) this;

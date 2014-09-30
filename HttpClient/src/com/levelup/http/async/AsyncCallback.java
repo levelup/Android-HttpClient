@@ -1,6 +1,8 @@
 package com.levelup.http.async;
 
 
+import android.support.annotation.Nullable;
+
 /**
  * Callback called in the UI thread when an Async download has finished successfully or with an error (not when canceled)
  * @author Steve Lhomme
@@ -13,7 +15,7 @@ public interface AsyncCallback<T> {
 	 * @param result The parsed response after execution, may be {@code null}
 	 *
 	 */
-	void onAsyncResult(T result);
+	void onAsyncResult(@Nullable T result);
 	
 	/**
 	 * Called when an error has occurred during the download

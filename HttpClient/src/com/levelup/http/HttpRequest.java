@@ -1,6 +1,8 @@
 package com.levelup.http;
 
 
+import android.support.annotation.Nullable;
+
 import com.levelup.http.log.LoggerTagged;
 
 /**
@@ -26,16 +28,19 @@ public interface HttpRequest extends HttpRequestInfo {
 	/**
 	 * Returns the {@link com.levelup.http.log.LoggerTagged} for this request or {@code null}
 	 */
+	@Nullable
 	LoggerTagged getLogger();
 
 	/**
 	 * Returns the {@link HttpConfig} for this request or {@code null} 
 	 */
+	@Nullable
 	HttpConfig getHttpConfig();
 
 	/**
 	 * Set the {@link HttpConfig} for this request or {@code null} 
 	 */
+	@Nullable
 	void setHttpConfig(HttpConfig config);
 
 	public static final String HEADER_ACCEPT = "Accept";

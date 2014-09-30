@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 /**
@@ -147,7 +148,7 @@ public class HttpException extends HttpError {
 		protected final HttpRequestInfo httpRequest;
 		protected final HttpResponse response;
 
-		public Builder(HttpRequestInfo httpRequest, HttpResponse response) {
+		public Builder(@NonNull HttpRequestInfo httpRequest, HttpResponse response) {
 			if (null==httpRequest) throw new NullPointerException("a HttpException needs a request");
 			this.httpRequest = httpRequest;
 			this.response = response;

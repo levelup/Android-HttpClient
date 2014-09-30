@@ -12,6 +12,8 @@ import java.util.concurrent.FutureTask;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpRequest;
@@ -156,7 +158,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 		 * @param callback May be {@code null}
 		 * @return Current Builder
 		 */
-		public Builder<T> setHttpAsyncCallback(AsyncCallback<T> callback) {
+		public Builder<T> setHttpAsyncCallback(@Nullable AsyncCallback<T> callback) {
 			this.callback = callback;
 			return this;
 		}
@@ -166,7 +168,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 		 * @param factory
 		 * @return Current Builder
 		 */
-		public Builder<T> setHttpTaskFactory(AsyncTaskFactory<T> factory) {
+		public Builder<T> setHttpTaskFactory(@NonNull AsyncTaskFactory<T> factory) {
 			this.factory = factory;
 			return this;
 		}

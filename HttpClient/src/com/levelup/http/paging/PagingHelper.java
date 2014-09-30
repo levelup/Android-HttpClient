@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
+import android.support.annotation.Nullable;
+
 import com.levelup.http.async.AsyncCallback;
 import com.levelup.http.async.AsyncHttpClient;
 import com.levelup.http.async.AsyncTask;
@@ -42,7 +44,7 @@ public class PagingHelper {
 	 * @return A {@link java.util.concurrent.Callable} to get all the pages
 	 */
 	public static <PAGE_HOLDER, PAGE> Callable<PAGE_HOLDER> processPage(final Callable<PAGE> currentPageRequest, final PAGE_HOLDER pagedHolder,
-	                                                                    final PageCallback<PAGE_HOLDER, PAGE> pageCallback,
+	                                                                    @Nullable final PageCallback<PAGE_HOLDER, PAGE> pageCallback,
 	                                                                    final NextPageFactory<PAGE> nextPageFactory) {
 		return new Callable<PAGE_HOLDER>() {
 			@Override
@@ -105,7 +107,7 @@ public class PagingHelper {
 	 * @param resultCallback     Callback that will be receive the data in the UI thread, the {@link com.levelup.http.async.AsyncCallback#onAsyncTaskStarted(com.levelup.http.async.AsyncTask)}
 	 *                           and {@link com.levelup.http.async.AsyncCallback#onAsyncTaskFinished(com.levelup.http.async.AsyncTask)} will be called for each page
 	 */
-	public static <PAGE_HOLDER, PAGE> void processPagesAsync(Callable<PAGE> currentPageRequest, PAGE_HOLDER pagesHolder, PageCallback<PAGE_HOLDER, PAGE> pageCallback,
+	public static <PAGE_HOLDER, PAGE> void processPagesAsync(Callable<PAGE> currentPageRequest, PAGE_HOLDER pagesHolder, @Nullable PageCallback<PAGE_HOLDER, PAGE> pageCallback,
 	                                                         NextPageFactory<PAGE> nextPageFactory,
 	                                                         AsyncCallback<PAGE_HOLDER> resultCallback) {
 		processPagesAsync(currentPageRequest, pagesHolder, pageCallback, nextPageFactory, resultCallback, AsyncHttpClient.getExecutor());
@@ -121,7 +123,7 @@ public class PagingHelper {
 	 *                           and {@link com.levelup.http.async.AsyncCallback#onAsyncTaskFinished(com.levelup.http.async.AsyncTask)} will be called for each page
 	 * @param executor           {@link java.util.concurrent.Executor} with which each {@link PAGE} data will be retrieved
 	 */
-	public static <PAGE_HOLDER, PAGE> void processPagesAsync(final Callable<PAGE> currentPageRequest, final PAGE_HOLDER pagesHolder, final PageCallback<PAGE_HOLDER, PAGE> pageCallback,
+	public static <PAGE_HOLDER, PAGE> void processPagesAsync(final Callable<PAGE> currentPageRequest, final PAGE_HOLDER pagesHolder, @Nullable final PageCallback<PAGE_HOLDER, PAGE> pageCallback,
 	                                                         final NextPageFactory<PAGE> nextPageFactory,
 	                                                         final AsyncCallback<PAGE_HOLDER> resultCallback, final Executor executor) {
 		Callable<PAGE_HOLDER> pageCallable = new Callable<PAGE_HOLDER>() {

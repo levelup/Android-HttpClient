@@ -6,6 +6,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import android.support.annotation.Nullable;
+
 import com.levelup.http.TypedHttpRequest;
 
 /**
@@ -54,7 +56,7 @@ public class AsyncHttpClient {
 	 * @return A Future<T> representing the download task, if you need to cancel it
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> AsyncTask<T> postRequest(TypedHttpRequest<T,?> request, AsyncCallback<T> callback) {
+	public static <T> AsyncTask<T> postRequest(TypedHttpRequest<T,?> request, @Nullable AsyncCallback<T> callback) {
 		return new AsyncTask.Builder<T>()
 				.setTypedRequest(request)
 				.setHttpAsyncCallback(callback)

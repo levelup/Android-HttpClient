@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import android.support.annotation.Nullable;
+
 /**
  * Thrown when the server returns an HTTP error
  * <p>It contains an object corresponding the error body sent by the server.
@@ -25,9 +27,10 @@ public class ServerException extends HttpError {
 	}
 
 	/**
-	 * @return The error object parsed by {@link ServerErrorHandler ServerErrorHandler}.
+	 * @return The error object parsed by {@link com.levelup.http.ResponseHandler#errorParser}.
 	 * May be {@code null}
 	 */
+	@Nullable
 	public Object getParsedError() {
 		return parsedError;
 	}

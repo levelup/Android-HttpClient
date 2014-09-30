@@ -1,5 +1,6 @@
 package com.levelup.http.signed;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.levelup.http.BaseHttpRequest;
@@ -14,7 +15,7 @@ public class RequestSignerOAuth2 extends AbstractRequestSigner {
 	 * A {@link RequestSignerOAuth2} for the specified authenticating user
 	 * @param user The use used to authenticate, may be {@code null}
 	 */
-	public RequestSignerOAuth2(OAuthUser user) {
+	public RequestSignerOAuth2(@Nullable OAuthUser user) {
 		super(user);
 	}
 

@@ -1,5 +1,8 @@
 package com.levelup.http.signed.oauth1;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.levelup.http.HttpAuthException;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.signed.AbstractRequestSigner;
@@ -23,7 +26,7 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 	 * @param clientApp The {@link OAuthClientApp} used to sign the HTTP queries 
 	 * @param user The use used to authenticate, may be {@code null}
 	 */
-	public RequestSignerOAuth1(OAuthClientApp clientApp, OAuthUser user) {
+	public RequestSignerOAuth1(@NonNull OAuthClientApp clientApp, @Nullable OAuthUser user) {
 		super(user);
 		if (null == clientApp) throw new NullPointerException("We need an OAuthClientApp to authenticate");
 		//if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");
@@ -35,7 +38,7 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 	 * @param consumer The {@link OAuthConsumer} used to sign if you don't want to use a {@link OAuthClientApp}
 	 * @param user The use used to authenticate, may be {@code null}
 	 */
-	public RequestSignerOAuth1(OAuthConsumer consumer, OAuthUser user) {
+	public RequestSignerOAuth1(@NonNull OAuthConsumer consumer, @Nullable OAuthUser user) {
 		super(user);
 		if (null == consumer) throw new NullPointerException("We need an OAuthConsumer to authenticate");
 		//if (null == user) throw new NullPointerException("We need a OAuthUser to authenticate");

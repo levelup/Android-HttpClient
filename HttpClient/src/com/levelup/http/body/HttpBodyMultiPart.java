@@ -9,6 +9,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.levelup.http.HttpRequestInfo;
@@ -56,7 +58,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 * @param streamLength the length of the InputStream, must be known in advance
 	 * @param contentType Content-Type of the stream or {@code null} if unknown. You may use {@link java.net.URLConnection#guessContentTypeFromStream(InputStream) guessContentTypeFromStream(InputStream)} to determine it.
 	 */
-	public void addStream(String name, InputStream stream, long streamLength, String contentType) {
+	public void addStream(@NonNull String name, @NonNull InputStream stream, long streamLength, @Nullable String contentType) {
 		mParams.add(new HttpParam(name, stream, streamLength, contentType));
 	}
 
@@ -66,7 +68,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 * @param stream {@link InputStream} to send in the query
 	 * @param contentType Content-Type of the stream or {@code null} if unknown. You may use {@link java.net.URLConnection#guessContentTypeFromStream(InputStream) guessContentTypeFromStream(InputStream)} to determine it.
 	 */
-	public void addStream(String name, InputStream stream, String contentType) {
+	public void addStream(String name, InputStream stream, @Nullable String contentType) {
 		if (!stream.markSupported()) throw new IllegalArgumentException("the stream '"+name+"' must be seekable");
 		stream.mark(Integer.MAX_VALUE);
 		try {
@@ -84,7 +86,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 * @param file File to send in the query
 	 * @param contentType Content-Type of the file or {@code null} if unknown. You may use {@link java.net.URLConnection#guessContentTypeFromName(String) guessContentTypeFromName(String)} to determine it.
 	 */
-	public void addFile(String name, File file, String contentType) {
+	public void addFile(@NonNull String name, @NonNull File file, @Nullable String contentType) {
 		mParams.add(new HttpParam(name, file, contentType));
 	}
 
@@ -280,7 +282,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	}
 
 	@Override
-	public void add(String name, String value) {
+	public void add(@NonNull String name, @NonNull String value) {
 		mParams.add(new HttpParam(name, value));
 	}
 
@@ -290,7 +292,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	 * @param value Value of the parameter
 	 * @param contentType Content-Type of the String value
 	 */
-	public void add(String name, String value, String contentType) {
+	public void add(@NonNull String name, @NonNull String value, String contentType) {
 		mParams.add(new HttpParam(name, value, contentType));
 	}
 
@@ -322,11 +324,11 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 		public final long length;
 		public final String contentType;
 
-		HttpParam(String name, String value) {
+		HttpParam(@NonNull String name, @NonNull String value) {
 			this(name, value, TEXT_PLAIN);
 		}
 
-		HttpParam(String name, String value, String contentType) {
+		HttpParam(@NonNull String name, @NonNull String value, String contentType) {
 			if (null == name) throw new NullPointerException();
 			if (null == value) throw new NullPointerException();
 			this.name = name;
@@ -335,7 +337,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 			this.contentType = contentType;
 		}
 
-		HttpParam(String name, File value, String contentType) {
+		HttpParam(@NonNull String name, @NonNull File value, String contentType) {
 			if (null == name) throw new NullPointerException();
 			if (null == value) throw new NullPointerException();
 			this.name = name;
@@ -344,7 +346,7 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 			this.contentType = contentType;
 		}
 
-		HttpParam(String name, InputStream value, long length, String contentType) {
+		HttpParam(@NonNull String name, @NonNull InputStream value, long length, String contentType) {
 			if (null == name) throw new NullPointerException();
 			if (null == value) throw new NullPointerException();
 			if (length < 0) throw new IllegalArgumentException("unknown InputStream size to upload");
