@@ -15,7 +15,9 @@ import java.util.List;
  * @author Created by Steve Lhomme on 26/06/2014.
  */
 public class BodyViaGson<T> extends BodyTransformChain<T> {
-	@Deprecated
+	/**
+	 * @deprecated Use {@link #asList(Class)} for List content or {@link #BodyViaGson(java.lang.reflect.Type)} for a class
+	 */
 	public BodyViaGson(TypeToken<T> typeToken) {
 		super(new XferTransformViaGson<T>(typeToken));
 	}
@@ -24,7 +26,9 @@ public class BodyViaGson<T> extends BodyTransformChain<T> {
 		super(new XferTransformViaGson<T>(type));
 	}
 
-	@Deprecated
+	/**
+	 * @deprecated Use {@link #asList(com.google.gson.Gson, Class)} for List content or {@link #BodyViaGson(com.google.gson.Gson, java.lang.reflect.Type)} for a class
+	 */
 	public BodyViaGson(Gson gson, TypeToken<T> typeToken) {
 		super(new XferTransformViaGson<T>(gson, typeToken));
 	}
@@ -50,10 +54,10 @@ public class BodyViaGson<T> extends BodyTransformChain<T> {
 		return new BodyViaGson<List<T>>(gson, type);
 	}
 
-	private static class ListParameterizedType implements ParameterizedType {
+	protected static class ListParameterizedType implements ParameterizedType {
 		private Type type;
 
-		private ListParameterizedType(Type type) {
+		public ListParameterizedType(Type type) {
 			this.type = type;
 		}
 
