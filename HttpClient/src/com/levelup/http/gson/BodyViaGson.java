@@ -1,10 +1,13 @@
 package com.levelup.http.gson;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.levelup.http.parser.BodyTransformChain;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An {@link XferTransformViaGson} class that has debug enabled for alpha/beta builds
@@ -12,6 +15,7 @@ import com.levelup.http.parser.BodyTransformChain;
  * @author Created by Steve Lhomme on 26/06/2014.
  */
 public class BodyViaGson<T> extends BodyTransformChain<T> {
+	@Deprecated
 	public BodyViaGson(TypeToken<T> typeToken) {
 		super(new XferTransformViaGson<T>(typeToken));
 	}
@@ -20,6 +24,7 @@ public class BodyViaGson<T> extends BodyTransformChain<T> {
 		super(new XferTransformViaGson<T>(type));
 	}
 
+	@Deprecated
 	public BodyViaGson(Gson gson, TypeToken<T> typeToken) {
 		super(new XferTransformViaGson<T>(gson, typeToken));
 	}
@@ -31,5 +36,47 @@ public class BodyViaGson<T> extends BodyTransformChain<T> {
 	public BodyViaGson<T> enableDebugData(boolean enable) {
 		((XferTransformViaGson) transforms[1]).enableDebugData(enable);
 		return this;
+	}
+
+	public static <T> BodyViaGson<List<T>> asList(Class<T> clazz) {
+		// TODO use a weakreference cache
+		Type type = new ListParameterizedType(clazz);
+		return new BodyViaGson<List<T>>(type);
+	}
+
+	public static <T> BodyViaGson<List<T>> asList(Gson gson, Class<T> clazz) {
+		// TODO use a weakreference cache
+		Type type = new ListParameterizedType(clazz);
+		return new BodyViaGson<List<T>>(gson, type);
+	}
+
+	private static class ListParameterizedType implements ParameterizedType {
+		private Type type;
+
+		private ListParameterizedType(Type type) {
+			this.type = type;
+		}
+
+		@Override
+		public Type[] getActualTypeArguments() {
+			return new Type[]{type};
+		}
+
+		@Override
+		public Type getRawType() {
+			return ArrayList.class;
+		}
+
+		@Override
+		public Type getOwnerType() {
+			return null;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o==this) return true;
+			if (!(o instanceof ListParameterizedType)) return false;
+			return type.equals(((ListParameterizedType) o).type);
+		}
 	}
 }
