@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import com.levelup.http.BaseResponseHandler;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.HttpResponse;
-import com.levelup.http.ResponseHandler;
 import com.levelup.http.log.LogManager;
 import com.levelup.http.parser.XferTransformResponseInputStream;
 import com.levelup.http.signed.OAuthClientApp;
@@ -28,8 +27,8 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 
 	final BaseResponseHandler<InputStream> responseHandler = new BaseResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE) {
 		@Override
-		public void onNewResponse(HttpResponse response, HttpRequest request) {
-			super.onNewResponse(response, request);
+		public void onHttpResponse(HttpRequest request, HttpResponse response) {
+			super.onHttpResponse(request, response);
 
 			String serverDate = response.getHeaderField("Date");
 			if (!TextUtils.isEmpty(serverDate)) {

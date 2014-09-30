@@ -192,7 +192,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 
 	protected void setRequestResponse(R httpResponse) {
 		this.httpResponse = httpResponse;
-		responseHandler.onNewResponse(httpResponse, request);
+		responseHandler.onHttpResponse(request, httpResponse);
 
 		CookieManager cookieMaster = HttpClient.getCookieManager();
 		if (cookieMaster != null) {

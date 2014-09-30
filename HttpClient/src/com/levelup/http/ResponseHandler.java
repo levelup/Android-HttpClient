@@ -18,7 +18,7 @@ public class ResponseHandler<OUTPUT, SE extends ServerException> {
 		this.errorParser = errorParser;
 	}
 
-	public void onNewResponse(HttpResponse response, HttpRequest request) {
+	public void onHttpResponse(HttpRequest request, HttpResponse response) {
 	}
 
 	public Boolean followsRedirect() {
