@@ -221,6 +221,10 @@ public class RawHttpRequest implements HttpRequest {
 			mRequestSetHeaders.put(HTTP.USER_AGENT, HttpClient.getUserAgent());
 		}
 
+		if (!TextUtils.isEmpty(HttpClient.getXRequestedWith())) {
+			mRequestSetHeaders.put("X-Requested-With", HttpClient.getXRequestedWith());
+		}
+
 		final Header[] defaultHeaders = HttpClient.getDefaultHeaders();
 		if (null!=defaultHeaders) {
 			for (Header defaultHeader : defaultHeaders) {

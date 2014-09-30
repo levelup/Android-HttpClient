@@ -15,6 +15,7 @@ import com.levelup.http.parser.BodyToString;
 public class HttpClient {
 
 	private static String userAgent;
+	private static String xRequestedWith;
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
 	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.INSTANCE;
@@ -41,12 +42,17 @@ public class HttpClient {
 					userAgent = applicationInfo.packageName + "/" + versionCode;
 				else
 					userAgent = applicationInfo.nonLocalizedLabel + "/" + versionCode;
+				xRequestedWith = applicationInfo.packageName;
 			}
 		}
 	}
 
 	public static String getUserAgent() {
 		return userAgent;
+	}
+
+	public static String getXRequestedWith() {
+		return xRequestedWith;
 	}
 
 	public static void setCookieManager(CookieManager cookieManager) {
