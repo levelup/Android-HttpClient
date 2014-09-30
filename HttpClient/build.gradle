@@ -4,6 +4,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.+'
     androidTestCompile 'com.squareup.okio:okio:1.0.+'
     compile 'com.android.support:support-annotations:20.0.0'
+    androidTestCompile 'com.google.android.gms:play-services:5.+'
 }
 
 android {

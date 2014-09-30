@@ -63,7 +63,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 
 	public void testGsonErrorData() throws Exception {
 		BaseHttpRequest<String, FacebookException> request = new BaseHttpRequest.Builder<String, FacebookException>().
-				setUrl("http://graph.facebook.com/test").
+				setUrl("https://graph.facebook.com/test").
 				setResponseHandler(
 						new ResponseHandler<String, FacebookException>(BodyToString.INSTANCE,
 								BodyTransformChain.Builder.init(new BodyViaGson<FacebookErrorData>(FacebookErrorData.class))
@@ -89,7 +89,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 		BodyViaGson<FacebookErrorData> testParser = new BodyViaGson<FacebookErrorData>(FacebookErrorData.class);
 		testParser.enableDebugData(true);
 		BaseHttpRequest<String, FacebookException> request = new BaseHttpRequest.Builder<String, FacebookException>().
-				setUrl("http://graph.facebook.com/test").
+				setUrl("https://graph.facebook.com/test").
 				setResponseHandler(
 						new ResponseHandler<String, FacebookException>(BodyToString.INSTANCE,
 								BodyTransformChain.Builder.init(new BodyViaGson<FacebookErrorData>(FacebookErrorData.class))

@@ -1,5 +1,8 @@
 package com.levelup.http;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -27,7 +30,6 @@ public class HttpClient {
 	 */
 	public static void setup(Context context) {
 		if (null!=context) {
-
 			ApplicationInfo applicationInfo = context.getApplicationInfo();
 			int versionCode = -1;
 			PackageManager pM = context.getPackageManager();
@@ -43,6 +45,18 @@ public class HttpClient {
 				else
 					userAgent = applicationInfo.nonLocalizedLabel + "/" + versionCode;
 				xRequestedWith = applicationInfo.packageName;
+			}
+
+			try {
+				Context gms = context.createPackageContext("com.google.android.gms", Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+				Class clazz = gms.getClassLoader().loadClass("com.google.android.gms.common.security.ProviderInstallerImpl");
+				Method mInsertProvider = clazz.getDeclaredMethod("insertProvider", Context.class);
+				mInsertProvider.invoke(null, context);
+			} catch (ClassNotFoundException ignored) {
+			} catch (InvocationTargetException ignored) {
+			} catch (NoSuchMethodException ignored) {
+			} catch (IllegalAccessException ignored) {
+			} catch (NameNotFoundException ignored) {
 			}
 		}
 	}
