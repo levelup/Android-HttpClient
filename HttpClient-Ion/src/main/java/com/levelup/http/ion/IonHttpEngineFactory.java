@@ -37,8 +37,6 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 		}
 
 		ion = Ion.getDefault(context);
-		// until https://github.com/koush/AndroidAsync/issues/210 is fixed
-		ion.getConscryptMiddleware().enable(false);
 	}
 
 	public Ion getDefaultIon() {
