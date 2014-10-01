@@ -42,7 +42,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	public static void setupIon(Ion ion) {
 		// until https://github.com/koush/AndroidAsync/issues/210 is fixed
-		ion.getConscryptMiddleware().enable(false);
+		ion.getConscryptMiddleware().enable(true);
 	}
 
 	@NonNull

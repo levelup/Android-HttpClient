@@ -7,6 +7,10 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.http.protocol.HTTP;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.DataSink;
 import com.koushikdutta.async.callback.CompletedCallback;
@@ -189,6 +193,20 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 
 	@Override
 	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
+		if (e instanceof IllegalArgumentException && e.getMessage().contains("bytesConsumed is negative")) {
+			Context context = IonHttpEngineFactory.getInstance(null).getDefaultIon().getContext();
+			PackageManager pm = context.getPackageManager();
+			String playServicesVersion = "<unknown>";
+			try {
+				PackageInfo pI = pm.getPackageInfo("com.google.android.gms", 0);
+				if (pI != null) {
+					playServicesVersion = String.valueOf(pI.versionCode) + '-' + pI.versionName;
+				}
+			} catch (PackageManager.NameNotFoundException ignored) {
+			}
+			LogManager.getLogger().e("Issue #99698 detected on PS:"+playServicesVersion, e);
+		}
+
 		if (e instanceof ConnectionClosedException && e.getCause() instanceof Exception) {
 			return exceptionToHttpException((Exception) e.getCause());
 		}
