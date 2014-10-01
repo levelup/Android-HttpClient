@@ -26,6 +26,10 @@ public class BodyTransformChain<T> extends XferTransformChain<HttpResponse, T> {
 		}
 	}
 
+	/**
+	 * Helper constructor to do a single transformation from InputStream
+	 * @param endTransform
+	 */
 	public BodyTransformChain(XferTransform<InputStream, T> endTransform) {
 		this(Builder.init(XferTransformResponseInputStream.INSTANCE).addDataTransform(endTransform));
 	}
