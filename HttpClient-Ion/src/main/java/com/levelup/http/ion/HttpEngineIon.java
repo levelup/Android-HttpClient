@@ -194,6 +194,7 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 	@Override
 	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
 		if (e instanceof IllegalArgumentException && e.getMessage().contains("bytesConsumed is negative")) {
+			// TODO only check for a Play Services error when the Exception stack trace comes from "com.google.android.gms.org.conscrypt"
 			Context context = IonHttpEngineFactory.getInstance(null).getDefaultIon().getContext();
 			PackageManager pm = context.getPackageManager();
 			String playServicesVersion = "<unknown>";

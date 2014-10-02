@@ -1,6 +1,8 @@
 package com.levelup.http.ion;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
 import com.koushikdutta.ion.Ion;
@@ -21,6 +23,7 @@ import com.levelup.http.parser.XferTransformInputStreamHttpStream;
 public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	private static IonHttpEngineFactory INSTANCE;
+	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089030;
 
 	private final Ion ion;
 
@@ -40,9 +43,24 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 		setupIon(ion);
 	}
 
+	private static Boolean useConscrypt;
+
 	public static void setupIon(Ion ion) {
-		// until https://github.com/koush/AndroidAsync/issues/210 is fixed
-		ion.getConscryptMiddleware().enable(true);
+		if (null==useConscrypt) {
+			useConscrypt = true;
+			// The Play Services are are bogus on old versions, see https://android-review.googlesource.com/#/c/99698/
+			// disable conscrypt until https://github.com/koush/AndroidAsync/issues/210 passes
+			PackageManager pm = ion.getContext().getPackageManager();
+			try {
+				PackageInfo pI = pm.getPackageInfo("com.google.android.gms", 0);
+				if (pI != null) {
+					useConscrypt = pI.versionCode > PLAY_SERVICES_BOGUS_CONSCRYPT;
+				}
+			} catch (PackageManager.NameNotFoundException ignored) {
+			}
+		}
+
+		ion.getConscryptMiddleware().enable(useConscrypt);
 	}
 
 	@NonNull
