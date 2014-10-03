@@ -55,7 +55,7 @@ public class BodyViaGson<T> extends BodyTransformChain<T> {
 	}
 
 	protected static class ListParameterizedType implements ParameterizedType {
-		private Type type;
+		private final Type type;
 
 		public ListParameterizedType(Type type) {
 			this.type = type;

@@ -24,7 +24,7 @@ import com.levelup.http.parser.XferTransformInputStreamString;
  * Created by robUx4 on 8/1/2014.
  */
 public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
-	private static Gson defaultGsonParser = new GsonBuilder().create();
+	private static final Gson defaultGsonParser = new GsonBuilder().create();
 
 	private boolean debugData;
 
