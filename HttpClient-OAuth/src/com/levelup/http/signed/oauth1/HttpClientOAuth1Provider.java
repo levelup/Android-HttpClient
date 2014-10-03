@@ -6,7 +6,6 @@ import java.io.InputStream;
 import com.levelup.http.BaseResponseHandler;
 import com.levelup.http.HttpEngine;
 import com.levelup.http.HttpError;
-import com.levelup.http.HttpException;
 import com.levelup.http.RawHttpRequest;
 import com.levelup.http.ServerException;
 import com.levelup.http.parser.XferTransformResponseInputStream;

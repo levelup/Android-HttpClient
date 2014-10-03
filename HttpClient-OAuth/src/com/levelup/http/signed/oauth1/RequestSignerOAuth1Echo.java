@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import com.levelup.http.BaseHttpRequest;
 import com.levelup.http.HttpAuthException;
 import com.levelup.http.HttpEngine;
-import com.levelup.http.HttpException;
 import com.levelup.http.HttpRequest;
 import com.levelup.http.ServerException;
 import com.levelup.http.parser.BodyToString;
