@@ -18,7 +18,6 @@ import com.levelup.http.HttpResponse;
  */
 public class HttpResponseUrlConnection implements HttpResponse {
 
-	private final HttpEngineUrlConnection request;
 	private final HttpURLConnection response;
 	private InputStream inputStream;
 	private InputStream errorStream;
@@ -27,7 +26,6 @@ public class HttpResponseUrlConnection implements HttpResponse {
 		if (null == request) throw new NullPointerException();
 		if (null == request.urlConnection) throw new NullPointerException();
 		this.response = request.urlConnection;
-		this.request = request;
 	}
 
 	@Override
