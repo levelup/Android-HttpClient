@@ -64,10 +64,9 @@ public class ServerException extends HttpError {
 		return Collections.emptyList();
 	}
 
-
 	@Override
-	public String toString() {
-		return super.toString() + " parsedError:"+ parsedError;
+	public String getMessage() {
+		return super.getMessage() + ' ' + String.valueOf(parsedError);
 	}
 
 	@Override
