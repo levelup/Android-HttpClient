@@ -14,13 +14,13 @@ import android.support.annotation.Nullable;
  * @author Created by robUx4 on 24/09/2014.
  */
 public class ServerException extends HttpError {
-	private final Object parsedError;
+	private final Object serverError;
 	private final int httpStatusCode;
 	private final HttpResponse response;
 	private final HttpRequestInfo request;
 
-	public ServerException(ImmutableHttpRequest request, Object parsedError) {
-		this.parsedError = parsedError;
+	public ServerException(ImmutableHttpRequest request, Object serverError) {
+		this.serverError = serverError;
 		this.httpStatusCode = getHttpStatusCode(request.getHttpResponse());
 		this.response = request.getHttpResponse();
 		this.request = request.getHttpRequest();
@@ -31,8 +31,8 @@ public class ServerException extends HttpError {
 	 * May be {@code null}
 	 */
 	@Nullable
-	public Object getParsedError() {
-		return parsedError;
+	public Object getServerError() {
+		return serverError;
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class ServerException extends HttpError {
 
 	@Override
 	public String getMessage() {
-		return super.getMessage() + ' ' + String.valueOf(parsedError);
+		return "serverError="+ String.valueOf(serverError);
 	}
 
 	@Override

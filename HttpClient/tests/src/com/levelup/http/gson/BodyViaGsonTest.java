@@ -77,9 +77,10 @@ public class BodyViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (FacebookException e) {
-			Object errorException = e.getParsedError();
-			assertTrue(errorException instanceof FacebookErrorData);
-			FacebookErrorData errorData = (FacebookErrorData) errorException;
+			Object serverError = e.getServerError();
+			assertNotNull(serverError);
+			assertEquals(FacebookErrorData.class, serverError.getClass());
+			FacebookErrorData errorData = (FacebookErrorData) serverError;
 			assertNotNull(errorData.error);
 			assertEquals(803, errorData.error.code);
 		}
@@ -103,9 +104,10 @@ public class BodyViaGsonTest extends AndroidTestCase {
 			String data = HttpClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (FacebookException e) {
-			Object errorException = e.getParsedError();
-			assertTrue(errorException instanceof FacebookErrorData);
-			FacebookErrorData errorData = (FacebookErrorData) errorException;
+			Object serverError = e.getServerError();
+			assertNotNull(serverError);
+			assertEquals(FacebookErrorData.class, serverError.getClass());
+			FacebookErrorData errorData = (FacebookErrorData) serverError;
 			assertNotNull(errorData.error);
 			assertEquals(803, errorData.error.code);
 		}
