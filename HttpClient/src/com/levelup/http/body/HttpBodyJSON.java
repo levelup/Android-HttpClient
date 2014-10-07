@@ -3,6 +3,7 @@ package com.levelup.http.body;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
@@ -19,12 +20,19 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	protected final JsonObject jsonObject;
 
 	/**
-	 * Constructor with the JSON data to set in the POST body, the {@code org.json} way
+	 * Constructor with the JSONObject data to set in the POST body, the {@code org.json} way
 	 */
 	public HttpBodyJSON(JSONObject value) {
 		this(orgToGson(value));
 	}
-	
+
+	/**
+	 * Constructor with the JSONArray data to set in the POST body, the {@code org.json} way
+	 */
+	public HttpBodyJSON(JSONArray value) {
+		this(orgToGson(value));
+	}
+
 	/**
 	 * Constructor with the JSON data to set in the POST body
 	 */
@@ -80,6 +88,12 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	}
 
 	private static JsonObject orgToGson(JSONObject value) {
+		JsonParser parser = new JsonParser();
+		JsonObject o = (JsonObject) parser.parse(value.toString());
+		return o;
+	}
+
+	private static JsonObject orgToGson(JSONArray value) {
 		JsonParser parser = new JsonParser();
 		JsonObject o = (JsonObject) parser.parse(value.toString());
 		return o;
