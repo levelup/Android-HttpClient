@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.levelup.http.HttpRequestInfo;
 import com.levelup.http.UploadProgressListener;
@@ -17,7 +17,7 @@ import com.levelup.http.UploadProgressListener;
  */
 public class HttpBodyJSON implements HttpBodyParameters {
 
-	protected final JsonObject jsonObject;
+	protected final JsonElement jsonElement;
 
 	/**
 	 * Constructor with the JSONObject data to set in the POST body, the {@code org.json} way
@@ -36,8 +36,8 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	/**
 	 * Constructor with the JSON data to set in the POST body
 	 */
-	public HttpBodyJSON(JsonObject value) {
-		this.jsonObject = value;
+	public HttpBodyJSON(JsonElement value) {
+		this.jsonElement = value;
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	 * @param copy body to copy parameters from
 	 */
 	public HttpBodyJSON(HttpBodyJSON copy) {
-		this(copy.jsonObject);
+		this(copy.jsonElement);
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class HttpBodyJSON implements HttpBodyParameters {
 
 	@Override
 	public void writeBodyTo(OutputStream output, HttpRequestInfo request, UploadProgressListener progressListener) throws IOException {
-		output.write(jsonObject.toString().getBytes());
+		output.write(jsonElement.toString().getBytes());
 	}
 
 	@Override
@@ -80,22 +80,20 @@ public class HttpBodyJSON implements HttpBodyParameters {
 
 	@Override
 	public long getContentLength() {
-		return jsonObject.toString().getBytes().length;
+		return jsonElement.toString().getBytes().length;
 	}
 
-	public final JsonObject getJsonObject() {
-		return jsonObject;
+	public final JsonElement getJsonElement() {
+		return jsonElement;
 	}
 
-	private static JsonObject orgToGson(JSONObject value) {
+	private static JsonElement orgToGson(JSONObject value) {
 		JsonParser parser = new JsonParser();
-		JsonObject o = (JsonObject) parser.parse(value.toString());
-		return o;
+		return parser.parse(value.toString());
 	}
 
-	private static JsonObject orgToGson(JSONArray value) {
+	private static JsonElement orgToGson(JSONArray value) {
 		JsonParser parser = new JsonParser();
-		JsonObject o = (JsonObject) parser.parse(value.toString());
-		return o;
+		return parser.parse(value.toString());
 	}
 }

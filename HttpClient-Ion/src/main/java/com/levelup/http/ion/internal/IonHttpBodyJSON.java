@@ -1,5 +1,7 @@
 package com.levelup.http.ion.internal;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.koushikdutta.async.http.body.JSONObjectBody;
 import com.koushikdutta.ion.builder.Builders;
 import com.levelup.http.body.HttpBodyJSON;
@@ -20,6 +22,9 @@ public class IonHttpBodyJSON extends HttpBodyJSON implements IonBody {
 
 	@Override
 	public void setOutputData(Builders.Any.B requestBuilder) {
-		requestBuilder.setJsonObjectBody(jsonObject);
+		if (jsonElement instanceof JsonObject)
+			requestBuilder.setJsonObjectBody((JsonObject) jsonElement);
+		else if (jsonElement instanceof JsonArray)
+			requestBuilder.setJsonArrayBody((JsonArray) jsonElement);
 	}
 }
