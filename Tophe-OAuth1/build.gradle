@@ -1,0 +1,42 @@
+apply plugin: 'com.android.library'
+
+dependencies {
+    compile project(':Tophe')
+    compile 'oauth.signpost:signpost-core:1.2.+'
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '20.0.0'
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 19
+        versionCode 400
+        versionName '0.4.0'
+        applicationId 'co.tophe.signed.oauth1'
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        androidTest {
+            manifest.srcFile 'tests/AndroidManifest.xml'
+            java.srcDirs = ['tests/src']
+        }
+    }
+
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
+        }
+    }
+}

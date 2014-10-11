@@ -1,11 +1,9 @@
-Android-HttpClient
+TOPHE - Typed Object Processing HTTP Engine
 ==================
 
 An Android library to make HTTP calls with parameters easier.
 
 There is a module to support OAuth1 signatures using [oauth-signpost][1].
-
-There is a module that supports [OkHttp][2] for SPDY and other enhancements.
 
 Features
 --------
@@ -169,4 +167,3 @@ License
     limitations under the License.
 
 [1]: https://code.google.com/p/oauth-signpost/
-[2]: https://github.com/square/okhttp

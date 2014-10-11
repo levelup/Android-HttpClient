@@ -1,10 +1,10 @@
 // You need to put this in your <root>/settings.gradle and adapt the folder location
 
-include 'HttpClient'
-project(':HttpClient').projectDir = new File('HttpClient')
+include 'Tophe'
+project(':Tophe').projectDir = new File('Tophe')
 
-include 'HttpClient-Ion'
-project(':HttpClient-Ion').projectDir = new File('HttpClient-Ion')
+include 'Tophe-Ion'
+project(':Tophe-Ion').projectDir = new File('Tophe-Ion')
 
-include 'HttpClient-OAuth'
-project(':HttpClient-OAuth').projectDir = new File('HttpClient-OAuth')
+include 'Tophe-OAuth1'
+project(':Tophe-OAuth1').projectDir = new File('Tophe-OAuth1')
