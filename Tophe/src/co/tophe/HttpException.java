@@ -1,6 +1,7 @@
 package co.tophe;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 /**
@@ -44,33 +45,20 @@ public class HttpException extends TopheException {
 
 	@Override
 	public String toString() {
-		/*sb.append(' ');
-		sb.append('#');
-		sb.append(errorCode);
-		if (httpStatusCode!=200) {
-			sb.append(' ');
-			sb.append("http:");
-			sb.append(httpStatusCode);
-		}
-		sb.append(':');*/
-		/*if (null!=request) {
-			sb.append(" on ");
-			sb.append(request);
-		}*/
 		return getClass().getSimpleName() + ' ' + getLocalizedMessage();
 	}
 
 	@Override
 	public String getMessage() {
 		final StringBuilder msg = new StringBuilder();
-		if (0 != httpStatusCode) {
+		if (0 != getStatusCode()) {
 			msg.append("http:");
-			msg.append(httpStatusCode);
+			msg.append(getStatusCode());
 			msg.append(' ');
 		}
-		if (null!= request) {
+		if (null!= getHttpRequest()) {
 			msg.append("req:");
-			msg.append(request);
+			msg.append(getHttpRequest());
 			msg.append(' ');
 		}
 		/*boolean hasMsg = false;
@@ -95,17 +83,17 @@ public class HttpException extends TopheException {
 		protected final HttpRequestInfo httpRequest;
 		protected final HttpResponse response;
 
-		public Builder(@NonNull HttpRequestInfo httpRequest, HttpResponse response) {
+		public Builder(@NonNull HttpRequestInfo httpRequest,@Nullable HttpResponse response) {
 			if (null==httpRequest) throw new NullPointerException("a HttpException needs a request");
 			this.httpRequest = httpRequest;
 			this.response = response;
 		}
 
-		public Builder(HttpException e) {
+		public Builder(@NonNull HttpException e) {
 			this.errorMessage = e.getMessage();
 			this.exception = e.getCause();
-			this.httpRequest = e.request;
-			this.response = e.response;
+			this.httpRequest = e.getHttpRequest();
+			this.response = e.getHttpResponse();
 		}
 
 		public Builder setErrorMessage(String message) {

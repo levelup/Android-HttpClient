@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
@@ -13,11 +14,11 @@ import android.support.annotation.Nullable;
  * @author Created by robUx4 on 29/09/2014.
  */
 public abstract class TopheException extends Exception {
-	protected final int httpStatusCode;
-	protected final HttpResponse response;
-	protected final HttpRequestInfo request;
+	private final int httpStatusCode;
+	private final HttpResponse response;
+	private final HttpRequestInfo request;
 
-	protected TopheException(HttpRequestInfo request, HttpResponse response, String detailMessage) {
+	protected TopheException(@NonNull HttpRequestInfo request, @Nullable HttpResponse response, @Nullable String detailMessage) {
 		super(detailMessage);
 		this.request = request;
 		this.response = response;
@@ -27,7 +28,7 @@ public abstract class TopheException extends Exception {
 	/**
 	 * The HTTP status code sent by the server for this Exception
 	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
-	 * <p>0 if we didn't receive any HTTP response for this Exception</p>
+	 * <p>-1 if we didn't receive any HTTP response for this Exception or the status code could not be read</p>
 	 */
 	public int getStatusCode() {
 		return httpStatusCode;
@@ -36,6 +37,7 @@ public abstract class TopheException extends Exception {
 	/**
 	 * The {@link HttpRequestInfo} that generated this Exception
 	 */
+	@NonNull
 	public HttpRequestInfo getHttpRequest() {
 		return request;
 	}
@@ -91,6 +93,6 @@ public abstract class TopheException extends Exception {
 			} catch (IOException e) {
 			}
 		}
-		return 0;
+		return -1;
 	}
 }

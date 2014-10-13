@@ -1,5 +1,6 @@
 package co.tophe;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
@@ -11,7 +12,7 @@ import android.support.annotation.Nullable;
 public class ServerException extends TopheException {
 	private final Object serverError;
 
-	public ServerException(ImmutableHttpRequest request, Object serverError) {
+	public ServerException(@NonNull ImmutableHttpRequest request, @Nullable Object serverError) {
 		super(request.getHttpRequest(), request.getHttpResponse(), "serverError="+ String.valueOf(serverError));
 		this.serverError = serverError;
 	}
