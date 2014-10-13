@@ -1,18 +1,12 @@
 package co.tophe;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 /**
  * Exception that will occur by using {@link HttpClient}
  */
-public class HttpException extends HttpError {
+public class HttpException extends TopheException {
 
 	static public final int HTTP_STATUS_BAD_REQUEST     = 400;
 	static public final int HTTP_STATUS_UNAUTHORIZED    = 401;
@@ -67,31 +61,6 @@ public class HttpException extends HttpError {
 	@Override
 	public HttpResponse getHttpResponse() {
 		return response;
-	}
-
-	@Override
-	public List<Header> getReceivedHeaders() {
-		if (null!=response) {
-			try {
-				final Map<String, List<String>> responseHeaders = response.getHeaderFields();
-				if (null != responseHeaders) {
-					ArrayList<Header> receivedHeaders = new ArrayList<Header>(responseHeaders.size());
-					for (Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-						for (String value : entry.getValue()) {
-							receivedHeaders.add(new Header(entry.getKey(), value));
-						}
-					}
-					return receivedHeaders;
-				}
-			} catch (IllegalStateException ignored) {
-				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-			} catch (IllegalArgumentException e) {
-				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/875
-			} catch (NullPointerException e) {
-				// issue https://github.com/square/okhttp/issues/348
-			}
-		}
-		return Collections.emptyList();
 	}
 
 	@Override

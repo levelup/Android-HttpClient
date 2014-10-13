@@ -1,10 +1,5 @@
 package co.tophe;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import android.support.annotation.Nullable;
 
 /**
@@ -13,7 +8,7 @@ import android.support.annotation.Nullable;
  *
  * @author Created by robUx4 on 24/09/2014.
  */
-public class ServerException extends HttpError {
+public class ServerException extends TopheException {
 	private final Object serverError;
 	private final int httpStatusCode;
 	private final HttpResponse response;
@@ -38,30 +33,6 @@ public class ServerException extends HttpError {
 	@Override
 	public boolean isTemporaryFailure() {
 		return httpStatusCode >= 500;
-	}
-
-	public List<Header> getReceivedHeaders() {
-		if (null!=response) {
-			try {
-				final Map<String, List<String>> responseHeaders = response.getHeaderFields();
-				if (null != responseHeaders) {
-					ArrayList<Header> receivedHeaders = new ArrayList<Header>(responseHeaders.size());
-					for (Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-						for (String value : entry.getValue()) {
-							receivedHeaders.add(new Header(entry.getKey(), value));
-						}
-					}
-					return receivedHeaders;
-				}
-			} catch (IllegalStateException ignored) {
-				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-			} catch (IllegalArgumentException e) {
-				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/875
-			} catch (NullPointerException e) {
-				// issue https://github.com/square/okhttp/issues/348
-			}
-		}
-		return Collections.emptyList();
 	}
 
 	@Override

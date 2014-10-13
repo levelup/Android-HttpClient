@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 import co.tophe.BaseResponseHandler;
 import co.tophe.HttpEngine;
-import co.tophe.HttpError;
+import co.tophe.TopheException;
 import co.tophe.RawHttpRequest;
 import co.tophe.ServerException;
 import co.tophe.parser.XferTransformResponseInputStream;
@@ -83,7 +83,7 @@ public class HttpClientOAuth1Provider {
 				try {
 					InputStream inputStream = processEngine.call();
 					return new OAuth1ResponseAdapter(processEngine, inputStream);
-				} catch (HttpError e) {
+				} catch (TopheException e) {
 					IOException ex = new IOException("failed to query data "+e.getMessage());
 					ex.initCause(e);
 					throw ex;

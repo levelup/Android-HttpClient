@@ -1,19 +1,23 @@
 package co.tophe;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import android.support.annotation.Nullable;
 
 /**
- * Created by robUx4 on 29/09/2014.
+ * Base exception to catch {@link co.tophe.HttpException} and {@link co.tophe.ServerException} as the same time
+ * @author Created by robUx4 on 29/09/2014.
  */
-public abstract class HttpError extends Exception {
+public abstract class TopheException extends Exception {
 
-	protected HttpError() {
+	protected TopheException() {
 	}
 
-	protected HttpError(String errorMessage, Throwable exception) {
+	protected TopheException(String errorMessage, Throwable exception) {
 		super(errorMessage, exception);
 	}
 
@@ -37,8 +41,29 @@ public abstract class HttpError extends Exception {
 
 	public abstract boolean isTemporaryFailure();
 
-	public abstract List<Header> getReceivedHeaders();
-
+	public List<Header> getReceivedHeaders() {
+		if (null!=getHttpResponse()) {
+			try {
+				final Map<String, List<String>> responseHeaders = getHttpResponse().getHeaderFields();
+				if (null != responseHeaders) {
+					ArrayList<Header> receivedHeaders = new ArrayList<Header>(responseHeaders.size());
+					for (Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
+						for (String value : entry.getValue()) {
+							receivedHeaders.add(new Header(entry.getKey(), value));
+						}
+					}
+					return receivedHeaders;
+				}
+			} catch (IllegalStateException ignored) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
+			} catch (IllegalArgumentException e) {
+				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/875
+			} catch (NullPointerException e) {
+				// issue https://github.com/square/okhttp/issues/348
+			}
+		}
+		return Collections.emptyList();
+	}
 	/**
 	 * Get the HTTP status code for this Request exception
 	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
