@@ -10,15 +10,10 @@ import android.support.annotation.Nullable;
  */
 public class ServerException extends TopheException {
 	private final Object serverError;
-	private final int httpStatusCode;
-	private final HttpResponse response;
-	private final HttpRequestInfo request;
 
 	public ServerException(ImmutableHttpRequest request, Object serverError) {
+		super(request.getHttpRequest(), request.getHttpResponse(), "serverError="+ String.valueOf(serverError));
 		this.serverError = serverError;
-		this.httpStatusCode = getHttpStatusCode(request.getHttpResponse());
-		this.response = request.getHttpResponse();
-		this.request = request.getHttpRequest();
 	}
 
 	/**
@@ -29,30 +24,4 @@ public class ServerException extends TopheException {
 	public Object getServerError() {
 		return serverError;
 	}
-
-	@Override
-	public boolean isTemporaryFailure() {
-		return httpStatusCode >= 500;
-	}
-
-	@Override
-	public String getMessage() {
-		return "serverError="+ String.valueOf(serverError);
-	}
-
-	@Override
-	public int getStatusCode() {
-		return httpStatusCode;
-	}
-
-	@Override
-	public HttpRequestInfo getHttpRequest() {
-		return request;
-	}
-
-	@Override
-	public HttpResponse getHttpResponse() {
-		return response;
-	}
-
 }

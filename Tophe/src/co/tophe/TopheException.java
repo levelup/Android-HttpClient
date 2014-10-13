@@ -13,12 +13,15 @@ import android.support.annotation.Nullable;
  * @author Created by robUx4 on 29/09/2014.
  */
 public abstract class TopheException extends Exception {
+	protected final int httpStatusCode;
+	protected final HttpResponse response;
+	protected final HttpRequestInfo request;
 
-	protected TopheException() {
-	}
-
-	protected TopheException(String errorMessage, Throwable exception) {
-		super(errorMessage, exception);
+	protected TopheException(HttpRequestInfo request, HttpResponse response, String detailMessage) {
+		super(detailMessage);
+		this.request = request;
+		this.response = response;
+		this.httpStatusCode = getHttpStatusCode(response);
 	}
 
 	/**
@@ -26,25 +29,33 @@ public abstract class TopheException extends Exception {
 	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
 	 * <p>0 if we didn't receive any HTTP response for this Exception</p>
 	 */
-	public abstract int getStatusCode();
+	public int getStatusCode() {
+		return httpStatusCode;
+	}
 
 	/**
 	 * The {@link HttpRequestInfo} that generated this Exception
 	 */
-	public abstract HttpRequestInfo getHttpRequest();
+	public HttpRequestInfo getHttpRequest() {
+		return request;
+	}
 
 	/**
 	 * The {@link HttpResponse} that generated this Exception, may be {@code null}
 	 */
 	@Nullable
-	public abstract HttpResponse getHttpResponse();
+	public HttpResponse getHttpResponse() {
+		return response;
+	}
 
-	public abstract boolean isTemporaryFailure();
+	public boolean isTemporaryFailure() {
+		return httpStatusCode >= 500;
+	}
 
 	public List<Header> getReceivedHeaders() {
-		if (null!=getHttpResponse()) {
+		if (null!=response) {
 			try {
-				final Map<String, List<String>> responseHeaders = getHttpResponse().getHeaderFields();
+				final Map<String, List<String>> responseHeaders = response.getHeaderFields();
 				if (null != responseHeaders) {
 					ArrayList<Header> receivedHeaders = new ArrayList<Header>(responseHeaders.size());
 					for (Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
@@ -69,7 +80,7 @@ public abstract class TopheException extends Exception {
 	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
 	 * @return 0 if we didn't receive any HTTP response
 	 */
-	protected static int getHttpStatusCode(HttpResponse response) {
+	private static int getHttpStatusCode(HttpResponse response) {
 		if (null!= response) {
 			try {
 				return response.getResponseCode();

@@ -26,15 +26,9 @@ public class HttpException extends TopheException {
 
 	private static final long serialVersionUID = 4993791558983072165L;
 
-	private final HttpRequestInfo request;
-	private final HttpResponse response;
-	private final int httpStatusCode;
-
 	protected HttpException(Builder builder) {
-		super(builder.errorMessage, builder.exception);
-		this.httpStatusCode = getHttpStatusCode(builder.response);
-		this.request = builder.httpRequest;
-		this.response = builder.response;
+		super(builder.httpRequest, builder.response, builder.errorMessage);
+		initCause(builder.exception);
 	}
 
 	/**
@@ -45,22 +39,7 @@ public class HttpException extends TopheException {
 		return (this instanceof HttpIOException
 				|| this instanceof HttpTimeoutException
 				|| this instanceof HttpMimeException
-				|| httpStatusCode >= 500);
-	}
-
-	@Override
-	public int getStatusCode() {
-		return httpStatusCode;
-	}
-
-	@Override
-	public HttpRequestInfo getHttpRequest() {
-		return request;
-	}
-
-	@Override
-	public HttpResponse getHttpResponse() {
-		return response;
+				|| super.isTemporaryFailure());
 	}
 
 	@Override
