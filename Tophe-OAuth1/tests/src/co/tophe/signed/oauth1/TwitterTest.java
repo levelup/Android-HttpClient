@@ -1,11 +1,11 @@
 package co.tophe.signed.oauth1;
 
+import co.tophe.TopheClient;
 import oauth.signpost.exception.OAuthException;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
 import co.tophe.RawHttpRequest;
-import co.tophe.HttpClient;
 import co.tophe.HttpRequest;
 import co.tophe.UriParams;
 import co.tophe.signed.OAuthClientApp;
@@ -44,7 +44,7 @@ public class TwitterTest extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 	
 	public void testRequestToken() {
@@ -68,7 +68,7 @@ public class TwitterTest extends AndroidTestCase {
 	 */
 	public void testTwitterSearch() throws Exception {
 		HttpRequest search = getSearchRequest();
-		String response = HttpClient.getStringResponse(search);
+		String response = TopheClient.getStringResponse(search);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
 		assertEquals('{', response.charAt(0));
@@ -83,7 +83,7 @@ public class TwitterTest extends AndroidTestCase {
 		uriParams.add("cursor", -1);
 		uriParams.add("screen_name", "twitterapi");
 		HttpRequest request = new RawHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/friends/list.json", uriParams).build();
-		String response = HttpClient.getStringResponse(request);
+		String response = TopheClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
 		assertEquals('{', response.charAt(0));
@@ -97,7 +97,7 @@ public class TwitterTest extends AndroidTestCase {
 		UriParams uriParams = new UriParams(1);
 		uriParams.add("screen_name", "touiteurtest");
 		HttpRequest request = new RawHttpRequest.Builder().setSigner(twitterSigner).setUrl("https://api.twitter.com/1.1/users/show.json", uriParams).build();
-		String response = HttpClient.getStringResponse(request);
+		String response = TopheClient.getStringResponse(request);
 		assertNotNull(response);
 		assertTrue(response.length() > 0);
 		assertEquals('{', response.charAt(0));

@@ -26,7 +26,7 @@ import co.tophe.parser.BodyToString;
 import okio.BufferedSource;
 import okio.Okio;
 
-public class HttpClientTest extends AndroidTestCase {
+public class TopheClientTest extends AndroidTestCase {
 
 	private static final Class<?> ENGINE_CLASS = HttpEngineUrlConnection.class;
 	private static final Class<?> STREAM_ENGINE_CLASS = HttpEngineUrlConnection.class;
@@ -34,7 +34,7 @@ public class HttpClientTest extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 
 	@MediumTest
@@ -51,7 +51,7 @@ public class HttpClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("files"));
 		JSONObject files = result.optJSONObject("files");
@@ -79,7 +79,7 @@ public class HttpClientTest extends AndroidTestCase {
 					build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-			JSONObject result = HttpClient.parseRequest(request);
+			JSONObject result = TopheClient.parseRequest(request);
 			assertNotNull(result);
 			assertFalse(result.isNull("files"));
 			JSONObject files = result.optJSONObject("files");
@@ -107,7 +107,7 @@ public class HttpClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("form"));
 		JSONObject form = result.optJSONObject("form");
@@ -131,7 +131,7 @@ public class HttpClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("form"));
 		JSONObject form = result.optJSONObject("form");
@@ -157,7 +157,7 @@ public class HttpClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("json"));
 		JSONObject json = result.optJSONObject("json");
@@ -181,7 +181,7 @@ public class HttpClientTest extends AndroidTestCase {
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
-			JSONObject result = HttpClient.parseRequest(request);
+			JSONObject result = TopheClient.parseRequest(request);
 			fail("we should have timed out after 3s");
 		} catch (HttpTimeoutException e) {
 			// ok
@@ -196,7 +196,7 @@ public class HttpClientTest extends AndroidTestCase {
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
-			String result = HttpClient.parseRequest(request);
+			String result = TopheClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
 		} catch (ServerException e) {
 			assertEquals(errorCode, e.getStatusCode());
@@ -210,7 +210,7 @@ public class HttpClientTest extends AndroidTestCase {
 				.build();
 
 		try {
-			HttpStream result = HttpClient.parseRequest(request);
+			HttpStream result = TopheClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
 		} catch (ServerException e) {
 			assertEquals(errorCode, e.getStatusCode());
@@ -237,7 +237,7 @@ public class HttpClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		String result = HttpClient.parseRequest(request);
+		String result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertTrue(result.contains("\"origin\""));
 	}
@@ -252,7 +252,7 @@ public class HttpClientTest extends AndroidTestCase {
 		request.setHeader(HttpRequest.HEADER_ACCEPT, "application/json");
 
 		try {
-			String result = HttpClient.parseRequest(request);
+			String result = TopheClient.parseRequest(request);
 			fail("we should not be here");
 		} catch (HttpMimeException e) {
 			// ok
@@ -267,7 +267,7 @@ public class HttpClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		try {
 			InputStream streamIn = stream.getInputStream();
 			byte[] buffer = new byte[1];
@@ -306,7 +306,7 @@ public class HttpClientTest extends AndroidTestCase {
 		request.setHeader(HttpRequest.HEADER_ACCEPT_ENCODING, "gzip,deflate");
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		try {
 			InputStream streamIn = stream.getInputStream();
 			byte[] buffer = new byte[1];
@@ -344,7 +344,7 @@ public class HttpClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		try {
 			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
 			String line = lineReader.readUtf8LineStrict();
@@ -381,7 +381,7 @@ public class HttpClientTest extends AndroidTestCase {
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
-			HttpStream stream = HttpClient.parseRequest(request);
+			HttpStream stream = TopheClient.parseRequest(request);
 			try {
 				BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
 				String line = lineReader.readUtf8();
@@ -405,7 +405,7 @@ public class HttpClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		InputStream streamIn = stream.getInputStream();
 		byte[] buffer = new byte[1];
 		int read = streamIn.read(buffer);
@@ -432,7 +432,7 @@ public class HttpClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		final HttpStream stream = HttpClient.parseRequest(request);
+		final HttpStream stream = TopheClient.parseRequest(request);
 		InputStream streamIn = stream.getInputStream();
 		byte[] buffer = new byte[1];
 		int read = streamIn.read(buffer);
@@ -461,7 +461,7 @@ public class HttpClientTest extends AndroidTestCase {
 
 	public void testNullContext() throws Exception {
 		try {
-			HttpClient.setup(null);
+			TopheClient.setup(null);
 			BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 					.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 					.setResponseHandler(BodyToString.RESPONSE_HANDLER)
@@ -474,7 +474,7 @@ public class HttpClientTest extends AndroidTestCase {
 	}
 
 	public void testNullContextStreaming() throws Exception {
-		HttpClient.setup(null);
+		TopheClient.setup(null);
 		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
@@ -483,12 +483,12 @@ public class HttpClientTest extends AndroidTestCase {
 	}
 
 	public void testSetupContext() throws Exception {
-		HttpClient.setup(getContext());
+		TopheClient.setup(getContext());
 		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 			// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
-		HttpClient.setup(null);
+		TopheClient.setup(null);
 	}
 }

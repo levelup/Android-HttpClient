@@ -18,7 +18,7 @@ public class CallableHelperTest extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 
 	private static class PagedResult {

@@ -14,7 +14,7 @@ import co.tophe.ServerException;
 import oauth.signpost.http.HttpRequest;
 
 /**
- * Wrap a {@link co.tophe.BaseHttpRequest HttpClient BaseHttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
+ * Wrap a {@link co.tophe.BaseHttpRequest TopheClient BaseHttpRequest} to match the {@link oauth.signpost.http.HttpRequest signpost HttpRequest} interface
  */
 public class OAuth1RequestAdapter implements HttpRequest {
 	private final HttpEngine<?,?> httpEngine;

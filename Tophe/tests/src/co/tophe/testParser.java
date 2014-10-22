@@ -19,7 +19,7 @@ public class testParser extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -40,7 +40,7 @@ public class testParser extends AndroidTestCase {
 		);
 
 		try {
-			Void parsed = HttpClient.parseRequest(apiGet);
+			Void parsed = TopheClient.parseRequest(apiGet);
 		} catch (HttpException e) {
 			// shit happens
 		}

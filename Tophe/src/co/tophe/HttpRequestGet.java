@@ -5,7 +5,7 @@ import android.net.Uri;
 import co.tophe.parser.XferTransform;
 
 /**
- * Basic HTTP GET request to use with {@link HttpClient}
+ * Basic HTTP GET request to use with {@link TopheClient}
  * 
  * @author Steve Lhomme
  * @see BaseHttpRequest for a more complete API

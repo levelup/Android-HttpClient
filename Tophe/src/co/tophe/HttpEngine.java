@@ -40,7 +40,7 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 	public static class Builder<T, SE extends ServerException> {
 		private ResponseHandler<T,SE> responseHandler;
 		private RawHttpRequest httpRequest;
-		private HttpEngineFactory factory = HttpClient.getHttpEngineFactory();
+		private HttpEngineFactory factory = TopheClient.getHttpEngineFactory();
 		private int threadStatsTag;
 
 		public Builder() {

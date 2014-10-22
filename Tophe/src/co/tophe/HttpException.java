@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 /**
- * Exception that will occur by using {@link HttpClient}
+ * Exception that will occur by using {@link TopheClient}
  */
 public class HttpException extends TopheException {
 

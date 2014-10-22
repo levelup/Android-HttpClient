@@ -8,7 +8,7 @@ import java.util.concurrent.Executor;
 import android.support.annotation.Nullable;
 
 import co.tophe.async.AsyncCallback;
-import co.tophe.async.AsyncHttpClient;
+import co.tophe.async.AsyncTopheClient;
 import co.tophe.async.AsyncTask;
 
 /**
@@ -71,7 +71,7 @@ public class PagingHelper {
 	 */
 	public static <PAGE> void readPagesAsync(Callable<PAGE> currentPageRequest, NextPageFactory<PAGE> nextPageFactory,
 	                                         AsyncCallback<List<PAGE>> resultCallback) {
-		readPagesAsync(currentPageRequest, nextPageFactory, resultCallback, AsyncHttpClient.getExecutor());
+		readPagesAsync(currentPageRequest, nextPageFactory, resultCallback, AsyncTopheClient.getExecutor());
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class PagingHelper {
 	public static <PAGE_HOLDER, PAGE> void processPagesAsync(Callable<PAGE> currentPageRequest, PAGE_HOLDER pagesHolder, @Nullable PageCallback<PAGE_HOLDER, PAGE> pageCallback,
 	                                                         NextPageFactory<PAGE> nextPageFactory,
 	                                                         AsyncCallback<PAGE_HOLDER> resultCallback) {
-		processPagesAsync(currentPageRequest, pagesHolder, pageCallback, nextPageFactory, resultCallback, AsyncHttpClient.getExecutor());
+		processPagesAsync(currentPageRequest, pagesHolder, pageCallback, nextPageFactory, resultCallback, AsyncTopheClient.getExecutor());
 	}
 
 	/**

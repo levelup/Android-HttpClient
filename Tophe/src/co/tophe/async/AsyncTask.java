@@ -112,7 +112,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 		private static final HashMap<String, AsyncTask<?>> taggedJobs = new HashMap<String, AsyncTask<?>>();
 
 		private AsyncTaskFactory<T> factory = BaseAsyncTaskFactory.instance;
-		private Executor executor = AsyncHttpClient.getExecutor();
+		private Executor executor = AsyncTopheClient.getExecutor();
 		private Callable<T> callable;
 		private AsyncCallback<T> callback;
 		private String taskTag;

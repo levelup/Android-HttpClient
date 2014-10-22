@@ -35,7 +35,7 @@ import co.tophe.log.LoggerTagged;
 import co.tophe.parser.ParserException;
 
 /**
- * Basic HTTP request to be passed to {@link co.tophe.HttpClient}
+ * Basic HTTP request to be passed to {@link co.tophe.TopheClient}
  *
  * @param <T> type of the data read from the HTTP response
  * @see co.tophe.HttpRequestGet for a more simple API

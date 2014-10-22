@@ -16,7 +16,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import co.tophe.BaseHttpRequest;
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.HttpConfig;
 import co.tophe.HttpMimeException;
 import co.tophe.HttpRequest;
@@ -61,7 +61,7 @@ public class IonClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("files"));
 		JSONObject files = result.optJSONObject("files");
@@ -89,7 +89,7 @@ public class IonClientTest extends AndroidTestCase {
 					build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-			JSONObject result = HttpClient.parseRequest(request);
+			JSONObject result = TopheClient.parseRequest(request);
 			assertNotNull(result);
 			assertFalse(result.isNull("files"));
 			JSONObject files = result.optJSONObject("files");
@@ -117,7 +117,7 @@ public class IonClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("form"));
 		JSONObject form = result.optJSONObject("form");
@@ -141,7 +141,7 @@ public class IonClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("form"));
 		JSONObject form = result.optJSONObject("form");
@@ -167,7 +167,7 @@ public class IonClientTest extends AndroidTestCase {
 				build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		JSONObject result = HttpClient.parseRequest(request);
+		JSONObject result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertFalse(result.isNull("json"));
 		JSONObject json = result.optJSONObject("json");
@@ -191,7 +191,7 @@ public class IonClientTest extends AndroidTestCase {
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
-			JSONObject result = HttpClient.parseRequest(request);
+			JSONObject result = TopheClient.parseRequest(request);
 			fail("we should have timed out after 3s");
 		} catch (HttpTimeoutException e) {
 			// ok
@@ -206,7 +206,7 @@ public class IonClientTest extends AndroidTestCase {
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
-			String result = HttpClient.parseRequest(request);
+			String result = TopheClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode);
 		} catch (ServerException e) {
 			assertEquals(errorCode, e.getStatusCode());
@@ -220,7 +220,7 @@ public class IonClientTest extends AndroidTestCase {
 				.build();
 
 		try {
-			HttpStream result = HttpClient.parseRequest(request);
+			HttpStream result = TopheClient.parseRequest(request);
 			fail("we should have an HTTP error " + errorCode + ", not a stream");
 		} catch (ServerException e) {
 			assertEquals(errorCode, e.getStatusCode());
@@ -247,7 +247,7 @@ public class IonClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		String result = HttpClient.parseRequest(request);
+		String result = TopheClient.parseRequest(request);
 		assertNotNull(result);
 		assertTrue(result.contains("\"origin\""));
 	}
@@ -262,7 +262,7 @@ public class IonClientTest extends AndroidTestCase {
 		request.setHeader(HttpRequest.HEADER_ACCEPT, "application/json");
 
 		try {
-			String result = HttpClient.parseRequest(request);
+			String result = TopheClient.parseRequest(request);
 			fail("we should not be here");
 		} catch (HttpMimeException e) {
 			// ok
@@ -277,7 +277,7 @@ public class IonClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		try {
 			InputStream streamIn = stream.getInputStream();
 			byte[] buffer = new byte[1];
@@ -316,7 +316,7 @@ public class IonClientTest extends AndroidTestCase {
 		request.setHeader(HttpRequest.HEADER_ACCEPT_ENCODING, "gzip,deflate");
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		try {
 			InputStream streamIn = stream.getInputStream();
 			byte[] buffer = new byte[1];
@@ -354,7 +354,7 @@ public class IonClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		try {
 			BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
 			String line = lineReader.readUtf8LineStrict();
@@ -391,7 +391,7 @@ public class IonClientTest extends AndroidTestCase {
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
 		try {
-			HttpStream stream = HttpClient.parseRequest(request);
+			HttpStream stream = TopheClient.parseRequest(request);
 			try {
 				BufferedSource lineReader = Okio.buffer(Okio.source(stream.getInputStream()));
 				String line = lineReader.readUtf8();
@@ -415,7 +415,7 @@ public class IonClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		HttpStream stream = HttpClient.parseRequest(request);
+		HttpStream stream = TopheClient.parseRequest(request);
 		InputStream streamIn = stream.getInputStream();
 		byte[] buffer = new byte[1];
 		int read = streamIn.read(buffer);
@@ -442,7 +442,7 @@ public class IonClientTest extends AndroidTestCase {
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
 
-		final HttpStream stream = HttpClient.parseRequest(request);
+		final HttpStream stream = TopheClient.parseRequest(request);
 		InputStream streamIn = stream.getInputStream();
 		byte[] buffer = new byte[1];
 		int read = streamIn.read(buffer);
@@ -471,7 +471,7 @@ public class IonClientTest extends AndroidTestCase {
 
 	public void testNullContext() throws Exception {
 		try {
-			HttpClient.setup(null);
+			TopheClient.setup(null);
 			BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 					.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 					.setResponseHandler(BodyToString.RESPONSE_HANDLER)
@@ -484,7 +484,7 @@ public class IonClientTest extends AndroidTestCase {
 	}
 
 	public void testNullContextStreaming() throws Exception {
-		HttpClient.setup(null);
+		TopheClient.setup(null);
 		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
@@ -493,12 +493,12 @@ public class IonClientTest extends AndroidTestCase {
 	}
 
 	public void testSetupContext() throws Exception {
-		HttpClient.setup(getContext());
+		TopheClient.setup(getContext());
 		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
 				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
 				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
 				.build();
 			// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
-		HttpClient.setup(null);
+		TopheClient.setup(null);
 	}
 }

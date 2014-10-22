@@ -6,7 +6,7 @@ import android.test.AndroidTestCase;
 import com.google.gson.annotations.SerializedName;
 import co.tophe.BaseHttpRequest;
 import co.tophe.BaseResponseHandler;
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.HttpDataParserException;
 import co.tophe.ImmutableHttpRequest;
 import co.tophe.ResponseHandler;
@@ -35,7 +35,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 				setResponseHandler(new BaseResponseHandler<HttpbinData>(new BodyViaGson<HttpbinData>(HttpbinData.class))).
 				build();
 
-		HttpbinData data = HttpClient.parseRequest(request);
+		HttpbinData data = TopheClient.parseRequest(request);
 		assertNotNull(data);
 		assertEquals(request.getUri().toString(), data.url);
 	}
@@ -76,7 +76,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 				build();
 
 		try {
-			String data = HttpClient.parseRequest(request);
+			String data = TopheClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (FacebookException e) {
 			Object serverError = e.getServerError();
@@ -103,7 +103,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 				build();
 
 		try {
-			String data = HttpClient.parseRequest(request);
+			String data = TopheClient.parseRequest(request);
 			fail("We should never have received data:"+data);
 		} catch (FacebookException e) {
 			Object serverError = e.getServerError();
@@ -124,7 +124,7 @@ public class BodyViaGsonTest extends AndroidTestCase {
 				build();
 
 		try {
-			HttpClient.parseRequest(request);
+			TopheClient.parseRequest(request);
 		} catch (HttpDataParserException e) {
 			assertEquals("Bad data for GSON", e.getCause().getMessage());
 			assertNotNull(e.getCause().getSourceData());

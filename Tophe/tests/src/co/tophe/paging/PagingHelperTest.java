@@ -10,7 +10,7 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 
 import co.tophe.BaseResponseHandler;
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.HttpEngine;
 import co.tophe.RawHttpRequest;
 import co.tophe.ServerException;
@@ -24,7 +24,7 @@ public class PagingHelperTest extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 
 	private static class PagedResult {

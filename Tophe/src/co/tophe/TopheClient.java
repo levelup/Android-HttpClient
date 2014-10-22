@@ -1,6 +1,5 @@
 package co.tophe;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import android.content.Context;
@@ -15,7 +14,7 @@ import co.tophe.parser.BodyToString;
 /**
  * HTTP client that handles {@link HttpRequest} 
  */
-public class HttpClient {
+public class TopheClient {
 
 	private static String userAgent;
 	private static String xRequestedWith;
@@ -28,7 +27,7 @@ public class HttpClient {
 	private static Boolean useConscrypt;
 
 	/**
-	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
+	 * Setup internal values of the {@link TopheClient} using the provided {@link Context}
 	 * <p>The user agent is deduced from the app name of the {@code context} if it's not {@code null}</p>
 	 * @param context Used to get a proper User Agent for your app, may be {@code null}
 	 */
@@ -91,7 +90,7 @@ public class HttpClient {
 	}
 
 	public static void setCookieManager(CookieManager cookieManager) {
-		HttpClient.cookieManager = cookieManager;
+		TopheClient.cookieManager = cookieManager;
 	}
 
 	public static CookieManager getCookieManager() {
@@ -133,6 +132,6 @@ public class HttpClient {
 	}
 
 	public static void setHttpEngineFactory(HttpEngineFactory httpEngineFactory) {
-		HttpClient.httpEngineFactory = httpEngineFactory;
+		TopheClient.httpEngineFactory = httpEngineFactory;
 	}
 }

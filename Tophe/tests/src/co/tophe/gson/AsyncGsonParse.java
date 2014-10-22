@@ -16,7 +16,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.HttpRequestGet;
 
 public class AsyncGsonParse extends AndroidTestCase {
@@ -40,7 +40,7 @@ public class AsyncGsonParse extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 
 	public void testGsonParser() throws Exception {
@@ -48,7 +48,7 @@ public class AsyncGsonParse extends AndroidTestCase {
 
 		BodyViaGson<List<AppXoid>> parser = BodyViaGson.asList(gson, AppXoid.class);
 		HttpRequestGet<List<AppXoid>> request = new HttpRequestGet<List<AppXoid>>(JSON_URL, parser);
-		List<AppXoid> items = HttpClient.parseRequest(request);
+		List<AppXoid> items = TopheClient.parseRequest(request);
 		assertNotNull(items);
 	}
 
@@ -124,7 +124,7 @@ public class AsyncGsonParse extends AndroidTestCase {
 
 		BodyViaGson<List<AppXoidReader>> parser = BodyViaGson.asList(gson, AppXoidReader.class);
 		HttpRequestGet<List<AppXoidReader>> request = new HttpRequestGet<List<AppXoidReader>>(JSON_URL, parser);
-		List<AppXoidReader> items = HttpClient.parseRequest(request);
+		List<AppXoidReader> items = TopheClient.parseRequest(request);
 		assertNotNull(items);
 	}
 }

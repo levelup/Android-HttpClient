@@ -11,7 +11,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 import co.tophe.HttpException;
 import co.tophe.HttpRequestGet;
-import co.tophe.async.AsyncHttpClient;
+import co.tophe.async.AsyncTopheClient;
 import co.tophe.async.AsyncTask;
 import co.tophe.async.BaseAsyncCallback;
 import co.tophe.ion.IonClient;
@@ -87,7 +87,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 
 	public void testCancelShort() {
-		Future<String> downloadTask = AsyncHttpClient.postRequest(BASIC_REQUEST, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncTopheClient.postRequest(BASIC_REQUEST, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -104,7 +104,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	public void testCancelShortHttps() {
 		HttpRequestGet<String> request = new HttpRequestGet(BASIC_URL_HTTPS, BodyToString.INSTANCE);
-		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncTopheClient.postRequest(request, new TestLongAsyncCallback());
 
 		downloadTask.cancel(true);
 
@@ -121,7 +121,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	public void testCancelLong() {
 		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL, BodyToString.INSTANCE);
-		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncTopheClient.postRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -142,7 +142,7 @@ public class AsyncClientTest extends AndroidTestCase {
 
 	public void testCancelLongHttps() {
 		HttpRequestGet<String> request = new HttpRequestGet(SLOW_URL_HTTPS, BodyToString.INSTANCE);
-		Future<String> downloadTask = AsyncHttpClient.postRequest(request, new TestLongAsyncCallback());
+		Future<String> downloadTask = AsyncTopheClient.postRequest(request, new TestLongAsyncCallback());
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {

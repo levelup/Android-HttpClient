@@ -6,7 +6,7 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 
 import co.tophe.BaseHttpRequest;
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.HttpDataParserException;
 import co.tophe.ServerException;
 import co.tophe.parser.BodyToJSONObject;
@@ -26,7 +26,7 @@ public class BodyToJSONObjectTest extends AndroidTestCase {
 				build();
 
 		try {
-			HttpClient.parseRequest(request);
+			TopheClient.parseRequest(request);
 		} catch (HttpDataParserException e) {
 			assertNotNull(e.getMessage());
 			assertTrue(e.getCause().getMessage().startsWith("Bad JSON data"));

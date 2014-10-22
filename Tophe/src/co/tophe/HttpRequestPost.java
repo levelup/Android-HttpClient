@@ -6,7 +6,7 @@ import co.tophe.body.HttpBodyParameters;
 import co.tophe.parser.XferTransform;
 
 /**
- * Basic HTTP POST request to use with {@link HttpClient}
+ * Basic HTTP POST request to use with {@link TopheClient}
  * 
  * @author Steve Lhomme
  * @see BaseHttpRequest for a more complete API

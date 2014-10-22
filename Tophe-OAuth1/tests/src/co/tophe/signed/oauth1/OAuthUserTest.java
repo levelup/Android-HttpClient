@@ -4,7 +4,7 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 
 import co.tophe.BaseHttpRequest;
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.UriParams;
 import co.tophe.parser.BodyToString;
 import co.tophe.signed.OAuthClientApp;
@@ -27,7 +27,7 @@ public class OAuthUserTest extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 	
 	public void testNullUser() throws Exception {
@@ -40,7 +40,7 @@ public class OAuthUserTest extends AndroidTestCase {
 				setUrl("http://www.levelupstudio.com/", uriParams).
 				setResponseHandler(BodyToString.RESPONSE_HANDLER).
 				build();
-		HttpClient.parseRequest(get);
+		TopheClient.parseRequest(get);
 	}
 
 	public void testEmptyUser() throws Exception {
@@ -65,7 +65,7 @@ public class OAuthUserTest extends AndroidTestCase {
 				setUrl("http://www.levelupstudio.com/", uriParams).
 				setResponseHandler(BodyToString.RESPONSE_HANDLER).
 				build();
-		HttpClient.parseRequest(get);
+		TopheClient.parseRequest(get);
 	}
 
 }

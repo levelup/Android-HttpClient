@@ -189,7 +189,7 @@ public class RawHttpRequest implements HttpRequest {
 		protected abstract R build(B builder);
 
 		/**
-		 * Build the HTTP request to run through {@link HttpClient}
+		 * Build the HTTP request to run through {@link TopheClient}
 		 */
 		public R build() {
 			return build((B) this);
@@ -217,15 +217,15 @@ public class RawHttpRequest implements HttpRequest {
 		this.signer = builder.getSigner();
 		this.bodyParams = builder.getBodyParams();
 
-		if (!TextUtils.isEmpty(HttpClient.getUserAgent())) {
-			mRequestSetHeaders.put(HTTP.USER_AGENT, HttpClient.getUserAgent());
+		if (!TextUtils.isEmpty(TopheClient.getUserAgent())) {
+			mRequestSetHeaders.put(HTTP.USER_AGENT, TopheClient.getUserAgent());
 		}
 
-		if (!TextUtils.isEmpty(HttpClient.getXRequestedWith())) {
-			mRequestSetHeaders.put("X-Requested-With", HttpClient.getXRequestedWith());
+		if (!TextUtils.isEmpty(TopheClient.getXRequestedWith())) {
+			mRequestSetHeaders.put("X-Requested-With", TopheClient.getXRequestedWith());
 		}
 
-		final Header[] defaultHeaders = HttpClient.getDefaultHeaders();
+		final Header[] defaultHeaders = TopheClient.getDefaultHeaders();
 		if (null!=defaultHeaders) {
 			for (Header defaultHeader : defaultHeaders) {
 				mRequestSetHeaders.put(defaultHeader.getName(), defaultHeader.getValue());

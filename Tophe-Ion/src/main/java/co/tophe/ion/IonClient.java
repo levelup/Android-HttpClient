@@ -2,7 +2,7 @@ package co.tophe.ion;
 
 import android.content.Context;
 
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.HttpEngineFactory;
 import co.tophe.HttpEngineFactoryFallback;
 
@@ -15,11 +15,11 @@ public class IonClient {
 	}
 
 	public static void setup(Context context) {
-		setup(context, HttpClient.getHttpEngineFactory());
+		setup(context, TopheClient.getHttpEngineFactory());
 	}
 
 	public static void setup(Context context, HttpEngineFactory fallbackFactory) {
-		HttpClient.setup(context);
-		HttpClient.setHttpEngineFactory(new HttpEngineFactoryFallback(IonHttpEngineFactory.getInstance(context), fallbackFactory));
+		TopheClient.setup(context);
+		TopheClient.setHttpEngineFactory(new HttpEngineFactoryFallback(IonHttpEngineFactory.getInstance(context), fallbackFactory));
 	}
 }

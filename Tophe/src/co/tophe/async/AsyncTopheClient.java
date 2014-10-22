@@ -11,12 +11,12 @@ import android.support.annotation.Nullable;
 import co.tophe.TypedHttpRequest;
 
 /**
- * Basic HttpClient to run network queries outside of the UI thread
+ * Basic TopheClient to run network queries outside of the UI thread
  * <p>Helper class for {@link AsyncTask.Builder}</p>
  * 
  * @author Steve Lhomme
  */
-public class AsyncHttpClient {
+public class AsyncTopheClient {
 
 	private static final int THREAD_POOL_SIZE = 3*Runtime.getRuntime().availableProcessors();
 	private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>();
@@ -27,7 +27,7 @@ public class AsyncHttpClient {
 		((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
 	}
 
-	private AsyncHttpClient() {
+	private AsyncTopheClient() {
 	}
 
 	/**

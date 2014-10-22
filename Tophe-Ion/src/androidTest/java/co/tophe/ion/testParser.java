@@ -10,7 +10,7 @@ import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.JsonReader;
 
-import co.tophe.HttpClient;
+import co.tophe.TopheClient;
 import co.tophe.HttpException;
 import co.tophe.HttpRequestGet;
 import co.tophe.ImmutableHttpRequest;
@@ -45,7 +45,7 @@ public class testParser extends AndroidTestCase {
 		);
 
 		try {
-			Void parsed = HttpClient.parseRequest(apiGet);
+			Void parsed = TopheClient.parseRequest(apiGet);
 		} catch (HttpException e) {
 			// shit happens
 		}

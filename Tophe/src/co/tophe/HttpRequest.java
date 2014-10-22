@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import co.tophe.log.LoggerTagged;
 
 /**
- * Interface for HTTP requests to be passed to {@link HttpClient}
+ * Interface for HTTP requests to be passed to {@link TopheClient}
  * @see BaseHttpRequest
  */
 public interface HttpRequest extends HttpRequestInfo {

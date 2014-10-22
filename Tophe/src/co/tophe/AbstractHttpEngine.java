@@ -79,8 +79,8 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 				HttpConnectionParams.setSoTimeout(client.getParams(), config.getReadTimeout(request));
 				HttpConnectionParams.setConnectionTimeout(client.getParams(), CONNECTION_TIMEOUT_IN_MS);
 			 */
-		if (null != HttpClient.getCookieManager()) {
-			HttpClient.getCookieManager().setHttpEngineCookies(this);
+		if (null != TopheClient.getCookieManager()) {
+			TopheClient.getCookieManager().setHttpEngineCookies(this);
 		}
 
 		final long contentLength;
@@ -194,7 +194,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 		this.httpResponse = httpResponse;
 		responseHandler.onHttpResponse(request, httpResponse);
 
-		CookieManager cookieMaster = HttpClient.getCookieManager();
+		CookieManager cookieMaster = TopheClient.getCookieManager();
 		if (cookieMaster != null) {
 			try {
 				cookieMaster.onCookiesReceived(this);

@@ -12,7 +12,7 @@ public class BodyToJSONObjectTest extends AndroidTestCase {
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		HttpClient.setup(context);
+		TopheClient.setup(context);
 	}
 	
 	public void testBogusData() throws Exception {
@@ -22,7 +22,7 @@ public class BodyToJSONObjectTest extends AndroidTestCase {
 				build();
 
 		try {
-			HttpClient.parseRequest(request);
+			TopheClient.parseRequest(request);
 		} catch (HttpDataParserException e) {
 			assertNotNull(e.getMessage());
 			assertTrue(e.getCause().getMessage().startsWith("Bad JSON data"));

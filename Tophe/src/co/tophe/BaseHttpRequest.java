@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import co.tophe.parser.XferTransform;
 
 /**
- * Basic HTTP request to be passed to {@link HttpClient}
+ * Basic HTTP request to be passed to {@link TopheClient}
  * @see HttpRequestGet for a more simple API
  * @see HttpRequestPost for a more simple POST API
  * @param <T> type of the data read from the HTTP response
