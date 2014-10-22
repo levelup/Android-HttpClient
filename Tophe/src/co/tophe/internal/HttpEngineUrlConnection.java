@@ -5,15 +5,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import co.tophe.AbstractHttpEngine;
 import co.tophe.HttpConfig;
@@ -36,11 +45,77 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 	final HttpURLConnection urlConnection;
 	private static final String ENGINE_SIGNATURE = null; // TODO we could give the OS version
 
+	/**
+	 * {@link javax.net.ssl.SSLSocketFactory} that disables {@code SSLv3}
+	 */
+	private static class TLSFactory extends SSLSocketFactory {
+		private final SSLSocketFactory delegate;
+
+		private TLSFactory(SSLSocketFactory delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public String[] getDefaultCipherSuites() {
+			return delegate.getDefaultCipherSuites();
+		}
+
+		@Override
+		public String[] getSupportedCipherSuites() {
+			return delegate.getSupportedCipherSuites();
+		}
+
+		private static Socket makeSocketSafe(Socket socket) {
+			if (socket instanceof SSLSocket) {
+				SSLSocket sslSocket = (SSLSocket) socket;
+				List<String> protocols = new ArrayList<String>(Arrays.asList(sslSocket.getEnabledProtocols()));
+				protocols.remove("SSLv3");
+				if (!protocols.isEmpty()) {
+					sslSocket.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
+				} else {
+					LogManager.getLogger().w("using SSLv3 as there's no other protocol available for "+socket);
+				}
+			}
+			return socket;
+		}
+
+		@Override
+		public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+			return makeSocketSafe(delegate.createSocket(s, host, port, autoClose));
+		}
+
+		@Override
+		public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+			return makeSocketSafe(delegate.createSocket(host, port));
+		}
+
+		@Override
+		public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
+			return makeSocketSafe(delegate.createSocket(host, port, localHost, localPort));
+		}
+
+		@Override
+		public Socket createSocket(InetAddress host, int port) throws IOException {
+			return makeSocketSafe(delegate.createSocket(host, port));
+		}
+
+		@Override
+		public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+			return makeSocketSafe(delegate.createSocket(address, port, localAddress, localPort));
+		}
+	}
+
 	public HttpEngineUrlConnection(Builder<T, SE> builder) {
 		super(builder);
 
 		try {
 			this.urlConnection = (HttpURLConnection) new URL(request.getUri().toString()).openConnection();
+			if (urlConnection instanceof HttpsURLConnection) {
+				HttpsURLConnection sslConnection = (HttpsURLConnection) urlConnection;
+				SSLSocketFactory sslFactory = sslConnection.getSSLSocketFactory();
+				TLSFactory safeFactory = new TLSFactory(sslFactory);
+				sslConnection.setSSLSocketFactory(safeFactory);
+			}
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("Bad uri: " + request.getUri(), e);
 		} catch (IOException e) {
