@@ -23,6 +23,10 @@ public class HttpClient {
 	private static Header[] defaultHeaders;
 	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.INSTANCE;
 
+	public static final int PLAY_SERVICES_BOGUS_SSLV3 = 6174070;
+
+	private static Boolean useConscrypt;
+
 	/**
 	 * Setup internal values of the {@link HttpClient} using the provided {@link Context}
 	 * <p>The user agent is deduced from the app name of the {@code context} if it's not {@code null}</p>
@@ -47,16 +51,33 @@ public class HttpClient {
 				xRequestedWith = applicationInfo.packageName;
 			}
 
-			try {
-				Context gms = context.createPackageContext("com.google.android.gms", Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-				Class clazz = gms.getClassLoader().loadClass("com.google.android.gms.common.security.ProviderInstallerImpl");
-				Method mInsertProvider = clazz.getDeclaredMethod("insertProvider", Context.class);
-				mInsertProvider.invoke(null, context);
-			} catch (ClassNotFoundException ignored) {
-			} catch (InvocationTargetException ignored) {
-			} catch (NoSuchMethodException ignored) {
-			} catch (IllegalAccessException ignored) {
-			} catch (NameNotFoundException ignored) {
+			if (null == useConscrypt) {
+				useConscrypt = true;
+				// The Play Services are are bogus on old versions, see https://android-review.googlesource.com/#/c/99698/
+				try {
+					PackageInfo pI = pM.getPackageInfo("com.google.android.gms", 0);
+					if (pI != null) {
+						useConscrypt = pI.versionCode != PLAY_SERVICES_BOGUS_SSLV3;
+					}
+				} catch (PackageManager.NameNotFoundException ignored) {
+				}
+
+				if (useConscrypt) {
+					try {
+						Class<?> providerInstaller = Class.forName("com.google.android.gms.security.ProviderInstaller");
+						Method mInsertProvider = providerInstaller.getDeclaredMethod("installIfNeeded", Context.class);
+						mInsertProvider.invoke(null, context);
+
+					} catch (Throwable ignored) {
+						try {
+							Context gms = context.createPackageContext("com.google.android.gms", Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+							Class clazz = gms.getClassLoader().loadClass("com.google.android.gms.common.security.ProviderInstallerImpl");
+							Method mInsertProvider = clazz.getDeclaredMethod("insertProvider", Context.class);
+							mInsertProvider.invoke(null, context);
+						} catch (Throwable e) {
+						}
+					}
+				}
 			}
 		}
 	}
