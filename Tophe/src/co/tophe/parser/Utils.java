@@ -43,7 +43,7 @@ public class Utils {
 		return t1;
 	}
 
-	public static XferTransform<HttpResponse, ?> getCommonXferTransform(XferTransform<HttpResponse, ?> t1, XferTransform<HttpResponse, ?> t2) {
+	public static XferTransform<HttpResponse, ?> getCommonXferTransform(XferTransform<HttpResponse, ?> t1, XferTransform<HttpResponse, ?> t2, boolean logErrors) {
 		if (t1.equals(t2)) {
 			return t1;
 		}
@@ -56,7 +56,7 @@ public class Utils {
 					return t2;
 				}
 
-				LogManager.getLogger().w("Error parser:"+t2+" not compatible with data parser:"+t1);
+				if (logErrors) LogManager.getLogger().w("Error parser:"+t2+" not compatible with data parser:"+t1);
 				return null;
 			}
 
@@ -71,11 +71,11 @@ public class Utils {
 				return t1;
 			}
 
-			LogManager.getLogger().w("Error parser:" + t2 + " not compatible with data parser:" + t1);
+			if (logErrors) LogManager.getLogger().w("Error parser:" + t2 + " not compatible with data parser:" + t1);
 			return null;
 		}
 
-		LogManager.getLogger().w("Error parser:"+t2+" not compatible with data parser:"+t1);
+		if (logErrors) LogManager.getLogger().w("Error parser:"+t2+" not compatible with data parser:"+t1);
 		return null;
 	}
 }
