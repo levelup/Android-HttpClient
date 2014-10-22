@@ -19,8 +19,8 @@
 #   public *;
 #}
 
--keepnames class com.levelup.http.** { *; }
--keepnames interface com.levelup.http.** { *; }
+-keepnames class co.tophe.** { *; }
+-keepnames interface co.tophe.** { *; }
 
 # AndroidAsync
 -keepnames class com.koushikdutta.async.** { *; }

@@ -19,8 +19,8 @@
 #   public *;
 #}
 
--keepnames class com.levelup.http.signpost.** { *; }
--keepnames interface com.levelup.http.signpost.** { *; }
+-keepnames class co.tophe.sign.oauth1.** { *; }
+-keepnames interface co.tophe.sign.oauth1.** { *; }
 
 -keepnames class oauth.signpost.** { *; }
 -keepnames interface oauth.signpost.** { *; }
