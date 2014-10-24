@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.levelup.http"
+    package="co.tophe"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -8,7 +8,7 @@
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.levelup.http" />
+        android:targetPackage="co.tophe" />
 
     <application android:label="HttpClient test" >
         <uses-library android:name="android.test.runner" />

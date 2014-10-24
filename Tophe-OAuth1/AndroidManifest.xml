@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.levelup.http.signed.oauth1"
+    package="co.tophe.signed.oauth1"
     android:versionCode="2"
     android:versionName="0.2" >
 
