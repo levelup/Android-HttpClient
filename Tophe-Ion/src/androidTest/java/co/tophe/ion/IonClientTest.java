@@ -47,6 +47,19 @@ public class IonClientTest extends AndroidTestCase {
 		IonClient.setup(context);
 	}
 
+	public void testNoSSLv3() throws Exception{
+		BaseHttpRequest<String, ServerException> request = new BaseHttpRequest.Builder<String, ServerException>()
+				//.setUrl("https://userstream.twitter.com/1.1/user.json")
+				.setUrl("https://github.com/robUx4")
+				.setResponseHandler(BodyToString.RESPONSE_HANDLER)
+				.build();
+		try {
+			TopheClient.parseRequest(request);
+		} catch (ServerException e) {
+			assertEquals(401, e.getStatusCode());
+		}
+	}
+
 	@MediumTest
 	public void testUploadInputStream() throws Exception {
 		final String fileFieldName = "media";

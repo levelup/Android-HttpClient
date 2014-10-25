@@ -22,7 +22,7 @@ public class TopheClient {
 	private static Header[] defaultHeaders;
 	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.INSTANCE;
 
-	public static final int PLAY_SERVICES_BOGUS_SSLV3 = 6174070;
+	public static final int PLAY_SERVICES_BOGUS_SSLV3 = 6183070;
 
 	private static Boolean useConscrypt;
 
@@ -52,14 +52,14 @@ public class TopheClient {
 
 			if (null == useConscrypt) {
 				useConscrypt = true;
-				// The Play Services are are bogus on old versions, see https://android-review.googlesource.com/#/c/99698/
+				/* The Play Services are are bogus on old versions, see https://code.google.com/p/android/issues/detail?id=78187
 				try {
 					PackageInfo pI = pM.getPackageInfo("com.google.android.gms", 0);
 					if (pI != null) {
-						useConscrypt = pI.versionCode != PLAY_SERVICES_BOGUS_SSLV3;
+						useConscrypt = pI.versionCode > PLAY_SERVICES_BOGUS_SSLV3;
 					}
 				} catch (PackageManager.NameNotFoundException ignored) {
-				}
+				}*/
 
 				if (useConscrypt) {
 					try {

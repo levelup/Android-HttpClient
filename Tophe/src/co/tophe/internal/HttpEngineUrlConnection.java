@@ -4,13 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,12 +47,53 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 	private static final String ENGINE_SIGNATURE = null; // TODO we could give the OS version
 
 	/**
-	 * {@link javax.net.ssl.SSLSocketFactory} that disables {@code SSLv3}
+	 * An {@link javax.net.ssl.SSLSocket} that doesn't allow {@code SSLv3} only connections
+	 * <p>fixes https://github.com/koush/ion/issues/386</p>
 	 */
-	private static class TLSFactory extends SSLSocketFactory {
+	private static class NoSSLv3SSLSocket extends DelegateSSLSocket {
+
+		private NoSSLv3SSLSocket(SSLSocket delegate) {
+			super(delegate);
+
+			String canonicalName = delegate.getClass().getCanonicalName();
+			if (!canonicalName.equals("org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl")) {
+				// try replicate the code from HttpConnection.setupSecureSocket()
+				try {
+					Method msetUseSessionTickets = delegate.getClass().getMethod("setUseSessionTickets", boolean.class);
+					if (null != msetUseSessionTickets) {
+						msetUseSessionTickets.invoke(delegate, true);
+					}
+				} catch (NoSuchMethodException ignored) {
+				} catch (InvocationTargetException ignored) {
+				} catch (IllegalAccessException ignored) {
+				}
+			}
+		}
+
+		@Override
+		public void setEnabledProtocols(String[] protocols) {
+			if (protocols != null && protocols.length == 1 && "SSLv3".equals(protocols[0])) {
+				// no way jose
+				// see issue https://code.google.com/p/android/issues/detail?id=78187
+				List<String> enabledProtocols = new ArrayList<String>(Arrays.asList(delegate.getEnabledProtocols()));
+				if (enabledProtocols.size() > 1) {
+					enabledProtocols.remove("SSLv3");
+				} else {
+					LogManager.getLogger().w("SSL stuck with protocol available for " + String.valueOf(enabledProtocols));
+				}
+				protocols = enabledProtocols.toArray(new String[enabledProtocols.size()]);
+			}
+			super.setEnabledProtocols(protocols);
+		}
+	}
+
+	/**
+	 * {@link javax.net.ssl.SSLSocketFactory} that doesn't allow {@code SSLv3} only connections
+	 */
+	private static class NoSSLv3Factory extends SSLSocketFactory {
 		private final SSLSocketFactory delegate;
 
-		private TLSFactory(SSLSocketFactory delegate) {
+		private NoSSLv3Factory(SSLSocketFactory delegate) {
 			this.delegate = delegate;
 		}
 
@@ -67,14 +109,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 
 		private static Socket makeSocketSafe(Socket socket) {
 			if (socket instanceof SSLSocket) {
-				SSLSocket sslSocket = (SSLSocket) socket;
-				List<String> protocols = new ArrayList<String>(Arrays.asList(sslSocket.getEnabledProtocols()));
-				protocols.remove("SSLv3");
-				if (!protocols.isEmpty()) {
-					sslSocket.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
-				} else {
-					LogManager.getLogger().w("using SSLv3 as there's no other protocol available for "+socket);
-				}
+				socket = new NoSSLv3SSLSocket((SSLSocket) socket);
 			}
 			return socket;
 		}
@@ -85,12 +120,12 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 		}
 
 		@Override
-		public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+		public Socket createSocket(String host, int port) throws IOException {
 			return makeSocketSafe(delegate.createSocket(host, port));
 		}
 
 		@Override
-		public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
+		public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
 			return makeSocketSafe(delegate.createSocket(host, port, localHost, localPort));
 		}
 
@@ -105,17 +140,21 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 		}
 	}
 
+	static {
+		HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory(HttpsURLConnection.getDefaultSSLSocketFactory()));
+	}
+
 	public HttpEngineUrlConnection(Builder<T, SE> builder) {
 		super(builder);
 
 		try {
 			this.urlConnection = (HttpURLConnection) new URL(request.getUri().toString()).openConnection();
-			if (urlConnection instanceof HttpsURLConnection) {
+			/* may be needed back for sertificate pinning if (urlConnection instanceof HttpsURLConnection) {
 				HttpsURLConnection sslConnection = (HttpsURLConnection) urlConnection;
 				SSLSocketFactory sslFactory = sslConnection.getSSLSocketFactory();
-				TLSFactory safeFactory = new TLSFactory(sslFactory);
+				NoSSLv3Factory safeFactory = new NoSSLv3Factory(sslFactory);
 				sslConnection.setSSLSocketFactory(safeFactory);
-			}
+			}*/
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("Bad uri: " + request.getUri(), e);
 		} catch (IOException e) {
