@@ -79,7 +79,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 				if (enabledProtocols.size() > 1) {
 					enabledProtocols.remove("SSLv3");
 				} else {
-					LogManager.getLogger().w("SSL stuck with protocol available for " + String.valueOf(enabledProtocols));
+					LogManager.getLogger().w("SSL stuck with only protocol available " + String.valueOf(enabledProtocols));
 				}
 				protocols = enabledProtocols.toArray(new String[enabledProtocols.size()]);
 			}
@@ -93,8 +93,8 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 	private static class NoSSLv3Factory extends SSLSocketFactory {
 		private final SSLSocketFactory delegate;
 
-		private NoSSLv3Factory(SSLSocketFactory delegate) {
-			this.delegate = delegate;
+		private NoSSLv3Factory() {
+			this.delegate = HttpsURLConnection.getDefaultSSLSocketFactory();
 		}
 
 		@Override
@@ -141,7 +141,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 	}
 
 	static {
-		HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory(HttpsURLConnection.getDefaultSSLSocketFactory()));
+		HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
 	}
 
 	public HttpEngineUrlConnection(Builder<T, SE> builder) {
