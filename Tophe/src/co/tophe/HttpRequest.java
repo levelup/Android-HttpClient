@@ -40,7 +40,6 @@ public interface HttpRequest extends HttpRequestInfo {
 	/**
 	 * Set the {@link HttpConfig} for this request or {@code null} 
 	 */
-	@Nullable
 	void setHttpConfig(HttpConfig config);
 
 	public static final String HEADER_ACCEPT = "Accept";
