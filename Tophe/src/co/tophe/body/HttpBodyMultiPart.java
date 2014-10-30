@@ -297,17 +297,17 @@ public class HttpBodyMultiPart implements HttpBodyParameters {
 	}
 
 	@Override
-	public void add(String name, boolean b) {
+	public void add(@NonNull String name, boolean b) {
 		add(name, String.valueOf(b));
 	}
 
 	@Override
-	public void add(String name, int i) {
+	public void add(@NonNull String name, int i) {
 		add(name, Integer.toString(i));
 	}
 
 	@Override
-	public void add(String name, long l) {
+	public void add(@NonNull String name, long l) {
 		add(name, Long.toString(l));
 	}
 

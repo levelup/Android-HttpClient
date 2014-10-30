@@ -8,6 +8,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.support.annotation.NonNull;
+
 import co.tophe.HttpRequestInfo;
 import co.tophe.UploadProgressListener;
 
@@ -67,22 +69,22 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 	}
 
 	@Override
-	public void add(String name, String value) {
+	public void add(@NonNull String name, String value) {
 		mParams.add(new BasicNameValuePair(name, value));
 	}
 
 	@Override
-	public void add(String name, boolean b) {
+	public void add(@NonNull String name, boolean b) {
 		add(name, String.valueOf(b));
 	}
 
 	@Override
-	public void add(String name, int i) {
+	public void add(@NonNull String name, int i) {
 		add(name, Integer.toString(i));
 	}
 
 	@Override
-	public void add(String name, long l) {
+	public void add(@NonNull String name, long l) {
 		add(name, Long.toString(l));
 	}
 }

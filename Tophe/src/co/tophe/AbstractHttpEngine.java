@@ -15,6 +15,7 @@ import org.apache.http.protocol.HTTP;
 import android.annotation.SuppressLint;
 import android.net.TrafficStats;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import co.tophe.log.LogManager;
@@ -57,6 +58,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 		}
 	}
 
+	@NonNull
 	@Override
 	public final ResponseHandler<T,SE> getResponseHandler() {
 		return responseHandler;

@@ -1,5 +1,7 @@
 package co.tophe;
 
+import android.support.annotation.NonNull;
+
 /**
  * Created by robUx4 on 01/09/2014.
  */
@@ -17,6 +19,7 @@ public final class DummyHttpEngine<T, SE extends ServerException> implements Htt
 		throw new HttpUnsupportedException.Builder(request, null).build();
 	}
 
+	@NonNull
 	@Override
 	public ResponseHandler<T, SE> getResponseHandler() {
 		return responseHandler;

@@ -3,6 +3,7 @@ package co.tophe;
 import java.util.ArrayList;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Pair;
 
 public class UriParams implements HttpUriParameters {
@@ -48,22 +49,22 @@ public class UriParams implements HttpUriParameters {
 	}
 
 	@Override
-	public void add(String name, String value) {
+	public void add(@NonNull String name, String value) {
 		mParams.add(new Pair<String,String>(name, value));
 	}
 
 	@Override
-	public void add(String name, boolean b) {
+	public void add(@NonNull String name, boolean b) {
 		add(name, String.valueOf(b));
 	}
 
 	@Override
-	public void add(String name, int i) {
+	public void add(@NonNull String name, int i) {
 		add(name, String.valueOf(i));
 	}
 
 	@Override
-	public void add(String name, long l) {
+	public void add(@NonNull String name, long l) {
 		add(name, String.valueOf(l));
 	}
 

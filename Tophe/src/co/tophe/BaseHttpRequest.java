@@ -87,6 +87,7 @@ public class BaseHttpRequest<T, SE extends ServerException> extends RawHttpReque
 		}
 	}
 
+	@NonNull
 	@Override
 	public ResponseHandler<T, SE> getResponseHandler() {
 		return responseHandler;

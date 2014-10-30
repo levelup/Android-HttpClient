@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
@@ -50,22 +52,22 @@ public class HttpBodyJSON implements HttpBodyParameters {
 	}
 
 	@Override
-	public void add(String name, String value) {
+	public void add(@NonNull String name, String value) {
 		throw new IllegalAccessError();
 	}
 
 	@Override
-	public void add(String name, boolean value) {
+	public void add(@NonNull String name, boolean value) {
 		throw new IllegalAccessError();
 	}
 
 	@Override
-	public void add(String name, int value) {
+	public void add(@NonNull String name, int value) {
 		throw new IllegalAccessError();
 	}
 
 	@Override
-	public void add(String name, long value) {
+	public void add(@NonNull String name, long value) {
 		throw new IllegalAccessError();
 	}
 

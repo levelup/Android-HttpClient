@@ -3,6 +3,8 @@ package co.tophe.body;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import android.support.annotation.NonNull;
+
 import co.tophe.HttpRequestInfo;
 import co.tophe.UploadProgressListener;
 
@@ -30,7 +32,7 @@ public class HttpBodyString implements HttpBodyParameters {
 	 */
 	@Deprecated
 	@Override
-	public void add(String name, String value) {
+	public void add(@NonNull String name, String value) {
 		throw new IllegalAccessError();
 	}
 
@@ -40,7 +42,7 @@ public class HttpBodyString implements HttpBodyParameters {
 	 */
 	@Deprecated
 	@Override
-	public void add(String name, boolean b) {
+	public void add(@NonNull String name, boolean b) {
 		throw new IllegalAccessError();
 	}
 
@@ -50,7 +52,7 @@ public class HttpBodyString implements HttpBodyParameters {
 	 */
 	@Deprecated
 	@Override
-	public void add(String name, int value) {
+	public void add(@NonNull String name, int value) {
 		throw new IllegalAccessError();
 	}
 
@@ -60,7 +62,7 @@ public class HttpBodyString implements HttpBodyParameters {
 	 */
 	@Deprecated
 	@Override
-	public void add(String name, long value) {
+	public void add(@NonNull String name, long value) {
 		throw new IllegalAccessError();
 	}
 
