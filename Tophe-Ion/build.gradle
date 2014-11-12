@@ -40,7 +40,7 @@ dependencies {
         println 'Using local Ion library in ' + project.path
         compile project(ionProject)
     } else {
-        def IonVer = 'com.koushikdutta.ion:ion:1.3.+'
+        def IonVer = 'com.koushikdutta.ion:ion:1.4.+'
 
         if (useLocalV4) {
             println 'Using local support-v4 library in ' + project.path
@@ -50,7 +50,7 @@ dependencies {
             }
         } else {
             compile IonVer
-            compile 'com.android.support:support-v4:20.+'
+            compile 'com.android.support:support-v4:21.+'
         }
     }
 
