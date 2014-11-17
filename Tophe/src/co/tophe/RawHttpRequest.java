@@ -79,7 +79,7 @@ public class RawHttpRequest implements HttpRequest {
 		 * @return Current Builder
 		 */
 		public B setBody(HttpBodyParameters bodyParams) {
-			return setBody(DEFAULT_POST_METHOD, bodyParams);
+			return setBody(null, bodyParams);
 		}
 
 		/**
@@ -103,11 +103,11 @@ public class RawHttpRequest implements HttpRequest {
 		 * @return Current Builder
 		 */
 		public B setHttpMethod(String httpMethod) {
-			if (TextUtils.isEmpty(httpMethod))
-				throw new IllegalArgumentException("invalid null HTTP method");
-			if (null!=bodyParams && !isMethodWithBody(httpMethod))
-				throw new IllegalArgumentException("invalid HTTP method with body:"+httpMethod);
-			this.httpMethod = httpMethod;
+			if (!TextUtils.isEmpty(httpMethod)) {
+				if (null != bodyParams && !isMethodWithBody(httpMethod))
+					throw new IllegalArgumentException("invalid HTTP method with body:" + httpMethod);
+				this.httpMethod = httpMethod;
+			}
 			return (B) this;
 		}
 
@@ -170,6 +170,9 @@ public class RawHttpRequest implements HttpRequest {
 		}
 
 		public String getHttpMethod() {
+			if (null != bodyParams && TextUtils.isEmpty(httpMethod)) {
+				return DEFAULT_POST_METHOD;
+			}
 			return httpMethod;
 		}
 
