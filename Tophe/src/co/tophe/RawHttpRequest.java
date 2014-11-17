@@ -69,7 +69,6 @@ public class RawHttpRequest implements HttpRequest {
 		 * Constructor for the {@link RawHttpRequest} builder, setting {@code GET} method by default
 		 */
 		public AbstractBuilder() {
-			setHttpMethod(DEFAULT_HTTP_METHOD);
 		}
 
 		/**
@@ -170,8 +169,8 @@ public class RawHttpRequest implements HttpRequest {
 		}
 
 		public String getHttpMethod() {
-			if (null != bodyParams && TextUtils.isEmpty(httpMethod)) {
-				return DEFAULT_POST_METHOD;
+			if (TextUtils.isEmpty(httpMethod)) {
+				return null != bodyParams ? DEFAULT_POST_METHOD : DEFAULT_HTTP_METHOD;
 			}
 			return httpMethod;
 		}
