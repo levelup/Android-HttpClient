@@ -27,12 +27,12 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '21.0.2'
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 21
+        minSdkVersion Math.max(9, Integer.parseInt(ANDROID_BUILD_MIN_SDK_VERSION))
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
         versionCode 400
         versionName '0.4.0'
         applicationId 'co.tophe'
