@@ -20,7 +20,7 @@ public class DelegateSSLSocket extends SSLSocket {
 
 	protected final SSLSocket delegate;
 
-	DelegateSSLSocket(SSLSocket delegate) {
+	public DelegateSSLSocket(SSLSocket delegate) {
 		this.delegate = delegate;
 	}
 

@@ -78,6 +78,8 @@ public class TopheClient {
 					}
 				}
 			}
+
+			BaseHttpEngineFactory.INSTANCE.init();
 		}
 	}
 
