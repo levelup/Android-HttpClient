@@ -7,8 +7,7 @@
     <uses-sdk android:minSdkVersion="7" />
 
     <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="co.tophe.signed.oauth1" />
+        android:name="android.test.InstrumentationTestRunner"/>
 
     <application android:label="HttpClient OAuth test" >
         <uses-library android:name="android.test.runner" />
