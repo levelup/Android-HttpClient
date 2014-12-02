@@ -41,7 +41,6 @@ public class IonClient {
 				if (protocols != null && protocols.length > 1) {
 					List<String> enabledProtocols = new ArrayList<String>(Arrays.asList(protocols));
 					if (enabledProtocols.remove("SSLv3")) {
-						// no way jose
 						protocols = enabledProtocols.toArray(new String[enabledProtocols.size()]);
 						engine.setEnabledProtocols(protocols);
 					}

@@ -20,9 +20,14 @@ android {
 }
 
 dependencies {
+    def artifactSupportV4 = 'com.android.support:support-v4:21.+'
+    def artifactIon = 'com.koushikdutta.ion:ion:1.4.+'
+
+    def androidAsyncProject = ':AndroidAsync:AndroidAsync'
     def ionProject = ':Ion:Ion'
     def supportv4Project = ':support-v4'
 
+    def useLocalAndroidAsync = false
     def useLocalIon = false
     def useLocalV4 = false
     allprojects {
@@ -30,28 +35,37 @@ dependencies {
             if (it.path == ionProject) {
                 useLocalIon = true
             }
-            if (it.path == supportv4Project) {
+            else if (it.path == androidAsyncProject) {
+                useLocalAndroidAsync = true
+            }
+            else if (it.path == supportv4Project) {
                 useLocalV4 = true
             }
         }
+    }
+
+    if (useLocalV4) {
+        println 'Using local support-v4 library in ' + project.path
+        compile project(supportv4Project)
     }
 
     if (useLocalIon) {
         println 'Using local Ion library in ' + project.path
         compile project(ionProject)
     } else {
-        def IonVer = 'com.koushikdutta.ion:ion:1.4.+'
-
-        if (useLocalV4) {
-            println 'Using local support-v4 library in ' + project.path
-            compile project(supportv4Project)
-            compile (IonVer) {
-                exclude group: 'com.android.support', module:'support-v4'
+        compile (artifactIon) {
+            if (useLocalV4) {
+                exclude group: 'com.android.support', module: 'support-v4'
             }
-        } else {
-            compile IonVer
-            compile 'com.android.support:support-v4:21.+'
+            if (useLocalAndroidAsync) {
+                exclude group: 'com.koushikdutta.async', module:'androidasync'
+            }
         }
+    }
+
+    if (useLocalAndroidAsync) {
+        println 'Using local AndroidAsync library in ' + project.path
+        compile project(androidAsyncProject)
     }
 
     compile project(':Tophe')
