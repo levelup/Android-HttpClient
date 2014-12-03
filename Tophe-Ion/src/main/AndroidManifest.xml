@@ -1,5 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.tophe.ion">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="co.tophe.ion">
+
+    <uses-sdk
+        android:minSdkVersion="9"
+        android:targetSdkVersion="21"
+        tools:overrideLibrary="co.tophe.ion"/>
 
     <application />
 

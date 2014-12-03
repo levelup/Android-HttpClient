@@ -51,9 +51,11 @@ dependencies {
     } else {
         compile (artifactIon) {
             if (useLocalV4) {
+                println 'Exclude support-v4 dependency for' + artifactIon + ' in ' + project.path
                 exclude group: 'com.android.support', module: 'support-v4'
             }
             if (useLocalAndroidAsync) {
+                println 'Exclude androidasync dependency for' + artifactIon + ' in ' + project.path
                 exclude group: 'com.koushikdutta.async', module:'androidasync'
             }
         }
