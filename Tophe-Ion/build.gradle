@@ -41,6 +41,8 @@ dependencies {
     if (useLocalV4) {
         println 'Using local support-v4 library in ' + project.path
         compile project(supportv4Project)
+    } else {
+        compile artifactSupportV4
     }
 
     if (useLocalIon) {
