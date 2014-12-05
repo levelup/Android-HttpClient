@@ -23,7 +23,7 @@ import co.tophe.parser.XferTransformInputStreamHttpStream;
 public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	private static IonHttpEngineFactory INSTANCE;
-	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089030;
+	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034;
 
 	private final Ion ion;
 
