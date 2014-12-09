@@ -47,7 +47,7 @@ public class HttpBodyUrlEncoded implements HttpBodyParameters {
 
 	private byte[] getEncodedParams() {
 		if (null==encodedParams) {
-			encodedParams = URLEncodedUtils.format(mParams, "UTF-8").replace("*", "%2A").getBytes();
+			encodedParams = URLEncodedUtils.format(mParams, "UTF-8")/*.replace("*", "∗")*/.getBytes();
 			mParams.clear();
 		}
 		return encodedParams;
