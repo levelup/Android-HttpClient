@@ -65,7 +65,7 @@ import co.tophe.parser.XferTransformStringJSONObject;
  */
 public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEngine<T, HttpResponseIon<T>, SE> {
 	public final Builders.Any.B requestBuilder;
-	private static final String ENGINE_SIGNATURE = "Ion-1.3.8+AndroidAsync-1.3.8"; // TODO do not hardcode this
+	private static final String ENGINE_SIGNATURE = "Ion-1.4.1+AndroidAsync-1.4.1"; // TODO do not hardcode this
 
 	protected HttpEngineIon(Builder<T,SE> builder, Ion ion) {
 		super(builder);

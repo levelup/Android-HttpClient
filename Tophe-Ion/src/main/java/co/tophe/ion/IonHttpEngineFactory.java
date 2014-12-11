@@ -24,6 +24,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	private static IonHttpEngineFactory INSTANCE;
 	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034;
+	public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587070;
 
 	private final Ion ion;
 
@@ -44,10 +45,12 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	}
 
 	private static Boolean useConscrypt;
+	private static Boolean forbidSSL;
 
 	public static void setupIon(Ion ion) {
 		if (null==useConscrypt) {
 			useConscrypt = true;
+			forbidSSL = false;
 			// The Play Services are are bogus on old versions, see https://android-review.googlesource.com/#/c/99698/
 			// disable conscrypt until https://github.com/koush/AndroidAsync/issues/210 passes
 			PackageManager pm = ion.getContext().getPackageManager();
@@ -55,6 +58,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 				PackageInfo pI = pm.getPackageInfo("com.google.android.gms", 0);
 				if (pI != null) {
 					useConscrypt = pI.versionCode > PLAY_SERVICES_BOGUS_CONSCRYPT;
+					forbidSSL = pI.versionCode == BOGUS_CONSCRYPT_DUAL_FEEDLY;
 				}
 			} catch (PackageManager.NameNotFoundException ignored) {
 			}
@@ -74,6 +78,10 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	}
 
 	public <T, SE extends ServerException> HttpEngine<T,SE> createEngine(HttpEngine.Builder<T,SE> builder, Ion ion) {
+		if (forbidSSL && "https".equals(builder.getHttpRequest().getUri().getScheme())) {
+			return new DummyHttpEngine<T,SE>(builder);
+		}
+
 		if (!canHandleXferTransform(builder.getResponseHandler().contentParser))
 			return new DummyHttpEngine<T,SE>(builder);
 

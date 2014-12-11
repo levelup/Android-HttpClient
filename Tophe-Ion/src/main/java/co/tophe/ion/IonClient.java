@@ -3,7 +3,6 @@ package co.tophe.ion;
 import android.content.Context;
 
 import com.koushikdutta.async.http.AsyncSSLEngineConfigurator;
-import com.koushikdutta.ion.conscrypt.ConscryptMiddleware;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLParameters;
 
 import co.tophe.HttpEngineFactory;
 import co.tophe.HttpEngineFactoryFallback;
@@ -35,6 +33,8 @@ public class IonClient {
 		TopheClient.setHttpEngineFactory(new HttpEngineFactoryFallback(factory, fallbackFactory));
 
 		// TODO enable when 1.4.2 is out factory.getDefaultIon().getConscryptMiddleware().initialize(context);
+
+		//factory.getDefaultIon().configure().setLogging("TOPHE", Log.VERBOSE);
 
 		// disable SSLv3 except if it's alone
 		factory.getDefaultIon().getHttpClient().getSSLSocketMiddleware().addEngineConfigurator(new AsyncSSLEngineConfigurator() {
