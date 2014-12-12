@@ -1,9 +1,13 @@
 package co.tophe.ion;
 
+import java.io.InputStream;
+
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.text.TextUtilsCompat;
+import android.text.TextUtils;
 
 import com.koushikdutta.ion.Ion;
 import co.tophe.DummyHttpEngine;
@@ -12,6 +16,7 @@ import co.tophe.HttpEngineFactory;
 import co.tophe.HttpResponse;
 import co.tophe.ResponseHandler;
 import co.tophe.ServerException;
+import co.tophe.TypedHttpRequest;
 import co.tophe.parser.Utils;
 import co.tophe.parser.XferTransform;
 import co.tophe.parser.XferTransformChain;
@@ -25,6 +30,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	private static IonHttpEngineFactory INSTANCE;
 	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034;
 	public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587070;
+	private static final String X_TOPHE_ION_SSL = "X-Tophe-Ion-SSL";
 
 	private final Ion ion;
 
@@ -78,7 +84,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	}
 
 	public <T, SE extends ServerException> HttpEngine<T,SE> createEngine(HttpEngine.Builder<T,SE> builder, Ion ion) {
-		if (forbidSSL && "https".equals(builder.getHttpRequest().getUri().getScheme())) {
+		if (forbidSSL && TextUtils.isEmpty(builder.getHttpRequest().getHeader(X_TOPHE_ION_SSL)) && "https".equals(builder.getHttpRequest().getUri().getScheme())) {
 			return new DummyHttpEngine<T,SE>(builder);
 		}
 
@@ -110,5 +116,13 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	 */
 	private static boolean errorCompatibleWithData(ResponseHandler<?,?> responseHandler) {
 		return Utils.getCommonXferTransform(responseHandler.contentParser, responseHandler.errorParser, false) != null;
+	}
+
+	/**
+	 * Sometimes Ion maybe have problems with SSL, especially with Conscrypt, but you may decide to take the risk anyway and use it in conditions where it may fail
+	 * @param networkRequest
+	 */
+	public static void allowSSL(TypedHttpRequest<?,?> networkRequest) {
+		networkRequest.addHeader(X_TOPHE_ION_SSL, "1");
 	}
 }
