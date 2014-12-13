@@ -64,7 +64,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 				PackageInfo pI = pm.getPackageInfo("com.google.android.gms", 0);
 				if (pI != null) {
 					useConscrypt = pI.versionCode > PLAY_SERVICES_BOGUS_CONSCRYPT;
-					forbidSSL = pI.versionCode == BOGUS_CONSCRYPT_DUAL_FEEDLY;
+					forbidSSL = pI.versionCode >= BOGUS_CONSCRYPT_DUAL_FEEDLY;
 				}
 			} catch (PackageManager.NameNotFoundException ignored) {
 			}
