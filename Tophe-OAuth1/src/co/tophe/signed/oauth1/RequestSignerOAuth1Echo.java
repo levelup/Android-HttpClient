@@ -58,7 +58,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 
 		String header = engine.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);
 	    if (null==header) {
-		    throw (HttpAuthException) new HttpAuthException.Builder(req.getHttpRequest(), null)
+		    throw (HttpAuthException) new HttpAuthException.Builder(req.getHttpRequest(), req.getHttpResponse())
 				    .setErrorMessage("request not properly signed")
 				    .build();
 	    }

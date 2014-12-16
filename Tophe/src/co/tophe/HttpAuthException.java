@@ -1,5 +1,8 @@
 package co.tophe;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
 * Created by robUx4 on 24/09/2014.
 */
@@ -10,7 +13,7 @@ public class HttpAuthException extends HttpException {
 
 	public static class Builder extends HttpException.Builder {
 
-		public Builder(HttpRequestInfo httpRequest, HttpResponse response) {
+		public Builder(@NonNull HttpRequestInfo httpRequest, @Nullable HttpResponse response) {
 			super(httpRequest, response);
 		}
 

@@ -1,5 +1,8 @@
 package co.tophe;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import co.tophe.parser.ParserException;
 
 /**
@@ -19,7 +22,7 @@ public class HttpDataParserException extends HttpException {
 
 	public static class Builder extends HttpException.Builder {
 
-		public Builder(HttpRequestInfo httpRequest, HttpResponse response, ParserException e) {
+		public Builder(@NonNull HttpRequestInfo httpRequest, @Nullable HttpResponse response, ParserException e) {
 			super(httpRequest, response);
 			super.setCause(e);
 		}

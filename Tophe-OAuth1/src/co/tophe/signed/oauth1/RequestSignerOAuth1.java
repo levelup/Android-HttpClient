@@ -62,7 +62,7 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 			try {
 				mOAuthConsumer.sign(req);
 			} catch (OAuthException e) {
-				HttpAuthException.Builder builder = new HttpAuthException.Builder(req.getHttpRequest(), null);
+				HttpAuthException.Builder builder = new HttpAuthException.Builder(req.getHttpRequest(), req.getHttpResponse());
 				builder.setErrorMessage("Bad OAuth for "+getOAuthUser()+" on "+req);
 				builder.setCause(e);
 				throw builder.build();
