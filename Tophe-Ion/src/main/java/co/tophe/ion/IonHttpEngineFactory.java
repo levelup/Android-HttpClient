@@ -33,8 +33,9 @@ import co.tophe.parser.XferTransformInputStreamHttpStream;
 public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	private static IonHttpEngineFactory INSTANCE;
-	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034;
-	public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587070;
+	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034; // see https://github.com/koush/AndroidAsync/issues/210
+	public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587000; // see https://github.com/koush/ion/issues/443
+	public static final int CONSCRYPT_LACKS_SNI = 6587038; // 6587030 to 6587038 don't have it
 
 	private final Ion ion;
 
@@ -68,7 +69,15 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 					conscryptVersion = pI.versionCode;
 				}
 			} catch (PackageManager.NameNotFoundException ignored) {
+				try {
+					Class<?> conscryptClass = ion.getClass().getClassLoader().loadClass("com.android.org.conscrypt.OpenSSLEngineImpl");
+					if (conscryptClass != null) {
+						conscryptVersion = CONSCRYPT_LACKS_SNI + 1; // assume everything is fine
+					}
+				} catch (ClassNotFoundException ignored2) {
+				}
 			}
+
 
 			useConscrypt = conscryptVersion > PLAY_SERVICES_BOGUS_CONSCRYPT;
 			// dual parallel connection to Feedly results in data never received https://github.com/koush/ion/issues/428
@@ -85,29 +94,34 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 		ion.getHttpClient().getSSLSocketMiddleware().addEngineConfigurator(new AsyncSSLEngineConfigurator() {
 			@Override
 			public void configureEngine(SSLEngine engine, String host, int port) {
-				try {
-					Field sslParameters = engine.getClass().getDeclaredField("sslParameters");
-					Field useSni = sslParameters.getType().getDeclaredField("useSni");
-					Field peerHost = engine.getClass().getSuperclass().getDeclaredField("peerHost");
-					Field peerPort = engine.getClass().getSuperclass().getDeclaredField("peerPort");
+				if (conscryptVersion > CONSCRYPT_LACKS_SNI || !useConscrypt) {
+					try {
+						Field sslParameters = engine.getClass().getDeclaredField("sslParameters");
+						Field useSni = sslParameters.getType().getDeclaredField("useSni");
+						Field peerHost = engine.getClass().getSuperclass().getDeclaredField("peerHost");
+						Field peerPort = engine.getClass().getSuperclass().getDeclaredField("peerPort");
 
-					peerHost.setAccessible(true);
-					peerPort.setAccessible(true);
-					sslParameters.setAccessible(true);
-					useSni.setAccessible(true);
+						peerHost.setAccessible(true);
+						peerPort.setAccessible(true);
+						sslParameters.setAccessible(true);
+						useSni.setAccessible(true);
 
-					Object sslp = sslParameters.get(engine);
+						Object sslp = sslParameters.get(engine);
 
-					peerHost.set(engine, host);
-					peerPort.set(engine, port);
-					useSni.set(sslp, true);
-				} catch (Exception e) {
-					if (engine.getClass().getCanonicalName().contains(".conscrypt.")) {
-						LogManager.getLogger().w("Failed to set the flags in " + engine + " conscryptVersion="+conscryptVersion, e);
-					} else if (useConscrypt) {
-						LogManager.getLogger().e("Failed to set the flags in " + engine, e);
-					} else {
-						LogManager.getLogger().i("Failed to set the flags in " + engine, e);
+						peerHost.set(engine, host);
+						peerPort.set(engine, port);
+						useSni.set(sslp, true);
+					} catch (Exception e) {
+						if (engine.getClass().getCanonicalName().contains(".conscrypt.")) {
+							if (forbidSSL && conscryptVersion < CONSCRYPT_LACKS_SNI) // we know that Conscrypt version
+								LogManager.getLogger().v("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion);
+							else
+								LogManager.getLogger().w("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
+						} else if (useConscrypt) {
+							LogManager.getLogger().e("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
+						} else {
+							LogManager.getLogger().i("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
+						}
 					}
 				}
 
