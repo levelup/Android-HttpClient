@@ -9,22 +9,6 @@ import android.text.TextUtils;
  */
 public class HttpException extends TopheException {
 
-	static public final int HTTP_STATUS_BAD_REQUEST     = 400;
-	static public final int HTTP_STATUS_UNAUTHORIZED    = 401;
-	static public final int HTTP_STATUS_FORBIDDEN       = 403;
-	static public final int HTTP_STATUS_NOT_FOUND       = 404;
-	static public final int HTTP_STATUS_NOT_ACCEPTABLE  = 406;
-	static public final int HTTP_STATUS_GONE            = 410;
-	static public final int HTTP_STATUS_TOO_LONG        = 413;
-	static public final int HTTP_STATUS_BAD_RANGE       = 416;
-	static public final int HTTP_STATUS_BACKOFF         = 420; // Twitter thing
-	static public final int HTTP_STATUS_RATELIMIT       = 429; // Twitter thing
-	static public final int HTTP_STATUS_SERVER_ERROR    = 500;
-	static public final int HTTP_STATUS_OVERLOADED      = 503;
-	static public final int HTTP_STATUS_GATEWAY_TIMEOUT = 504;
-	static public final int HTTP_STATUS_INTERNAL        = 506;
-
-
 	private static final long serialVersionUID = 4993791558983072165L;
 
 	protected HttpException(Builder builder) {
