@@ -50,6 +50,9 @@ public abstract class TopheException extends Exception {
 		return response;
 	}
 
+	/**
+	 * @return whether this error was caused by a network or server issue
+	 */
 	public boolean isTemporaryFailure() {
 		return httpStatusCode >= 500;
 	}
@@ -69,9 +72,9 @@ public abstract class TopheException extends Exception {
 				}
 			} catch (IllegalStateException ignored) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
-			} catch (IllegalArgumentException e) {
+			} catch (IllegalArgumentException ignored) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/875
-			} catch (NullPointerException e) {
+			} catch (NullPointerException ignored) {
 				// issue https://github.com/square/okhttp/issues/348
 			}
 		}
@@ -86,11 +89,11 @@ public abstract class TopheException extends Exception {
 		if (null!= response) {
 			try {
 				return response.getResponseCode();
-			} catch (IllegalStateException e) {
+			} catch (IllegalStateException ignored) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 			} catch (NullPointerException ignored) {
 				// okhttp 2.0 bug https://github.com/square/okhttp/issues/348
-			} catch (IOException e) {
+			} catch (IOException ignored) {
 			}
 		}
 		return -1;

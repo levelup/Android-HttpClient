@@ -4,26 +4,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 
 import co.tophe.AbstractHttpEngine;
 import co.tophe.HttpConfig;
@@ -155,7 +145,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 			} catch (IllegalStateException e) {
 				// okhttp 2.0.0 issue https://github.com/square/okhttp/issues/689
 				LogManager.getLogger().d("connection closed ? for "+request+' '+e);
-				HttpException.Builder builder = new HttpIOException.Builder(request, httpResponse);
+				HttpIOException.Builder builder = new HttpIOException.Builder(request, httpResponse);
 				builder.setErrorMessage("Connection closed "+e.getMessage());
 				builder.setCause(e);
 				throw builder.build();

@@ -214,7 +214,7 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 
 		if (e instanceof PrematureDataEndException) {
 			LogManager.getLogger().d("timeout for "+request);
-			HttpException.Builder builder = new HttpTimeoutException.Builder(request, httpResponse);
+			HttpTimeoutException.Builder builder = new HttpTimeoutException.Builder(request, httpResponse);
 			builder.setErrorMessage("Timeout error " + e.getMessage());
 			builder.setCause(e);
 			return builder;
