@@ -158,7 +158,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 				throw exceptionToHttpException(new IOException("no inputStream")).build();
 
 			return httpResponse;
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			try {
 				throw responseHandler.errorParser.transformData(httpResponse, this);
 
@@ -166,11 +166,8 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 				throw exceptionToHttpException(ee).build();
 
 			} catch (IOException ee) {
-				throw exceptionToHttpException(ee).build();
+				throw exceptionToHttpException(e).build();
 			}
-		} catch (IOException e) {
-			throw exceptionToHttpException(e).build();
-
 		}
 	}
 }
