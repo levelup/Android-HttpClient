@@ -8,6 +8,7 @@ import java.util.Map;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 /**
  * Base exception to catch {@link co.tophe.HttpException} and {@link co.tophe.ServerException} as the same time
@@ -97,5 +98,37 @@ public abstract class TopheException extends Exception {
 			}
 		}
 		return -1;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ' ' + getLocalizedMessage();
+	}
+
+	@Override
+	public String getMessage() {
+		final StringBuilder msg = new StringBuilder();
+		if (0 != getStatusCode()) {
+			msg.append("http:");
+			msg.append(getStatusCode());
+			msg.append(' ');
+		}
+		msg.append("req:");
+		msg.append(getHttpRequest());
+		msg.append(' ');
+		/*boolean hasMsg = false;
+		if (null!=getCause()) {
+			final String causeMsg = getCause().getMessage();
+			if (!TextUtils.isEmpty(causeMsg)) {
+				hasMsg = true;
+				msg.append(causeMsg);
+			}
+		}*/
+		final String superMsg = super.getMessage();
+		if (!TextUtils.isEmpty(superMsg)) {
+			//if (hasMsg) msg.append(' ');
+			msg.append(superMsg);
+		}
+		return msg.toString();
 	}
 }

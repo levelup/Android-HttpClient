@@ -17,7 +17,7 @@ public final class DummyHttpEngine<T, SE extends ServerException> implements Htt
 
 	@Override
 	public T call() throws HttpException, SE {
-		throw new HttpUnsupportedException.Builder(request, null).build();
+		throw new HttpNoEngineException.Builder(request).build();
 	}
 
 	@NonNull

@@ -4,21 +4,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
-* Created by robUx4 on 24/09/2014.
+* Exception raised when there is a timeout connecting, reading or writing data on the HTTP connection
 */
-public class HttpTimeoutException extends HttpException {
-	HttpTimeoutException(HttpException.Builder builder) {
+public class HttpTimeoutException extends TopheNetworkException {
+	protected HttpTimeoutException(@NonNull Builder builder) {
 		super(builder);
 	}
 
-	public static class Builder extends HttpException.Builder {
-
+	public static class Builder extends AbstractBuilder<HttpTimeoutException, Builder> {
 		public Builder(@NonNull HttpRequestInfo httpRequest, @Nullable HttpResponse response) {
 			super(httpRequest, response);
-		}
-
-		public Builder(HttpException e) {
-			super(e);
 		}
 
 		@Override

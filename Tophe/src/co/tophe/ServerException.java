@@ -33,6 +33,12 @@ public class ServerException extends TopheException {
 		this.serverError = serverError;
 	}
 
+	@NonNull
+	@Override
+	public HttpResponse getHttpResponse() {
+		return super.getHttpResponse();
+	}
+
 	/**
 	 * @return The error object parsed by {@link ResponseHandler#errorParser}.
 	 * May be {@code null}

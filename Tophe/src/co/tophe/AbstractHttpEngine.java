@@ -179,6 +179,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 
 		} catch (IOException e) {
 			throw exceptionToHttpException(e).build();
+
 		} finally {
 			if (0 != threadStatsTag) {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -234,7 +235,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 		return sb.toString();
 	}
 
-	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
+	protected HttpException.AbstractBuilder<? extends HttpException, ?> exceptionToHttpException(Exception e) throws HttpException {
 		if (e instanceof SocketTimeoutException || e instanceof TimeoutException) {
 			LogManager.getLogger().d("timeout for "+request);
 			return new HttpTimeoutException.Builder(request, httpResponse)
@@ -244,9 +245,8 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 
 		else if (e instanceof ProtocolException) {
 			LogManager.getLogger().d("bad method for " + request + ' ' + e.getMessage());
-			return new HttpUnsupportedException.Builder(request, httpResponse)
-					.setErrorMessage("Method error " + e.getMessage())
-					.setCause(e);
+			return new HttpProtocolException.Builder(request, httpResponse, (ProtocolException) e)
+					.setErrorMessage("Method error " + e.getMessage());
 		}
 
 		else if (e instanceof IOException) {
@@ -266,9 +266,13 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 
 		else if (e instanceof SecurityException) {
 			LogManager.getLogger().w("security error for " + request + ' ' + e);
-			return new HttpIOException.Builder(request, httpResponse)
+			return new TopheNetworkException.Builder(request, httpResponse)
 					.setErrorMessage("Security error " + e.getMessage())
 					.setCause(e);
+		}
+
+		else if (e instanceof ExecutionException && e.getCause() instanceof Exception && e.getCause()!=e) {
+			return exceptionToHttpException((Exception) e.getCause());
 		}
 
 		HttpException.Builder builder = new HttpException.Builder(request, httpResponse);
@@ -276,15 +280,11 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 
 		if (e instanceof InterruptedException) {
 			builder.setErrorMessage("interrupted");
-		}
 
-		else if (e instanceof ExecutionException) {
-			if (e.getCause() instanceof Exception && e.getCause()!=e)
-				return exceptionToHttpException((Exception) e.getCause());
-			else {
-				builder.setErrorMessage("execution error");
-				builder.setCause(e.getCause());
-			}
+		} else if (e instanceof ExecutionException) {
+
+			builder.setErrorMessage("execution error");
+			builder.setCause(e.getCause());
 		}
 
 		else {

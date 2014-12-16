@@ -29,6 +29,7 @@ import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
+
 import co.tophe.AbstractHttpEngine;
 import co.tophe.HttpConfig;
 import co.tophe.HttpException;
@@ -192,7 +193,7 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 	}
 
 	@Override
-	protected HttpException.Builder exceptionToHttpException(Exception e) throws HttpException {
+	protected HttpException.AbstractBuilder<? extends HttpException, ?> exceptionToHttpException(Exception e) throws HttpException {
 		if (e instanceof IllegalArgumentException && e.getMessage().contains("bytesConsumed is negative")) {
 			// TODO only check for a Play Services error when the Exception stack trace comes from "com.google.android.gms.org.conscrypt"
 			Context context = IonHttpEngineFactory.getInstance(null).getDefaultIon().getContext();

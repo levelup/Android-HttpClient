@@ -11,7 +11,7 @@ import co.tophe.parser.ParserException;
  * @author Created by robUx4 on 24/09/2014.
  */
 public class HttpDataParserException extends HttpException {
-	HttpDataParserException(HttpException.Builder builder) {
+	protected HttpDataParserException(@NonNull AbstractBuilder builder) {
 		super(builder);
 	}
 
@@ -20,19 +20,15 @@ public class HttpDataParserException extends HttpException {
 		return (ParserException) super.getCause();
 	}
 
-	public static class Builder extends HttpException.Builder {
+	public static class Builder extends AbstractBuilder<HttpDataParserException, Builder> {
 
-		public Builder(@NonNull HttpRequestInfo httpRequest, @Nullable HttpResponse response, ParserException e) {
+		public Builder(@NonNull HttpRequestInfo httpRequest, @Nullable HttpResponse response, @NonNull ParserException e) {
 			super(httpRequest, response);
 			super.setCause(e);
 		}
 
-		public Builder(HttpException e) {
-			super(e);
-		}
-
 		@Override
-		public HttpException.Builder setCause(Throwable tr) {
+		public Builder setCause(Throwable cause) {
 			throw new IllegalStateException("pass the parser exception in the constructor");
 		}
 
