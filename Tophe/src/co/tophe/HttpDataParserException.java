@@ -7,6 +7,7 @@ import co.tophe.parser.ParserException;
 
 /**
  * Indicates there was a data parsing error, the {@link #getCause()} is a {@link co.tophe.parser.ParserException ParserException}
+ * <p>Either because the parser is not adequate for the server data or because a proxy returned error data
  *
  * @author Created by robUx4 on 24/09/2014.
  */

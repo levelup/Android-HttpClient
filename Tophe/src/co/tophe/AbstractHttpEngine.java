@@ -288,7 +288,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 		}
 
 		else {
-			LogManager.getLogger().w("unknown error for " + request + ' ' + e);
+			LogManager.getLogger().w("unknown error for " + request, e);
 		}
 
 		return builder;
