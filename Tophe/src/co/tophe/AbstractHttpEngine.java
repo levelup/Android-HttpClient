@@ -73,9 +73,9 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 	/**
 	 * Set all internal variables and sign the query if needed
 	 * <p>Usually you don't need to call this yourself, the engine will do it</p>
-	 * @throws HttpAuthException
+	 * @throws HttpSignException
 	 */
-	public final void prepareEngine() throws HttpAuthException {
+	public final void prepareEngine() throws HttpSignException {
 			/*
 			HttpResponse resp = null;
 			try {

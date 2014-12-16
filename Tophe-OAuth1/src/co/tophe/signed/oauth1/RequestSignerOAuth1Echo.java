@@ -6,7 +6,7 @@ import java.util.SortedSet;
 import android.text.TextUtils;
 
 import co.tophe.BaseHttpRequest;
-import co.tophe.HttpAuthException;
+import co.tophe.HttpSignException;
 import co.tophe.HttpEngine;
 import co.tophe.HttpRequest;
 import co.tophe.ServerException;
@@ -39,7 +39,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 	}
 
     @Override
-	public void sign(HttpEngine<?,?> req, HttpParameters oauthParams) throws HttpAuthException {
+	public void sign(HttpEngine<?,?> req, HttpParameters oauthParams) throws HttpSignException {
 		HttpParameters realm = new HttpParameters();
 		if (null!=oauthParams) {
 			for (Entry<String, SortedSet<String>> entries : oauthParams.entrySet()) {
@@ -58,7 +58,7 @@ public class RequestSignerOAuth1Echo extends RequestSignerOAuth1 {
 
 		String header = engine.getHeader(OAuth.HTTP_AUTHORIZATION_HEADER);
 	    if (null==header) {
-		    throw (HttpAuthException) new HttpAuthException.Builder(req.getHttpRequest(), req.getHttpResponse())
+		    throw (HttpSignException) new HttpSignException.Builder(req.getHttpRequest())
 				    .setErrorMessage("request not properly signed")
 				    .build();
 	    }

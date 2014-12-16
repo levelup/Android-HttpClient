@@ -3,7 +3,7 @@ package co.tophe.signed.oauth1;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import co.tophe.HttpAuthException;
+import co.tophe.HttpSignException;
 import co.tophe.HttpEngine;
 import co.tophe.signed.AbstractRequestSigner;
 import co.tophe.signed.OAuthClientApp;
@@ -46,11 +46,11 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 	}
 
 	@Override
-	public void sign(HttpEngine<?,?> req) throws HttpAuthException {
+	public void sign(HttpEngine<?,?> req) throws HttpSignException {
 		sign(req, null);
 	}
 	
-	public void sign(HttpEngine<?,?> req, HttpParameters oauthParams) throws HttpAuthException {
+	public void sign(HttpEngine<?,?> req, HttpParameters oauthParams) throws HttpSignException {
 		synchronized (mOAuthConsumer) {
 			if (null!=getOAuthUser()) {
 				mOAuthConsumer.setTokenWithSecret(getOAuthUser().getToken(), getOAuthUser().getTokenSecret());
@@ -62,7 +62,7 @@ public class RequestSignerOAuth1 extends AbstractRequestSigner {
 			try {
 				mOAuthConsumer.sign(req);
 			} catch (OAuthException e) {
-				HttpAuthException.Builder builder = new HttpAuthException.Builder(req.getHttpRequest(), req.getHttpResponse());
+				HttpSignException.Builder builder = new HttpSignException.Builder(req.getHttpRequest());
 				builder.setErrorMessage("Bad OAuth for "+getOAuthUser()+" on "+req);
 				builder.setCause(e);
 				throw builder.build();
