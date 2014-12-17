@@ -41,6 +41,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 
 		try {
 			this.urlConnection = (HttpURLConnection) new URL(request.getUri().toString()).openConnection();
+			urlConnection.setUseCaches(true);
 			/* may be needed back for sertificate pinning if (urlConnection instanceof HttpsURLConnection) {
 				HttpsURLConnection sslConnection = (HttpsURLConnection) urlConnection;
 				SSLSocketFactory sslFactory = sslConnection.getSSLSocketFactory();
