@@ -35,7 +35,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	private static IonHttpEngineFactory INSTANCE;
 	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034; // see https://github.com/koush/AndroidAsync/issues/210
 	public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587000; // see https://github.com/koush/ion/issues/443
-	public static final int CONSCRYPT_LACKS_SNI = 6587038; // 6587030 to 6587038 don't have it
+	public static final int CONSCRYPT_LACKS_SNI = 6599038; // 6587030 to 6599038 don't have it see https://github.com/koush/ion/issues/428
 
 	private final Ion ion;
 
@@ -113,7 +113,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 						useSni.set(sslp, true);
 					} catch (Exception e) {
 						if (engine.getClass().getCanonicalName().contains(".conscrypt.")) {
-							if (forbidSSL && conscryptVersion < CONSCRYPT_LACKS_SNI) // we know that Conscrypt version
+							if (forbidSSL && conscryptVersion <= CONSCRYPT_LACKS_SNI) // we know that Conscrypt version
 								LogManager.getLogger().v("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion);
 							else
 								LogManager.getLogger().w("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
