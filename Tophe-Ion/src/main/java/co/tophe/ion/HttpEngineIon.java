@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.DataSink;
 import com.koushikdutta.async.callback.CompletedCallback;
@@ -19,10 +20,11 @@ import com.koushikdutta.async.future.TransformFuture;
 import com.koushikdutta.async.http.ConnectionClosedException;
 import com.koushikdutta.async.http.filter.PrematureDataEndException;
 import com.koushikdutta.async.parser.AsyncParser;
+import com.koushikdutta.async.parser.ByteBufferListParser;
 import com.koushikdutta.async.parser.JSONArrayParser;
 import com.koushikdutta.async.parser.JSONObjectParser;
 import com.koushikdutta.async.parser.StringParser;
-import com.koushikdutta.ion.InputStreamParser;
+import com.koushikdutta.async.stream.ByteBufferListInputStream;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
@@ -224,7 +226,23 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 		return super.exceptionToHttpException(e);
 	}
 
-	private static final AsyncParser<InputStream> INPUT_STREAM_ASYNC_PARSER = new InputStreamParser();
+	private static final AsyncParser<InputStream> INPUT_STREAM_ASYNC_PARSER = new AsyncParser<InputStream>() {
+		@Override
+		public Future<InputStream> parse(DataEmitter emitter) {
+			return new ByteBufferListParser().parse(emitter)
+					.then(new TransformFuture<InputStream, ByteBufferList>() {
+						@Override
+						protected void transform(ByteBufferList result) throws Exception {
+							setComplete(new ByteBufferListInputStream(result));
+						}
+					});
+		}
+
+		@Override
+		public void write(DataSink sink, InputStream value, CompletedCallback completed) {
+			throw new AssertionError("not implemented");
+		}
+	};
 	private static final AsyncParser<String> STRING_ASYNC_PARSER = new StringParser();
 	private static final AsyncParser<?> JSON_OBJECT_ASYNC_PARSER = new JSONObjectParser();
 	private static final AsyncParser<?> JSON_ARRAY_ASYNC_PARSER = new JSONArrayParser();

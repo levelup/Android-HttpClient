@@ -10,8 +10,9 @@ import org.apache.http.protocol.HTTP;
 import android.text.TextUtils;
 
 import com.koushikdutta.ion.Response;
-import co.tophe.ServerException;
+
 import co.tophe.HttpResponse;
+import co.tophe.ServerException;
 import co.tophe.parser.XferTransform;
 
 /**
@@ -28,22 +29,22 @@ public class HttpResponseIon<T> implements HttpResponse {
 
 	@Override
 	public String getContentType() {
-		return response.getHeaders().get(HTTP.CONTENT_TYPE);
+		return getHeaderField(HTTP.CONTENT_TYPE);
 	}
 
 	@Override
 	public int getResponseCode() {
-		return response.getHeaders().getResponseCode();
+		return response.getHeaders().code();
 	}
 
 	@Override
 	public Map<String, List<String>> getHeaderFields() {
-		return response.getHeaders().toMultimap();
+		return response.getHeaders().getHeaders().getMultiMap();
 	}
 
 	@Override
 	public String getHeaderField(String name) {
-		return response.getHeaders().get(name);
+		return response.getHeaders().getHeaders().get(name);
 	}
 
 	@Override
@@ -56,7 +57,7 @@ public class HttpResponseIon<T> implements HttpResponse {
 
 	@Override
 	public String getResponseMessage() {
-		return response.getHeaders().getResponseMessage();
+		return response.getHeaders().message();
 	}
 
 	@Override

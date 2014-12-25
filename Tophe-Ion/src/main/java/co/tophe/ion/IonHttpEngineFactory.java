@@ -5,15 +5,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.net.ssl.SSLEngine;
+
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
+import com.koushikdutta.async.http.AsyncHttpClientMiddleware;
 import com.koushikdutta.async.http.AsyncSSLEngineConfigurator;
 import com.koushikdutta.ion.Ion;
-
-import javax.net.ssl.SSLEngine;
 
 import co.tophe.DummyHttpEngine;
 import co.tophe.HttpEngine;
@@ -34,8 +35,8 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	private static IonHttpEngineFactory INSTANCE;
 	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034; // see https://github.com/koush/AndroidAsync/issues/210
-	public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587000; // see https://github.com/koush/ion/issues/443
-	public static final int CONSCRYPT_LACKS_SNI = 6599038; // 6587030 to 6599038 don't have it see https://github.com/koush/ion/issues/428
+	//public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587000; // see https://github.com/koush/ion/issues/443
+	//public static final int CONSCRYPT_LACKS_SNI = 6599038; // 6587030 to 6599038 don't have it see https://github.com/koush/ion/issues/428
 
 	private final Ion ion;
 
@@ -72,7 +73,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 				try {
 					Class<?> conscryptClass = ion.getClass().getClassLoader().loadClass("com.android.org.conscrypt.OpenSSLEngineImpl");
 					if (conscryptClass != null) {
-						conscryptVersion = CONSCRYPT_LACKS_SNI + 1; // assume everything is fine
+						conscryptVersion = PLAY_SERVICES_BOGUS_CONSCRYPT /*CONSCRYPT_LACKS_SNI*/ + 1; // assume everything is fine
 					}
 				} catch (ClassNotFoundException ignored2) {
 				}
@@ -81,20 +82,19 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 
 			useConscrypt = conscryptVersion > PLAY_SERVICES_BOGUS_CONSCRYPT;
 			// dual parallel connection to Feedly results in data never received https://github.com/koush/ion/issues/428
-			forbidSSL = useConscrypt && conscryptVersion >= BOGUS_CONSCRYPT_DUAL_FEEDLY;
+			forbidSSL = false; //useConscrypt && conscryptVersion >= BOGUS_CONSCRYPT_DUAL_FEEDLY;
 		}
 
 		ion.getConscryptMiddleware().enable(useConscrypt);
 
 		if (useConscrypt) {
-			// TODO enable when 1.4.2 is out ion.getConscryptMiddleware().initialize(context);
-			//ion.getConscryptMiddleware().initialize();
+			ion.getConscryptMiddleware().initialize();
 		}
 
 		ion.getHttpClient().getSSLSocketMiddleware().addEngineConfigurator(new AsyncSSLEngineConfigurator() {
 			@Override
-			public void configureEngine(SSLEngine engine, String host, int port) {
-				if (conscryptVersion > CONSCRYPT_LACKS_SNI || !useConscrypt) {
+			public void configureEngine(SSLEngine engine, AsyncHttpClientMiddleware.GetSocketData data, String host, int port) {
+				if (false /*conscryptVersion > CONSCRYPT_LACKS_SNI || !useConscrypt*/) {
 					try {
 						Field sslParameters = engine.getClass().getDeclaredField("sslParameters");
 						Field useSni = sslParameters.getType().getDeclaredField("useSni");
@@ -113,7 +113,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 						useSni.set(sslp, true);
 					} catch (Exception e) {
 						if (engine.getClass().getCanonicalName().contains(".conscrypt.")) {
-							if (forbidSSL && conscryptVersion <= CONSCRYPT_LACKS_SNI) // we know that Conscrypt version
+							if (forbidSSL /*&& conscryptVersion <= CONSCRYPT_LACKS_SNI*/) // we know that Conscrypt version
 								LogManager.getLogger().v("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion);
 							else
 								LogManager.getLogger().w("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
