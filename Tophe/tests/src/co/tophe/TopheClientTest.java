@@ -413,7 +413,7 @@ public class TopheClientTest extends AndroidTestCase {
 	@MediumTest
 	public void testStreamingDisconnect() throws Exception {
 		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
-				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
+				.setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=2")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
@@ -440,7 +440,7 @@ public class TopheClientTest extends AndroidTestCase {
 	@MediumTest
 	public void testStreamingDisconnectAsync() throws Exception {
 		BaseHttpRequest<HttpStream, ServerException> request = new BaseHttpRequest.Builder<HttpStream, ServerException>()
-				.setUrl("http://httpbin.org/drip?numbytes=5&duration=200&delay=2")
+				.setUrl("http://httpbin.org/drip?numbytes=5&duration=2&delay=2")
 				.setResponseHandler(BodyToHttpStream.RESPONSE_HANDLER)
 				.build();
 		// TODO assertEquals(STREAM_ENGINE_CLASS, request.getHttpEngine().getClass());
