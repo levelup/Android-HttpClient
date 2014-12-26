@@ -23,7 +23,7 @@ dependencies {
     }
 
     androidTestCompile 'com.squareup.okio:okio:1.0.+'
-    androidTestCompile ('com.google.android.gms:play-services:6.+') {
+    androidTestCompile ('com.google.android.gms:play-services-base:6.+') {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
 }
