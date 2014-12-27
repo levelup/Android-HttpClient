@@ -167,7 +167,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 				throw exceptionToHttpException(ee).build();
 
 			} catch (IOException ee) {
-				throw exceptionToHttpException(e).build();
+				throw exceptionToHttpException(ee).build();
 			}
 		}
 	}
