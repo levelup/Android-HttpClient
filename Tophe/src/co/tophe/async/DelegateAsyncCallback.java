@@ -1,7 +1,7 @@
 package co.tophe.async;
 
 /**
- * Created by robUx4 on 03/09/2014.
+ * @author Created by robUx4 on 03/09/2014.
  */
 public class DelegateAsyncCallback<T> implements AsyncCallback<T> {
 

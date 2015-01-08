@@ -16,7 +16,7 @@ import co.tophe.ServerException;
 import co.tophe.parser.XferTransform;
 
 /**
- * Created by Steve Lhomme on 09/07/2014.
+ * @author Created by Steve Lhomme on 09/07/2014.
  */
 public class HttpResponseIon<T> implements HttpResponse {
 	private final Response<T> response;

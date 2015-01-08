@@ -5,7 +5,7 @@ import java.io.InputStream;
 import co.tophe.HttpResponse;
 
 /**
- * Created by robUx4 on 21/08/2014.
+ * @author Created by robUx4 on 21/08/2014.
  */
 public class BodyTransformChain<T> extends XferTransformChain<HttpResponse, T> {
 

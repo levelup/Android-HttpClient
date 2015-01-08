@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import co.tophe.BaseResponseHandler;
 
 /**
- * Created by robUx4 on 20/08/2014.
+ * @author Created by robUx4 on 20/08/2014.
  */
 public final class BodyToJSONObject extends BodyTransformChain<JSONObject> {
 	public static final BodyToJSONObject INSTANCE = new BodyToJSONObject(

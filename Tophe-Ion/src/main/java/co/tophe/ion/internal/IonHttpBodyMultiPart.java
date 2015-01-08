@@ -14,7 +14,7 @@ import com.koushikdutta.ion.builder.Builders;
 import co.tophe.body.HttpBodyMultiPart;
 
 /**
- * Created by Steve Lhomme on 15/07/2014.
+ * @author Created by Steve Lhomme on 15/07/2014.
  */
 public class IonHttpBodyMultiPart extends HttpBodyMultiPart implements IonBody {
 

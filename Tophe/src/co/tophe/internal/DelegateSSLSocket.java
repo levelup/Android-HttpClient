@@ -14,7 +14,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 /**
-* Created by robUx4 on 25/10/2014.
+* @author Created by robUx4 on 25/10/2014.
 */
 public class DelegateSSLSocket extends SSLSocket {
 

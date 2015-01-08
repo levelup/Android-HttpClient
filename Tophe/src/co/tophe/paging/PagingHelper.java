@@ -12,7 +12,7 @@ import co.tophe.async.AsyncTopheClient;
 import co.tophe.async.AsyncTask;
 
 /**
- * Created by robUx4 on 02/09/2014.
+ * @author Created by robUx4 on 02/09/2014.
  */
 public class PagingHelper {
 

@@ -1,7 +1,7 @@
 package co.tophe;
 
 /**
- * Created by Steve Lhomme on 15/07/2014.
+ * @author Created by Steve Lhomme on 15/07/2014.
  */
 public interface HttpEngineFactory {
 

@@ -4,7 +4,7 @@ import co.tophe.BaseResponseHandler;
 import co.tophe.HttpStream;
 
 /**
- * Created by robUx4 on 29/08/2014.
+ * @author Created by robUx4 on 29/08/2014.
  */
 public class BodyToHttpStream extends BodyTransformChain<HttpStream> {
 	public static final BodyToHttpStream INSTANCE = new BodyToHttpStream(

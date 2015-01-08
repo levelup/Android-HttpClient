@@ -3,7 +3,7 @@ package co.tophe.parser;
 import co.tophe.BaseResponseHandler;
 
 /**
- * Created by robUx4 on 20/08/2014.
+ * @author Created by robUx4 on 20/08/2014.
  */
 public class BodyToString extends BodyTransformChain<String> {
 	public static final BodyToString INSTANCE = new BodyToString(

@@ -18,7 +18,7 @@ import co.tophe.internal.HttpEngineUrlConnection;
 import co.tophe.log.LogManager;
 
 /**
- * Created by Steve Lhomme on 15/07/2014.
+ * @author Created by Steve Lhomme on 15/07/2014.
  */
 public class BaseHttpEngineFactory implements HttpEngineFactory {
 

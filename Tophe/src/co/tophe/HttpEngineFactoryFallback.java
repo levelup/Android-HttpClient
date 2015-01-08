@@ -1,7 +1,7 @@
 package co.tophe;
 
 /**
- * Created by robUx4 on 01/09/2014.
+ * @author Created by robUx4 on 01/09/2014.
  */
 public class HttpEngineFactoryFallback implements HttpEngineFactory {
 	public final HttpEngineFactory mainFactory;

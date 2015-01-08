@@ -5,7 +5,7 @@ import java.util.concurrent.Callable;
 import android.support.annotation.NonNull;
 
 /**
- * Created by Steve Lhomme on 14/07/2014.
+ * @author Created by Steve Lhomme on 14/07/2014.
  */
 public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, ImmutableHttpRequest {
 	/**

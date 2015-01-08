@@ -5,7 +5,7 @@ import co.tophe.parser.XferTransform;
 import co.tophe.parser.XferTransformInputStreamServerException;
 
 /**
- * Created by robUx4 on 29/09/2014.
+ * @author Created by robUx4 on 29/09/2014.
  */
 public class BaseResponseHandler<OUTPUT> extends ResponseHandler<OUTPUT, ServerException> {
 	/**

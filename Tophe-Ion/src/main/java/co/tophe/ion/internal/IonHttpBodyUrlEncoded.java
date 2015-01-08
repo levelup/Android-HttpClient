@@ -7,7 +7,7 @@ import com.koushikdutta.ion.builder.Builders;
 import co.tophe.body.HttpBodyUrlEncoded;
 
 /**
- * Created by Steve Lhomme on 15/07/2014.
+ * @author Created by Steve Lhomme on 15/07/2014.
  */
 public class IonHttpBodyUrlEncoded extends HttpBodyUrlEncoded implements IonBody{
 	public IonHttpBodyUrlEncoded(HttpBodyUrlEncoded sourceBody) {

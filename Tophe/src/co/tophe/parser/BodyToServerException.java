@@ -4,7 +4,7 @@ import co.tophe.BaseResponseHandler;
 import co.tophe.ServerException;
 
 /**
- * Created by robUx4 on 29/09/2014.
+ * @author Created by robUx4 on 29/09/2014.
  */
 public class BodyToServerException extends BodyTransformChain<ServerException> {
 	public static final BodyToServerException INSTANCE = new BodyToServerException(

@@ -8,7 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Created by robUx4 on 22/08/2014.
+ * @author Created by robUx4 on 22/08/2014.
  */
 public abstract class ReadOnlyTypeAdapter<T> extends TypeAdapter<T> {
 	public static final Gson DEFAULT_GSON = new Gson();

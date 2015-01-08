@@ -29,7 +29,7 @@ import co.tophe.parser.XferTransformChain;
 import co.tophe.parser.XferTransformInputStreamHttpStream;
 
 /**
- * Created by Steve Lhomme on 15/07/2014.
+ * @author Created by Steve Lhomme on 15/07/2014.
  */
 public class IonHttpEngineFactory implements HttpEngineFactory {
 

@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * Created by robUx4 on 01/09/2014.
+ * @author Created by robUx4 on 01/09/2014.
  */
 public final class DummyHttpEngine<T, SE extends ServerException> implements HttpEngine<T, SE> {
 	private final RawHttpRequest request;

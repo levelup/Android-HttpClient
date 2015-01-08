@@ -7,7 +7,7 @@ import co.tophe.HttpResponse;
 import co.tophe.ImmutableHttpRequest;
 
 /**
- * Created by robUx4 on 29/08/2014.
+ * @author Created by robUx4 on 29/08/2014.
  */
 public class BodyToVoid implements XferTransform<HttpResponse,Void> {
 	public static final BodyToVoid INSTANCE = new BodyToVoid();

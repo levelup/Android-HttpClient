@@ -5,7 +5,7 @@ import org.json.JSONArray;
 import co.tophe.BaseResponseHandler;
 
 /**
- * Created by robUx4 on 20/08/2014.
+ * @author Created by robUx4 on 20/08/2014.
  */
 public final class BodyToJSONArray extends BodyTransformChain<JSONArray> {
 	public static final BodyToJSONArray INSTANCE = new BodyToJSONArray(

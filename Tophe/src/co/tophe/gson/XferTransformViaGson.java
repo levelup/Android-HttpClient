@@ -22,7 +22,7 @@ import co.tophe.parser.XferTransformInputStreamString;
 /**
  * Parse the network data using Gson to type {@link T}
  * <p/>
- * Created by robUx4 on 8/1/2014.
+ * @author Created by robUx4 on 8/1/2014.
  */
 public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
 	private static final Gson defaultGsonParser = new GsonBuilder().create();

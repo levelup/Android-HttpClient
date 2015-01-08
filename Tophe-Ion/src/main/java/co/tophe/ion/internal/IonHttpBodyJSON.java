@@ -7,7 +7,7 @@ import com.koushikdutta.ion.builder.Builders;
 import co.tophe.body.HttpBodyJSON;
 
 /**
- * Created by Steve Lhomme on 15/07/2014.
+ * @author Created by Steve Lhomme on 15/07/2014.
  */
 public class IonHttpBodyJSON extends HttpBodyJSON implements IonBody {
 

@@ -5,7 +5,7 @@ import com.koushikdutta.ion.builder.Builders;
 import co.tophe.body.HttpBodyString;
 
 /**
- * Created by Steve Lhomme on 15/07/2014.
+ * @author Created by Steve Lhomme on 15/07/2014.
  */
 public class IonHttpBodyString extends HttpBodyString implements IonBody {
 

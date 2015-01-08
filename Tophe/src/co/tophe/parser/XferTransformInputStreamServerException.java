@@ -8,7 +8,7 @@ import co.tophe.MediaType;
 import co.tophe.ServerException;
 
 /**
- * Created by robUx4 on 29/09/2014.
+ * @author Created by robUx4 on 29/09/2014.
  */
 public class XferTransformInputStreamServerException implements XferTransform<InputStream, ServerException> {
 	public static final XferTransformInputStreamServerException INSTANCE = new XferTransformInputStreamServerException();

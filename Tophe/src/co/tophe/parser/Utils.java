@@ -4,7 +4,7 @@ import co.tophe.HttpResponse;
 import co.tophe.log.LogManager;
 
 /**
- * Created by robUx4 on 28/08/2014.
+ * @author Created by robUx4 on 28/08/2014.
  */
 public class Utils {
 	public static XferTransform<Object, Object> skipCommonTransforms(XferTransform<HttpResponse, ?> transform, XferTransform<HttpResponse, ?> commonTransform) {

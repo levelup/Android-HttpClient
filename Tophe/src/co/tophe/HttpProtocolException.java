@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
-* Created by robUx4 on 24/09/2014.
+* @author Created by robUx4 on 24/09/2014.
 */
 public class HttpProtocolException extends HttpException {
 	protected HttpProtocolException(@NonNull Builder builder) {

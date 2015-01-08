@@ -17,7 +17,7 @@ import co.tophe.signed.AbstractRequestSigner;
 import co.tophe.signed.RequestSigner;
 
 /**
- * Created by robUx4 on 29/08/2014.
+ * @author Created by robUx4 on 29/08/2014.
  */
 public class RawHttpRequest implements HttpRequest {
 	/**

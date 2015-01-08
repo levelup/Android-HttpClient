@@ -7,7 +7,7 @@ import co.tophe.body.HttpBodyParameters;
 import co.tophe.signed.RequestSigner;
 
 /**
- * Created by Steve Lhomme on 14/07/2014.
+ * @author Created by Steve Lhomme on 14/07/2014.
  */
 public interface HttpRequestInfo {
 

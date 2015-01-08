@@ -3,7 +3,7 @@ package co.tophe.async;
 import java.util.concurrent.Callable;
 
 /**
- * Created by robUx4 on 04/09/2014.
+ * @author Created by robUx4 on 04/09/2014.
  */
 public class CallableChain<INPUT, OUTPUT> implements Callable<OUTPUT> {
 	public final Callable<INPUT> inputCallable;

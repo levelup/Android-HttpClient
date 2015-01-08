@@ -7,7 +7,7 @@ import co.tophe.HttpResponse;
 import co.tophe.ImmutableHttpRequest;
 
 /**
- * Created by robUx4 on 20/08/2014.
+ * @author Created by robUx4 on 20/08/2014.
  */
 public final class XferTransformResponseInputStream implements XferTransform<HttpResponse,InputStream> {
 	// This is a special class as it depends on the engine used, unlike other XferTransform
