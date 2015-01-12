@@ -69,3 +69,5 @@ dependencies {
     compile project(':Tophe')
     androidTestCompile 'com.squareup.okio:okio:1.0.+'
 }
+
+apply from: 'https://raw.githubusercontent.com/mcxiaoke/gradle-mvn-push/master/gradle-mvn-push.gradle'
