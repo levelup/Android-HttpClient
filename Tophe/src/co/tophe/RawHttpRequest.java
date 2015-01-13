@@ -17,6 +17,8 @@ import co.tophe.signed.AbstractRequestSigner;
 import co.tophe.signed.RequestSigner;
 
 /**
+ * Base class of all {@link co.tophe.HttpRequest}.
+ *
  * @author Created by robUx4 on 29/08/2014.
  */
 public class RawHttpRequest implements HttpRequest {
@@ -40,6 +42,7 @@ public class RawHttpRequest implements HttpRequest {
 
 	/**
 	 * Builder for a child class of {@link RawHttpRequest} that doesn't need its own builder
+	 *
 	 * @param <REQ> Type of the child class of {@link RawHttpRequest}
 	 */
 	public static abstract class ChildBuilder<REQ extends RawHttpRequest> extends AbstractBuilder<REQ, ChildBuilder<REQ>> {
@@ -53,10 +56,11 @@ public class RawHttpRequest implements HttpRequest {
 	}
 
 	/**
-	 * Abstract Builder for a {@link RawHttpRequest RawHttpRequest} derivative instance
+	 * Abstract Builder for a {@link RawHttpRequest RawHttpRequest} child instance.
+	 *
 	 * @param <R> type of the HTTP request class returned by {@link #build()}
 	 */
-	public static abstract class AbstractBuilder<R extends RawHttpRequest, B extends AbstractBuilder<R,? extends B>> {
+	public static abstract class AbstractBuilder<R extends RawHttpRequest, B extends AbstractBuilder<R, ? extends B>> {
 		private static final String DEFAULT_HTTP_METHOD = "GET";
 		private static final String DEFAULT_POST_METHOD = "POST";
 
@@ -74,6 +78,7 @@ public class RawHttpRequest implements HttpRequest {
 		/**
 		 * Set the class that will be responsible to send the HTTP body of the query
 		 * <p>sets {@code POST} method by default
+		 *
 		 * @param bodyParams the object that will write the HTTP body to the remote server
 		 * @return Current Builder
 		 */
@@ -83,6 +88,7 @@ public class RawHttpRequest implements HttpRequest {
 
 		/**
 		 * Set the class that will be responsible to send the HTTP body of the query
+		 *
 		 * @param postMethod HTTP method to use with this request, {@code GET} and {@code HEAD} not possible
 		 * @param bodyParams the object that will write the HTTP body to the remote server
 		 * @return Current Builder
@@ -90,14 +96,15 @@ public class RawHttpRequest implements HttpRequest {
 		 */
 		public B setBody(String postMethod, HttpBodyParameters bodyParams) {
 			setHttpMethod(postMethod);
-			if (null!=bodyParams && httpMethod!=null && !isMethodWithBody(httpMethod))
-				throw new IllegalArgumentException("invalid body for HTTP method:"+httpMethod);
+			if (null != bodyParams && httpMethod != null && !isMethodWithBody(httpMethod))
+				throw new IllegalArgumentException("invalid body for HTTP method:" + httpMethod);
 			this.bodyParams = bodyParams;
 			return (B) this;
 		}
 
 		/**
 		 * Sets the HTTP method to use for the request like {@code GET}, {@code POST} or {@code HEAD}
+		 *
 		 * @param httpMethod HTTP method to use with this request
 		 * @return Current Builder
 		 */
@@ -112,6 +119,7 @@ public class RawHttpRequest implements HttpRequest {
 
 		/**
 		 * Set the URL that will be queried on the remote server
+		 *
 		 * @param url requested on the server
 		 * @return Current Builder
 		 */
@@ -121,7 +129,8 @@ public class RawHttpRequest implements HttpRequest {
 
 		/**
 		 * Set the URL that will be queried on the remote server
-		 * @param url requested on the server
+		 *
+		 * @param url       requested on the server
 		 * @param uriParams parameters to add to the URL
 		 * @return Current Builder
 		 */
@@ -134,7 +143,7 @@ public class RawHttpRequest implements HttpRequest {
 					this.uri = uri;
 				} else {
 					Uri.Builder uriBuilder = uri.buildUpon();
-					uriParams.addUriParameters(uriBuilder);
+					uriParams.appendUriParameters(uriBuilder);
 					this.uri = uriBuilder.build();
 				}
 			}
@@ -143,6 +152,7 @@ public class RawHttpRequest implements HttpRequest {
 
 		/**
 		 * Set the URL that will be queried on the remote server
+		 *
 		 * @param uri requested on the server
 		 * @return Current Builder
 		 */
@@ -151,21 +161,26 @@ public class RawHttpRequest implements HttpRequest {
 			return (B) this;
 		}
 
+		public Uri getUri() {
+			return uri;
+		}
+
 		/**
 		 * Set the object that will be responsible for signing the {@link HttpRequest}
+		 *
 		 * @param signer object that will sign the {@link HttpRequest}
 		 * @return Current Builder
 		 */
 		public B setSigner(RequestSigner signer) {
-			if (null==signer) {
+			if (null == signer) {
 				throw new IllegalArgumentException();
 			}
 			this.signer = signer;
 			return (B) this;
 		}
 
-		public Uri getUri() {
-			return uri;
+		public RequestSigner getSigner() {
+			return signer;
 		}
 
 		public String getHttpMethod() {
@@ -175,17 +190,14 @@ public class RawHttpRequest implements HttpRequest {
 			return httpMethod;
 		}
 
-		public RequestSigner getSigner() {
-			return signer;
-		}
-
 		public HttpBodyParameters getBodyParams() {
 			return bodyParams;
 		}
 
 		/**
 		 * Build the {@link R} instance
-		 * <p></p>ONLY IMPLEMENT IN A NON ABSTRACT Builder
+		 * <p>ONLY IMPLEMENT IN A NON ABSTRACT Builder
+		 *
 		 * @return
 		 */
 		protected abstract R build(B builder);
@@ -228,7 +240,7 @@ public class RawHttpRequest implements HttpRequest {
 		}
 
 		final Header[] defaultHeaders = TopheClient.getDefaultHeaders();
-		if (null!=defaultHeaders) {
+		if (null != defaultHeaders) {
 			for (Header defaultHeader : defaultHeaders) {
 				mRequestSetHeaders.put(defaultHeader.getName(), defaultHeader.getValue());
 			}
@@ -250,7 +262,7 @@ public class RawHttpRequest implements HttpRequest {
 		return bodyParams;
 	}
 
-	// TODO move this in the AbstractBuilder
+	// TODO move this in the AbstractBuilder ?
 	@Override
 	public void addHeader(String key, String value) {
 		HashSet<String> values = mRequestAddHeaders.get(key);
@@ -261,7 +273,7 @@ public class RawHttpRequest implements HttpRequest {
 		values.add(value);
 	}
 
-	// TODO move this in the AbstractBuilder
+	// TODO move this in the AbstractBuilder ?
 	@Override
 	public void setHeader(String key, String value) {
 		mRequestAddHeaders.remove(key);
@@ -312,11 +324,17 @@ public class RawHttpRequest implements HttpRequest {
 		return headers.toArray(new Header[headers.size()]);
 	}
 
-	// TODO move this to the engine
+	/**
+	 * Set a specific logger for this request.
+	 */
+	// TODO move this to the engine ?
 	public void setLogger(LoggerTagged loggerTagged) {
 		this.loggerTagged = loggerTagged;
 	}
 
+	/**
+	 * Set the progress listener for this request. Useful when sending a large body in the request.
+	 */
 	public void setProgressListener(UploadProgressListener listener) {
 		this.progressListener = listener;
 	}
@@ -330,8 +348,11 @@ public class RawHttpRequest implements HttpRequest {
 		return signer;
 	}
 
+	/**
+	 * Get extra information about the request to show in logs. You may override this to make sure some API keys don't end up in the logs.
+	 */
 	protected String getToStringExtra() {
-		String result = getUri()==null ? "" : getUri().toString();
+		String result = getUri() == null ? "" : getUri().toString();
 		if (getRequestSigner() instanceof AbstractRequestSigner)
 			result += " for " + ((AbstractRequestSigner) getRequestSigner()).getOAuthUser();
 		return result;
@@ -345,7 +366,7 @@ public class RawHttpRequest implements HttpRequest {
 			simpleName = getClass().getName();
 			int end = simpleName.lastIndexOf('.');
 			if (end > 0) {
-				simpleName = simpleName.substring(end+1);
+				simpleName = simpleName.substring(end + 1);
 			}
 		}
 		sb.append(simpleName);

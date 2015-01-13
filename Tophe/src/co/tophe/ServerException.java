@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * Thrown when the server returns an HTTP error
- * <p>It contains an object corresponding to the parsed response body
+ * Thrown when the server returns an HTTP error.
+ * <p>It contains an object corresponding to the parsed response body.
  *
  * @author Created by robUx4 on 24/09/2014.
  */

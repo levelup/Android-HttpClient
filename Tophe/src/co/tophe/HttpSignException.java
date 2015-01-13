@@ -3,7 +3,7 @@ package co.tophe;
 import android.support.annotation.NonNull;
 
 /**
- * Exception generated when we fail to generate a valid signature for the Request
+ * Exception raised when we fail to generate a valid signature for the HTTP Request.
  */
 public class HttpSignException extends HttpRequestException {
 	protected HttpSignException(@NonNull Builder builder) {

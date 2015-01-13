@@ -14,7 +14,7 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 	 * @throws HttpException
 	 * @throws SE
 	 */
-	T call() throws HttpException, SE;
+	T call() throws SE, HttpException;
 
 	/**
 	 * @return The {@link ResponseHandler} that will be used to parse the response body

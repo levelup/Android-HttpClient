@@ -6,6 +6,7 @@ import java.util.Date;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import co.tophe.BaseResponseHandler;
@@ -27,7 +28,7 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 
 	final BaseResponseHandler<InputStream> responseHandler = new BaseResponseHandler<InputStream>(XferTransformResponseInputStream.INSTANCE) {
 		@Override
-		public void onHttpResponse(HttpRequest request, HttpResponse response) {
+		public void onHttpResponse(@NonNull HttpRequest request, @NonNull HttpResponse response) {
 			super.onHttpResponse(request, response);
 
 			String serverDate = response.getHeaderField("Date");

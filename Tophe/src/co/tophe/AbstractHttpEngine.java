@@ -144,7 +144,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 	 * @return
 	 * @throws HttpException
 	 */
-	protected abstract R queryResponse() throws HttpException, SE;
+	protected abstract R queryResponse() throws SE, HttpException;
 
 	protected T responseToResult(R response) throws ParserException, IOException {
 		return responseHandler.contentParser.transformData(response, this);
@@ -152,7 +152,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 
 	@SuppressLint("NewApi")
 	@Override
-	public final T call() throws HttpException, SE {
+	public final T call() throws SE, HttpException {
 		if (0 != threadStatsTag) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 				TrafficStats.setThreadStatsTag(threadStatsTag);

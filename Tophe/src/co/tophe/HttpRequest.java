@@ -38,7 +38,7 @@ public interface HttpRequest extends HttpRequestInfo {
 	HttpConfig getHttpConfig();
 
 	/**
-	 * Set the {@link HttpConfig} for this request or {@code null} 
+	 * Set the {@link HttpConfig} (used for customize timeouts) for this request or {@code null}.
 	 */
 	void setHttpConfig(HttpConfig config);
 

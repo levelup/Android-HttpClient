@@ -140,7 +140,7 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 	}
 
 	@Override
-	protected HttpResponseIon<T> queryResponse() throws HttpException, SE {
+	protected HttpResponseIon<T> queryResponse() throws SE, HttpException {
 		XferTransform<HttpResponse, SE> errorParser = responseHandler.errorParser;
 		XferTransform<HttpResponse, ?> commonTransforms = Utils.getCommonXferTransform(responseHandler.contentParser, errorParser, true);
 		AsyncParser<Object> parser = getXferTransformParser(commonTransforms);

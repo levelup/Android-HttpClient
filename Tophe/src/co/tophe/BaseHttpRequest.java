@@ -12,6 +12,7 @@ import co.tophe.parser.XferTransform;
  */
 public class BaseHttpRequest<T, SE extends ServerException> extends RawHttpRequest implements TypedHttpRequest<T, SE> {
 
+	@NonNull
 	private final ResponseHandler<T, SE> responseHandler;
 
 	public final static class Builder<T, SE extends ServerException> extends AbstractBuilder<T, SE, BaseHttpRequest<T, SE>, Builder<T, SE>> {

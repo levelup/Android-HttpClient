@@ -6,20 +6,36 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Pair;
 
+/**
+ * Main implementation of {@link co.tophe.HttpUriParameters}
+ */
 public class UriParams implements HttpUriParameters {
 	private final ArrayList<Pair<String,String>> mParams;
 
+	/**
+	 * Constructor.
+	 * @param capacity the amount of parameters you plan to set.
+	 */
 	public UriParams(int capacity) {
 		this.mParams = new ArrayList<Pair<String,String>>(capacity);
 	}
 
+	/**
+	 * Default Constructor.
+	 */
 	public UriParams() {
-		this.mParams = new ArrayList<Pair<String,String>>();
+		this(0);
 	}
 
-	public UriParams(Uri fromUri) {
-		this.mParams = new ArrayList<Pair<String,String>>();
-		String query = fromUri.getEncodedQuery();
+	/**
+	 * Copy the URI parameters from the {@link android.net.Uri} passed
+	 * @param uri URI containing the parameters to copy.
+	 */
+	public UriParams(Uri uri) {
+		this(0);
+
+		// code modified from fromUri.getQueryParameterNames() to get all the values
+		String query = uri.getEncodedQuery();
 		if (query != null) {
 			int start = 0;
 			do {
@@ -69,7 +85,7 @@ public class UriParams implements HttpUriParameters {
 	}
 
 	@Override
-	public void addUriParameters(Uri.Builder uriBuilder) {
+	public void appendUriParameters(Uri.Builder uriBuilder) {
 		for (Pair<String,String> param : mParams) {
 			uriBuilder.appendQueryParameter(param.first, param.second);
 		}

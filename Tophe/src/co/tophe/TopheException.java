@@ -11,7 +11,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 /**
- * Base exception to catch {@link co.tophe.HttpException} and {@link co.tophe.ServerException} as the same time
+ * Base exception to catch {@link co.tophe.ServerException} and {@link co.tophe.HttpException} at the same time.
+ *
  * @author Created by robUx4 on 29/09/2014.
  */
 public abstract class TopheException extends Exception {
@@ -19,6 +20,13 @@ public abstract class TopheException extends Exception {
 	private final HttpResponse response;
 	private final HttpRequestInfo request;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param request       the HTTP request that generated the exception.
+	 * @param response      the HTTP response there was one.
+	 * @param detailMessage the detail message for this exception.
+	 */
 	protected TopheException(@NonNull HttpRequestInfo request, @Nullable HttpResponse response, @Nullable String detailMessage) {
 		super(detailMessage);
 		this.request = request;
@@ -36,7 +44,7 @@ public abstract class TopheException extends Exception {
 	}
 
 	/**
-	 * The {@link HttpRequestInfo} that generated this Exception
+	 * The {@link HttpRequestInfo} that generated this Exception.
 	 */
 	@NonNull
 	public HttpRequestInfo getHttpRequest() {
@@ -44,7 +52,7 @@ public abstract class TopheException extends Exception {
 	}
 
 	/**
-	 * The {@link HttpResponse} that generated this Exception, may be {@code null}
+	 * The {@link HttpResponse} that generated this Exception, may be {@code null}.
 	 */
 	@Nullable
 	public HttpResponse getHttpResponse() {
@@ -52,14 +60,18 @@ public abstract class TopheException extends Exception {
 	}
 
 	/**
-	 * @return whether this error was caused by a network or server issue
+	 * @return whether this error was caused by a network or server issue, but is not a logical server error. (eg status code 500
+	 * on the server means the server didn't handle the request properly, so is a temporary error)
 	 */
 	public boolean isTemporaryFailure() {
 		return httpStatusCode >= 500;
 	}
 
+	/**
+	 * @return a list of all the HTTP headers received. An empty list when there is no response.
+	 */
 	public List<Header> getReceivedHeaders() {
-		if (null!=response) {
+		if (null != response) {
 			try {
 				final Map<String, List<String>> responseHeaders = response.getHeaderFields();
 				if (null != responseHeaders) {
@@ -81,13 +93,15 @@ public abstract class TopheException extends Exception {
 		}
 		return Collections.emptyList();
 	}
+
 	/**
 	 * Get the HTTP status code for this Request exception
 	 * <p>see <a href="https://dev.twitter.com/docs/error-codes-responses">Twitter website</a> for some special cases</p>
+	 *
 	 * @return 0 if we didn't receive any HTTP response
 	 */
 	private static int getHttpStatusCode(HttpResponse response) {
-		if (null!= response) {
+		if (null != response) {
 			try {
 				return response.getResponseCode();
 			} catch (IllegalStateException ignored) {

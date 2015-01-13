@@ -101,7 +101,7 @@ public class HttpEngineUrlConnection<T, SE extends ServerException> extends Abst
 	}
 
 	@Override
-	protected HttpResponseUrlConnection queryResponse() throws HttpException, SE {
+	protected HttpResponseUrlConnection queryResponse() throws SE, HttpException {
 		try {
 			final LoggerTagged logger = request.getLogger();
 			if (null != logger) {

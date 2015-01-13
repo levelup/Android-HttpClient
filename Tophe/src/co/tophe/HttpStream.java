@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Output type for an "infinite" stream
+ * Special output type for an "infinite" stream. It gives direct access to an {@link java.io.InputStream}. This type is not handled by the Ion engine for now.
+ * <p>You must close the stream when you're finished with {@link #disconnect()}
  */
 public class HttpStream {
 
@@ -12,15 +13,21 @@ public class HttpStream {
 	private final ImmutableHttpRequest request;
 
 	public HttpStream(InputStream inputStream, ImmutableHttpRequest request) throws IOException {
-		if (null==inputStream) throw new IOException("we need an InputStream for the stream");
+		if (null == inputStream) throw new IOException("we need an InputStream for the stream");
 		this.inputStream = inputStream;
 		this.request = request;
 	}
 
+	/**
+	 * The {@link java.io.InputStream} where you can read the "live" data.
+	 */
 	public InputStream getInputStream() {
 		return inputStream;
 	}
 
+	/**
+	 * Disconnect
+	 */
 	public void disconnect() {
 		try {
 			inputStream.close();
@@ -29,5 +36,4 @@ public class HttpStream {
 			request.getHttpResponse().disconnect();
 		}
 	}
-
 }
