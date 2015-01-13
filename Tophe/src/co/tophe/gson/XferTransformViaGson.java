@@ -20,11 +20,13 @@ import co.tophe.parser.XferTransform;
 import co.tophe.parser.XferTransformInputStreamString;
 
 /**
- * Parse the network data using Gson to type {@link T}
+ * Parse the network data using Gson to type {@code T}
  * <p/>
+ *
+ * @param <T> Type of the object returned by the Gson processing
  * @author Created by robUx4 on 8/1/2014.
  */
-public class XferTransformViaGson<T> implements XferTransform<InputStream,T> {
+public class XferTransformViaGson<T> implements XferTransform<InputStream, T> {
 	private static final Gson defaultGsonParser = new GsonBuilder().create();
 
 	private boolean debugData;

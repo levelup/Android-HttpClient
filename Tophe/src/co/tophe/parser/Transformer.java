@@ -14,11 +14,21 @@ public abstract class Transformer<INPUT, OUTPUT> implements XferTransform<INPUT,
 
 	/**
 	 * Transform the data from {@link INPUT} to {@link OUTPUT}
+	 *
 	 * @param input Input data
-	 * @return Transformed data
+	 * @return the {@link INPUT} data transformed into {@link OUTPUT} data.
 	 */
 	protected abstract OUTPUT transform(INPUT input);
 
+	/**
+	 * Deprecated, you need to extend {@link #transform(Object)}
+	 *
+	 * @param input   Input data
+	 * @param request HTTP request that generated the {@code input}
+	 * @return the {@link INPUT} data transformed into {@link OUTPUT} data.
+	 * @throws IOException
+	 * @throws ParserException
+	 */
 	@Deprecated
 	@Override
 	public final OUTPUT transformData(INPUT input, ImmutableHttpRequest request) throws IOException, ParserException {
