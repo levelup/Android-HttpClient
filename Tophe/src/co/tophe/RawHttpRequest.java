@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.http.protocol.HTTP;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import co.tophe.body.HttpBodyParameters;
@@ -82,7 +83,7 @@ public class RawHttpRequest implements HttpRequest {
 		 * @param bodyParams the object that will write the HTTP body to the remote server
 		 * @return Current Builder
 		 */
-		public B setBody(HttpBodyParameters bodyParams) {
+		public B setBody(@Nullable HttpBodyParameters bodyParams) {
 			return setBody(null, bodyParams);
 		}
 
@@ -94,7 +95,7 @@ public class RawHttpRequest implements HttpRequest {
 		 * @return Current Builder
 		 * @see {@link #setHttpMethod(String)}
 		 */
-		public B setBody(String postMethod, HttpBodyParameters bodyParams) {
+		public B setBody(@Nullable String postMethod, @Nullable HttpBodyParameters bodyParams) {
 			setHttpMethod(postMethod);
 			if (null != bodyParams && httpMethod != null && !isMethodWithBody(httpMethod))
 				throw new IllegalArgumentException("invalid body for HTTP method:" + httpMethod);
@@ -108,7 +109,7 @@ public class RawHttpRequest implements HttpRequest {
 		 * @param httpMethod HTTP method to use with this request
 		 * @return Current Builder
 		 */
-		public B setHttpMethod(String httpMethod) {
+		public B setHttpMethod(@Nullable String httpMethod) {
 			if (!TextUtils.isEmpty(httpMethod)) {
 				if (null != bodyParams && !isMethodWithBody(httpMethod))
 					throw new IllegalArgumentException("invalid HTTP method with body:" + httpMethod);
@@ -134,7 +135,7 @@ public class RawHttpRequest implements HttpRequest {
 		 * @param uriParams parameters to add to the URL
 		 * @return Current Builder
 		 */
-		public B setUrl(String url, HttpUriParameters uriParams) {
+		public B setUrl(String url, @Nullable HttpUriParameters uriParams) {
 			if (url == null)
 				this.uri = null;
 			else {
