@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 dependencies {
     compile project(':Tophe')
-    compile 'oauth.signpost:signpost-core:1.2.+'
+    compile 'oauth.signpost:signpost-core:1.2.1.2'
 }
 
 android {

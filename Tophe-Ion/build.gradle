@@ -14,8 +14,8 @@ android {
 }
 
 dependencies {
-    def artifactSupportV4 = 'com.android.support:support-v4:21.+'
-    def artifactIon = 'com.koushikdutta.ion:ion:2.0.+'
+    def artifactSupportV4 = 'com.android.support:support-v4:21.0.3'
+    def artifactIon = 'com.koushikdutta.ion:ion:2.0.5'
 
     def androidAsyncProject = ':AndroidAsync:AndroidAsync'
     def ionProject = ':Ion:Ion'
@@ -67,7 +67,7 @@ dependencies {
     }
 
     compile project(':Tophe')
-    androidTestCompile 'com.squareup.okio:okio:1.0.+'
+    androidTestCompile 'com.squareup.okio:okio:1.0.1'
 }
 
 apply from: 'https://raw.githubusercontent.com/mcxiaoke/gradle-mvn-push/master/gradle-mvn-push.gradle'
