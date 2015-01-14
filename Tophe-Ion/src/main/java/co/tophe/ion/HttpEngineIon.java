@@ -66,7 +66,7 @@ import co.tophe.parser.XferTransformStringJSONObject;
  * @see co.tophe.HttpRequestGet for a more simple API
  * @see co.tophe.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEngine<T, HttpResponseIon<T>, SE> {
+public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEngine<T, SE, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
 	private static final String ENGINE_SIGNATURE = "Ion-1.4.1+AndroidAsync-1.4.1"; // TODO do not hardcode this
 

@@ -31,7 +31,7 @@ import co.tophe.parser.ParserException;
  * @see co.tophe.HttpRequestGet for a more simple API
  * @see co.tophe.HttpRequestPost for a more simple POST API
  */
-public class HttpEngineUrlConnection<T, SE extends ServerException> extends AbstractHttpEngine<T,HttpResponseUrlConnection, SE> {
+public class HttpEngineUrlConnection<T, SE extends ServerException> extends AbstractHttpEngine<T, SE, HttpResponseUrlConnection> {
 	final HttpURLConnection urlConnection;
 	private static final String ENGINE_SIGNATURE = null; // TODO we could give the OS version
 

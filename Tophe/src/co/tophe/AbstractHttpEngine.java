@@ -24,11 +24,15 @@ import co.tophe.parser.ParserException;
 import co.tophe.signed.AbstractRequestSigner;
 
 /**
- * Base {@link HttpEngine} with the basic stuff handled and the necessary methods an engine needs to provide
+ * Abstract base {@link HttpEngine} class with the basic stuff handled and the necessary methods an engine needs to provide.
+ * <p>It's a java {@link java.util.concurrent.Callable} so you can call {@link java.util.concurrent.Callable#call()}
+ * directly or use an {@link co.tophe.async.AsyncTask AsyncTask} to process it asynchronously.</p>
  *
- * @param <T> type of the data read from the HTTP response
+ * @param <T>  type of the data read from the HTTP response
+ * @param <SE> type of the exception raised when there's a server generated error.
+ * @param <R>  type of the {@link co.tophe.HttpResponse} provided by the engine.
  */
-public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends ServerException> implements HttpEngine<T, SE>, Closeable {
+public abstract class AbstractHttpEngine<T, SE extends ServerException, R extends HttpResponse> implements HttpEngine<T, SE>, Closeable {
 	protected final Map<String, String> requestHeaders = new HashMap<String, String>();
 
 	protected final RawHttpRequest request;
@@ -37,6 +41,11 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 
 	protected R httpResponse;
 
+	/**
+	 * Tests if an {@link co.tophe.HttpResponse} is a server error or not.
+	 *
+	 * @throws IOException if the response header cannot be read.
+	 */
 	public static boolean isHttpError(HttpResponse httpResponse) throws IOException {
 		return httpResponse.getResponseCode() < 200 || httpResponse.getResponseCode() >= 400;
 	}
