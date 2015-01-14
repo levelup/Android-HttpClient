@@ -117,7 +117,7 @@ public abstract class AbstractHttpEngine<T,R extends HttpResponse, SE extends Se
 	protected abstract String getEngineSignature();
 
 	@Override
-	public final void setHeader(String name, String value) {
+	public final void setHeader(@NonNull String name, @Nullable String value) {
 		if (null == value)
 			requestHeaders.remove(name);
 		else

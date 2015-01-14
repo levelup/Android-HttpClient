@@ -41,13 +41,14 @@ public final class DummyHttpEngine<T, SE extends ServerException> implements Htt
 	}
 
 	@Override
-	public void setHeader(String name, String value) {
-		throw new IllegalStateException();
+	public void setHeader(@NonNull String name, @Nullable String value) {
+		throw new AssertionError("not supported");
 	}
 
+	@NonNull
 	@Override
 	public String getHeader(String name) {
-		return null;
+		throw new AssertionError("not supported");
 	}
 
 	@Override

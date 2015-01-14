@@ -154,6 +154,8 @@ public class TopheClient {
 	 * @return The parsed object or null
 	 * @throws SE            if the server didn't like the request.
 	 * @throws HttpException if there was an error other than a server error.
+	 * @see co.tophe.async.AsyncTopheClient#postRequest(TypedHttpRequest, co.tophe.async.AsyncCallback) AsyncTopheClient.postRequest()
+	 * to get the response object asynchronously
 	 */
 	public static <T, SE extends ServerException> T parseRequest(TypedHttpRequest<T, SE> request) throws SE, HttpException {
 		return new HttpEngine.Builder<T, SE>()
