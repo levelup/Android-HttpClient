@@ -1,4 +1,4 @@
-package co.tophe;
+package co.tophe.engine;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -13,23 +13,32 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import co.tophe.HttpEngine;
+import co.tophe.HttpEngineFactory;
+import co.tophe.ServerException;
 import co.tophe.internal.DelegateSSLSocket;
-import co.tophe.engine.HttpEngineUrlConnection;
 import co.tophe.log.LogManager;
 
 /**
+ * Default {@link co.tophe.HttpEngineFactory} creating {@link HttpEngineUrlConnection}.
+ * <p>Can be used as fallback for any other engine.</p>
+ *
  * @author Created by Steve Lhomme on 15/07/2014.
+ * @see #INSTANCE
  */
-public class BaseHttpEngineFactory implements HttpEngineFactory {
+public class HttpEngineFactoryUrlConnection implements HttpEngineFactory {
 
-	private BaseHttpEngineFactory() {
+	private HttpEngineFactoryUrlConnection() {
 	}
 
-	public static final BaseHttpEngineFactory INSTANCE = new BaseHttpEngineFactory();
+	/**
+	 * Instance for the default {@link co.tophe.HttpEngineFactory}.
+	 */
+	public static final HttpEngineFactoryUrlConnection INSTANCE = new HttpEngineFactoryUrlConnection();
 
 	private boolean initialized;
 
-	void init() {
+	public void init() {
 		if (!initialized) {
 			HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
 			initialized = true;

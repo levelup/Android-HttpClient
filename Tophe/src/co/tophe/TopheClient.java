@@ -10,6 +10,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import co.tophe.engine.HttpEngineFactoryUrlConnection;
 import co.tophe.parser.BodyToString;
 
 /**
@@ -21,7 +22,7 @@ public class TopheClient {
 	private static String xRequestedWith;
 	private static CookieManager cookieManager;
 	private static Header[] defaultHeaders;
-	private static HttpEngineFactory httpEngineFactory = BaseHttpEngineFactory.INSTANCE;
+	private static HttpEngineFactory httpEngineFactory = HttpEngineFactoryUrlConnection.INSTANCE;
 
 	//public static final int PLAY_SERVICES_BOGUS_SSLV3 = 6183070;
 
@@ -82,7 +83,7 @@ public class TopheClient {
 				}
 			}
 
-			BaseHttpEngineFactory.INSTANCE.init();
+			HttpEngineFactoryUrlConnection.INSTANCE.init();
 		}
 	}
 
@@ -174,7 +175,7 @@ public class TopheClient {
 	/**
 	 * Set the default HTTP engine factory.
 	 *
-	 * @see co.tophe.BaseHttpEngineFactory BaseHttpEngineFactory uses URLConnection to handle HTTP requests.
+	 * @see co.tophe.engine.HttpEngineFactoryUrlConnection BaseHttpEngineFactory uses URLConnection to handle HTTP requests.
 	 * @see co.tophe.ion.IonHttpEngineFactory IonHttpEngineFactory uses Ion to handle HTTP requests.
 	 */
 	public static void setHttpEngineFactory(HttpEngineFactory httpEngineFactory) {
