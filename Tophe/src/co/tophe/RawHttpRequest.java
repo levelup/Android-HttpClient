@@ -219,7 +219,7 @@ public class RawHttpRequest implements HttpRequest {
 	private final String httpMethod;
 	private final HttpBodyParameters bodyParams;
 	private final RequestSigner signer;
-	private HttpConfig httpConfig = BasicHttpConfig.instance;
+	private HttpConfig httpConfig = BasicHttpConfig.INSTANCE;
 	private LoggerTagged loggerTagged;
 	private UploadProgressListener progressListener;
 

@@ -15,6 +15,7 @@ import co.tophe.engine.DummyHttpEngine;
  * @param <T>  type of the object returned from the request after parsing the response body.
  * @param <SE> type of exception raised when a server-generated error is returned in the response.
  * @author Created by Steve Lhomme on 14/07/2014.
+ * @see co.tophe.HttpEngine.Builder
  * @see co.tophe.async.AsyncTopheClient AsyncTopheClient
  */
 public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, ImmutableHttpRequest {
@@ -51,6 +52,13 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 	@NonNull
 	String getHeader(String name);
 
+	/**
+	 * Builder to turn an HTTP request ({@link co.tophe.TypedHttpRequest} or a {@link co.tophe.HttpRequest} with a
+	 * {@link co.tophe.ResponseHandler}) into an {@link co.tophe.HttpEngine} to process the request.
+	 *
+	 * @param <T>  type of the object returned from the request after parsing the response body.
+	 * @param <SE> type of exception raised when a server-generated error is returned in the response.
+	 */
 	public static class Builder<T, SE extends ServerException> {
 		private ResponseHandler<T, SE> responseHandler;
 		private RawHttpRequest httpRequest;
@@ -60,22 +68,43 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 		public Builder() {
 		}
 
+		/**
+		 * Set the {@link co.tophe.TypedHttpRequest} to be used to do the request and process the typed responsed.
+		 *
+		 * @return the Builder.
+		 */
 		public Builder<T, SE> setTypedRequest(TypedHttpRequest<T, SE> request) {
 			return setRequest(request)
 					.setResponseHandler(request.getResponseHandler());
 		}
 
+		/**
+		 * Set the {@link co.tophe.HttpRequest} to be used to do the request.
+		 * <p>For now only {@link co.tophe.RawHttpRequest} is supported.</p>
+		 *
+		 * @return the Builder.
+		 */
 		public Builder<T, SE> setRequest(@NonNull HttpRequest request) {
 			if (null != request && !(request instanceof RawHttpRequest)) throw new IllegalStateException("invalid RawRequest:" + request);
 			this.httpRequest = (RawHttpRequest) request;
 			return this;
 		}
 
+		/**
+		 * Set the {@link co.tophe.ResponseHandler} that will process the server response.
+		 *
+		 * @return the Builder.
+		 */
 		public Builder<T, SE> setResponseHandler(@NonNull ResponseHandler<T, SE> responseHandler) {
 			this.responseHandler = responseHandler;
 			return this;
 		}
 
+		/**
+		 * Set a different {@link co.tophe.HttpEngineFactory} if you don't want to use the default one.
+		 *
+		 * @return the Builder.
+		 */
 		public Builder<T, SE> setHttpEngineFactory(HttpEngineFactory factory) {
 			this.factory = factory;
 			return this;
@@ -85,7 +114,7 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 		 * Set a tag to mark the query processed in this thread as belonging to a certain class of requests
 		 *
 		 * @param threadStatsTag the tag for the engine when it will run
-		 * @return Current Builder
+		 * @return the Builder
 		 * @see android.net.TrafficStats
 		 */
 		public Builder<T, SE> setThreadStatsTag(int threadStatsTag) {

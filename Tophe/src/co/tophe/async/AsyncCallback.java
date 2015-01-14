@@ -5,9 +5,11 @@ import android.support.annotation.Nullable;
 
 /**
  * Callback called in the UI thread when an Async download has finished successfully or with an error (not when canceled)
- * @author Steve Lhomme
  *
  * @param <T>
+ * @author Steve Lhomme
+ * @see co.tophe.async.BaseAsyncCallback
+ * @see co.tophe.async.AsyncTask
  */
 public interface AsyncCallback<T> {
 	/**

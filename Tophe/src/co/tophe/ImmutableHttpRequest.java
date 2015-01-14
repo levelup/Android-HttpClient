@@ -3,7 +3,7 @@ package co.tophe;
 import android.support.annotation.Nullable;
 
 /**
- * An immutable HTTP request with its response.
+ * An immutable HTTP request with its  response (if there was one).
  *
  * @author Created by Steve Lhomme on 14/07/2014.
  */

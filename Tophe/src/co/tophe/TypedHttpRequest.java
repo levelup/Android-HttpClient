@@ -5,8 +5,9 @@ import android.support.annotation.NonNull;
 /**
  * An {@link HttpRequest} that outputs data of type {@code T}
  *
- * @param <T>  The type of data returned by the server
- * @param <SE> The type of the Exception raised for all server generated errors.
+ * @param <T>  the type of data returned by the server
+ * @param <SE> the type of the Exception raised for all server generated errors.
+ * @see co.tophe.BaseHttpRequest
  */
 public interface TypedHttpRequest<T, SE extends ServerException> extends HttpRequest {
 
