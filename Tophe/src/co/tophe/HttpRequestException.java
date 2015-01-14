@@ -3,7 +3,7 @@ package co.tophe;
 import android.support.annotation.NonNull;
 
 /**
- * Error on the HttpRequest before any network processing is involved
+ * Error on the HTTP request before any network processing is involved
  */
 public abstract class HttpRequestException extends HttpException {
 	protected HttpRequestException(@NonNull AbstractBuilder builder) {

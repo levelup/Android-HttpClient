@@ -8,7 +8,7 @@ import java.util.Map;
 import android.support.annotation.Nullable;
 
 /**
- * Interface to define an HTTP response coming from any {@link co.tophe.HttpEngine}
+ * Interface to define an HTTP response coming from any {@link HttpEngine}
  */
 public interface HttpResponse {
 	/**

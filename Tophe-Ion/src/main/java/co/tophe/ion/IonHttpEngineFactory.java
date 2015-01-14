@@ -16,7 +16,7 @@ import com.koushikdutta.async.http.AsyncHttpClientMiddleware;
 import com.koushikdutta.async.http.AsyncSSLEngineConfigurator;
 import com.koushikdutta.ion.Ion;
 
-import co.tophe.DummyHttpEngine;
+import co.tophe.engine.DummyHttpEngine;
 import co.tophe.HttpEngine;
 import co.tophe.HttpEngineFactory;
 import co.tophe.HttpResponse;

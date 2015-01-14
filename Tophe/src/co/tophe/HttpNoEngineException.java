@@ -3,7 +3,7 @@ package co.tophe;
 import android.support.annotation.NonNull;
 
 /**
- * Exception raised when no {@link co.tophe.HttpEngine} could be found to process the {@link co.tophe.HttpRequestInfo}
+ * Exception raised when no {@link HttpEngine} could be found to process the {@link co.tophe.HttpRequestInfo}.
  */
 public class HttpNoEngineException extends HttpRequestException{
 	protected HttpNoEngineException(@NonNull Builder builder) {

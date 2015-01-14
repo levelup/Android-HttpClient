@@ -6,8 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
-* @author Created by robUx4 on 24/09/2014.
-*/
+ * Exception when the wrong IP protocol is used by the HTTP engine.
+ *
+ * @author Created by robUx4 on 24/09/2014.
+ * @see java.net.ProtocolException
+ */
 public class HttpProtocolException extends HttpException {
 	protected HttpProtocolException(@NonNull Builder builder) {
 		super(builder);

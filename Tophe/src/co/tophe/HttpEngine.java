@@ -4,26 +4,28 @@ import java.util.concurrent.Callable;
 
 import android.support.annotation.NonNull;
 
+import co.tophe.engine.DummyHttpEngine;
+
 /**
  * @author Created by Steve Lhomme on 14/07/2014.
  */
 public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, ImmutableHttpRequest {
 	/**
-	 * Process the {@link HttpRequest} it was built with
-	 * @return The result processed by the {@link ResponseHandler}
-	 * @throws HttpException
+	 * Process the {@link co.tophe.HttpRequest} it was built with
+	 * @return The result processed by the {@link co.tophe.ResponseHandler}
+	 * @throws co.tophe.HttpException
 	 * @throws SE
 	 */
 	T call() throws SE, HttpException;
 
 	/**
-	 * @return The {@link ResponseHandler} that will be used to parse the response body
+	 * @return The {@link co.tophe.ResponseHandler} that will be used to parse the response body
 	 */
 	@NonNull
 	ResponseHandler<T, SE> getResponseHandler();
 
 	/**
-	 * Extra header to add to the query, in addition of the ones from the source {@link HttpRequest}
+	 * Extra header to add to the query, in addition of the ones from the source {@link co.tophe.HttpRequest}
 	 * <p>Can be used to sign a request with a timestamp, for example</p>
 	 * @param name HTTP Header name
 	 * @param value HTTP Header value
@@ -31,7 +33,7 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 	void setHeader(String name, String value);
 
 	/**
-	 * Get the internal header value used by the engine, may differ or not exist in the original {@link HttpRequest}
+	 * Get the internal header value used by the engine, may differ or not exist in the original {@link co.tophe.HttpRequest}
 	 * @param name HTTP Header name
 	 * @return HTTP Header value
 	 */

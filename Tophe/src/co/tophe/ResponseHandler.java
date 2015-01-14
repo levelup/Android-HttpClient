@@ -41,7 +41,7 @@ public class ResponseHandler<OUTPUT, SE extends ServerException> {
 	/**
 	 * Indicates if the response should follow redirections.
 	 *
-	 * @return {@code null} if you want to use the default value of the {@link co.tophe.HttpEngine}.
+	 * @return {@code null} if you want to use the default value of the {@link HttpEngine}.
 	 */
 	@Nullable
 	public Boolean followsRedirect() {

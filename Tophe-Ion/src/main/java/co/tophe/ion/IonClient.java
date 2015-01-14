@@ -3,7 +3,7 @@ package co.tophe.ion;
 import android.content.Context;
 
 import co.tophe.HttpEngineFactory;
-import co.tophe.HttpEngineFactoryFallback;
+import co.tophe.engine.HttpEngineFactoryFallback;
 import co.tophe.TopheClient;
 
 /**

@@ -14,7 +14,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import co.tophe.internal.DelegateSSLSocket;
-import co.tophe.internal.HttpEngineUrlConnection;
+import co.tophe.engine.HttpEngineUrlConnection;
 import co.tophe.log.LogManager;
 
 /**

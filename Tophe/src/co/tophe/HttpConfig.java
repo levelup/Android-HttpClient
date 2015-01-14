@@ -2,7 +2,7 @@ package co.tophe;
 
 
 /**
- * HTTP config to connect to a web service
+ * Configuration for an HTTP request. Only the read-timeout tweaking can be configured for now.
  */
 public interface HttpConfig {
 

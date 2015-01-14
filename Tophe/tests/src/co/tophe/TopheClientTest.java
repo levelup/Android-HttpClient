@@ -19,7 +19,7 @@ import co.tophe.body.HttpBodyJSON;
 import co.tophe.body.HttpBodyMultiPart;
 import co.tophe.body.HttpBodyParameters;
 import co.tophe.body.HttpBodyUrlEncoded;
-import co.tophe.internal.HttpEngineUrlConnection;
+import co.tophe.engine.HttpEngineUrlConnection;
 import co.tophe.parser.BodyToHttpStream;
 import co.tophe.parser.BodyToJSONObject;
 import co.tophe.parser.BodyToString;

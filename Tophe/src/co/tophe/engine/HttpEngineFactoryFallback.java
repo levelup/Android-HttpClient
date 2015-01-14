@@ -1,6 +1,13 @@
-package co.tophe;
+package co.tophe.engine;
+
+import co.tophe.HttpEngine;
+import co.tophe.HttpEngineFactory;
+import co.tophe.ServerException;
 
 /**
+ * An {@link co.tophe.HttpEngineFactory} that can fallback to another factory if the query is not supported by the main one.
+ * ie if the main engine returns {@link co.tophe.engine.DummyHttpEngine}
+ *
  * @author Created by robUx4 on 01/09/2014.
  */
 public class HttpEngineFactoryFallback implements HttpEngineFactory {
