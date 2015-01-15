@@ -62,6 +62,28 @@ android {
             proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
         }
     }
+
+    libraryVariants.all { variant ->
+        def name = variant.buildType.name
+        if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
+            return; // Skip debug builds.
+        }
+        def task = project.tasks.create "jar${name.capitalize()}", Jar
+        task.dependsOn variant.javaCompile
+        task.from variant.javaCompile.destinationDir
+        artifacts.add('archives', task);
+
+        configurations.archives.artifacts.with { archives ->
+            def aarArtifact
+            archives.each {
+                if (it.file =~ 'aar') {
+                    aarArtifact = it
+                }
+            }
+            //println "AAR to delete: ${aarArtifact}"
+            remove(aarArtifact)
+        }
+    }
 }
 
 apply from: 'https://raw.githubusercontent.com/mcxiaoke/gradle-mvn-push/master/gradle-mvn-push.gradle'
