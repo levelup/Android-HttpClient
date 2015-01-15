@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 
 /**
  * Factory interface to create a {@link AsyncTask} from a {@link Callable}
- * <p>By default {@link BaseAsyncTaskFactory#instance} is used by {@link AsyncTask.Builder},
+ * <p>By default {@link BaseAsyncTaskFactory#INSTANCE} is used by {@link AsyncTask.Builder},
  * other factories may be created to do some extra processing in the worker thread.
  * @author Steve Lhomme
  *

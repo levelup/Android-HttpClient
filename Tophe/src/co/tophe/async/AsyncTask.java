@@ -22,11 +22,12 @@ import co.tophe.ServerException;
 import co.tophe.TypedHttpRequest;
 
 /**
- * {@link java.util.concurrent.FutureTask FutureTask} that will be used to do the HTTP download in the background,
+ * {@link java.util.concurrent.FutureTask FutureTask} that will be used to do the HTTP processing in the background,
  * the result/error will be sent to the {@link AsyncCallback} in the UI thread
- * @author Steve Lhomme
  *
- * @param <T>
+ * @param <T> the type of data returned by the task.
+ * @author Steve Lhomme
+ * @see co.tophe.async.AsyncTask.Builder
  */
 public class AsyncTask<T> extends FutureTask<T> {
 	private final AsyncCallback<T> callback;
@@ -34,14 +35,34 @@ public class AsyncTask<T> extends FutureTask<T> {
 
 	private static final Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	public <SE extends ServerException> AsyncTask(TypedHttpRequest<T,SE> request, AsyncCallback<T> callback) {
-		this(new HttpEngine.Builder<T,SE>().setTypedRequest(request).build(), callback);
+	/**
+	 * Constructor to process a {@link co.tophe.TypedHttpRequest} asynchronously and call the callback when it's done.
+	 *
+	 * @param request  the typed HTTP request to process asynchronously.
+	 * @param callback the callback to call when the processing is finished.
+	 * @param <SE>     type of exception raised when the HTTP server generates an error.
+	 */
+	public <SE extends ServerException> AsyncTask(TypedHttpRequest<T, SE> request, AsyncCallback<T> callback) {
+		this(new HttpEngine.Builder<T, SE>().setTypedRequest(request).build(), callback);
 	}
 
+	/**
+	 * Handle a {@link java.util.concurrent.Callable} and call when callback when it's done. It can be an {@link co.tophe.HttpEngine}.
+	 *
+	 * @param callable the {@link java.util.concurrent.Callable} to run when
+	 * @param callback the callback to call when the processing is finished.
+	 */
 	public AsyncTask(Callable<T> callable, AsyncCallback<T> callback) {
 		this(callable, callback, true);
 	}
 
+	/**
+	 * Handle a {@link java.util.concurrent.Callable} and call when callback when it's done. It can be an {@link co.tophe.HttpEngine}.
+	 *
+	 * @param callable         the {@link java.util.concurrent.Callable} to run when
+	 * @param callback         the callback to call when the processing is finished.
+	 * @param reportNullResult set to {@code false} if you don't want to receive {@code null} results in the callback.
+	 */
 	public AsyncTask(Callable<T> callable, AsyncCallback<T> callback, boolean reportNullResult) {
 		super(callable);
 		this.callback = callback;
@@ -104,14 +125,16 @@ public class AsyncTask<T> extends FutureTask<T> {
 	}
 
 	/**
-	 * Builder class to run an {@link co.tophe.HttpEngine} asynchronously
+	 * Builder class to run an {@link co.tophe.HttpEngine} or any {@link java.util.concurrent.Callable} asynchronously in the TOPHE executor.
 	 * <p>You may build the {@link AsyncTask} and run it yourself or call {@link #execute()} to run it right away</p>
+	 *
+	 * @param <T> the type of data returned by the task.
 	 * @author Created by robUx4 on 03/09/2014.
 	 */
 	public static class Builder<T> {
 		private static final HashMap<String, AsyncTask<?>> taggedJobs = new HashMap<String, AsyncTask<?>>();
 
-		private AsyncTaskFactory<T> factory = BaseAsyncTaskFactory.instance;
+		private AsyncTaskFactory<T> factory = BaseAsyncTaskFactory.INSTANCE;
 		private Executor executor = AsyncTopheClient.getExecutor();
 		private Callable<T> callable;
 		private AsyncCallback<T> callback;
@@ -148,6 +171,10 @@ public class AsyncTask<T> extends FutureTask<T> {
 			return setCallable(httpEngine);
 		}
 
+		/**
+		 * Set the callable to run in the TOPHE executor.
+		 * @return Current Builder
+		 */
 		public Builder<T> setCallable(Callable<T> callable) {
 			this.callable = callable;
 			return this;
@@ -185,7 +212,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 
 		/**
 		 * Set the executor that will be used to run the {@link AsyncTask} asynchronously, in case you don't want the default one
-		 * <p>Only used when calling {@link #execute()} instead of {@link #buildTask()}</p>
+		 * <p>Only used when calling {@link #execute()} instead of {@link #build()}</p>
 		 * @param executor
 		 * @return Current Builder
 		 */
@@ -195,9 +222,10 @@ public class AsyncTask<T> extends FutureTask<T> {
 		}
 
 		/**
-		 * @return The {@link AsyncTask} to be run asynchronously
+		 * @return The built {@link AsyncTask} to be run asynchronously.
+		 * @see #execute()
 		 */
-		public AsyncTask<T> buildTask() {
+		public AsyncTask<T> build() {
 			if (null == factory) throw new NullPointerException("Missing factory");
 			AsyncTask<T> result = factory.createAsyncTask(callable, callback);
 			this.callable = null; // safety as an HttpEngine is not reusable
@@ -207,6 +235,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 		/**
 		 * Create the {@link AsyncTask} and run it asynchronously via the {@link java.util.concurrent.Executor}
 		 * @return The {@link FutureTask} that was submitted to the {@link java.util.concurrent.Executor}
+		 * @see #build()
 		 */
 		public AsyncTask<T> execute() {
 			if (null == factory) throw new NullPointerException("Missing factory");
@@ -227,7 +256,7 @@ public class AsyncTask<T> extends FutureTask<T> {
 				};
 			}
 
-			AsyncTask<T> task = buildTask();
+			AsyncTask<T> task = build();
 
 			if (null != taskTag) {
 				synchronized (taggedJobs) {

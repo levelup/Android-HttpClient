@@ -4,9 +4,9 @@ package co.tophe.async;
 import android.support.annotation.Nullable;
 
 /**
- * Callback called in the UI thread when an Async download has finished successfully or with an error (not when canceled)
+ * Callback called in the UI thread when an Async task has finished successfully or with an error (not when canceled)
  *
- * @param <T>
+ * @param <T> the type of data returned by the Async task.
  * @author Steve Lhomme
  * @see co.tophe.async.BaseAsyncCallback
  * @see co.tophe.async.AsyncTask

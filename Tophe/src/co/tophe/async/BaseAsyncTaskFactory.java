@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
  */
 public class BaseAsyncTaskFactory<T> implements AsyncTaskFactory<T> {
 	@SuppressWarnings("rawtypes")
-	public static final BaseAsyncTaskFactory instance = new BaseAsyncTaskFactory();
+	public static final BaseAsyncTaskFactory INSTANCE = new BaseAsyncTaskFactory();
 	
 	@Override
 	public AsyncTask<T> createAsyncTask(Callable<T> callable, AsyncCallback<T> callback) {

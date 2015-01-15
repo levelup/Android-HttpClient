@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 import co.tophe.TypedHttpRequest;
 
 /**
- * Basic TopheClient to run network queries outside of the UI thread
+ * Basic TopheClient to run network queries outside of the UI thread.
  * <p>Helper class for {@link AsyncTask.Builder}</p>
  * 
  * @author Steve Lhomme
