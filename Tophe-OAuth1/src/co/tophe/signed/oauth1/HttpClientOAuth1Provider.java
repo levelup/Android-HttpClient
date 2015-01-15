@@ -25,6 +25,8 @@ import oauth.signpost.http.HttpResponse;
  * href="http://tools.ietf.org/html/rfc5849#page-4">Request Token</a> (temporary token) and <a
  * href="http://tools.ietf.org/html/rfc5849#page-4">Access Token</a> (user token) from an
  * <a href="http://tools.ietf.org/html/rfc5849">OAuth 1.0</a> service for the specified {@link OAuthClientApp}
+ * @see #retrieveRequestToken(String, String...)
+ * @see #retrieveAccessToken(String, String...)
  */
 public class HttpClientOAuth1Provider {
 

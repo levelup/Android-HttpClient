@@ -14,7 +14,7 @@ import co.tophe.engine.HttpEngineFactoryUrlConnection;
 import co.tophe.parser.BodyToString;
 
 /**
- * HTTP client that handles {@link HttpRequest}
+ * HTTP client that handles {@link HttpRequest}. You must call {@link #setup(android.content.Context)} before using TOPHE.
  */
 public final class TopheClient {
 

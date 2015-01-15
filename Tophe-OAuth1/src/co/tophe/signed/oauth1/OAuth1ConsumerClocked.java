@@ -18,7 +18,7 @@ import co.tophe.signed.OAuthClientApp;
 
 
 /**
- * An {@link HttpClientOAuth1Consumer OAuth Consumer} that can handle a device clock shift transparently
+ * An {@link HttpClientOAuth1Consumer OAuth Consumer} that can handle a device clock difference between the client and the server transparently.
  */
 public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 
