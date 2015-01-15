@@ -56,7 +56,7 @@ public class PagingHelperTest extends AndroidTestCase {
 					}).build()
 	);
 
-	private static HttpEngine<Page,ServerException> getPageEngine(String link) {
+	private static HttpEngine<Page,ServerException> createPageEngine(String link) {
 		return new HttpEngine.Builder<Page,ServerException>()
 				.setRequest(new RawHttpRequest.Builder().setUrl(link).build())
 				.setResponseHandler(PAGE_RESPONSE_HANDLER)
@@ -66,15 +66,15 @@ public class PagingHelperTest extends AndroidTestCase {
 
 	public static void testListPageReader() throws Exception {
 		Callable<List<Page>> pagesReader = PagingHelper.readPages(
-				getPageEngine("http://httpbin.org/links/3/0"),
+				createPageEngine("http://httpbin.org/links/3/0"),
 				new NextPageFactory<Page>() {
 					@Override
-					public Callable<Page> getNextCallable(Page page) {
+					public Callable<Page> createCallable(Page page) {
 						if ("http://httpbin.org/links/3/2".equals(page.pageLinks.get(1))) {
 							if ("http://httpbin.org/links/3/1".equals(page.pageLinks.get(0))) {
-								return getPageEngine("http://httpbin.org/links/3/1");
+								return createPageEngine("http://httpbin.org/links/3/1");
 							} else {
-								return getPageEngine("http://httpbin.org/links/3/2");
+								return createPageEngine("http://httpbin.org/links/3/2");
 							}
 						}
 						return null;
@@ -91,18 +91,18 @@ public class PagingHelperTest extends AndroidTestCase {
 	}
 
 	public void testListPagesAsync() throws Exception {
-		HttpEngine<Page,ServerException> initialRequest = getPageEngine("http://httpbin.org/links/3/0");
+		HttpEngine<Page,ServerException> initialRequest = createPageEngine("http://httpbin.org/links/3/0");
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		PagingHelper.readPagesAsync(initialRequest,
 				new NextPageFactory<Page>() {
 					@Override
-					public Callable<Page> getNextCallable(Page page) {
+					public Callable<Page> createCallable(Page page) {
 						if ("http://httpbin.org/links/3/2".equals(page.pageLinks.get(1))) {
 							if ("http://httpbin.org/links/3/1".equals(page.pageLinks.get(0))) {
-								return getPageEngine("http://httpbin.org/links/3/1");
+								return createPageEngine("http://httpbin.org/links/3/1");
 							} else {
-								return getPageEngine("http://httpbin.org/links/3/2");
+								return createPageEngine("http://httpbin.org/links/3/2");
 							}
 						}
 						return null;

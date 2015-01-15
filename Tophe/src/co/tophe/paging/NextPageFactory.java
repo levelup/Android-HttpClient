@@ -15,5 +15,5 @@ public interface NextPageFactory<PAGE> extends NextCallable<PAGE, PAGE> {
 	 * @return A {@link java.util.concurrent.Callable} to retrieve the next page or {@code null} if there's no more pages to read
 	 */
 	@Nullable
-	Callable<PAGE> getNextCallable(PAGE page);
+	Callable<PAGE> createCallable(PAGE page);
 }

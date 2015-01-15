@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import android.os.Build;
 import android.support.annotation.Nullable;
 
 import co.tophe.TypedHttpRequest;
@@ -15,8 +16,9 @@ import co.tophe.TypedHttpRequest;
  * <p>Helper class for {@link AsyncTask.Builder}</p>
  * 
  * @author Steve Lhomme
+ * @see #postRequest(co.tophe.TypedHttpRequest, AsyncCallback)
  */
-public class AsyncTopheClient {
+public final class AsyncTopheClient {
 
 	private static final int THREAD_POOL_SIZE = 3*Runtime.getRuntime().availableProcessors();
 	private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>();
@@ -24,7 +26,8 @@ public class AsyncTopheClient {
 	private static Executor executor;
 	static {
 		executor = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE, 60, TimeUnit.SECONDS, sPoolWorkQueue);
-		((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
+			((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
 	}
 
 	private AsyncTopheClient() {

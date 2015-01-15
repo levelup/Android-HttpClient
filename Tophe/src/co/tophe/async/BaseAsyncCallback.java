@@ -2,7 +2,7 @@ package co.tophe.async;
 
 /**
  * Base class when you want to define an {@link co.tophe.async.AsyncCallback}, does nothing by default.
- * @param <T>
+ * @param <T> the type of data returned by the Async task.
  */
 public class BaseAsyncCallback<T> implements AsyncCallback<T> {
 

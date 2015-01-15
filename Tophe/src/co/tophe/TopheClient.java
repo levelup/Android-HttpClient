@@ -16,7 +16,7 @@ import co.tophe.parser.BodyToString;
 /**
  * HTTP client that handles {@link HttpRequest}
  */
-public class TopheClient {
+public final class TopheClient {
 
 	private static String userAgent;
 	private static String xRequestedWith;

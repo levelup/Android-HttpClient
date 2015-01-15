@@ -54,7 +54,7 @@ public final class PagingHelper {
 				PAGE newPage = currentPageRequest.call();
 				if (null != pageCallback)
 					pageCallback.onNewPage(pagedHolder, newPage);
-				Callable<PAGE> nextPageCall = nextPageFactory.getNextCallable(newPage);
+				Callable<PAGE> nextPageCall = nextPageFactory.createCallable(newPage);
 				if (null == nextPageCall)
 					return pagedHolder;
 				return processPage(nextPageCall, pagedHolder, pageCallback, nextPageFactory).call();
@@ -134,7 +134,7 @@ public final class PagingHelper {
 				PAGE page = currentPageRequest.call();
 				if (null != pageCallback)
 					pageCallback.onNewPage(pagesHolder, page);
-				Callable<PAGE> nextCall = nextPageFactory.getNextCallable(page);
+				Callable<PAGE> nextCall = nextPageFactory.createCallable(page);
 				if (nextCall == null)
 					return pagesHolder; // no more pages to load, now we return the result for good
 

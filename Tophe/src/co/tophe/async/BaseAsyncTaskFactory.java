@@ -7,12 +7,15 @@ import java.util.concurrent.Callable;
  *
  * @param <T>
  */
-public class BaseAsyncTaskFactory<T> implements AsyncTaskFactory<T> {
+public final class BaseAsyncTaskFactory<T> implements AsyncTaskFactory<T> {
+	/**
+	 * The instance to use to create a basic {@link co.tophe.async.AsyncTask} in the {@link co.tophe.async.AsyncTask.Builder}.
+	 */
 	@SuppressWarnings("rawtypes")
 	public static final BaseAsyncTaskFactory INSTANCE = new BaseAsyncTaskFactory();
 	
 	@Override
-	public AsyncTask<T> createAsyncTask(Callable<T> callable, AsyncCallback<T> callback) {
+	public final AsyncTask<T> createAsyncTask(Callable<T> callable, AsyncCallback<T> callback) {
 		return new AsyncTask<T>(callable, callback);
 	}
 }

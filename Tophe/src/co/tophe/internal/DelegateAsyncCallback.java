@@ -1,4 +1,7 @@
-package co.tophe.async;
+package co.tophe.internal;
+
+import co.tophe.async.AsyncCallback;
+import co.tophe.async.AsyncTask;
 
 /**
  * @author Created by robUx4 on 03/09/2014.
