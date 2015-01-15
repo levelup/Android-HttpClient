@@ -5,11 +5,14 @@ import java.io.IOException;
 import co.tophe.ImmutableHttpRequest;
 
 /**
- * Transform data coming from the network from {@code INPUT} to {@code OUTPUT} type
+ * Transform data coming from the network from {@code INPUT} to {@code OUTPUT} type.
+ * <p>You may use {@link co.tophe.parser.Transformer} for transformations that don't need to know about the HTTP request and don't
+ * throw exceptions when parsing the data.</p>
  *
- * @param <INPUT>  Input type
- * @param <OUTPUT> Output type
+ * @param <INPUT>  the input type
+ * @param <OUTPUT> the output type
  * @author Created by robUx4 on 20/08/2014.
+ * @see co.tophe.parser.XferTransformChain
  */
 public interface XferTransform<INPUT, OUTPUT> {
 	/**

@@ -3,7 +3,7 @@ package co.tophe.parser;
 import android.support.annotation.Nullable;
 
 /**
- * Runtime Exception that occurs when data parsing with {@link co.tophe.HttpResponse} fails
+ * Runtime Exception that occurs when data parsing with {@link co.tophe.HttpResponse} fails.
  */
 public class ParserException extends Exception {
 	private static final long serialVersionUID = 3213822444086259097L;

@@ -5,8 +5,8 @@ import java.io.IOException;
 import co.tophe.ImmutableHttpRequest;
 
 /**
- * A more generic {@link XferTransform} that doesn't throw {@link java.io.IOException} or {@link ParserException}
- * to be used when the network data are handled and only post-processing is needed
+ * A more generic {@link XferTransform} that doesn't throw {@link java.io.IOException} or {@link ParserException}.
+ * <p>It should be used when the network data are already handled and only post-processing is needed.</p>
  *
  * @author Created by robUx4 on 21/08/2014.
  */
@@ -21,7 +21,7 @@ public abstract class Transformer<INPUT, OUTPUT> implements XferTransform<INPUT,
 	protected abstract OUTPUT transform(INPUT input);
 
 	/**
-	 * Deprecated, you need to extend {@link #transform(Object)}
+	 * You need to extend {@link #transform(Object)}
 	 *
 	 * @param input   Input data
 	 * @param request HTTP request that generated the {@code input}
