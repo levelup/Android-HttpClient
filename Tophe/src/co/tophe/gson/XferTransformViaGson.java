@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -20,45 +23,75 @@ import co.tophe.parser.XferTransform;
 import co.tophe.parser.XferTransformInputStreamString;
 
 /**
- * Parse the network data using Gson to type {@code T}
- * <p/>
+ * Parse the HTTP response body into type {@code T} using Gson.
  *
- * @param <T> Type of the object returned by the Gson processing
+ * @param <T> Type of the object returned by the Gson processing.
  * @author Created by robUx4 on 8/1/2014.
+ * @see co.tophe.gson.BodyViaGson
  */
 public class XferTransformViaGson<T> implements XferTransform<InputStream, T> {
-	private static final Gson defaultGsonParser = new GsonBuilder().create();
+	public static final Gson DEFAULT_GSON_PARSER = new GsonBuilder().create();
 
 	private boolean debugData;
 
+	@NonNull
 	final Gson gson;
+	@NonNull
 	final Type type;
+	@Nullable
 	final TypeToken typeToken;
 
-	public XferTransformViaGson(Type type) {
-		this(defaultGsonParser, type);
+	/**
+	 * Constructor to transform into the specified type.
+	 *
+	 * @param type
+	 * @see co.tophe.gson.BodyViaGson#BodyViaGson(java.lang.reflect.Type)
+	 */
+	public XferTransformViaGson(@NonNull Type type) {
+		this(DEFAULT_GSON_PARSER, type);
 	}
 
-	public XferTransformViaGson(Gson gson, Type type) {
+	/**
+	 * Constructor to transform into the specified type with a custom {@link com.google.gson.Gson} handler.
+	 *
+	 * @param gson
+	 * @param type
+	 * @see co.tophe.gson.BodyViaGson#BodyViaGson(com.google.gson.Gson, java.lang.reflect.Type)
+	 */
+	public XferTransformViaGson(@NonNull Gson gson, @NonNull Type type) {
 		this(gson, type, null);
 	}
 
-	public XferTransformViaGson(TypeToken<T> typeToken) {
-		this(defaultGsonParser, typeToken);
+	/**
+	 * Constructor to transform into the specified list type.
+	 *
+	 * @param typeToken
+	 * @see co.tophe.gson.BodyViaGson#asList(Class)
+	 */
+	public XferTransformViaGson(@NonNull TypeToken<T> typeToken) {
+		this(DEFAULT_GSON_PARSER, typeToken);
 	}
 
-	public XferTransformViaGson(Gson gson, TypeToken<T> typeToken) {
+	/**
+	 * Constructor to transform into the specified list type with a custom {@link com.google.gson.Gson} handler.
+	 *
+	 * @param gson
+	 * @param typeToken
+	 * @see co.tophe.gson.BodyViaGson#asList(com.google.gson.Gson, Class)
+	 */
+	public XferTransformViaGson(@NonNull Gson gson, @NonNull TypeToken<T> typeToken) {
 		this(gson, typeToken.getType(), typeToken);
 	}
 
-	private XferTransformViaGson(Gson gson, Type type, TypeToken<T> typeToken) {
+	private XferTransformViaGson(@NonNull Gson gson, @NonNull Type type, @Nullable TypeToken<T> typeToken) {
 		this.gson = gson;
 		this.type = type;
 		this.typeToken = typeToken;
 	}
 
 	/**
-	 * Enable debugging of bogus data by providing the data in the {@link co.tophe.parser.ParserException} message
+	 * Enable debugging of bogus data by providing the raw JSON data in the {@link co.tophe.parser.ParserException} when it's raised.
+	 *
 	 * @param enable
 	 */
 	public XferTransformViaGson<T> enableDebugData(boolean enable) {
@@ -96,14 +129,26 @@ public class XferTransformViaGson<T> implements XferTransform<InputStream, T> {
 		}
 	}
 
+	/**
+	 * Get the {@link com.google.gson.Gson} instance used to process the received data.
+	 */
+	@NonNull
 	public Gson getGsonHandler() {
 		return gson;
 	}
 
+	/**
+	 * Get the output {@link java.lang.reflect.Type} from the Gson processing.
+	 */
+	@NonNull
 	public Type getGsonOutputType() {
 		return type;
 	}
 
+	/**
+	 * Get the output {@link com.google.gson.reflect.TypeToken} from the Gson processing. May be {@code null}.
+	 */
+	@Nullable
 	public TypeToken getGsonOutputTypeToken() {
 		return typeToken;
 	}

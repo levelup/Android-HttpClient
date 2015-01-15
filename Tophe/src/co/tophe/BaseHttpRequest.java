@@ -69,6 +69,10 @@ public class BaseHttpRequest<T, SE extends ServerException> extends RawHttpReque
 		 * @return Current Builder
 		 * @see #setContentParser(co.tophe.parser.XferTransform)
 		 * @see #setErrorParser(co.tophe.parser.XferTransform)
+		 * @see co.tophe.parser.BodyToJSONObject#RESPONSE_HANDLER
+		 * @see co.tophe.parser.BodyToJSONArray#RESPONSE_HANDLER
+		 * @see co.tophe.parser.BodyToHttpStream#RESPONSE_HANDLER
+		 * @see co.tophe.parser.BodyToString#RESPONSE_HANDLER
 		 */
 		public BUILDER setResponseHandler(@NonNull ResponseHandler<T, SE> responseHandler) {
 			this.responseHandler = responseHandler;
@@ -82,6 +86,11 @@ public class BaseHttpRequest<T, SE extends ServerException> extends RawHttpReque
 		 * @return Current Builder
 		 * @see #setErrorParser(co.tophe.parser.XferTransform)
 		 * @see #setResponseHandler(ResponseHandler)
+		 * @see co.tophe.gson.BodyViaGson
+		 * @see co.tophe.parser.BodyToJSONObject#INSTANCE
+		 * @see co.tophe.parser.BodyToJSONArray#INSTANCE
+		 * @see co.tophe.parser.BodyToHttpStream#INSTANCE
+		 * @see co.tophe.parser.BodyToString#INSTANCE
 		 */
 		public BUILDER setContentParser(@NonNull XferTransform<HttpResponse, T> contentParser) {
 			if (null!=responseHandler && responseHandler.contentParser != contentParser) throw new IllegalStateException("setResponseHandler() already called with another contentParser");

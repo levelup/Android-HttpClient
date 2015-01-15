@@ -8,7 +8,7 @@ import co.tophe.HttpResponse;
  * Transform the HTTP response body into type {@link T} using a chain of transformations.
  * <p>Helper class for {@link co.tophe.parser.XferTransformChain} with an {@link co.tophe.HttpResponse} source.</p>
  *
- * @param <T> Output type after transformation.
+ * @param <T> Output type after Gson parsing.
  * @author Created by robUx4 on 21/08/2014.
  * @see co.tophe.gson.BodyViaGson
  * @see co.tophe.parser.BodyToJSONObject
