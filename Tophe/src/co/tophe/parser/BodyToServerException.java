@@ -4,7 +4,7 @@ import co.tophe.ServerException;
 
 /**
  * Helper class to transform the HTTP response body into a raw/untyped {@link co.tophe.ServerException}.
- * <p>Includes a static {@link #INSTANCE}.</p>
+ * <p>Includes a static {@link #INSTANCE} for convenience.</p>
  *
  * @author Created by robUx4 on 29/09/2014.
  * @see co.tophe.BaseResponseHandler

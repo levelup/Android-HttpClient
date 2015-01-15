@@ -16,6 +16,11 @@ import co.tophe.ImmutableHttpRequest;
  * @author Created by robUx4 on 20/08/2014.
  */
 public final class XferTransformStringJSONArray implements XferTransform<String, JSONArray> {
+	/**
+	 * The instance you should use when you want to get a {@link org.json.JSONArray} from an {@link java.io.InputStream}.
+	 *
+	 * @see co.tophe.BaseHttpRequest.Builder#setContentParser(XferTransform) BaseHttpRequest.Builder.setContentParser()
+	 */
 	public static final XferTransformStringJSONArray INSTANCE = new XferTransformStringJSONArray();
 
 	private XferTransformStringJSONArray() {

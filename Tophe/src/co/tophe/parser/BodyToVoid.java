@@ -8,7 +8,7 @@ import co.tophe.ImmutableHttpRequest;
 
 /**
  * Helper class to transform the HTTP response body into a {@link java.lang.Void}. In this case {@code null} is returned from the parser.
- * <p>Includes a static {@link #INSTANCE} and a default {@link #RESPONSE_HANDLER} that throws a raw/untyped
+ * <p>Includes a static {@link #INSTANCE} for convenience and a default {@link #RESPONSE_HANDLER} that throws a raw/untyped
  * {@link co.tophe.ServerException ServerException}.</p>
  *
  * @author Created by robUx4 on 29/08/2014.

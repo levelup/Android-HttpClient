@@ -6,7 +6,7 @@ import co.tophe.BaseResponseHandler;
 
 /**
  * Helper class to transform the HTTP response body into a {@link org.json.JSONObject}.
- * <p>Includes a static {@link #INSTANCE} and a default {@link #RESPONSE_HANDLER} that throws a raw/untyped
+ * <p>Includes a static {@link #INSTANCE} for convenience and a default {@link #RESPONSE_HANDLER} that throws a raw/untyped
  * {@link co.tophe.ServerException ServerException}.</p>
  *
  * @author Created by robUx4 on 20/08/2014.
