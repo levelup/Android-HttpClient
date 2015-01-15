@@ -18,8 +18,7 @@ public final class BodyToJSONObject extends BodyTransformChain<JSONObject> {
 	 * @see co.tophe.BaseHttpRequest.Builder#setContentParser(XferTransform) BaseHttpRequest.Builder.setContentParser()
 	 */
 	public static final BodyToJSONObject INSTANCE = new BodyToJSONObject(
-			BodyTransformChain.Builder
-					.init(BodyToString.INSTANCE)
+			createBuilder(BodyToString.INSTANCE)
 					.addDataTransform(XferTransformStringJSONObject.INSTANCE)
 	);
 

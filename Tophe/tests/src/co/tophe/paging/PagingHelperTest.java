@@ -36,9 +36,9 @@ public class PagingHelperTest extends AndroidTestCase {
 	}
 
 	private static final BaseResponseHandler<Page> PAGE_RESPONSE_HANDLER = new BaseResponseHandler<Page>(
-			BodyTransformChain.Builder
+			BodyTransformChain
 					// read the data as a String
-					.init(BodyToString.INSTANCE)
+					.createBuilder(BodyToString.INSTANCE)
 					// parse the String data to retrieve the links
 					.addDataTransform(new Transformer<String, Page>() {
 						@Override

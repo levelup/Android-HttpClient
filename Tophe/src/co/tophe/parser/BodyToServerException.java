@@ -1,6 +1,5 @@
 package co.tophe.parser;
 
-import co.tophe.BaseResponseHandler;
 import co.tophe.ServerException;
 
 /**
@@ -17,8 +16,7 @@ public class BodyToServerException extends BodyTransformChain<ServerException> {
 	 * @see co.tophe.BaseHttpRequest.Builder#setContentParser(XferTransform) BaseHttpRequest.Builder.setContentParser()
 	 */
 	public static final BodyToServerException INSTANCE = new BodyToServerException(
-			BodyTransformChain.Builder
-					.init(XferTransformResponseInputStream.INSTANCE)
+			createBuilder(XferTransformResponseInputStream.INSTANCE)
 					.addDataTransform(XferTransformInputStreamServerException.INSTANCE)
 	);
 

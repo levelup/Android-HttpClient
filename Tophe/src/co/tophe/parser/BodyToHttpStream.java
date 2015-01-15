@@ -18,8 +18,7 @@ public class BodyToHttpStream extends BodyTransformChain<HttpStream> {
 	 * @see co.tophe.BaseHttpRequest.Builder#setContentParser(XferTransform) BaseHttpRequest.Builder.setContentParser()
 	 */
 	public static final BodyToHttpStream INSTANCE = new BodyToHttpStream(
-			BodyTransformChain.Builder
-					.init(XferTransformResponseInputStream.INSTANCE)
+			createBuilder(XferTransformResponseInputStream.INSTANCE)
 					.addDataTransform(XferTransformInputStreamHttpStream.INSTANCE)
 	);
 

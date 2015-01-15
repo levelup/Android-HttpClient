@@ -18,8 +18,7 @@ public final class BodyToJSONArray extends BodyTransformChain<JSONArray> {
 	 * @see co.tophe.BaseHttpRequest.Builder#setContentParser(XferTransform) BaseHttpRequest.Builder.setContentParser()
 	 */
 	public static final BodyToJSONArray INSTANCE = new BodyToJSONArray(
-			BodyTransformChain.Builder
-					.init(BodyToString.INSTANCE)
+			createBuilder(BodyToString.INSTANCE)
 					.addDataTransform(XferTransformStringJSONArray.INSTANCE)
 	);
 

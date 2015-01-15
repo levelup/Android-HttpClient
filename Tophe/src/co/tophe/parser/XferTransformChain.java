@@ -29,7 +29,7 @@ public class XferTransformChain<INPUT, OUTPUT> implements XferTransform<INPUT, O
 	 * @param <OUTPUT> the output type for the Builder
 	 * @param <B>      the type of the Builder being initialized.
 	 * @return initialize the Builder.
-	 * @see co.tophe.parser.BodyTransformChain.Builder#init(co.tophe.parser.XferTransform)
+	 * @see BodyTransformChain#createBuilder(XferTransform)
 	 */
 	public static <INPUT, OUTPUT, B extends Builder<INPUT, OUTPUT>> B initBuilder(XferTransform<INPUT, OUTPUT> pipe, B builder) {
 		((Builder) builder).transforms = new ArrayList<XferTransform>();

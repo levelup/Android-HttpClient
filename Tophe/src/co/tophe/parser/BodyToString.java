@@ -17,8 +17,7 @@ public class BodyToString extends BodyTransformChain<String> {
 	 * @see co.tophe.BaseHttpRequest.Builder#setContentParser(XferTransform) BaseHttpRequest.Builder.setContentParser()
 	 */
 	public static final BodyToString INSTANCE = new BodyToString(
-			BodyTransformChain.Builder
-					.init(XferTransformResponseInputStream.INSTANCE)
+			createBuilder(XferTransformResponseInputStream.INSTANCE)
 					.addDataTransform(XferTransformInputStreamString.INSTANCE)
 	);
 
