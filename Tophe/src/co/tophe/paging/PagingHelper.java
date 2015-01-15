@@ -12,9 +12,11 @@ import co.tophe.async.AsyncTopheClient;
 import co.tophe.async.AsyncTask;
 
 /**
+ * Helper class to handle page loading.
+ *
  * @author Created by robUx4 on 02/09/2014.
  */
-public class PagingHelper {
+public final class PagingHelper {
 
 	/**
 	 * Read all the pages starting with the current one
@@ -50,7 +52,7 @@ public class PagingHelper {
 			@Override
 			public PAGE_HOLDER call() throws Exception {
 				PAGE newPage = currentPageRequest.call();
-				if (null!=pageCallback)
+				if (null != pageCallback)
 					pageCallback.onNewPage(pagedHolder, newPage);
 				Callable<PAGE> nextPageCall = nextPageFactory.getNextCallable(newPage);
 				if (null == nextPageCall)
@@ -130,7 +132,7 @@ public class PagingHelper {
 			@Override
 			public PAGE_HOLDER call() throws Exception {
 				PAGE page = currentPageRequest.call();
-				if (null!=pageCallback)
+				if (null != pageCallback)
 					pageCallback.onNewPage(pagesHolder, page);
 				Callable<PAGE> nextCall = nextPageFactory.getNextCallable(page);
 				if (nextCall == null)
