@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import co.tophe.HttpSignException;
 import co.tophe.HttpEngine;
-import co.tophe.signed.AbstractRequestSigner;
+import co.tophe.signed.AbstractOAuthSigner;
 import co.tophe.signed.OAuthClientApp;
 import co.tophe.signed.OAuthUser;
 
@@ -17,7 +17,7 @@ import oauth.signpost.http.HttpParameters;
  * Helper class to add a {@link co.tophe.BaseHttpRequest BaseHttpRequest} OAuth1 signature
  * using <a href="https://code.google.com/p/oauth-signpost/">oauth-signpost</a>
  */
-public class RequestSignerOAuth1 extends AbstractRequestSigner {
+public class RequestSignerOAuth1 extends AbstractOAuthSigner {
 
 	private final OAuthConsumer mOAuthConsumer;
 

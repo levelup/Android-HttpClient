@@ -14,7 +14,7 @@ import android.text.TextUtils;
 
 import co.tophe.body.HttpBodyParameters;
 import co.tophe.log.LoggerTagged;
-import co.tophe.signed.AbstractRequestSigner;
+import co.tophe.signed.AbstractOAuthSigner;
 import co.tophe.signed.RequestSigner;
 
 /**
@@ -354,8 +354,8 @@ public class RawHttpRequest implements HttpRequest {
 	 */
 	protected String getToStringExtra() {
 		String result = getUri() == null ? "" : getUri().toString();
-		if (getRequestSigner() instanceof AbstractRequestSigner)
-			result += " for " + ((AbstractRequestSigner) getRequestSigner()).getOAuthUser();
+		if (getRequestSigner() instanceof AbstractOAuthSigner)
+			result += " for " + ((AbstractOAuthSigner) getRequestSigner()).getOAuthUser();
 		return result;
 	}
 

@@ -21,7 +21,7 @@ import android.text.TextUtils;
 
 import co.tophe.log.LogManager;
 import co.tophe.parser.ParserException;
-import co.tophe.signed.AbstractRequestSigner;
+import co.tophe.signed.AbstractOAuthSigner;
 
 /**
  * Abstract base {@link HttpEngine} class with the basic stuff handled and the necessary methods an engine needs to provide.
@@ -237,8 +237,8 @@ public abstract class AbstractHttpEngine<T, SE extends ServerException, R extend
 		sb.append('{');
 		sb.append(Integer.toHexString(System.identityHashCode(this)));
 		sb.append(' ');
-		if (request.getRequestSigner() instanceof AbstractRequestSigner) {
-			sb.append(" for ").append(((AbstractRequestSigner) request.getRequestSigner()).getOAuthUser());
+		if (request.getRequestSigner() instanceof AbstractOAuthSigner) {
+			sb.append(" for ").append(((AbstractOAuthSigner) request.getRequestSigner()).getOAuthUser());
 		}
 		sb.append('}');
 		return sb.toString();
