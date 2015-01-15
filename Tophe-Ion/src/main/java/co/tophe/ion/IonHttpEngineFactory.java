@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.koushikdutta.async.http.AsyncHttpClientMiddleware;
 import com.koushikdutta.async.http.AsyncSSLEngineConfigurator;
@@ -143,6 +144,7 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 		return ion;
 	}
 
+	@Nullable
 	@Override
 	public <T, SE extends ServerException> HttpEngine<T, SE> createEngine(HttpEngine.Builder<T, SE> builder) {
 		return createEngine(builder, ion, false);
@@ -157,17 +159,18 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	 * @param <SE>
 	 * @return
 	 */
+	@Nullable
 	public <T, SE extends ServerException> HttpEngine<T,SE> createEngine(HttpEngine.Builder<T,SE> builder, Ion ion, boolean allowBogusSSL) {
 		if (!allowBogusSSL && forbidSSL && "https".equals(builder.getHttpRequest().getUri().getScheme())) {
-			return new DummyHttpEngine<T,SE>(builder);
+			return null;
 		}
 
 		if (!canHandleXferTransform(builder.getResponseHandler().contentParser))
-			return new DummyHttpEngine<T,SE>(builder);
+			return null;
 
 		if (!errorCompatibleWithData(builder.getResponseHandler()))
 			// Ion returns the data fully parsed so if we don't have common ground to parse the data and the error data, Ion can't handle the request
-			return new DummyHttpEngine<T,SE>(builder);
+			return null;
 
 		return new HttpEngineIon<T,SE>(builder, ion);
 	}

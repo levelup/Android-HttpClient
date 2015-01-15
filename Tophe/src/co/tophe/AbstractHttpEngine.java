@@ -110,6 +110,9 @@ public abstract class AbstractHttpEngine<T, SE extends ServerException, R extend
 		setHeadersAndConfig();
 	}
 
+	/**
+	 * Set the {@code Content-Length} of the body to send.
+	 */
 	protected void setContentLength(long contentLength) {
 		setHeader(HTTP.CONTENT_LEN, Long.toString(contentLength));
 	}

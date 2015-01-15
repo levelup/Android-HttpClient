@@ -13,6 +13,8 @@ import co.tophe.ResponseHandler;
 import co.tophe.ServerException;
 
 /**
+ * A fake {@link co.tophe.HttpEngine} that a {@link co.tophe.HttpEngineFactory} should return when it cannot handle the request.
+ *
  * @author Created by robUx4 on 01/09/2014.
  */
 public final class DummyHttpEngine<T, SE extends ServerException> implements HttpEngine<T, SE> {

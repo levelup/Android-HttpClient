@@ -25,7 +25,7 @@ import co.tophe.log.LoggerTagged;
 import co.tophe.parser.ParserException;
 
 /**
- * Basic HTTP request to be passed to {@link co.tophe.TopheClient}
+ * An {@link co.tophe.HttpEngine} that uses java's {@link java.net.URLConnection} to handle the data transmission.
  *
  * @param <T> type of the data read from the HTTP response
  * @see co.tophe.HttpRequestGet for a more simple API

@@ -14,6 +14,8 @@ import co.tophe.AbstractHttpEngine;
 import co.tophe.HttpResponse;
 
 /**
+ * The {@link co.tophe.HttpResponse} used by {@link co.tophe.engine.HttpEngineUrlConnection}.
+ *
  * @author Created by Steve Lhomme on 09/07/2014.
  */
 public class HttpResponseUrlConnection implements HttpResponse {

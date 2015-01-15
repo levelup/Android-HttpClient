@@ -1,5 +1,7 @@
 package co.tophe.engine;
 
+import android.support.annotation.Nullable;
+
 import co.tophe.HttpEngine;
 import co.tophe.HttpEngineFactory;
 import co.tophe.ServerException;
@@ -14,11 +16,18 @@ public class HttpEngineFactoryFallback implements HttpEngineFactory {
 	public final HttpEngineFactory mainFactory;
 	public final HttpEngineFactory fallbackFactory;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param mainFactory     the main {@link co.tophe.HttpEngineFactory}.
+	 * @param fallbackFactory the {@link co.tophe.HttpEngineFactory} to use if {@code mainFactory} returns {@code null}.
+	 */
 	public HttpEngineFactoryFallback(HttpEngineFactory mainFactory, HttpEngineFactory fallbackFactory) {
 		this.mainFactory = mainFactory;
 		this.fallbackFactory = fallbackFactory;
 	}
 
+	@Nullable
 	@Override
 	public <T, SE extends ServerException> HttpEngine<T, SE> createEngine(HttpEngine.Builder<T, SE> builder) {
 		HttpEngine<T, SE> engine = mainFactory.createEngine(builder);

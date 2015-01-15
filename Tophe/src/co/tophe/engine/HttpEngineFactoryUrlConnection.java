@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.support.annotation.Nullable;
+
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -139,6 +141,7 @@ public class HttpEngineFactoryUrlConnection implements HttpEngineFactory {
 		}
 	}
 
+	@Nullable
 	@Override
 	public <T, SE extends ServerException> HttpEngine<T, SE> createEngine(HttpEngine.Builder<T, SE> builder) {
 		return new HttpEngineUrlConnection<T, SE>(builder);
