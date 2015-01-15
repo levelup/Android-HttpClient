@@ -1,4 +1,4 @@
-package co.tophe.ion;
+package co.tophe.ion.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,7 +84,7 @@ public class HttpResponseIon<T> implements HttpResponse {
 		throw new IOException("trying to read an InputStream from Ion result:"+response.getResult()+" error:"+response.getException());
 	}
 
-	T getResult() {
+	public T getResult() {
 		return response.getResult();
 	}
 
@@ -92,7 +92,7 @@ public class HttpResponseIon<T> implements HttpResponse {
 		return response.getException();
 	}
 
-	XferTransform<HttpResponse, ?> getCommonTransform() {
+	public XferTransform<HttpResponse, ?> getCommonTransform() {
 		return commonTransform;
 	}
 }

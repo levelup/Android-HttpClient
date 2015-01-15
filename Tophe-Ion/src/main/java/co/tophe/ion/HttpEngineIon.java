@@ -44,6 +44,7 @@ import co.tophe.body.HttpBodyMultiPart;
 import co.tophe.body.HttpBodyParameters;
 import co.tophe.body.HttpBodyString;
 import co.tophe.body.HttpBodyUrlEncoded;
+import co.tophe.ion.internal.HttpResponseIon;
 import co.tophe.ion.internal.IonBody;
 import co.tophe.ion.internal.IonHttpBodyJSON;
 import co.tophe.ion.internal.IonHttpBodyMultiPart;
@@ -60,15 +61,14 @@ import co.tophe.parser.XferTransformStringJSONArray;
 import co.tophe.parser.XferTransformStringJSONObject;
 
 /**
- * Basic HTTP request to be passed to {@link co.tophe.TopheClient}
+ * An {@link co.tophe.HttpEngine} that uses <a href="https://github.com/koush/ion">Ion</a> to process the data.
  *
- * @param <T> type of the data read from the HTTP response
- * @see co.tophe.HttpRequestGet for a more simple API
- * @see co.tophe.HttpRequestPost for a more simple POST API
+ * @param <T>  type of the data read from the HTTP response
+ * @param <SE> type of the exception raised when there's a server generated error.
  */
 public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEngine<T, SE, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
-	private static final String ENGINE_SIGNATURE = "Ion-1.4.1+AndroidAsync-1.4.1"; // TODO do not hardcode this
+	private static final String ENGINE_SIGNATURE = "Ion-2.0.5+AndroidAsync-2.0.5"; // TODO do not hardcode this
 
 	protected HttpEngineIon(Builder<T,SE> builder, Ion ion) {
 		super(builder);

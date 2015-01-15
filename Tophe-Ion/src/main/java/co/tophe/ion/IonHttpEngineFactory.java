@@ -1,41 +1,32 @@
 package co.tophe.ion;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.net.ssl.SSLEngine;
-
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.koushikdutta.async.http.AsyncHttpClientMiddleware;
-import com.koushikdutta.async.http.AsyncSSLEngineConfigurator;
 import com.koushikdutta.ion.Ion;
 
-import co.tophe.engine.DummyHttpEngine;
 import co.tophe.HttpEngine;
 import co.tophe.HttpEngineFactory;
 import co.tophe.HttpResponse;
 import co.tophe.ResponseHandler;
 import co.tophe.ServerException;
-import co.tophe.log.LogManager;
 import co.tophe.parser.Utils;
 import co.tophe.parser.XferTransform;
 import co.tophe.parser.XferTransformChain;
 import co.tophe.parser.XferTransformInputStreamHttpStream;
 
 /**
+ * An {@link co.tophe.HttpEngineFactory} to create {@link co.tophe.ion.HttpEngineIon} objects for the submitted requests or {@code null}
+ * for unsupported requests (like with a live {@link co.tophe.HttpStream HttpStream} output).
+ *
  * @author Created by Steve Lhomme on 15/07/2014.
+ * @see #getInstance(android.content.Context)
+ * @see IonClient#setupIon(com.koushikdutta.ion.Ion)
  */
 public class IonHttpEngineFactory implements HttpEngineFactory {
 
 	private static IonHttpEngineFactory INSTANCE;
-	public static final int PLAY_SERVICES_BOGUS_CONSCRYPT = 5089034; // see https://github.com/koush/AndroidAsync/issues/210
 	//public static final int BOGUS_CONSCRYPT_DUAL_FEEDLY = 6587000; // see https://github.com/koush/ion/issues/443
 	//public static final int CONSCRYPT_LACKS_SNI = 6599038; // 6587030 to 6599038 don't have it see https://github.com/koush/ion/issues/428
 
@@ -54,91 +45,12 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 		}
 
 		ion = Ion.getDefault(context);
-		setupIon(ion);
+		IonClient.setupIon(ion);
 	}
 
-	private static Boolean useConscrypt;
-	private static Boolean forbidSSL;
-	private static Integer conscryptVersion;
-
-	public static void setupIon(Ion ion) {
-		if (null == conscryptVersion) {
-			conscryptVersion = 0;
-			PackageManager pm = ion.getContext().getPackageManager();
-			try {
-				PackageInfo pI = pm.getPackageInfo("com.google.android.gms", 0);
-				if (pI != null) {
-					conscryptVersion = pI.versionCode;
-				}
-			} catch (PackageManager.NameNotFoundException ignored) {
-				try {
-					Class<?> conscryptClass = ion.getClass().getClassLoader().loadClass("com.android.org.conscrypt.OpenSSLEngineImpl");
-					if (conscryptClass != null) {
-						conscryptVersion = PLAY_SERVICES_BOGUS_CONSCRYPT /*CONSCRYPT_LACKS_SNI*/ + 1; // assume everything is fine
-					}
-				} catch (ClassNotFoundException ignored2) {
-				}
-			}
-
-
-			useConscrypt = conscryptVersion > PLAY_SERVICES_BOGUS_CONSCRYPT;
-			// dual parallel connection to Feedly results in data never received https://github.com/koush/ion/issues/428
-			forbidSSL = false; //useConscrypt && conscryptVersion >= BOGUS_CONSCRYPT_DUAL_FEEDLY;
-		}
-
-		ion.getConscryptMiddleware().enable(useConscrypt);
-
-		if (useConscrypt) {
-			ion.getConscryptMiddleware().initialize();
-		}
-
-		ion.getHttpClient().getSSLSocketMiddleware().addEngineConfigurator(new AsyncSSLEngineConfigurator() {
-			@Override
-			public void configureEngine(SSLEngine engine, AsyncHttpClientMiddleware.GetSocketData data, String host, int port) {
-				if (false /*conscryptVersion > CONSCRYPT_LACKS_SNI || !useConscrypt*/) {
-					try {
-						Field sslParameters = engine.getClass().getDeclaredField("sslParameters");
-						Field useSni = sslParameters.getType().getDeclaredField("useSni");
-						Field peerHost = engine.getClass().getSuperclass().getDeclaredField("peerHost");
-						Field peerPort = engine.getClass().getSuperclass().getDeclaredField("peerPort");
-
-						peerHost.setAccessible(true);
-						peerPort.setAccessible(true);
-						sslParameters.setAccessible(true);
-						useSni.setAccessible(true);
-
-						Object sslp = sslParameters.get(engine);
-
-						peerHost.set(engine, host);
-						peerPort.set(engine, port);
-						useSni.set(sslp, true);
-					} catch (Exception e) {
-						if (engine.getClass().getCanonicalName().contains(".conscrypt.")) {
-							if (forbidSSL /*&& conscryptVersion <= CONSCRYPT_LACKS_SNI*/) // we know that Conscrypt version
-								LogManager.getLogger().v("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion);
-							else
-								LogManager.getLogger().w("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
-						} else if (useConscrypt) {
-							LogManager.getLogger().e("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
-						} else {
-							LogManager.getLogger().i("Failed to set the flags in " + engine + " conscryptVersion=" + conscryptVersion, e);
-						}
-					}
-				}
-
-				// disable SSLv3 except if it's alone
-				String[] protocols = engine.getEnabledProtocols();
-				if (protocols != null && protocols.length > 1) {
-					List<String> enabledProtocols = new ArrayList<String>(Arrays.asList(protocols));
-					if (enabledProtocols.remove("SSLv3")) {
-						protocols = enabledProtocols.toArray(new String[enabledProtocols.size()]);
-						engine.setEnabledProtocols(protocols);
-					}
-				}
-			}
-		});
-	}
-
+	/**
+	 * Get the {@link Ion} instance used by default by TOPHE.
+	 */
 	@NonNull
 	public Ion getDefaultIon() {
 		return ion;
@@ -154,14 +66,15 @@ public class IonHttpEngineFactory implements HttpEngineFactory {
 	 *
 	 * @param builder
 	 * @param ion
-	 * @param allowBogusSSL Sometimes Ion maybe have problems with SSL, especially with Conscrypt, but you may decide to take the risk anyway and use it in conditions where it may fail
+	 * @param allowBogusSSL Sometimes Ion maybe have problems with SSL, especially with Conscrypt, but you may decide to take the
+	 *                         risk anyway and use it in conditions where it may fail
 	 * @param <T>
 	 * @param <SE>
 	 * @return
 	 */
 	@Nullable
 	public <T, SE extends ServerException> HttpEngine<T,SE> createEngine(HttpEngine.Builder<T,SE> builder, Ion ion, boolean allowBogusSSL) {
-		if (!allowBogusSSL && forbidSSL && "https".equals(builder.getHttpRequest().getUri().getScheme())) {
+		if (!allowBogusSSL && IonClient.forbidSSL && "https".equals(builder.getHttpRequest().getUri().getScheme())) {
 			return null;
 		}
 
