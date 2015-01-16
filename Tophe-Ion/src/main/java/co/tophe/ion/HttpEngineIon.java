@@ -25,9 +25,7 @@ import com.koushikdutta.async.parser.JSONArrayParser;
 import com.koushikdutta.async.parser.JSONObjectParser;
 import com.koushikdutta.async.parser.StringParser;
 import com.koushikdutta.async.stream.ByteBufferListInputStream;
-import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.ProgressCallback;
-import com.koushikdutta.ion.Response;
+import com.koushikdutta.ion.*;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
@@ -68,7 +66,7 @@ import co.tophe.parser.XferTransformStringJSONObject;
  */
 public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEngine<T, SE, HttpResponseIon<T>> {
 	public final Builders.Any.B requestBuilder;
-	private static final String ENGINE_SIGNATURE = "Ion-2.0.5+AndroidAsync-2.0.5"; // TODO do not hardcode this
+	private static final String ENGINE_SIGNATURE = "Ion-"+ com.koushikdutta.ion.BuildConfig.VERSION_CODE+"+AndroidAsync-"+ com.koushikdutta.async.BuildConfig.VERSION_CODE;
 
 	protected HttpEngineIon(Builder<T,SE> builder, Ion ion) {
 		super(builder);
