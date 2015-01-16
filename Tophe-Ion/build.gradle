@@ -38,14 +38,18 @@ android {
 dependencies {
     def artifactSupportV4 = 'com.android.support:support-v4:21.0.3'
     def artifactIon = 'com.koushikdutta.ion:ion:2.0.5'
+    def artifactTophe = 'co.tophe:tophe:1.0.0+'
 
     def androidAsyncProject = ':AndroidAsync:AndroidAsync'
     def ionProject = ':Ion:Ion'
     def supportv4Project = ':support-v4'
+    def localTophe = ':Tophe'
 
     def useLocalAndroidAsync = false
     def useLocalIon = false
     def useLocalV4 = false
+    def useLocalTophe = false
+
     allprojects {
         rootProject.allprojects.project.each {
             if (it.path == ionProject) {
@@ -56,6 +60,9 @@ dependencies {
             }
             else if (it.path == supportv4Project) {
                 useLocalV4 = true
+            }
+            else if (it.path == localTophe) {
+                useLocalTophe = true
             }
         }
     }
@@ -88,7 +95,13 @@ dependencies {
         compile project(androidAsyncProject)
     }
 
-    compile project(':Tophe')
+    if (useLocalTophe) {
+        println 'Using local Tophe library in ' + project.path
+        compile project(localTophe)
+    } else {
+        compile artifactTophe
+    }
+
     androidTestCompile 'com.squareup.okio:okio:1.0.1'
 }
 
