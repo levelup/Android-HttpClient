@@ -105,3 +105,15 @@ dependencies {
 }
 
 apply from: 'https://raw.githubusercontent.com/mcxiaoke/gradle-mvn-push/master/gradle-mvn-push.gradle'
+
+afterEvaluate { project ->
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                pom*.whenConfigured { pom ->
+                    pom.dependencies.removeAll { dep -> dep.artifactId == 'support-v4' }
+                }
+            }
+        }
+    }
+}
