@@ -35,9 +35,8 @@ android {
     defaultConfig {
         minSdkVersion Math.max(9, Integer.parseInt(ANDROID_BUILD_MIN_SDK_VERSION))
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
-        versionCode 10000
-        versionName '1.0.0-rc1'
-        //applicationId 'co.tophe'
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
     }
 
     sourceSets {
