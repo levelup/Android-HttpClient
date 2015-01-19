@@ -20,7 +20,6 @@ import co.tophe.HttpRequest;
 import co.tophe.ResponseHandler;
 import co.tophe.ServerException;
 import co.tophe.TypedHttpRequest;
-import co.tophe.internal.DelegateAsyncCallback;
 
 /**
  * {@link java.util.concurrent.FutureTask FutureTask} that will be used to do the HTTP processing in the background,

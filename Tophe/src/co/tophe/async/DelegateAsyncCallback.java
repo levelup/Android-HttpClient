@@ -1,4 +1,4 @@
-package co.tophe.internal;
+package co.tophe.async;
 
 import co.tophe.async.AsyncCallback;
 import co.tophe.async.AsyncTask;
