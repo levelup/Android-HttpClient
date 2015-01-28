@@ -3,8 +3,6 @@ package co.tophe.signed.oauth1;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.apache.http.impl.cookie.DateParseException;
-
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -12,7 +10,6 @@ import android.text.TextUtils;
 import co.tophe.BaseResponseHandler;
 import co.tophe.HttpRequest;
 import co.tophe.HttpResponse;
-import co.tophe.log.LogManager;
 import co.tophe.parser.XferTransformResponseInputStream;
 import co.tophe.signed.OAuthClientApp;
 import co.tophe.utils.DateUtils;
@@ -50,11 +47,9 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 
 	protected void setServerDate(String value) {
 		long now = System.currentTimeMillis();
-		try {
-			Date serverDate = DateUtils.parseDate(value);
+		Date serverDate = DateUtils.parseDate(value);
+		if (null != serverDate) {
 			serverDelayInMilliseconds = now - serverDate.getTime();
-		} catch (DateParseException ignored) {
-			LogManager.getLogger().d("invalid OAuth1 server date:"+value);
 		}
 	}
 
