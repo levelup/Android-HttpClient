@@ -8,8 +8,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.http.impl.cookie.DateParseException;
-
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -52,7 +50,6 @@ public final class DateUtils {
      * Parse a date {@code String} coming from HTTP headers.
      * <p>This method is thread-safe, but you should avoid using too many threads to parse dates.</p>
      *
-     * @throws DateParseException when the String cannot be parsed
      * @see #parseDate(String, String[])
      */
     @Nullable
@@ -67,7 +64,6 @@ public final class DateUtils {
      * @param dateString  the String to parse
      * @param dateFormats date formats supported, see {@link java.text.SimpleDateFormat}
      * @return the parsed date or {@code null} if parsing failed.
-     * @throws DateParseException
      * @see #parseDate(String)
      */
     public static Date parseDate(@Nullable String dateString, @NonNull String[] dateFormats) {
