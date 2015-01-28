@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    def artifactTophe = 'co.tophe:tophe:1.0.0+'
+    def artifactTophe = 'co.tophe:tophe:1.0.0'
 
     def localTophe = ':Tophe'
 

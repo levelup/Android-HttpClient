@@ -153,19 +153,19 @@ JSONObject fbData = HttpClient.parseRequest(signedFacebook, InputStreamJSONObjec
 
 ### Download
 
-Download via Maven:
+Download [the latest JAR][2] or grab via Maven:
 ```xml
 <dependency>
   <groupId>co.tophe</groupId>
   <artifactId>tophe</artifactId>
-  <version>1.0.0-rc1</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-compile 'co.tophe:tophe:1.0.0-rc2'
-compile 'co.tophe:tophe-oauth1:1.0.0-rc3'
-compile 'co.tophe:tophe-ion:1.0.0-rc2'
+compile 'co.tophe:tophe:1.0.0'
+compile 'co.tophe:tophe-oauth1:1.0.0'
+compile 'co.tophe:tophe-ion:1.0.0'
 ```
 
 License
@@ -184,3 +184,4 @@ License
     limitations under the License.
 
 [1]: https://code.google.com/p/oauth-signpost/
+[2]: https://search.maven.org/remote_content?g=co.tophe&a=tophe&v=LATEST
