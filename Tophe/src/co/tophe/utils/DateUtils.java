@@ -10,6 +10,8 @@ import android.os.Build;
  * @author Created by Steve Lhomme on 28/01/2015.
  */
 public final class DateUtils {
+	private static final String PATTERN_RFC1123_Z = "EEE, dd MMM yyyy HH:mm:ss 'Z'";
+
 	private static final String ALL_DATE_FORMATS[];
 	static {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -17,7 +19,7 @@ public final class DateUtils {
 					org.apache.http.impl.cookie.DateUtils.PATTERN_RFC1036,
 					org.apache.http.impl.cookie.DateUtils.PATTERN_RFC1123,
 					org.apache.http.impl.cookie.DateUtils.PATTERN_ASCTIME,
-					"EEE, dd-MMM-yyyy HH:mm:ss zzz",
+					PATTERN_RFC1123_Z,
 			};
 		} else {
 			// Gingerbread has issues with the timezone
@@ -25,8 +27,8 @@ public final class DateUtils {
 					org.apache.http.impl.cookie.DateUtils.PATTERN_RFC1036,
 					org.apache.http.impl.cookie.DateUtils.PATTERN_RFC1123,
 					org.apache.http.impl.cookie.DateUtils.PATTERN_ASCTIME,
-					"EEE, dd-MMM-yyyy HH:mm:ss zzz",
-					"EEE, dd-MMM-yyyy HH:mm:ss"
+					PATTERN_RFC1123_Z,
+					"EEE, dd-MMM-yyyy HH:mm:ss",
 			};
 		}
 	}
