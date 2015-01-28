@@ -12,6 +12,7 @@ public class DateUtilsTest extends TestCase {
     private static final String HTTP_DATE4 = "Tue, 19 Oct 2004 13:38:55 -0400";
     private static final String HTTP_DATE5 = "Tue, 27 Jan 2015 22:23:39 GMT";
     private static final String HTTP_DATE6 = "Thu, 06 Nov 2014 00:01:00 PST";
+	private static final String HTTP_DATE7 = "fri, 27-jan-2017 12:22:41 utc";
 
     public void testParseDate1() throws Exception {
         Date date = DateUtils.parseDate(HTTP_DATE1);
@@ -42,6 +43,11 @@ public class DateUtilsTest extends TestCase {
         Date date = DateUtils.parseDate(HTTP_DATE6);
         assertNotNull(date);
     }
+
+	public void testParseDate7() throws Exception {
+		Date date = DateUtils.parseDate(HTTP_DATE7);
+		assertNotNull(date);
+	}
 
 	private static final String[] TEST_DATES = {
 			"Wed, 28 Jan 2015 05:00:05 -0600",

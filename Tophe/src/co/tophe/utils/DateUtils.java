@@ -67,7 +67,7 @@ public final class DateUtils {
      * @see #parseDate(String)
      */
     public static Date parseDate(@Nullable String dateString, @NonNull String[] dateFormats) {
-        Log.v("DateUtils", "parsing " + dateString);
+        //Log.v("DateUtils", "parsing " + dateString);
         if (!TextUtils.isEmpty(dateString)) {
             /*
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
