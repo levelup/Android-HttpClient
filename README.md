@@ -163,8 +163,8 @@ Download via Maven:
 ```
 or Gradle:
 ```groovy
-compile 'co.tophe:tophe:1.0.0-rc1'
-compile 'co.tophe:tophe-oauth1:1.0.0-rc2'
+compile 'co.tophe:tophe:1.0.0-rc2'
+compile 'co.tophe:tophe-oauth1:1.0.0-rc3'
 compile 'co.tophe:tophe-ion:1.0.0-rc2'
 ```
 

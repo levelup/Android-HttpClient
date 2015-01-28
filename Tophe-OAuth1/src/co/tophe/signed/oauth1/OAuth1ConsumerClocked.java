@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.Date;
 
 import org.apache.http.impl.cookie.DateParseException;
-import org.apache.http.impl.cookie.DateUtils;
+
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -15,6 +15,7 @@ import co.tophe.HttpResponse;
 import co.tophe.log.LogManager;
 import co.tophe.parser.XferTransformResponseInputStream;
 import co.tophe.signed.OAuthClientApp;
+import co.tophe.utils.DateUtils;
 
 
 /**
@@ -50,7 +51,6 @@ public class OAuth1ConsumerClocked extends HttpClientOAuth1Consumer {
 	protected void setServerDate(String value) {
 		long now = System.currentTimeMillis();
 		try {
-			//Date twitterDate = getDate(DATE_FORMAT_HTTP, value);
 			Date serverDate = DateUtils.parseDate(value);
 			serverDelayInMilliseconds = now - serverDate.getTime();
 		} catch (DateParseException ignored) {
