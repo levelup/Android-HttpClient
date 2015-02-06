@@ -122,6 +122,7 @@ public interface HttpEngine<T, SE extends ServerException> extends Callable<T>, 
 			return this;
 		}
 
+        @NonNull
 		public HttpEngine<T, SE> build() {
 			if (null == httpRequest) throw new NullPointerException("missing a HttpRequest for the engine");
 			if (null == responseHandler) throw new NullPointerException("missing a ResponseHandler for the engine of " + httpRequest);
