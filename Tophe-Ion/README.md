@@ -1,4 +1,4 @@
-#TOPHE OAuth1 module
+#TOPHE Ion module
 
 A module for TopheClient that uses [Ion][1] as the HTTP engine. You can also construct an `HttpEngineIon` yourself and use
 the `requestBuilder` field to do additional work on the Ion request, like using the query to load a picture.

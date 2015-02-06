@@ -2,7 +2,7 @@
 
 An Android library to make HTTP calls with parameters easier.
 
-There is a module to support OAuth1 signatures using [oauth-signpost][1] and a module to use [Ion][3] as the HTTP engine (by default it uses java's `HttpUrlConnection`).
+There is a module to support OAuth1 signatures using [oauth-signpost](Tophe-OAuth1) and a module to use [Ion](Tophe-Ion) as the HTTP engine (by default it uses java's `HttpUrlConnection`).
 
 ##Features
 
@@ -73,7 +73,7 @@ try {
 }
 ```
 
-###Sample with a ResponseHandler
+###Gson ResponseHandler
 
 Using [Gson][4] to parse the response. There is also a `BodyViaGson.asList()` method to easily get a `List` of the specified object type.
 
@@ -127,7 +127,7 @@ AsyncTopheClient.postRequest(getHtml, new BaseAsyncCallback<Spanned>() {
 });
 ```
 
-###Sample to cancel a download
+###Cancel a download
 
 ```java
 HttpRequestGet<String> request = new HttpRequestGet<String>("http://www.levelupstudio.com/", null, BodyToString.INSTANCE);
@@ -142,7 +142,7 @@ Future<String> downloadTask = AsyncTopheClient.postRequest(request, new BaseAsyn
 downloadTask.cancel(true);
 ```
 
-###Sample with JSONObject reader
+###Simple JSONObject reader
 
 ```java
 // Do the JSON API query in the background and get the result in the UI thread
