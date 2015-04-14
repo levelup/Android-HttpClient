@@ -1,5 +1,7 @@
 package co.tophe;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -147,6 +149,13 @@ public class RawHttpRequest implements HttpRequest {
 					uriParams.appendUriParameters(uriBuilder);
 					this.uri = uriBuilder.build();
 				}
+				try {
+					URI utfSafeUri = new URI(this.uri.getScheme(), this.uri.getAuthority(), this.uri.getPath(),
+							this.uri.getQuery(), this.uri.getFragment());
+					this.uri = Uri.parse(utfSafeUri.toASCIIString());
+				} catch (URISyntaxException e) {
+				}
+
 			}
 			return (B) this;
 		}

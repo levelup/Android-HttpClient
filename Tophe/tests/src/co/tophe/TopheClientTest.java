@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +24,7 @@ import co.tophe.engine.HttpEngineUrlConnection;
 import co.tophe.parser.BodyToHttpStream;
 import co.tophe.parser.BodyToJSONObject;
 import co.tophe.parser.BodyToString;
+import co.tophe.parser.XferTransformResponseInputStream;
 import okio.BufferedSource;
 import okio.Okio;
 
@@ -503,5 +505,19 @@ public class TopheClientTest extends AndroidTestCase {
 				.build();
 			// TODO assertEquals(ENGINE_CLASS, request.getHttpEngine().getClass());
 		TopheClient.setup(null);
+	}
+
+	public void testUTF8Url() throws Exception {
+		HttpRequestGet<InputStream> is = new HttpRequestGet<>("http://elledecoration.se/files/2015/04/Tradera-©-Anna-Malmberg-1-700x466-430x286.jpg",
+				XferTransformResponseInputStream.INSTANCE);
+		InputStream i = TopheClient.parseRequest(is);
+		i.close();
+	}
+
+	public void testUTF8Url2() throws Exception {
+		HttpRequestGet<InputStream> is = new HttpRequestGet<>("http://elledecoration.se/files/2015/04/" + URLEncoder.encode("Tradera-©-Anna-Malmberg-1-700x466-430x286.jpg", "UTF-8"),
+				XferTransformResponseInputStream.INSTANCE);
+		InputStream i = TopheClient.parseRequest(is);
+		i.close();
 	}
 }
