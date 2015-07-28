@@ -36,7 +36,7 @@ android {
 
 dependencies {
     def artifactSupportV4 = 'com.android.support:support-v4:21.0.3'
-    def artifactIon = 'com.koushikdutta.ion:ion:2.0.7'
+    def artifactIon = 'com.koushikdutta.ion:ion:2.1.6'
     def artifactTophe = 'co.tophe:tophe:1.0.1'
 
     def androidAsyncProject = ':AndroidAsync:AndroidAsync'

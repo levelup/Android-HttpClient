@@ -1,12 +1,5 @@
 package co.tophe.ion;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-
-import org.apache.http.protocol.HTTP;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -25,10 +18,20 @@ import com.koushikdutta.async.parser.JSONArrayParser;
 import com.koushikdutta.async.parser.JSONObjectParser;
 import com.koushikdutta.async.parser.StringParser;
 import com.koushikdutta.async.stream.ByteBufferListInputStream;
-import com.koushikdutta.ion.*;
+import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.ProgressCallback;
+import com.koushikdutta.ion.Response;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 import com.koushikdutta.ion.future.ResponseFuture;
+
+import org.apache.http.protocol.HTTP;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import co.tophe.AbstractHttpEngine;
 import co.tophe.HttpConfig;
@@ -240,6 +243,11 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 		public void write(DataSink sink, InputStream value, CompletedCallback completed) {
 			throw new AssertionError("not implemented");
 		}
+
+		@Override
+		public Type getType() {
+			return InputStream.class;
+		}
 	};
 	private static final AsyncParser<String> STRING_ASYNC_PARSER = new StringParser();
 	private static final AsyncParser<?> JSON_OBJECT_ASYNC_PARSER = new JSONObjectParser();
@@ -290,6 +298,11 @@ public class HttpEngineIon<T, SE extends ServerException> extends AbstractHttpEn
 
 						@Override
 						public void write(DataSink sink, P value, CompletedCallback completed) {
+						}
+
+						@Override
+						public Type getType() {
+							return InputStream.class;
 						}
 					};
 				}
